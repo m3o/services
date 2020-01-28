@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+service StockNews {
+	rpc ListStockNews(ListRequest) returns (ListResponse) {}
+	rpc ListMarketNews(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	repeated string stock_uuids = 1;
+}
+
+message Article {
+	string stock_uuid = 1;
+	string article_url = 2;
+	string image_url = 3;
+	string title = 4;
+	string description = 5;
+	string source = 6;
+	int64 created_at = 7;
+}
+
+message ListResponse { 
+	repeated Article articles = 1;
+}
+

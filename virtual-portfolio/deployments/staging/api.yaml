@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-api
+  labels:
+    app: micro-api
+    tier: micro-api
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    name: http
+    targetPort: target-port
+  selector:
+    app: micro-api
+    tier: micro-api
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: micro-api
+  labels:
+    app: micro-api
+    tier: micro-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: micro-api
+        tier: micro-api
+    spec:
+      serviceAccountName: micro
+      containers:
+      - name: micro-api
+        image: eu.gcr.io/kytra-app/micro-api:healthcheck-0.1.0
+        imagePullPolicy: Always
+        args: 
+          - api
+        env:
+          - name: MICRO_REGISTRY
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
+          - name: MICRO_SERVER_NAME
+            value: api
+          - name: MICRO_API_NAMESPACE
+            value: "kytra-api-"
+          - name: MICRO_API_ENABLE_RPC
+            value: "true"
+          - name: MICRO_LOG_LEVEL
+            value: debug
+          - name: CORS_ALLOWED_HEADERS
+            value: "Authorization,Content-Type"
+          - name: CORS_ALLOWED_ORIGINS
+            value: "https://staging.kytra.app,http://localhost:3000"
+          - name: CORS_ALLOWED_METHODS
+            value: "POST,GET"
+          - name: HEALTH_CHECK_PATH
+            value: "/health"
+        ports:
+        - name: target-port
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: micro
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: micro-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "patch", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["configs"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: micro-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "micro-role"
+subjects:
+  - kind: ServiceAccount
+    name: micro
+    namespace: default

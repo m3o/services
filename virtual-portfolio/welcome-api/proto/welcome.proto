@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+service Welcome {
+	rpc RequestDownloadLink(RequestDownload) returns (RequestDownload) {}
+	rpc GetConfig(GetConfigRequest) returns (GetConfigResponse) {}
+	rpc RequestSMSCode(AuthRequest) returns (AuthResponse) {}
+	rpc ValidateSMSCode(AuthRequest) returns (AuthResponse) {}
+	rpc CreateProfile(User) returns (User) {}
+	rpc FindFriends(FindFriendsRequest) returns (FindFriendsResponse) {}
+}
+
+message RequestDownload {
+	string dial_code = 1;
+	string phone_number = 2;
+}
+
+message GetConfigRequest {}
+
+message GetConfigResponse {
+	repeated CountryCode country_codes = 1;
+	repeated IndustryAllocation default_industry_allocations = 2;
+}
+
+message CountryCode {
+	string country = 1;
+	string dial_code = 2;
+	string code = 3;
+}
+
+message IndustryAllocation {
+	string industry = 1;
+	float default_percentage = 2;
+}
+
+message AuthRequest {
+	string phone_number = 1;
+	string code = 2;
+}
+
+message AuthResponse {
+	User user = 1;
+	string verification_uuid = 2;
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string email = 4;
+	string username = 5;
+	string phone_number = 6;
+	string profile_picture_base64 = 7;
+	string profile_picture_url = 8;
+	string verification_uuid = 9; // SMS Verification UUID
+	string password = 10;
+	string jwt = 11;
+}
+
+message FindFriendsRequest {
+	repeated string phone_numbers = 1;
+}
+
+message FindFriendsResponse {
+	repeated User users = 1;
+}

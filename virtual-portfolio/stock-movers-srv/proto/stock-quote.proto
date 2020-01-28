@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+service StockMovers {
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	int64 date = 2;
+}
+
+message Mover {
+	string stock_uuid = 1;
+	int64 date = 2;
+	float percentage = 3;
+}
+
+message ListResponse { 
+	repeated Mover movers = 1;
+}
+

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+service StockQuote {
+	rpc GetQuote(Stock) returns (Quote) {}
+	rpc ListQuotes(ListRequest) returns (ListResponse) {}
+}
+
+message Stock {
+	string symbol = 1;
+}
+
+message Quote {
+	string symbol = 1;
+	int32 price = 2;
+}
+
+message ListRequest {
+	repeated string symbols = 1;
+}
+
+message ListResponse { 
+	repeated Quote quotes = 1;
+}
+

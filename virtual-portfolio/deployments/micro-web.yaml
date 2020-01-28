@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: micro-web
+spec:
+  serviceAccountName: micro
+  containers:
+  - name: micro-web
+    image: eu.gcr.io/kytra-app/micro-api:0.3.22
+    imagePullPolicy: Always
+    args: 
+      - web
+    env:
+      - name: MICRO_REGISTRY
+        value: kubernetes
+      - name: MICRO_SELECTOR
+        value: static
+      - name: MICRO_SERVER_NAME
+        value: web
+    ports:
+    - name: target-port
+      containerPort: 8082

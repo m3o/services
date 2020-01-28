@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+service Ledger {
+	rpc CreateTransaction(Transaction) returns (Transaction) {}
+	rpc GetPortfolio(Portfolio) returns (Portfolio) {}
+}
+
+message Portfolio {
+	string uuid = 1;
+	int64 current_balance = 2;
+}
+
+enum TransactionType {
+	NONE = 0;
+	DEPOSIT = 1;
+	WITHDRAWAL = 2;
+	BUY_ASSET = 3;
+	SELL_ASSET = 4;
+}
+
+message Transaction {
+	string uuid = 1;
+	string portfolio_uuid = 2;
+	int64 amount = 3;
+	TransactionType type = 4;
+}

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+service Users {
+	rpc Count(CountRequest) returns (CountResponse) {}
+	rpc Create(User) returns (User) {}
+	rpc Find(User) returns (User) {}
+	rpc Update(User) returns (User) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Search(SearchRequest) returns (ListResponse) {}
+	rpc All(AllRequest) returns (ListResponse) {}
+	rpc ValidatePassword(User) returns (User) {}
+}
+
+message SearchRequest {
+	string query = 1;
+	int32 limit = 2;
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string email = 4;
+	string password = 5;
+	string profile_picture_id = 6;
+	bool admin = 7;
+	int64 created_at = 8;
+	string username = 9;
+	string phone_number = 10;
+}
+
+message ListRequest {
+	repeated string uuids = 1;
+	repeated string phone_numbers = 2;
+}
+
+message ListResponse {
+	repeated User users = 1;
+}
+
+message CountRequest {}
+
+message CountResponse {
+	int32 count = 1;
+}
+
+message AllRequest {}

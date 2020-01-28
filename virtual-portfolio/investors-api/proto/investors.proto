@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+service Investors {
+	rpc Discover(DiscoverRequest) returns (DiscoverResponse) {}
+	rpc Get(Request) returns (Response) {}
+	rpc Follow(Request) returns (Response) {}
+	rpc Unfollow(Request) returns (Response) {}
+	rpc GetFollowingAndFollowers(Request) returns (Response) {}
+}
+
+message DiscoverRequest {}
+
+message DiscoverResponse {
+	repeated User users = 1; 
+}
+
+message Request {
+	string uuid = 1;
+	string username = 2;
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string profile_picture_url = 4;
+	bool following = 5;
+	int32 followers_count = 6;
+	int32 following_count = 7;
+	repeated Position current_holdings = 8;
+	string created_at = 9;
+	string username = 10;
+	repeated Follower followers_list = 12;
+	repeated Follower following_list = 11;
+}
+
+message Position {
+	string asset_type = 1;
+	string asset_uuid = 2;
+	string asset_name = 3;
+	int64 unit_value = 4;
+	int64 total_value = 5;
+	int64 book_cost = 6;
+	int64 quantity = 7;
+}
+
+message Response {
+	User user = 1;
+}
+
+// A follower or followee
+message Follower {
+	string type = 1;
+	string uuid = 2;
+	string name = 3;
+	string profile_picture_url = 4;
+	bool following = 5;
+	string username = 6;
+}

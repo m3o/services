@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+service SMSVerification {
+	rpc Request(Verification) returns (Verification) {}
+	rpc Verify(Verification) returns (Verification) {}
+	rpc Get(Verification) returns (Verification) {}
+}
+
+message Verification {
+	string uuid = 1;
+	string phone_number = 2;
+	string code	= 3;
+	bool verified = 4;
+	bool expired = 5;
+}

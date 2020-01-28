@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kytra-srv-v1-ledger
+  labels:
+    app: kytra-srv-v1-ledger
+    tier: srv
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: target-port
+  selector:
+    app: kytra-srv-v1-ledger
+    tier: srv
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kytra-srv-v1-ledger
+  labels:
+    app: kytra-srv-v1-ledger
+    tier: srv
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kytra-srv-v1-ledger
+        tier: srv
+    spec:
+      serviceAccount: micro
+      containers:
+      - name: kytra-srv-v1-ledger
+        image: eu.gcr.io/kytra-app/ledger-srv:0.2.3
+        ports:
+        - name: target-port
+          containerPort: 8080
+        env:
+          - name: MICRO_REGISTRY
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
+          - name: MICRO_SERVER_NAME
+            value: kytra-srv-v1-ledger
+          - name: MICRO_SERVER_ADDRESS
+            value: 0.0.0.0:8080
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: ledger-srv
+                key: dbHost
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: ledger-srv
+                key: dbName
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: ledger-srv
+                key: dbUser
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ledger-srv
+                key: dbPassword

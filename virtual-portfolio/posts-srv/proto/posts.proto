@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+service Posts {
+	rpc Create(Post) returns (Response) {}
+	rpc Get(Post) returns (Response) {}
+	rpc Update(Post) returns (Response) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc ListFeed(Feed) returns (ListResponse) {}
+	rpc ListUser(ListRequest) returns (ListResponse) {}
+	rpc Recent(ListRequest) returns (ListResponse) {}
+	rpc Count(Post) returns (CountResponse) {}
+	rpc CountByUser(CountByUserRequest) returns (CountByUserResponse) {}
+	rpc Delete(Post) returns (Response) {}
+}
+
+message Feed {
+	string type = 1;
+	string uuid = 2;
+}
+
+message CountByUserRequest {
+	repeated string user_uuids = 1;
+	int64 start_time = 2;
+	int64 end_time = 3;
+}
+
+message CountByUserResponse {
+	repeated CountResponse counts = 1;
+}
+
+message Post {
+	string uuid = 1;
+	string user_uuid = 2;
+	string feed_type = 3;
+	string feed_uuid = 4;
+	string text = 5;
+	int64 created_at = 6;
+	string title = 7;
+	string attachment_picture_id = 8;
+	string attachment_link_url = 9;
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	Post post = 2;
+}
+
+message ListRequest {
+	repeated string uuids = 1;
+	int32 limit = 2;
+	int32 page = 3;
+	string user_uuid = 4;
+}
+
+message ListResponse {
+	Error error = 1;
+	repeated Post posts = 2;
+}
+
+message CountResponse {
+	int32 count = 1;
+	string user_uuid = 2;
+}

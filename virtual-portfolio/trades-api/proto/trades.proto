@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+service Trades {
+	rpc GetAsset(Asset) returns (Asset) {}
+	rpc CreateTrade(Trade) returns (Trade) {}
+	rpc SetTradeMetadata(Trade) returns (Trade) {}
+}
+
+message Asset {
+	string uuid = 1;
+	string type = 2;
+	int64 book_cost = 3;
+	repeated Trade trades = 4;
+	int64 current_quantity = 5;
+	int64 current_value = 6;
+}
+
+message Trade {
+	string uuid = 1;
+	Asset asset = 2;
+	int64 quantity = 3;
+	string type = 4;
+	int64 unit_price = 5;
+	int64 target_price = 6;
+	string notes = 7;
+	string client_uuid = 8;
+	string created_at = 9;
+}
+
+message Point {
+	string date = 1;
+	float close = 2;
+	float volume = 3;
+}

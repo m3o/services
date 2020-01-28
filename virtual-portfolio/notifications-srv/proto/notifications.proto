@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+service Notifications {
+    rpc ListNotifications(Query) returns (Response) {}
+    rpc SetNotificationsSeen(NotificationsSeenRequest) returns (Response) {}
+}
+
+message NotificationsSeenRequest {
+    string user_uuid = 1;
+}
+
+message Query {
+	string user_uuid = 1;
+    int64 page = 2;
+    int64 limit = 3;
+    int64 start_time = 4;
+    int64 end_time = 5;
+    bool only_unseen = 6;
+}
+
+message Response {
+	repeated Notification notifications = 1;
+}
+
+message Notification {
+    string uuid = 1;
+    int64 created_at = 2;
+    string user_uuid = 3;
+    bool seen = 4;
+    string title = 5;
+    string description = 6;
+    string resource_type = 7;
+    string resource_uuid = 8;
+    string emoji = 9;
+}

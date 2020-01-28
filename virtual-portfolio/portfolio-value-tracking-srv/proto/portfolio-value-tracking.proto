@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+service PortfolioValueTracking {
+	rpc GetDailyHistory(Portfolio) returns (Portfolio) {}
+	rpc GetIntradayHistory(Portfolio) returns (Portfolio) {}
+	
+	rpc GetPriceMovement(GetPriceMovementsRequest) returns (GetPriceMovementsResponse) {}
+	rpc ListPriceMovements(ListPriceMovementsRequest) returns (ListPriceMovementsResponse) {}
+	
+	rpc ListValuations(ListValuationsRequest) returns (ListValuationsResponse) {}
+}
+
+message Portfolio {
+	string uuid = 1;
+	repeated Valuation history = 2;
+}
+
+message Valuation {
+	int64 amount = 1;
+	int64 date = 2;
+	string portfolio_uuid = 3;
+}
+
+message ListValuationsRequest {
+	repeated string portfolio_uuids = 1;
+}
+
+message ListValuationsResponse {
+	repeated Valuation valuations = 2;
+}
+
+message GetPriceMovementsRequest {
+	string portfolio_uuid = 1;
+	int64 start_date = 2;
+	int64 end_date = 3;
+}
+
+message GetPriceMovementsResponse {
+	PriceMovement price_movement = 1;
+}
+
+message ListPriceMovementsRequest {
+	repeated string portfolio_uuids = 1;
+	int64 start_date = 2;
+	int64 end_date = 3;
+}
+
+message ListPriceMovementsResponse {
+	repeated PriceMovement price_movements = 1;
+}
+
+message PriceMovement {
+	string portfolio_uuid = 1;
+	float percentage_change = 2;
+	int64 earliest_value = 3;
+	int64 latest_value = 4;
+}

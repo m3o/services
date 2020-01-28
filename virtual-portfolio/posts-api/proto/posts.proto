@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+service Posts {
+	rpc Create(Post) returns (Response) {}
+	rpc Get(Post) returns (Response) {}
+	rpc Update(Post) returns (Response) {}
+	rpc Delete(Post) returns (Response) {}
+	rpc CreateComment(Comment) returns (Response) {}
+	rpc DeleteComment(Comment) returns (Response) {}
+	rpc SetOpinion(Post) returns (Response) {}
+	rpc SetCommentOpinion(Comment) returns (Response) {}
+}
+
+message Post {
+	string uuid = 1;
+	string feed_type = 2;
+	string feed_uuid = 3;
+	string text = 4;
+	User user = 5;
+	int32 bulls_count = 6;
+	int32 bears_count = 7;
+	repeated Comment comments = 8;
+	string opinion = 9;
+	string enhanced_text = 10;
+	Asset asset = 11;
+	string created_at = 12;
+	string attachment_picture_base64 = 13;
+	string attachment_picture_url = 14;
+	string attachment_link_url = 15;
+	string title = 16;
+}
+
+message Comment {
+	string uuid = 1;
+	User user = 2;
+	Post post = 3;
+	string text = 4;
+	string enhanced_text = 5;
+	int32 bulls_count = 6;
+	int32 bears_count = 7;
+	string opinion = 8;
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string profile_picture_url = 4;
+	string username = 5;
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	Post post = 2;
+	Comment comment = 3;
+}
+
+message Asset {
+	string type = 1; // e.g. Stock, bond
+	string uuid = 2;
+	string name = 3;
+	string profile_picture_url = 4;
+}

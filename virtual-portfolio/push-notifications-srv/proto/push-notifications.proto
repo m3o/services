@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service PushNotifications {
+	rpc RegisterToken(Token) returns (Token) {}
+	rpc SendNotification(Notification) returns (Notification) {}
+}
+
+message Token {
+	string token = 1;
+	string user_uuid = 2;
+}
+
+message Notification {
+	string user_uuid = 1;
+	string title = 2;
+	string subtitle = 3;
+}

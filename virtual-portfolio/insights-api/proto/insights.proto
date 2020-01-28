@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+service Insights {
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Seen(SeenRequest) returns (SeenResponse) {}
+}
+
+message SeenRequest {
+	int64 date = 1;
+	string stock_uuid = 2;
+}
+
+message SeenResponse {}
+
+message ListRequest {
+	int64 date = 1;
+}
+
+message ListResponse {
+	repeated Insight insights = 1;
+}
+
+message Asset {
+	string type = 1;
+	string uuid = 2;
+	string name = 3;
+	string sector = 4;
+	string color = 5;
+	string description = 6;
+	string profile_picture_url = 7;
+	bool following = 8;
+	string symbol = 9;
+}
+
+message Event {
+	string title = 1;
+	string subtitle = 2;
+	string link_url = 3;
+	string post_uuid = 4;
+	string type = 5;
+	bool seen = 6;
+	string created_at = 7;
+}
+
+message Insight {
+	Asset asset = 1;
+	string summary = 2;
+	repeated Event events = 3; 
+	Quote quote = 4;
+}
+
+message Quote {
+	int64 created_at = 1;
+	int64 price = 2;
+	float percentage_change = 3;
+	bool market_closed = 4;
+}

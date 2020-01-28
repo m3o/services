@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+service StockQuote {
+	rpc GetQuote(Stock) returns (Quote) {}
+	rpc ListQuotes(ListRequest) returns (ListResponse) {}
+}
+
+message Stock {
+	string uuid = 1;
+	bool include_out_of_hours = 2;
+}
+
+message Quote {
+	string stock_uuid = 1;
+	int64 price = 2;
+	float percentage_change = 3;
+	int64 created_at = 4;
+	bool market_closed = 5;
+}
+
+message ListRequest {
+	repeated string uuids = 1;
+	bool include_out_of_hours = 2;
+}
+
+message ListResponse { 
+	repeated Quote quotes = 1;
+}

@@ -1,0 +1,33 @@
+#!/bin/bash
+echo ""
+~/go/src/github.com/kytra-app/scripts/set-version
+
+version=$(~/go/src/github.com/kytra-app/scripts/get-version)
+service=$(basename "$PWD")
+
+imageName=eu.gcr.io/kytra-app/$service:$version
+
+echo ""
+printf "Building Go Binary... "
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go1.13 build . | grep "IGNORETHIS"
+printf "Done"
+
+echo ""
+printf "Building $imageName... "
+docker build . -t $imageName | grep "IGNORETHIS"
+printf "Done"
+
+echo ""
+printf "Pushing ${imageName} to docker... "
+docker push $imageName | grep "IGNORETHIS"
+printf "Done"
+
+echo ""
+echo ""
+printf "Would you like to deploy? [y/n] "
+read shouldDeploy
+
+if [ $shouldDeploy = 'y' ]
+then
+  ~/go/src/github.com/kytra-app/scripts/deploy
+fi

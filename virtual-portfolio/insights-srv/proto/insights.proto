@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+service Insights {
+	rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse) {}
+	rpc ListInsights(ListInsightsRequest) returns (ListInsightsResponse) {}
+	rpc CreateUserView(UserView) returns (UserView) {}
+}
+
+message Asset {
+	string uuid = 1;
+	string type = 2;
+}
+
+message Insight {
+	Asset asset = 1;
+	string user_uuid = 2;
+	string link_url = 3;
+	string post_uuid = 4;
+	string title = 5;
+	string type = 6;
+	bool seen = 7;
+	int64 created_at = 8;
+	string subtitle = 9;
+}
+
+message UserView {
+	string user_uuid = 1;	
+	Asset asset = 2;
+}
+
+message ListAssetsRequest {
+	bool exclude_news = 1;
+}
+
+message ListAssetsResponse {
+	repeated Asset assets = 1;
+}
+
+message ListInsightsRequest {
+	string user_uuid = 1;
+}
+
+message ListInsightsResponse {
+	repeated Insight insights = 1;
+}

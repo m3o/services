@@ -1,0 +1,10 @@
+#!/bin/bash
+echo ""
+version=$(~/go/src/github.com/kytra-app/scripts/get-version)
+service=$(basename "$PWD")
+printf "Deploying ${service} v${version}... "
+kubectl apply -f ./deployment/service.yaml | grep "IGNORETHIS"
+printf "Done"
+echo ""
+echo ""
+exit

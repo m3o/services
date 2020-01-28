@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+service Charts {
+	rpc GetStock(Request) returns (Chart) {}
+	rpc GetInvestor(Request) returns (Chart) {}
+	rpc GetPortfolio(Request) returns (Chart) {}
+}
+
+message Request {
+	string uuid = 1;
+	string range = 2;
+}
+
+message Chart {
+	repeated Point points = 1;
+}
+
+message Point {
+	string date = 1;
+	float close = 2;
+	float volume = 3;
+	float value = 4;
+}

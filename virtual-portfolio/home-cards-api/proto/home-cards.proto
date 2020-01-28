@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service HomeCards {
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated Card cards = 1;
+}
+
+message Card {
+	string type = 1;
+	string title = 2;
+	string subtitle = 3;
+}

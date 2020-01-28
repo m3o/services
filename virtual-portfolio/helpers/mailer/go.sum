@@ -1,0 +1,11 @@
+github.com/ben-toogood/go-cloudinary v0.1.1 h1:kA1zyrCp2xLnxKwPyLfWK7FIoJ2Sz8BvLDQRz1M76WY=
+github.com/ben-toogood/go-cloudinary v0.1.1/go.mod h1:dtc4eaMotNHmfpWTcXb9HHyD8o1yjNURdgV9Yf4IBuA=
+github.com/ben-toogood/go-cloudinary v0.1.2 h1:liKIX3GINljEvGONIO7rH2jKx1WsAo57G4JKg0IUUXw=
+github.com/ben-toogood/go-cloudinary v0.1.2/go.mod h1:dtc4eaMotNHmfpWTcXb9HHyD8o1yjNURdgV9Yf4IBuA=
+github.com/gotsunami/go-cloudinary v0.0.0-20170316181003-0ed519cc1119 h1:xis5KKN0l/j6FqbZorRmXSmKzE1d3TUnTq8k0pxJMHE=
+github.com/gotsunami/go-cloudinary v0.0.0-20170316181003-0ed519cc1119/go.mod h1:z4D5B+EbEgu7wwEhLOnoL5Aamtj86uzq/+28OEpST0I=
+github.com/outofpluto/goconfig v0.0.0-20121126125551-0b3e87a7e8f2/go.mod h1:X6OjQ2NVU6IIdN6yIP0TTWZEBwd+qT3HBdgpEkrXiX8=
+github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=
+github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
+gopkg.in/mgo.v2 v2.0.0-20160818020120-3f83fa500528 h1:/saqWwm73dLmuzbNhe92F0QsZ/KiFND+esHco2v1hiY=
+gopkg.in/mgo.v2 v2.0.0-20160818020120-3f83fa500528/go.mod h1:yeKp02qBN3iKW1OzL3MGk2IdtZzaj7SFntXj72NppTA=

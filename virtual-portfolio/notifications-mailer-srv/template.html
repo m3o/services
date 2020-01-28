@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{.Subject}}</title>
+</head>
+
+<body style="font-family: Muli, Helvetica, Arial; background-color:#F6F6F6; width:100%; min-height: 500px; margin:0; padding:0; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+  <table width="700" cellpadding="0" cellspacing="20" style="background-color: white; margin: 0 auto 0 auto; width: 700px; padding: 20px;">
+    <tbody>
+      <tr>
+        <th width="40px">
+          <img src="https://kytra.app/static/media/logo.0c90593f.png" alt="Kytra Logo" height="40" style="height: 40px;"/>
+        </th>
+        <th colspan="2">
+          <h1 style="font-size: 16pt; text-align: left; margin: 0px;">{{.Subject}}</h1>
+          <h4 style="font-size: 10pt; text-align: left; color: #525252; margin: 0px 0px 5px 0px;">You have {{.NumNotifications}} new notifications on Kytra!</h4>
+        </th>
+      </tr>
+
+      
+      {{ with .Notifications }}
+        {{ range . }}
+          <tr>
+            <td colspan="3" style="height:1px; background-color:rgba(0,0,0,0.1);"
+          </tr>
+
+          <tr>
+            <th colspan="2">
+              <h3 style="font-size: 10pt; text-align: left; margin: 10px 0px 5px 0px;">{{.Title}}</h3>
+            </th>
+            <td colspan="1" width="100" style="text-align: right">
+              <a style="text-decoration: none; font-size: 10pt; font-weight: 600; color: #5497EE" target="_blank" href="{{.Link}}">{{.LinkTitle}}</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3">
+              <p style="font-size: 9pt; line-height: 20px; font-weight: 400; text-align: left; margin: 0px; white-space: pre-wrap;">{{.Description}}</p>
+            </td>
+          </tr>
+      {{end}}
+    {{end}}
+
+    </tbody>
+  </table>
+</body>
+</html>

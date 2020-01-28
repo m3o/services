@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+service Followers {
+	rpc Get(Resource) returns (Response) {}
+	rpc Count(Resource) returns (Response) {}
+	rpc Follow(Request) returns (Response) {}
+	rpc Unfollow(Request) returns (Response) {}
+
+	// List is depricated due to an insufficiently descriptive name. Use
+	// ListRelationships instead.
+	rpc List(ListRequest) returns (ListResponse) {}
+
+	// ListRelationships checks if a resource follows other resources, e.g.
+	// which of these stocks does a user follow. 
+	rpc ListRelationships(ListRequest) returns (ListResponse) {}
+}
+
+message Resource {
+    string uuid = 1;
+	string type = 2;
+	bool following = 3;
+}
+
+message Request {
+    Resource follower = 1; // The person doing the following
+    Resource followee = 2; // The person being followed
+}
+
+message Response {
+	int32 following_count = 1;
+	int32 follower_count = 2;
+	repeated Resource following = 3;
+	repeated Resource followers = 4;
+}
+
+message ListRequest {
+	Resource follower = 1;
+	string followee_type = 2;
+	repeated string followee_uuids = 3;
+}
+
+message ListResponse {
+	repeated Resource resources = 3;
+}

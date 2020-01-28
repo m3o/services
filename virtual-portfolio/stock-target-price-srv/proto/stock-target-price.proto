@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+service StockTargetPrice {
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	repeated string stock_uuids = 1;
+}
+
+message Stock {
+	string uuid = 1;
+	int64 price_target = 2;
+	int64 number_of_analysts = 3;
+}
+
+message ListResponse { 
+	repeated Stock stocks = 1;
+}
+

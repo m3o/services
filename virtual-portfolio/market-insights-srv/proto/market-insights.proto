@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+service MarketInsights {
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	string date = 1;
+}
+
+message ListResponse {
+	repeated Insight insights = 2;
+}
+
+message Insight {
+	string asset_type = 1;
+	string asset_uuid = 2;
+	float score = 3;
+	bool had_earnings = 4;
+	bool prev_day_price_change_percentage = 5;
+}

@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+service PostEnhancer {
+	rpc List(Request) returns (Response) {}
+}
+
+message Request {
+	repeated string post_uuids = 1;
+}
+
+message Response {
+	repeated EnhancedPost posts = 1;
+}
+
+message EnhancedPost {
+	string uuid = 1;
+	string description = 2;
+	string text = 3;
+	User user = 4;
+	Feed feed = 5;
+	int32 bulls_count = 6;
+	int32 bears_count = 7;
+	repeated Comment comments = 8;
+	string opinion = 9; // Is the user bullish or bearish about this post
+	Asset asset = 10;
+	int64 created_at = 11;
+	string title = 12;
+	string attachment_picture_id = 13;
+	string attachment_link_url = 14;
+}
+
+message Comment {
+	string uuid = 1;
+	string text = 2;
+	User user = 3;
+	int32 bulls_count = 4;
+	int32 bears_count = 5;
+	string opinion = 6;
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string profile_picture_id = 4;
+	bool following = 5;
+	string username = 6;
+}
+
+// TODO: Depricate
+message Feed {
+	string type = 1; // e.g. User, Stock, Topic
+	string uuid = 2;
+	string name = 3;
+	string picture_id = 4;
+}
+
+message Asset {
+	string type = 1; // e.g. Stock, Bond
+	string uuid = 2;
+	string name = 3;
+	string profile_picture_id = 4;
+	string color = 5;
+	string description = 6;
+	bool following = 7;
+}

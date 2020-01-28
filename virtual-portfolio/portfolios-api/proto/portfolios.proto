@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+service Portfolios {
+	rpc GetPortfolio(Portfolio) returns (Portfolio) {}
+	rpc GetInvestor(Investor) returns (Portfolio) {}
+	rpc SetTargets(Portfolio) returns (Portfolio) {}
+}
+
+message Investor {
+	string uuid = 1;
+}
+
+message Portfolio {
+	string uuid = 1;
+	int64 total_value = 2;
+	int64 cash_value = 3;
+	int64 assets_value = 4;
+	
+	repeated Position positions = 5;
+	repeated Category asset_classes = 8;
+	repeated Category asset_industries = 9;
+
+	float asset_class_target_stocks = 10;
+	float asset_class_target_cash = 11;
+	float industry_target_information_technology = 12;
+	float industry_target_financials = 13;
+	float industry_target_energy = 14;
+	float industry_target_health_care = 15;
+	float industry_target_materials = 16;
+	float industry_target_utilities = 17;
+	float industry_target_real_estate = 18;
+	float industry_target_consumer_discretionary = 19;
+	float industry_target_consumer_staples = 20;
+	float industry_target_communication_services = 21;
+	float industry_target_industrials = 22;
+
+	int64 lifetime_gain = 6;
+	float lifetime_gain_percentage = 7;
+	int64 one_day_gain = 23;
+	float one_day_gain_percentage = 24;
+}
+
+message Category {
+	string name = 1;
+	float current_percentage = 2;
+	float target_percentage = 3;
+}
+
+message Position {
+	string asset_type = 1;
+	string asset_uuid = 2;
+	string asset_name = 3;
+	string asset_sector = 4;
+	string asset_color = 5;
+	string asset_description = 6;
+	string asset_profile_picture_url = 7;
+	bool asset_following = 15;
+
+	int64 quantity = 8;
+	int64 unit_price = 9;
+	int64 value = 10;
+	int64 book_cost = 11;
+	float percentage_of_portfolio = 12;
+	int64 gain_loss = 13;
+	float gain_loss_percentage = 14;
+	float one_day_change_percentage = 16;
+	float prev_day_change_percentage = 17;
+}

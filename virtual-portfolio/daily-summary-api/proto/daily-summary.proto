@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+service DailySummary {
+	rpc Morning(Request) returns (MorningSummary) {}
+	rpc Evening(Request) returns (EveningSummary) {}
+}
+
+message Request {}
+
+message Section {
+	string title = 1;
+	string body = 2;
+}
+
+message Headline {
+	string title = 1;
+	string source = 2;
+	string url = 3;
+	int64 created_at = 4;
+}
+
+message Post {
+	string uuid = 1;
+	string description = 2;
+}
+
+message Trade {
+	string description = 1;
+}
+
+message MorningSummary {
+	Section introduction = 1;
+	repeated Headline headlines = 2;
+	Section events = 3;
+	Section looking_back = 4;
+	Section lucky_dip = 5;
+}
+
+message EveningSummary {
+	Section introduction = 1;
+	repeated Trade trades = 2;
+	Section performance = 3;
+	repeated Post posts = 4;
+	Section benchmarking = 5;
+}

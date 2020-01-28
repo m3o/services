@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+service StockEarnings {
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	repeated string stock_uuids = 1;
+}
+
+message Earning {
+	string stock_uuid = 1;
+	int64 date = 2;
+}
+
+message ListResponse { 
+	repeated Earning earnings = 1;
+}
+

@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kytra-srv-v1-notifications-mailer
+  labels:
+    app: kytra-srv-v1-notifications-mailer
+    tier: srv
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: target-port
+  selector:
+    app: kytra-srv-v1-notifications-mailer
+    tier: srv
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kytra-srv-v1-notifications-mailer
+  labels:
+    app: kytra-srv-v1-notifications-mailer
+    tier: srv
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kytra-srv-v1-notifications-mailer
+        tier: srv
+    spec:
+      serviceAccount: micro
+      containers:
+      - name: kytra-srv-v1-notifications-mailer
+        image: eu.gcr.io/kytra-app/notifications-mailer-srv:0.2.2
+        ports:
+        - name: target-port
+          containerPort: 8080
+        env:
+          - name: MICRO_REGISTRY
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
+          - name: MICRO_SERVER_NAME
+            value: kytra-srv-v1-notifications-mailer
+          - name: MICRO_SERVER_ADDRESS
+            value: 0.0.0.0:8080
+          - name: MAILER_USERNAME
+            valueFrom: 
+              secretKeyRef:
+                name: mailer
+                key: username
+          - name: MAILER_PASSWORD
+            valueFrom: 
+              secretKeyRef:
+                name: mailer
+                key: password
+

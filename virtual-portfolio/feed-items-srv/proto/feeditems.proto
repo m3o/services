@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+service FeedItems {
+	rpc Create(FeedItem) returns (Response) {}
+	rpc Get(FeedItem) returns (Response) {}
+	rpc Delete(FeedItem) returns (Response) {}
+	rpc BulkDelete(BulkDeleteRequest) returns (Response) {}
+	rpc GetFeed(GetFeedRequest) returns (GetFeedResponse) {}
+}
+
+message BulkDeleteRequest {
+	string feed_type = 1;
+	string feed_uuid = 2;
+	repeated string post_uuids = 3;
+}
+
+message FeedItem {
+	string uuid = 1;
+	string feed_type = 2;
+	string feed_uuid = 3;
+	string tag = 4;
+	string post_uuid = 5;
+	string description = 6;
+	int64 created_at = 7;
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	FeedItem item = 2;
+}
+
+message GetFeedRequest {
+	string type = 1;
+	string uuid = 2;
+	int32 page = 3;
+	int32 limit = 4;
+}
+
+message ListRequest {
+	repeated string uuids = 1;
+}
+
+message GetFeedResponse {
+	Error error = 1;
+	repeated FeedItem items = 2;
+}

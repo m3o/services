@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+service PortfolioValuation {
+	rpc GetPortfolio(Portfolio) returns (Portfolio) {}
+}
+
+message Portfolio {
+	string uuid = 1;
+	int64 total_value = 2;
+	int64 cash_value = 3;
+	int64 assets_value = 4;
+}

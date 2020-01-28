@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+service Investors {
+	rpc Discover(ListRequest) returns (ListResponse) {}
+	rpc Connections(ListRequest) returns (ListResponse) {}
+	rpc Search(SearchRequest) returns (ListResponse) {}
+	rpc Get(User) returns (User) {}
+	rpc Follow(User) returns (User) {}
+	rpc Unfollow(User) returns (User) {}
+}
+
+message SearchRequest {
+	string query = 1;
+}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated User users = 1; 
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string profile_picture_url = 4;
+	bool following = 5;
+	string username = 6;
+	string summary = 7;
+	float one_week_price_movement_percent = 8;
+}

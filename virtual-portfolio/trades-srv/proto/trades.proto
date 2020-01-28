@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+service Trades {
+	rpc CreateTrade(Trade) returns (Trade) {}
+	rpc GetTrade(Trade) returns (Trade) {}
+	rpc SetTradeMetadata(Trade) returns (Trade) {}
+	rpc ListTrades(ListTradesRequest) returns (ListTradesResponse) {}
+	rpc ListTradesForPosition(ListRequest) returns (ListResponse) {}
+	rpc ListTradesForPortfolio(ListRequest) returns (ListResponse) {}
+	rpc ListPositionsForPortfolio(ListRequest) returns (ListResponse) {}
+	rpc ListPositions(BulkListRequest) returns (ListResponse) {}
+	rpc AllAssets(AllAssetsRequest) returns (AllAssetsResponse) {}
+}
+
+enum TradeType {
+	NONE = 0;
+	BUY = 1;
+	SELL = 2;
+}
+
+message AllAssetsRequest {}
+
+message AllAssetsResponse {
+	repeated Asset assets = 1;
+}
+
+message BulkListRequest {
+	repeated string portfolio_uuids = 1;
+	repeated string asset_uuids = 2;
+	string asset_type = 3;
+}
+
+message ListTradesRequest {
+	repeated string portfolio_uuids = 1;
+	int64 start_time = 2;
+	int64 end_time = 3;
+}
+
+message ListTradesResponse {
+	repeated Trade trades = 1;
+}
+
+message ListRequest {
+	string portfolio_uuid = 1;
+	Asset asset = 2;
+	bool include_metadata = 3;
+}
+
+message ListResponse {
+	repeated Trade trades = 1;
+	repeated Position positions = 2;
+	int64 book_cost = 3;
+	int64 quantity = 4;
+}
+
+message Asset {
+	string type = 1;
+	string uuid = 2;
+}
+
+message Trade {
+	string uuid = 1;
+	Asset asset = 2;
+	int64 quantity = 3;
+	int64 unit_price = 4;
+    int64 target_price = 5;
+    string portfolio_uuid = 6;
+    TradeType type = 7;
+	string notes = 8;
+	string client_uuid = 9;
+	int64 created_at = 10;
+}
+
+message Position {
+	Asset asset = 1;
+	int64 quantity = 2;
+	string portfolio_uuid = 3;
+	int64 book_cost = 4;
+}

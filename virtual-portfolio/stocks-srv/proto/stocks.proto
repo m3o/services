@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+service Stocks {
+	rpc Create(Stock) returns (Response) {}
+	rpc Get(Stock) returns (Response) {}
+	rpc Update(Stock) returns (Response) {}
+	rpc All(AllRequest) returns (ListResponse) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Search(SearchRequest) returns (ListResponse) {}
+	rpc Delete(Stock) returns (Response) {}
+}
+
+message SearchRequest {
+	string query = 1;
+	int32 limit = 2;
+}
+
+message Stock {
+	string uuid = 1;
+	string name = 2;
+	string symbol = 3;
+	string exchange = 4;
+	string type = 5;
+	string region = 6;
+	string currency = 7;
+	string profile_picture_id = 8;
+	string sector = 9;
+	string industry = 10;
+	string website = 11;
+	string description = 12;
+	string color = 13;
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	Stock Stock = 2;
+}
+
+message ListRequest {
+	repeated string uuids = 1;
+	repeated string symbols = 2;
+	string sector = 3;
+}
+
+message ListResponse {
+	Error error = 1;
+	repeated Stock Stocks = 2;
+}
+
+message AllRequest {}

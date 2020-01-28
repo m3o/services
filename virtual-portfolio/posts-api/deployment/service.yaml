@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kytra-api-v1-posts
+  labels:
+    app: kytra-api-v1-posts
+    tier: api
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: target-port
+  selector:
+    app: kytra-api-v1-posts
+    tier: api
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kytra-api-v1-posts
+  labels:
+    app: kytra-api-v1-posts
+    tier: api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kytra-api-v1-posts
+        tier: api
+    spec:
+      serviceAccount: micro
+      containers:
+      - name: kytra-api-v1-posts
+        image: eu.gcr.io/kytra-app/posts-api:0.5.15
+        ports:
+        - name: target-port
+          containerPort: 8080
+        env:
+          - name: MICRO_REGISTRY
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
+          - name: MICRO_SERVER_NAME
+            value: kytra-api-v1-posts
+          - name: MICRO_SERVER_ADDRESS
+            value: 0.0.0.0:8080
+          - name: JWT_SIGNING_KEY
+            valueFrom:
+              secretKeyRef:
+                name: auth
+                key: jwtSigningKey
+          - name: PHOTOS_ADDRESS
+            valueFrom:
+              secretKeyRef:
+                name: photos
+                key: address

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+fileName=./deployment/service.yaml
+output=$(cat $fileName | grep "image: ")
+arr=($(echo $output | tr ":" "\n"))
+version=${arr[2]}
+
+echo $version

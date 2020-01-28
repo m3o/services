@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+service Comments {
+	rpc Get(Comment) returns (Response) {}
+	rpc Create(Comment) returns (Response) {}
+	rpc Delete(Comment) returns (Response) {}
+	rpc GetResource(Resource) returns (Response) {}
+	rpc ListResources(ListRequest) returns (ListResponse) {}
+}
+
+message Resource {
+    string uuid = 1;
+	string type = 2;
+	repeated Comment comments = 3;
+}
+
+message Comment {
+	string uuid = 1;
+	Resource resource = 2;
+	string user_uuid = 3;
+    string text = 4;
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	Resource resource = 2;
+	Comment comment = 3;
+}
+
+message ListRequest {
+	string resource_type = 1;
+	repeated string resource_uuids = 2;
+}
+
+message ListResponse {
+	Error error = 1;
+	repeated Resource resources = 2;
+}

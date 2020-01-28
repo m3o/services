@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+service Search {
+	rpc Search(Query) returns (Response) {}
+}
+
+message Query {
+	string query = 1;
+	int32 limit = 2;
+	string type = 3;
+}
+
+message Response {
+	repeated Result results = 1;
+}
+
+message Result {
+	string type = 1;
+	string uuid = 2;
+	string title = 3;
+	string subtitle = 4;
+	string profile_picture_url = 5;
+	string color = 6;
+	string description = 7;
+	bool following = 8;
+}

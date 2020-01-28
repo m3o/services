@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+service BullBear {
+	rpc Get(Resource) returns (Response) {}
+	rpc Create(Request) returns (Response) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+enum Opinion {
+	NONE = 0;
+	BULLISH = 1;
+	BEARISH = 2;
+}
+
+message Resource {
+    string uuid = 1;
+	string type = 2;
+	int32 bulls_count = 3;
+	int32 bears_count = 4;
+	repeated string bulls = 5;
+	repeated string bears = 6;
+	Opinion opinion = 7; // Is the user bullish or bearish about this resource
+}
+
+message Request {
+    Resource resource = 1; // The resource being rated
+	string user_uuid = 2; // The uuid of the user providing the rating
+	Opinion opinion = 3; // Is the user bullish or bearish
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	Resource resource = 2;
+}
+
+message ListRequest {
+	string resource_type = 1;
+	repeated string resource_uuids = 2;
+	string user_uuid = 3;
+}
+
+message ListResponse {
+	Error error = 1;
+	repeated Resource resources = 2;
+}

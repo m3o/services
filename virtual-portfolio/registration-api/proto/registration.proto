@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+service Registration {
+	rpc Signup(User) returns (Response) {}
+	rpc Count(CountRequest) returns (CountResponse) {}
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string email = 4;
+	string password = 5;
+	string profile_picture_id = 6;
+	bool admin = 7;
+	string username = 8;
+}
+
+message Response {
+	User user = 2;
+	string jwt = 3;
+}
+
+message CountRequest {}
+
+message CountResponse {
+	int32 count = 1;
+}

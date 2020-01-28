@@ -1,0 +1,10 @@
+#!/bin/bash
+oldVersion=$(~/go/src/github.com/kytra-app/scripts/get-version)
+
+echo The current version number of $1 is $oldVersion
+printf "Enter the new version number: "
+read newVersion
+
+fileName="./deployment/service.yaml"
+sed -i -e "s/${oldVersion}/${newVersion}/g" $fileName 
+rm "${fileName}-e"

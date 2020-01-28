@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+service Portfolios {
+	rpc Create(Portfolio) returns (Portfolio) {}
+	rpc Get(Portfolio) returns (Portfolio) {}
+	rpc Update(Portfolio) returns (Portfolio) {}
+	rpc All(AllRequest) returns (AllResponse) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	repeated string user_uuids = 1;
+	repeated string uuids = 2;
+}
+
+message ListResponse {
+	repeated Portfolio portfolios = 1;
+}
+
+message AllRequest {
+	int64 page = 1;
+	int64 limit = 2;
+}
+
+message AllResponse {
+	repeated Portfolio portfolios = 1;
+}
+
+message Portfolio {
+	string uuid = 1;
+	string user_uuid = 2;
+
+	float asset_class_target_stocks = 3;
+	float asset_class_target_cash = 4;
+	
+	float industry_target_information_technology = 5;
+	float industry_target_financials = 6;
+	float industry_target_energy = 7;
+	float industry_target_healthCare = 8;
+	float industry_target_materials = 9;
+	float industry_target_utilities = 10;
+	float industry_target_real_estate = 11;
+	float industry_target_consumer_discretionary = 12;
+	float industry_target_consumer_staples = 13;
+	float industry_target_communication_services = 14;
+	float industry_target_industrials = 15;
+	float industry_target_miscellaneous = 16;
+}

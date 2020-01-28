@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+service PortfolioAllocation {
+	rpc Get(Portfolio) returns (Portfolio) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+}
+
+message ListRequest {
+	repeated string uuids = 1;
+	repeated string user_uuids = 2;
+}
+
+message ListResponse {
+	repeated Portfolio portfolios = 1;
+}
+
+message Portfolio {
+	string uuid = 1;
+	string user_uuid = 2;
+	int64 value = 3;
+	repeated Sector asset_classes = 4; 
+	repeated Sector sectors = 5; 
+}
+
+message Sector {
+	string name = 1;
+	float target_percent_of_portfolio = 2;
+	float percent_of_portfolio = 3;
+	int64 value = 4;
+	repeated Holding holdings = 5;
+}
+
+message Holding {
+	string type = 1;
+	string uuid = 2;
+	string name = 3;
+	string sector = 4;
+	int64 unit_price = 5;
+	int64 value = 6;
+	float percent_of_portfolio = 7;
+	float percent_of_sector = 8;
+	float percent_of_asset_class = 9;
+}

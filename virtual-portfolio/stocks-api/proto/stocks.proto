@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+service Stocks {
+	rpc Popular(PopularRequest) returns (ListResponse) {}
+	rpc Search(SearchRequest) returns (ListResponse) {}
+	rpc Get(Request) returns (Response) {}
+	rpc Follow(Request) returns (Response) {}
+	rpc Unfollow(Request) returns (Response) {}
+}
+
+message PopularRequest {
+	string sector = 1;
+}
+
+message SearchRequest {
+	string query = 1;
+	int32 limit = 2;
+}
+
+message ListResponse {
+	repeated Stock stocks = 1;
+}
+
+message Request {
+	string uuid = 1;
+}
+
+message Stock {
+	string uuid = 1;
+	string name = 2;
+	string symbol = 3;
+	string exchange = 4;
+	string type = 5;
+	string region = 6;
+	string currency = 7;
+	string profile_picture_url = 8;
+	bool following = 9;	
+	float market_cap = 11;
+	float week_52_high = 12;
+	float week_52_low = 13;
+	float avg_10_volume = 14;
+	float ttm_eps = 15;
+	float ttm_dividend_rate = 16;
+	float dividend_yield = 17;
+	string next_dividend_date = 18;
+	string ex_dividend_date = 19;
+	string next_earnings_date = 20;
+	float pe_ratio = 21;
+	float beta = 22;
+	float ytd_change_percent = 23;
+	float month_1_change_percent = 24;
+	float day_5_change_percent = 25;
+	float prev_day_open = 26;
+	float prev_day_close = 27;
+	float prev_day_high = 28;
+	float prev_day_low = 29;
+	float prev_day_volume = 30;
+	float current_price = 31;
+	string sector = 32;
+	string industry = 33;
+	string website = 34;
+	string description = 35;
+	string color = 36;
+	string summary = 37;
+}
+
+message Error {
+	int32 code = 1;
+	string message = 2;
+}
+
+message Response {
+	Error error = 1;
+	Stock stock = 2;
+}

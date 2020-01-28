@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+service Account {
+	rpc Login(User) returns (Response) {}
+	rpc Get(User) returns (Response) {}
+	rpc Update(User) returns (Response) {}
+	rpc UpdatePassword(UpdatePasswordRequest) returns (Response) {}
+	rpc UpdateProfilePicture(Picture) returns (Response) {}
+	rpc Health(Healthcheck) returns (Healthcheck) {}
+}
+
+message Healthcheck {}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string email = 4;
+	string password = 5;
+	string profile_picture_url = 6;
+	bool admin = 7;
+	int32 followers_count = 8;
+	int32 following_count = 9;
+	int32 posts_count = 10;
+	string username = 11;
+}
+
+message Response {
+	User user = 1;
+	string jwt = 2;
+}
+
+message UpdatePasswordRequest {
+	string current_password = 1;
+	string new_password = 2;
+}
+
+message Picture {
+	string base64 = 1;
+}

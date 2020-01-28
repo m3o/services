@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+service Feed {
+	rpc Get(Request) returns (Response) {}
+	rpc GetAssetFeed(Request) returns (Response) {}
+	rpc GetInvestorFeed(Request) returns (Response) {}
+}
+
+message Request {
+	int32 page = 1;
+	string uuid = 2;
+}
+
+message Response {
+	repeated Post posts = 1;
+}
+
+message Post {
+	string uuid = 1;
+	string description = 2;
+	string text = 3;
+	User user = 4;
+	Asset asset = 5;
+	repeated Comment comments = 6;
+	int32 bulls_count = 7;
+	int32 bears_count = 8;
+	string opinion = 9;
+	string enhanced_text = 10;
+	string created_at = 11;
+	string title = 12;
+	string attachment_picture_url = 13;
+	string attachment_link_url = 14;
+}
+
+message Comment {
+	string uuid = 1;
+	string text = 2;
+	User user = 3;
+	string enhanced_text = 4;
+	int32 bulls_count = 5;
+	int32 bears_count = 6;
+	string opinion = 7;
+}
+
+message User {
+	string uuid = 1;
+	string first_name = 2;
+	string last_name = 3;
+	string profile_picture_url = 4;
+	bool following = 5;
+	string username = 6;
+}
+
+message Asset {
+	string type = 1; // e.g. Stock, bond
+	string uuid = 2;
+	string name = 3;
+	string profile_picture_url = 4;
+	string color = 5;
+	string description = 6;
+	bool following = 7;
+}

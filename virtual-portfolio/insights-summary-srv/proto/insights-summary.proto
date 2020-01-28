@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+service InsightsSummary {
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Get(GetRequest) returns (Asset) {}
+}
+
+message GetRequest {
+	int64 date = 1;
+	string asset_type = 2;
+	string asset_uuid = 3;
+	string user_uuid = 4;
+}
+
+message ListRequest {
+	int64 date = 1;
+	string asset_type = 2;
+	repeated string asset_uuids = 3;
+	string user_uuid = 4;
+}
+
+message ListResponse { 
+	repeated Asset assets = 1;
+}
+
+message Asset {
+	string type = 1;
+	string uuid = 2;
+	string summary = 3;
+}
