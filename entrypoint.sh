@@ -5,13 +5,10 @@ set -e
 
 SOURCE=$1
 REPO=github.com/micro/services
-#DIR=`basename -- $SOURCE`
-
-# no checkout clone
-echo "Downloading $SOURCE"
 
 # clone the repo
-#git clone --no-checkout https://$REPO
+echo "Downloading $SOURCE"
+git clone --no-checkout https://$REPO
 
 # cd into source
 cd services
