@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pong;
+
+service Pong {
+	rpc Pong(Request) returns (Response) {}
+}
+
+message Request {
+}
+
+message Response {
+	string pong = 1;
+}

@@ -7,40 +7,40 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	proto "github.com/micro/services/dummy-two/proto"
+	proto "github.com/micro/services/pong/proto"
 )
 
 /*
 Example usage of top level service initialisation
 */
 
-type DummyTwo struct{}
+type Pong struct{}
 
-func (g *DummyTwo) Hello(ctx context.Context, req *proto.Request, rsp *proto.Response) error {
-	rsp.Dummy = "Dummy 2"
+func (g *Pong) Pong(ctx context.Context, req *proto.Request, rsp *proto.Response) error {
+	rsp.Pong = "Pong"
 	return nil
 }
 
 // Setup and the client
 func runClient(service micro.Service) {
 	// Create new DummyTwo client
-	DummyTwo := proto.NewDummyTwoService("DummyTwo", service.Client())
+	Pong := proto.NewPongService("Pong", service.Client())
 
 	// Call the DummyTwo
-	rsp, err := DummyTwo.Hello(context.TODO(), &proto.Request{})
+	rsp, err := Pong.Pong(context.TODO(), &proto.Request{})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	// Print response
-	fmt.Println(rsp.Dummy)
+	fmt.Println(rsp.Pong)
 }
 
 func main() {
 	// Create a new service. Optionally include some options here.
 	service := micro.NewService(
-		micro.Name("go.micro.dummy-two"),
+		micro.Name("go.micro.pong"),
 		micro.Version("latest"),
 		micro.Metadata(map[string]string{
 			"type": "helloworld",
@@ -66,7 +66,7 @@ func main() {
 	// Setup the server
 
 	// Register handler
-	proto.RegisterDummyTwoHandler(service.Server(), new(DummyTwo))
+	proto.RegisterPongHandler(service.Server(), new(Pong))
 
 	// Run the server
 	if err := service.Run(); err != nil {
