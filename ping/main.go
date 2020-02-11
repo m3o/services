@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"context"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/services/ping/proto"
 	pongproto "github.com/micro/services/pong/proto"
 )
@@ -21,8 +21,9 @@ type Ping struct {
 }
 
 func (g *Ping) Ping(ctx context.Context, req *proto.Request, rsp *proto.Response) error {
-	request := client.NewRequest("go.micro.pong", "Pong.Pong", &pongproto.Request{})
+	request := g.service.Client().NewRequest("go.micro.pong", "Pong.Pong", &pongproto.Request{})
 	response := &pongproto.Response{}
+	time.Sleep(500 * time.Millisecond)
 	if err := g.service.Client().Call(ctx, request, response); err != nil {
 		return err
 	}
