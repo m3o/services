@@ -9,4 +9,4 @@ require (
 	github.com/micro/services/pong v0.0.0-00010101000000-000000000000
 )
 
-// replace github.com/micro/services/pong => /home/crufter/code/src/github.com/micro/services/pong
+//replace github.com/micro/services/pong => /home/crufter/code/src/github.com/micro/services/pong
