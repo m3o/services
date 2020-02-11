@@ -8,5 +8,3 @@ require (
 	github.com/micro/go-micro/v2 v2.0.1-0.20200211112716-d1d6eada9810
 	github.com/micro/services/pong v0.0.0-00010101000000-000000000000
 )
-
-//replace github.com/micro/services/pong => /home/crufter/code/src/github.com/micro/services/pong
