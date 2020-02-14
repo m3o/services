@@ -18,7 +18,7 @@ function fatal {
 
 function checkFiles() {
 	# should exist
-	for file in README.md go.mod go.sum; do
+	for file in README.md go.mod go.sum main.go; do
 		if [ ! -f $file ]; then
 			fatal "$1 does not include $file"
 		fi
