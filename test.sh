@@ -32,7 +32,7 @@ function checkFiles() {
 	done
 }
 
-
+# Check the service repos
 ls | while read service; do
 	if [ ! -d $service ]; then
 		continue
@@ -45,4 +45,9 @@ ls | while read service; do
 	checkFiles $service
 	# exit the service
 	popd &>/dev/null
+done
+
+# Check for outlier binaries
+find . -type f -size +1M | grep -v \.git | while read file; do
+	fatal "$file is larger than 1M"
 done
