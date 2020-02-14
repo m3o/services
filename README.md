@@ -6,7 +6,9 @@ They currently reside at [github.com/microhq](https://github.com/microhq) but we
 
 ## Overview
 
-This repository serves as the monorepo for the M3O platform and as a reference architecture for others.
+This repository serves as the monorepo for the M3O platform and as a reference architecture for others. 
+Those invited to use the platform will be added to the Community team and have the ability to create 
+and modify services here.
 
 ## Structure
 
