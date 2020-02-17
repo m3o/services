@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/dumb-init /bin/sh
 
 set -x
 set -e
