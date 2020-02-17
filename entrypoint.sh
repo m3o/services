@@ -23,10 +23,10 @@ git sparse-checkout set $SOURCE
 # go to source
 cd $SOURCE
 
-# download deps
-echo "Downloading deps"
-go get -d
+# Build Binary
+echo "Building Binary"
+time go build -o $SOURCE .
 
 # run the source
 echo "Running service"
-go run .
+./$SOURCE
