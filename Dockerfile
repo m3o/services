@@ -1,14 +1,24 @@
+# Dumb Init
 FROM alpine:latest as dumb-init
 RUN apk add --no-cache build-base git bash
 RUN git clone https://github.com/Yelp/dumb-init.git
 WORKDIR /dumb-init
 RUN make
 
-FROM micro/go-micro
+# Copy the services
+FROM micro/go-micro as builder
+COPY . /services
+WORKDIR services
+RUN mkdir builds
+
+# Build the services
+RUN for dir in */; do \
+cd $dir && \
+(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true) && \
+cd ..; \
+done
+
+# Copy result to new image 
+FROM scratch
 COPY --from=dumb-init /dumb-init/dumb-init /bin/dumb-init
-RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories
-RUN apk upgrade --update git
-COPY entrypoint.sh /
-WORKDIR /
-RUN chmod 755 entrypoint.sh
-ENTRYPOINT ["./entrypoint.sh"]
+COPY --from=builder services/builds /bin
