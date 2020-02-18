@@ -6,7 +6,7 @@ WORKDIR /dumb-init
 RUN make
 
 # Copy the services
-FROM golang:1.13.8-alpine3.10 as builder
+FROM golang:1.13-alpine as builder
 COPY . /services
 WORKDIR services
 RUN mkdir builds
