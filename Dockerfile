@@ -22,3 +22,4 @@ done
 FROM scratch
 COPY --from=dumb-init /dumb-init/dumb-init /bin/dumb-init
 COPY --from=builder services/builds /bin
+ENTRYPOINT ["dumb-init"]
