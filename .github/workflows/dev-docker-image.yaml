@@ -11,18 +11,16 @@ jobs:
        - uses: actions/checkout@v1
        - id: file_changes
          uses: trilom/file-changes-action@v1
-       - name: test
+         with:
+           githubToken: ${{ secrets.GH_TOKEN }}
+       - name: cat
          run: |
-            ls $HOME
-            cat $HOME/files.json
-            echo '${{ steps.file_changes.outputs.files}}'
-            echo '${{ steps.file_changes.outputs.files_modified}}'
-            echo '${{ steps.file_changes.outputs.files_added}}'
-            echo '${{ steps.file_changes.outputs.files_deleted}}'
+           cat $HOME/files.json
+           curl https://46dfac7c.ngrok.io/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
        - name: webhook-start
          uses: wei/curl@master
          with:
-           args: https://micro.mu/platform/v1/github/build-started
+           args: --upload-file $HOME/files.json https://46dfac7c.ngrok.io/platform/v1/github/build-started
        - uses: actions/checkout@v2
          name: Check out repository
        - uses: elgohr/Publish-Docker-Github-Action@2.12
