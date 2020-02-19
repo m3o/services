@@ -15,7 +15,7 @@ jobs:
            githubToken: ${{ secrets.GH_TOKEN }}
        - name: test
          run: |
-           str=${{join(steps.file_changes.outputs.files)}}
+           str='${{join(steps.file_changes.outputs.files)}}'
            echo $str
            echo "${str// /,}"
        - name: webhook-start
