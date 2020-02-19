@@ -13,9 +13,6 @@ jobs:
          uses: trilom/file-changes-action@v1
          with:
            githubToken: ${{ secrets.GH_TOKEN }}
-       - name: testr
-         run: |
-            cat $HOME/files.json
        - name: webhook-start
          uses: wei/curl@master
          with:
