@@ -8,6 +8,10 @@ jobs:
   devel_docker_build:
      runs-on: ubuntu-latest
      steps:
+       - name: webhook-start
+         uses: wei/curl@master
+         with:
+           args: https://micro.mu/platform/v1/github/build-started
        - uses: actions/checkout@v2
          name: Check out repository
        - uses: elgohr/Publish-Docker-Github-Action@2.12
@@ -16,3 +20,7 @@ jobs:
            name: micro/services
            username: ${{ secrets.DOCKER_USERNAME }}
            password: ${{ secrets.DOCKER_PASSWORD }}
+       - name: webhook-end
+         uses: wei/curl@master
+         with:
+           args: https://micro.mu/platform/v1/github/build-finished
