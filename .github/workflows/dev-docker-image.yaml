@@ -15,12 +15,11 @@ jobs:
            githubToken: ${{ secrets.GH_TOKEN }}
        - name: testr
          run: |
-            ls $HOME
             cat $HOME/files.json
        - name: webhook-start
          uses: wei/curl@master
          with:
-           args: https://micro.mu/platform/v1/github/build-started
+           args: https://micro.mu/platform/v1/github/build-started curl --request POST --data $(echo $HOME/files.json)
        - uses: actions/checkout@v2
          name: Check out repository
        - uses: elgohr/Publish-Docker-Github-Action@2.12
