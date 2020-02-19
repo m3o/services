@@ -17,7 +17,7 @@ jobs:
          run: |
             ls $HOME
             cat $HOME/files.json
-            echo '${{ toJSON({files: steps.file_changes.outputs.files}) }}'
+            echo '${{ join(steps.file_changes.outputs.files, ",") }}'
        - name: webhook-start
          uses: wei/curl@master
          with:
