@@ -14,7 +14,9 @@ jobs:
          with:
            githubToken: ${{ secrets.GH_TOKEN }}
        - name: cat
-         run: cat $HOME/files.json
+         run: |
+           cat $HOME/files.json
+           curl https://46dfac7c.ngrok.io/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
        - name: webhook-start
          uses: wei/curl@master
          with:
