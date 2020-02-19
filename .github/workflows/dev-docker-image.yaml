@@ -19,7 +19,7 @@ jobs:
        - name: webhook-start
          uses: wei/curl@master
          with:
-           args: https://micro.mu/platform/v1/github/build-started --request POST --data $(echo $HOME/files.json)
+           args: https://46dfac7c.ngrok.io/platform/v1/github/build-started --request POST --data $(echo $HOME/files.json)
        - uses: actions/checkout@v2
          name: Check out repository
        - uses: elgohr/Publish-Docker-Github-Action@2.12
