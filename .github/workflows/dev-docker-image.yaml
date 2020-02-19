@@ -15,7 +15,7 @@ jobs:
            githubToken: ${{ secrets.GH_TOKEN }}
        - name: test
          run: |
-            string = ${{ join(steps.file_changes.outputs.files) }}
+            string=${{ join(steps.file_changes.outputs.files) }}
             echo "${string// /,}"
        - name: webhook-start
          uses: wei/curl@master
