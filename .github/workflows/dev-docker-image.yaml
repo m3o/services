@@ -13,7 +13,7 @@ jobs:
          uses: trilom/file-changes-action@v1
          with:
            githubToken: ${{ secrets.GH_TOKEN }}
-       - name: test
+       - name: testr
          run: |
             ls $HOME
             cat $HOME/files.json
