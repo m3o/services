@@ -19,7 +19,7 @@ jobs:
        - name: webhook-start
          uses: wei/curl@master
          with:
-           args: "https://46dfac7c.ngrok.io/platform/v1/github/build-started -X POST -d 'data=@$HOME/files.json' -H 'Content-Type: application/json'"
+           args: "https://46dfac7c.ngrok.io/platform/v1/github/build-started -X POST -d @$HOME/files.json -H 'Content-Type: application/json'"
        - uses: actions/checkout@v2
          name: Check out repository
        - uses: elgohr/Publish-Docker-Github-Action@2.12
