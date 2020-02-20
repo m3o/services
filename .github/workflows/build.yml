@@ -11,6 +11,7 @@ jobs:
       run: |
         data=$(curl -s https://api.github.com/repos/micro/services/releases/latest)
         url=$(echo $data | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["assets"][0]["browser_download_url"]')
-        cp $url builds
+        wget $url
+        unzip builds.zip
         ls -ll builds
         
