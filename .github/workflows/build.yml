@@ -34,9 +34,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/builds
-        key: ${{ runner.os }}-builds-${{ hashFiles('**/*.go') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('**/*.go') }}
         restore-keys: |
-          ${{ runner.os }}-builds-
+          ${{ runner.os }}-build-
     - name: Create builds directory
       run: |
         if [ -d ~/builds ] && [ "$(ls -A ~/builds)" ]; then
@@ -46,7 +46,7 @@ jobs:
           for dir in */; do
             cd $dir
             echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
             cd ..
           done
         fi
@@ -58,7 +58,7 @@ jobs:
           if grep $dir $HOME/files.json; then
             cd $dir
             echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
             cd ..
            else
             echo Skipping $dir
