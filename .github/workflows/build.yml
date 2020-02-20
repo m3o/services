@@ -25,12 +25,11 @@ jobs:
         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-gomods-
-    - name: Download builds
-      uses: actions/download-artifact@v1
-      with:
-        name: builds
+#     - name: Download builds
+#       uses: actions/download-artifact@v1
+#       with:
+#         name: builds
     - name: Setup builds
-      if: failure()
       run: |
         mkdir builds
         for dir in */; do
