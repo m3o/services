@@ -14,7 +14,6 @@ jobs:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Started Webhook
       run: |
-        cat $HOME/files.json
         curl https://micro.mu/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
     - name: Install Go
       uses: actions/setup-go@v1
@@ -53,8 +52,6 @@ jobs:
         fi
     - name: Build services with changes
       run: |
-        cat $HOME/files.json
-        
         for dir in */; do
           if grep $dir $HOME/files.json; then
             cd $dir
@@ -85,7 +82,6 @@ jobs:
          docker push micro/services:${GITHUB_REF##*/}   
     - name: Build Finished Webhook
       run: |
-         cat $HOME/files.json
          curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
     - name: Compress new binaries
       run: |        
