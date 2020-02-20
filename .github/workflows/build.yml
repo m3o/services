@@ -10,21 +10,8 @@ jobs:
        - uses: actions/checkout@v2
          name: Check out repository
        - uses: actions/checkout@v1
-       - id: file_changes
-         uses: trilom/file-changes-action@v1
-         with:
-           githubToken: ${{ secrets.GH_TOKEN }}
-       - name: Build Started Webhook
-         run: |
-           cat $HOME/files.json
-           curl https://micro.mu/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
        - name: Build and Push Docker Image
          run: |
            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
            docker build . -t micro/services:${GITHUB_REF##*/}
            docker push micro/services:${GITHUB_REF##*/}
-       - name: Build Finished Webhook
-         run: |
-           cat $HOME/files.json
-           curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
-
