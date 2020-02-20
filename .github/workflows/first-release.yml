@@ -1,7 +1,8 @@
 name: Setup
 
 on:
-  push
+  schedule:
+    - cron: 0 0 1 * *
 
 jobs:
   build:
