@@ -19,6 +19,14 @@ jobs:
     - name: Check out repository
       if: failure()
       uses: actions/checkout@v2
+    - name: Setup go-mod cache
+      if: failure()
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-gomods-
     - name: Setup builds
       if: failure()
       run: |
