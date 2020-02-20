@@ -34,7 +34,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-build-
     - name: List builds
-      run: ls -ll builds
+      run: |
+        echo $(pwd)
+        ls -ll .
+        ls -ll builds
 #     - name: Initialise build cache
 #       if: steps.setup-build-cache.outputs.cache-hit != 'true'
 #       run: |
