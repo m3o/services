@@ -1,34 +1,27 @@
 name: Build
 
-on:
-  push:
-
+on: 
+  schedule:
+    - cron: 0 0 29 2 1
+  
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - name: Download builds
-      uses: actions/download-artifact@v1
-      with:
-        name: builds
     - name: Install Go
-      if: failure()
       uses: actions/setup-go@v1
       with:
         go-version: 1.13
     - name: Check out repository
-      if: failure()
       uses: actions/checkout@v2
     - name: Setup go-mod cache
-      if: failure()
       uses: actions/cache@v1
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-gomods-
-    - name: Setup builds
-      if: failure()
+    - name: Generate builds
       run: |
         mkdir builds
         for dir in */; do
@@ -37,17 +30,7 @@ jobs:
           (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
           cd ..
         done
-    - name: List builds
-      if: always()
-      run: |
-        ls -ll builds
-    - name: Upload builds
-      uses: actions/upload-artifact@v1
-      if: failure()
-      with:
-        name: builds
-        path: builds
-    - name: Zip project
+    - name: Zip builds
       run: zip --junk-paths builds builds
     - name: Create Release
       id: create_release
