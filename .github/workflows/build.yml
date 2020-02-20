@@ -60,7 +60,6 @@ jobs:
             cd $dir
             echo Building $dir
             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
-            upx ~/builds/${dir::-1}
             cd ..
            else
             echo Skipping $dir
@@ -88,3 +87,8 @@ jobs:
       run: |
          cat $HOME/files.json
          curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
+    - name: Compress new binaries
+      run: |        
+        for dir in */; do
+          if grep $dir $HOME/files.json; then upx ~/builds/${dir::-1}; fi
+        done
