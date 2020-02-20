@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-builds-
     - name: Generate build dir
-      if: steps.Setup build cache.outputs.cache-hit != 'true'
+      if: steps.setup-build-cache.outputs.cache-hit != 'true'
       run: mkdir builds
     - name: Build images
       run: |
