@@ -49,6 +49,7 @@ jobs:
         path: builds
   build:
     runs-on: ubuntu-latest
+    needs: setup
     steps:
     - name: Detect files changed
       id: file_changes
