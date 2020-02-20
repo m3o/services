@@ -33,6 +33,8 @@ jobs:
         key: ${{ runner.os }}-build-${{ hashFiles('**/*.go') }}
         restore-keys: |
           ${{ runner.os }}-build-
+    - name: List builds
+      run: ls -ll builds
 #     - name: Initialise build cache
 #       if: steps.setup-build-cache.outputs.cache-hit != 'true'
 #       run: |
@@ -46,7 +48,7 @@ jobs:
     - name: Build services with changes
       run: |
         cat $HOME/files.json
-        echo \n
+        echo 
         
         for dir in */; do
           if grep $dir $HOME/files.json; then
