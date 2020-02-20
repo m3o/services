@@ -1,3 +1,3 @@
 FROM scratch
-ADD binaries.tar.gz /bin
+COPY . /bin
 ENTRYPOINT ["dumb-init"]
