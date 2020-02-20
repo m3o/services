@@ -9,7 +9,14 @@ jobs:
      steps:
        - uses: actions/checkout@v2
          name: Check out repository
+       - uses: actions/cache@v1
+         with:
+           path: ~/go/pkg/mod
+           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+           restore-keys: |
+             ${{ runner.os }}-go-
        - uses: azure/docker-login@v1
+         name: Authenticate docker
          with:
            username: ${{ secrets.DOCKER_USERNAME }}
            password: ${{ secrets.DOCKER_PASSWORD }}
