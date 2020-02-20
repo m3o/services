@@ -1,7 +1,7 @@
 name: Setup
 
 on:
-  push:
+  push
 
 jobs:
   build:
@@ -21,6 +21,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gomods-
     - name: Generate builds
+      id: generate-builds
       run: |
         mkdir builds
         for dir in */; do
@@ -30,7 +31,7 @@ jobs:
           cd ..
         done
     - name: Zip builds
-      run: zip --junk-paths builds builds
+      run: zip builds builds
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
