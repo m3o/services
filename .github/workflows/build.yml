@@ -33,15 +33,29 @@ jobs:
         key: ${{ runner.os }}-builds-${{ hashFiles('**/*.go') }}
         restore-keys: |
           ${{ runner.os }}-builds-
-    - name: Generate build dir
+    - name: Initialise build cache
       if: steps.setup-build-cache.outputs.cache-hit != 'true'
-      run: mkdir builds
-    - name: Build images
       run: |
-         cat $HOME/files.json
-         for dir in */; do
-           cd $dir
-           echo Building $dir
-           (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
-           cd ..;
-         done
+        mkdir builds
+        for dir in */; do
+          cd $dir
+            echo Building $dir
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
+          cd ..;
+        done
+    - name: Build services with changes
+      if: steps.setup-build-cache.outputs.cache-hit == 'true'
+      run: |
+        cat $HOME/files.json
+        echo \n
+        
+        for dir in */; do
+          if grep $dir $HOME/files.json; then
+            cd $dir
+            echo Building $dir
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
+            cd ..
+          else
+            echo Skipping $dir
+          fi
+        done
