@@ -45,7 +45,7 @@ jobs:
           ${{ runner.os }}-builds-
     - name: Create builds directory
       run: |
-        if [ -d "$DIR" ] && [ "$(ls -A $DIR)" ]; then
+        if [ -d "~/builds" ] && [ "$(ls -A ~/builds)" ]; then
           echo "Binaries already exist"
         else
           mkdir ~/builds
