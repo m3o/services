@@ -34,9 +34,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/builds
-        key: ${{ runner.os }}-build-${{ hashFiles('**/*.go') }}
+        key: ${{ runner.os }}-binaries-${{ hashFiles('**/*.go') }}
         restore-keys: |
-          ${{ runner.os }}-build-
+          ${{ runner.os }}-binaries-
     - name: Create builds directory
       run: |
         if [ -d ~/builds ] && [ "$(ls -A ~/builds)" ]; then
