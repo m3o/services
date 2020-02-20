@@ -46,7 +46,8 @@ jobs:
           for dir in */; do
             cd $dir
             echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            upx --brute ~/builds/${dir::-1}
             cd ..
           done
         fi
@@ -58,7 +59,8 @@ jobs:
           if grep $dir $HOME/files.json; then
             cd $dir
             echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            upx --brute ~/builds/${dir::-1}
             cd ..
            else
             echo Skipping $dir
@@ -80,9 +82,7 @@ jobs:
          password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and Push Docker Image
       run: |
-         mkdir context
-         tar -czvf context/binaries.tar.gz ~/builds
-         docker build context -f Dockerfile -t micro/services:${GITHUB_REF##*/}
+         docker build ~/builds -f Dockerfile -t micro/services:${GITHUB_REF##*/}
          docker push micro/services:${GITHUB_REF##*/}   
     - name: Build Finished Webhook
       run: |
