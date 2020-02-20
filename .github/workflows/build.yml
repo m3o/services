@@ -1,8 +1,7 @@
 name: Build
 
 on: 
-  schedule:
-    - cron: 0 0 29 2 1
+  push:
   
 jobs:
   build:
