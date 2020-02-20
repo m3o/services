@@ -9,4 +9,4 @@
 FROM scratch
 # COPY --from=dumb-init /dumb-init/dumb-init /bin/dumb-init
 COPY . /bin
-ENTRYPOINT ["dumb-init"]
+# ENTRYPOINT ["dumb-init"]
