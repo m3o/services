@@ -9,7 +9,7 @@ jobs:
      steps:
        - uses: actions/checkout@v2
          name: Check out repository
-       - uses: actions/checkout@v1
+       - uses: actions/checkout@v2
        - name: Build and Push Docker Image
          run: |
            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
