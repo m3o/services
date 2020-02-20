@@ -29,25 +29,32 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: builds
+    - name: Setup builds
+      if: failure()
+      run: |
+        mkdir builds
+        for dir in */; do
+          cd $dir
+          echo Building $dir
+          (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
+          cd ..
+        done
     - run: |
         ls -ll builds
-    - name: Initialise build cache
-      if: steps.setup-build-cache.outputs.cache-hit != 'true'
-      run: mkdir builds
     - name: Build services with changes
       run: |
-        #cat $HOME/files.json
-        #echo 
+        cat $HOME/files.json
+        echo .
         
         for dir in */; do
-           #if grep $dir $HOME/files.json; then
+          if grep $dir $HOME/files.json; then
             cd $dir
             echo Building $dir
             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
             cd ..
-          #else
+           else
             #echo Skipping $dir
-          #fi
+           fi
         done
     - name: Upload builds
       uses: actions/upload-artifact@v1
