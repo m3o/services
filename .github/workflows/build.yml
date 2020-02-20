@@ -4,14 +4,14 @@ on:
   push:
 
 jobs:
-  devel_docker_build:
+  build:
      runs-on: ubuntu-latest
      steps:
+       - uses: micro/go-micro
+         name: Base image
        - uses: actions/checkout@v2
          name: Check out repository
-       - run: |
-           GOPATH=~/go
-           echo $GOPATH
+       - run: echo $GOPATH
        - uses: actions/cache@v1
          name: Cache
          with:
