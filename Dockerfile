@@ -1,3 +1,3 @@
 FROM scratch
-COPY . /bin
+ADD  /bin
 ENTRYPOINT ["dumb-init"]
