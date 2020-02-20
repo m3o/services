@@ -70,8 +70,8 @@ jobs:
           git clone https://github.com/Yelp/dumb-init.git
           cd dumb-init
           make build
+          mv dump-init ~/builds/dumb-init
           cd ..
-          cp dump-init/dump-init ~/builds/dumb-init
         fi
     - uses: azure/docker-login@v1
       name: Authenticate docker
