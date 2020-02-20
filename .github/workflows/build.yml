@@ -7,7 +7,7 @@ jobs:
   build:
      runs-on: ubuntu-latest
      steps:
-       - uses: micro/go-micro
+       - uses: docker://micro/go-micro
          name: Base image
        - uses: actions/checkout@v2
          name: Check out repository
