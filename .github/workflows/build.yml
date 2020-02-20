@@ -16,12 +16,6 @@ jobs:
       run: |
         cat $HOME/files.json
         curl https://micro.mu/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
-#     - name: Get previous release
-#       run: |
-#         data=$(curl -s https://api.github.com/repos/micro/services/releases/latest)
-#         url=$(echo $data | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["assets"][0]["browser_download_url"]')
-#         wget $url
-#         unzip builds.zip
     - name: Install Go
       uses: actions/setup-go@v1
       with:
@@ -70,6 +64,15 @@ jobs:
             echo Skipping $dir
            fi
         done
+    - name: Setup dumb init
+      run: |
+        if ! test -f ~/builds/bumb-init; then
+          git clone https://github.com/Yelp/dumb-init.git
+          cd dumb-init
+          make build
+          cd ..
+          cp dump-init/dump-init ~/builds/dumb-init
+        fi
     - uses: azure/docker-login@v1
       name: Authenticate docker
       with:
@@ -83,25 +86,3 @@ jobs:
       run: |
          cat $HOME/files.json
          curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
-#     - name: Zip builds
-#       run: zip builds builds
-#     - name: Create Release
-#       id: create_release
-#       uses: actions/create-release@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         tag_name: ${{ github.ref }}
-#         release_name: Release ${{ github.ref }}
-#         draft: false
-#         prerelease: false
-#     - name: Upload Release Asset
-#       id: upload-release-asset 
-#       uses: actions/upload-release-asset@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-#         asset_path: ./builds.zip
-#         asset_name: builds.zip
-#         asset_content_type: application/zip
