@@ -35,6 +35,24 @@ jobs:
         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-gomods-
+    - name: Setup builds cache
+      id: setup-builds-cache
+      uses: actions/cache@v1
+      with:
+        path: ~/builds
+        key: ${{ runner.os }}-builds-${{ hashFiles('**/*.go') }}
+        restore-keys: |
+          ${{ runner.os }}-builds-
+    - name: Create builds directory
+      if: steps.setup-builds-cache.outputs.cache-hit != 'true'
+      run: |
+        mkdir ~/builds
+        for dir in */; do
+          cd $dir
+          echo Building $dir
+          (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+          cd ..
+        done
     - name: Build services with changes
       run: |
         cat $HOME/files.json
@@ -44,7 +62,7 @@ jobs:
           if grep $dir $HOME/files.json; then
             cd $dir
             echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
             cd ..
            else
             #echo Skipping $dir
@@ -57,31 +75,31 @@ jobs:
          password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and Push Docker Image
       run: |
-         docker build . -t micro/services:${GITHUB_REF##*/}
+         docker build ~/builds -f Dockerfile -t micro/services:${GITHUB_REF##*/}
          docker push micro/services:${GITHUB_REF##*/}   
     - name: Build Finished Webhook
       run: |
          cat $HOME/files.json
          curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
-    - name: Zip builds
-      run: zip builds builds
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./builds.zip
-        asset_name: builds.zip
-        asset_content_type: application/zip
+#     - name: Zip builds
+#       run: zip builds builds
+#     - name: Create Release
+#       id: create_release
+#       uses: actions/create-release@v1
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       with:
+#         tag_name: ${{ github.ref }}
+#         release_name: Release ${{ github.ref }}
+#         draft: false
+#         prerelease: false
+#     - name: Upload Release Asset
+#       id: upload-release-asset 
+#       uses: actions/upload-release-asset@v1
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       with:
+#         upload_url: ${{ steps.create_release.outputs.upload_url }} 
+#         asset_path: ./builds.zip
+#         asset_name: builds.zip
+#         asset_content_type: application/zip
