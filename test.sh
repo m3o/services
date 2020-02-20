@@ -26,7 +26,7 @@ function checkFiles() {
 
 	# should NOT exist e.g binaries
 	for file in ${1} ${1}-srv; do
-		if [ -f $file ]; then
+		if [ -f $file ] && ! grep -Fxq $file .gitignore; then
 			fatal "$1 should not include $file"
 		fi
 	done
@@ -49,5 +49,7 @@ done
 
 # Check for outlier binaries
 find . -type f -size +1M | grep -v \.git | while read file; do
-	fatal "$file is larger than 1M"
+	if ! grep $(basename -- $file) $(dirname -- $file)/.gitignore; then
+		fatal "$file is larger than 1M"
+	fi
 done
