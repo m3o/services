@@ -13,6 +13,7 @@ jobs:
          name: Cache
          with:
            path: ~/go/pkg/mod
+           key: go-mod-cache
        - name: Build images
          run: |
            mkdir builds
