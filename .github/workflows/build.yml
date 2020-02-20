@@ -13,14 +13,22 @@ jobs:
         go-version: 1.13
     - name: Check out repository
       uses: actions/checkout@v2
-    - name: Cache
+    - name: Setup go-mod cache
       uses: actions/cache@v1
       with:
         path: ~/go/pkg/mod
-        key: go-mod-cache
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-gomod-
+    - name: Setup build cache
+      uses: actions/cache@v1
+      with:
+        path: /builds
+        key: ${{ runner.os }}-go-${{ hashFiles('**/*.go') }}
+        restore-keys: |
+          ${{ runner.os }}-builds-
     - name: Build images
       run: |
-         mkdir builds
          for dir in */; do
            cd $dir
            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
