@@ -8,93 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.13
-    - name: Check out repository
-      uses: actions/checkout@v2
-    - name: Setup go-mod cache
-      uses: actions/cache@v1
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-gomods-
-    - name: Generate builds
+    - name: Get previous release
       run: |
-        mkdir builds
-        for dir in */; do
-          cd $dir
-          echo Building $dir
-          (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
-          cd ..
-        done
-    - name: Zip builds
-      run: zip --junk-paths builds builds
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./builds.zip
-        asset_name: builds.zip
-        asset_content_type: application/zip
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Detect files changed
-#       id: file_changes
-#       uses: trilom/file-changes-action@v1
-#       with:
-#         githubToken: ${{ secrets.GH_TOKEN }}
-#     - name: Install Go
-#       uses: actions/setup-go@v1
-#       with:
-#         go-version: 1.13
-#     - name: Check out repository
-#       uses: actions/checkout@v2
-#     - name: Setup go-mod cache
-#       uses: actions/cache@v1
-#       with:
-#         path: ~/go/pkg/mod
-#         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
-#         restore-keys: |
-#           ${{ runner.os }}-gomods-
-#     - name: Download builds
-#       uses: actions/download-artifact@v1
-#       with:
-#         name: builds
-#     - name: Build services with changes
-#       run: |
-#         cat $HOME/files.json
-#         echo .
+        data=$(curl -s https://api.github.com/repos/micro/services/releases/latest)
+        zipURL=$(echo $data | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["assets"][0]["browser_download_url"]')
+        cp zipURL builds
+        ls -ll builds
         
-#         for dir in */; do
-#           if grep $dir $HOME/files.json; then
-#             cd $dir
-#             echo Building $dir
-#             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
-#             cd ..
-#            else
-#             #echo Skipping $dir
-#            fi
-#         done
-#     - name: Upload builds
-#       uses: actions/upload-artifact@v1
-#       with:
-#         name: builds
-#         path: builds
-
