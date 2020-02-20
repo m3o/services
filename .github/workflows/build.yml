@@ -12,6 +12,6 @@ jobs:
        - uses: actions/checkout@v2
        - name: Build and Push Docker Image
          run: |
-           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
            docker build . -t micro/services:${GITHUB_REF##*/}
            docker push micro/services:${GITHUB_REF##*/}
