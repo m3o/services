@@ -21,12 +21,16 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gomods-
     - name: Setup build cache
+      id: setup-build-cache
       uses: actions/cache@v1
       with:
         path: /builds
         key: ${{ runner.os }}-builds-${{ hashFiles('**/*.go') }}
         restore-keys: |
           ${{ runner.os }}-builds-
+    - name: Generate build dir
+      if: steps.Setup build cache.outputs.cache-hit != 'true'
+      run: mkdir builds
     - name: Build images
       run: |
          for dir in */; do
