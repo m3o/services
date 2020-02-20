@@ -44,15 +44,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-builds-
     - name: Create builds directory
-      if: steps.setup-builds-cache.outputs.cache-hit != 'true'
       run: |
-        mkdir ~/builds
-        for dir in */; do
-          cd $dir
-          echo Building $dir
-          (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
-          cd ..
-        done
+        if [-d "$DIR"] && [ ls -A ~/builds ]; then
+          echo "Binaries already exist"
+        else
+          mkdir ~/builds
+          for dir in */; do
+            cd $dir
+            echo Building $dir
+            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            cd ..
+          done
+        fi
     - name: Build services with changes
       run: |
         cat $HOME/files.json
