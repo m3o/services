@@ -7,6 +7,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Detect files changed
+      id: file_changes
+      uses: trilom/file-changes-action@v1
+      with:
+        githubToken: ${{ secrets.GH_TOKEN }}
     - name: Install Go
       uses: actions/setup-go@v1
       with:
@@ -33,6 +38,7 @@ jobs:
       run: mkdir builds
     - name: Build images
       run: |
+         cat $HOME/files.json
          for dir in */; do
            cd $dir
            echo Building $dir
