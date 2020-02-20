@@ -15,7 +15,7 @@ jobs:
        - id: file_changes
          uses: trilom/file-changes-action@v1
          with:
-           githubToken: ${{ secrets.GH_TOKEN }}
+           githubToken: ${{ secrets.GITHUB_TOKEN }}
        - name: Build Started Webhook
          run: |
            cat $HOME/files.json
