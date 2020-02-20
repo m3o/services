@@ -15,6 +15,5 @@ jobs:
            password: ${{ secrets.DOCKER_PASSWORD }}
        - name: Build and Push Docker Image
          run: |
-           sh echo ${{ secrets. }} | docker login -u ${{ secrets. }} --password-stdin
            docker build . -t micro/services:${GITHUB_REF##*/}
            docker push micro/services:${GITHUB_REF##*/}
