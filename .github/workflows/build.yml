@@ -66,11 +66,11 @@ jobs:
         done
     - name: Setup dumb init
       run: |
-        if ! test -f ~/builds/bumb-init; then
+        if ! test -f ~/builds/dumb-init; then
           git clone https://github.com/Yelp/dumb-init.git
           cd dumb-init
           make build
-          mv dump-init ~/builds/dumb-init
+          mv dumb-init ~/builds/dumb-init
           cd ..
         fi
     - uses: azure/docker-login@v1
