@@ -25,41 +25,33 @@ jobs:
         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-gomods-
-    - name: Setup build cache
-      id: setup-build-cache
-      uses: actions/cache@v1
+    - name: Download builds
+      uses: actions/download-artifact@v1
       with:
-        path: /home/runner/work/services/services/builds
-        key: ${{ runner.os }}-build-${{ hashFiles('**/*.go') }}
-        restore-keys: |
-          ${{ runner.os }}-build-
-    - name: List builds
-      run: |
-        echo $(pwd)
-        ls -ll .
+        name: builds
+    - run: |
         ls -ll builds
-#     - name: Initialise build cache
-#       if: steps.setup-build-cache.outputs.cache-hit != 'true'
-#       run: |
-#         mkdir builds
-#         for dir in */; do
-#           cd $dir
-#             echo Building $dir
-#             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
-#           cd ..;
-#         done
+    - name: Initialise build cache
+      if: steps.setup-build-cache.outputs.cache-hit != 'true'
+      run: mkdir builds
     - name: Build services with changes
       run: |
-        cat $HOME/files.json
-        echo 
+        #cat $HOME/files.json
+        #echo 
         
         for dir in */; do
-          if grep $dir $HOME/files.json; then
+           #if grep $dir $HOME/files.json; then
             cd $dir
             echo Building $dir
             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
             cd ..
-          else
-            echo Skipping $dir
-          fi
+          #else
+            #echo Skipping $dir
+          #fi
         done
+    - name: Upload builds
+      uses: actions/upload-artifact@v1
+      with:
+        name: builds
+        path: builds
+
