@@ -47,6 +47,7 @@ jobs:
             cd $dir
             echo Building $dir
             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            upx ~/builds/${dir::-1}
             cd ..
           done
         fi
@@ -59,6 +60,7 @@ jobs:
             cd $dir
             echo Building $dir
             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
+            upx ~/builds/${dir::-1}
             cd ..
            else
             echo Skipping $dir
