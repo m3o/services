@@ -2,8 +2,6 @@ name: Build
 
 on:
   push:
-    branches:
-      - master
 
 jobs:
   devel_docker_build:
@@ -20,12 +18,11 @@ jobs:
          run: |
            cat $HOME/files.json
            curl https://micro.mu/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
-       - uses: elgohr/Publish-Docker-Github-Action@2.12
-         name: Build and Push Docker Image
-         with:
-           name: micro/services
-           username: ${{ secrets.DOCKER_USERNAME }}
-           password: ${{ secrets.DOCKER_PASSWORD }}
+       - name: Build and Push Docker Image
+         run: |
+           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+           docker build . -t micro/services:${GITHUB_REF##*/}
+           docker push micro/services:${GITHUB_REF##*/}
        - name: Build Finished Webhook
          run: |
            cat $HOME/files.json
