@@ -16,12 +16,12 @@ jobs:
       run: |
         cat $HOME/files.json
         curl https://micro.mu/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
-    - name: Get previous release
-      run: |
-        data=$(curl -s https://api.github.com/repos/micro/services/releases/latest)
-        url=$(echo $data | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["assets"][0]["browser_download_url"]')
-        wget $url
-        unzip builds.zip
+#     - name: Get previous release
+#       run: |
+#         data=$(curl -s https://api.github.com/repos/micro/services/releases/latest)
+#         url=$(echo $data | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["assets"][0]["browser_download_url"]')
+#         wget $url
+#         unzip builds.zip
     - name: Install Go
       uses: actions/setup-go@v1
       with:
@@ -45,7 +45,7 @@ jobs:
           ${{ runner.os }}-builds-
     - name: Create builds directory
       run: |
-        if [-d "$DIR"] && [ ls -A ~/builds ]; then
+        if [ -d "$DIR" ] && [ "$(ls -A $DIR)" ]; then
           echo "Binaries already exist"
         else
           mkdir ~/builds
@@ -59,7 +59,6 @@ jobs:
     - name: Build services with changes
       run: |
         cat $HOME/files.json
-        echo .
         
         for dir in */; do
           if grep $dir $HOME/files.json; then
@@ -68,7 +67,7 @@ jobs:
             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
             cd ..
            else
-            #echo Skipping $dir
+            echo Skipping $dir
            fi
         done
     - uses: azure/docker-login@v1
