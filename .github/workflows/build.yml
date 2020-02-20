@@ -17,14 +17,14 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-gomod-
+          ${{ runner.os }}-gomods-
     - name: Setup build cache
       uses: actions/cache@v1
       with:
         path: /builds
-        key: ${{ runner.os }}-go-${{ hashFiles('**/*.go') }}
+        key: ${{ runner.os }}-builds-${{ hashFiles('**/*.go') }}
         restore-keys: |
           ${{ runner.os }}-builds-
     - name: Build images
