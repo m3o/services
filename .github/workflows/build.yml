@@ -33,18 +33,17 @@ jobs:
         key: ${{ runner.os }}-build-${{ hashFiles('**/*.go') }}
         restore-keys: |
           ${{ runner.os }}-build-
-    - name: Initialise build cache
-      if: steps.setup-build-cache.outputs.cache-hit != 'true'
-      run: |
-        mkdir builds
-        for dir in */; do
-          cd $dir
-            echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
-          cd ..;
-        done
+#     - name: Initialise build cache
+#       if: steps.setup-build-cache.outputs.cache-hit != 'true'
+#       run: |
+#         mkdir builds
+#         for dir in */; do
+#           cd $dir
+#             echo Building $dir
+#             (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build . && mv ./${dir::-1} ../builds/${dir::-1} || true)
+#           cd ..;
+#         done
     - name: Build services with changes
-      if: steps.setup-build-cache.outputs.cache-hit == 'true'
       run: |
         cat $HOME/files.json
         echo \n
