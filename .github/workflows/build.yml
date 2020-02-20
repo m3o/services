@@ -80,7 +80,9 @@ jobs:
          password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and Push Docker Image
       run: |
-         docker build ~/builds -f Dockerfile -t micro/services:${GITHUB_REF##*/}
+         mkdir context
+         tar -czvf context/binaries.tar.gz ~/builds
+         docker build context -f Dockerfile -t micro/services:${GITHUB_REF##*/}
          docker push micro/services:${GITHUB_REF##*/}   
     - name: Build Finished Webhook
       run: |
