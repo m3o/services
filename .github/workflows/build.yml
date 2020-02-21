@@ -14,7 +14,7 @@ jobs:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Started Webhook
       run: |
-        curl https://micro.mu/platform/v1/github/build-started -X POST -d @$HOME/files.json -H "Content-Type: application/json"
+        ./event.sh "build.started" ${{ GITHUB_SHA }} ${{ GITHUB_REPO }}
     - name: Install Go
       uses: actions/setup-go@v1
       with:
@@ -80,7 +80,7 @@ jobs:
         rm /home/runner/.docker/config.json # Delete credentials
     - name: Build Finished Webhook
       run: |
-         curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
+        ./event.sh "build.finished" ${{ GITHUB_SHA }} ${{ GITHUB_REPO }}
     - name: Compress new binaries
       run: |        
         for dir in */; do
