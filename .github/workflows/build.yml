@@ -2,8 +2,8 @@ name: Build
 
 on: 
   push:
-    branches:
-    - master
+#     branches:
+#     - master
 
 jobs:
   build:
@@ -73,14 +73,15 @@ jobs:
           mv dumb-init ~/builds/dumb-init
           cd ..
         fi
-    - uses: azure/docker-login@v1
-      name: Authenticate docker
-      with:
-         username: ${{ secrets.DOCKER_USERNAME }}
-         password: ${{ secrets.DOCKER_PASSWORD }}
+#     - uses: azure/docker-login@v1
+#       name: Authenticate docker
+#       with:
+#         username: ${{ secrets.DOCKER_USERNAME }}
+#         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and Push Docker Image
       run: |
-         ls -ll ~/builds
+         ls ~/builds
+         docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
          docker build ~/builds -f Dockerfile -t micro/services
          docker push micro/services
     - name: Build Finished Webhook
