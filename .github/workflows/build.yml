@@ -75,11 +75,11 @@ jobs:
         fi
     - name: Build and Push Docker Image
       run: |
-         ls ~/builds
-         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
-         docker build ~/builds -f Dockerfile -t docker.pkg.github.com/micro/services/build
-         docker push docker.pkg.github.com/micro/services/build
-         rm /home/user/.docker/config.json # Delete credentials
+        echo ${{ runner.temp }}
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+        docker build ~/builds -f Dockerfile -t docker.pkg.github.com/${{ github.repository }}/build
+        docker push docker.pkg.github.com/${{ github.repository }}/build
+        rm /home/runner/.docker/config.json # Delete credentials
     - name: Build Finished Webhook
       run: |
          curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
