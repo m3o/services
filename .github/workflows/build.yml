@@ -9,8 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Test Docker Login
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
     - name: Detect files changed
       id: file_changes
       uses: trilom/file-changes-action@v1
@@ -75,17 +73,12 @@ jobs:
           mv dumb-init ~/builds/dumb-init
           cd ..
         fi
-#     - uses: azure/docker-login@v1
-#       name: Authenticate docker
-#       with:
-#         username: ${{ secrets.DOCKER_USERNAME }}
-#         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and Push Docker Image
       run: |
          ls ~/builds
-         docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
-         docker build ~/builds -f Dockerfile -t micro/services
-         docker push micro/services
+         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+         docker build ~/builds -f Dockerfile -t docker.pkg.github.com/micro/services
+         docker push docker.pkg.github.com/micro/services
     - name: Build Finished Webhook
       run: |
          curl https://micro.mu/platform/v1/github/build-finished -X POST -d @$HOME/files.json -H "Content-Type: application/json"
