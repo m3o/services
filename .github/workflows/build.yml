@@ -12,16 +12,15 @@ jobs:
       uses: trilom/file-changes-action@v1
       with:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build Started Webhook
+    - name: Check out repository
       uses: actions/checkout@v2
+    - name: Build Started Webhook
       run: |
         ./event.sh "build.started" "${GITHUB_SHA}" "${GITHUB_REPO}"
     - name: Install Go
       uses: actions/setup-go@v1
       with:
         go-version: 1.13
-    - name: Check out repository
-      uses: actions/checkout@v2
     - name: Setup go-mod cache
       uses: actions/cache@v1
       with:
@@ -80,7 +79,6 @@ jobs:
         docker push $tag
         rm /home/runner/.docker/config.json # Delete credentials
     - name: Build Finished Webhook
-      uses: actions/checkout@v2
       run: |
         ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPO}"
     - name: Compress new binaries
