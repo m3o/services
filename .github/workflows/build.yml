@@ -13,6 +13,7 @@ jobs:
       with:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Started Webhook
+      uses: actions/checkout@v2
       run: |
         ./event.sh "build.started" "${GITHUB_SHA}" "${GITHUB_REPO}"
     - name: Install Go
@@ -79,6 +80,7 @@ jobs:
         docker push $tag
         rm /home/runner/.docker/config.json # Delete credentials
     - name: Build Finished Webhook
+      uses: actions/checkout@v2
       run: |
         ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPO}"
     - name: Compress new binaries
