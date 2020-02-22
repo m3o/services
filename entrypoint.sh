@@ -23,10 +23,6 @@ git sparse-checkout set $SOURCE
 # go to source
 cd $SOURCE
 
-# Build Binary
-echo "Building Binary"
-time go build -o $SOURCE .
-
 # run the source
 echo "Running service"
-./$SOURCE
+go run .

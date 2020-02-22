@@ -75,7 +75,7 @@ jobs:
       run: |
         tag=docker.pkg.github.com/${{ github.repository }}/${GITHUB_REF##*/}
         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
-        docker build ~/builds -f Dockerfile -t $tag
+        docker build ~/builds -f .github/workflows/Dockerfile -t $tag
         docker push $tag
         rm /home/runner/.docker/config.json # Delete credentials
     - name: Build Finished Webhook
