@@ -7,9 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Detect files changed
-      id: file_changes
-      uses: trilom/file-changes-action@v1
+    - name: Detect which services changed
+      id: services_changed
+      uses: micro/actions@0.1.10
       with:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - name: Check out repository
@@ -28,61 +28,36 @@ jobs:
         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-gomods-
-    - name: Setup builds cache
-      id: setup-builds-cache
-      uses: actions/cache@v1
-      with:
-        path: ~/builds
-        key: ${{ runner.os }}-binary-${{ hashFiles('**/*.go') }}
-        restore-keys: |
-          ${{ runner.os }}-binary-
-    - name: Create builds directory
-      run: |
-        if [ -d ~/builds ] && [ "$(ls -A ~/builds)" ]; then
-          echo "Binaries already exist"
-        else
-          mkdir ~/builds
-          for dir in */; do
-            cd $dir
-            echo Building $dir
-            (CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1} || true)
-            upx ~/builds/${dir::-1}
-            cd ..
-          done
-        fi
     - name: Build services with changes
       run: |
-        for dir in */; do
-          if grep $dir $HOME/files.json; then
-            cd $dir
-            echo Building $dir
-            CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" . && mv ./${dir::-1} ~/builds/${dir::-1}
-            cd ..
-           else
-            echo Skipping $dir
-           fi
+        services=(${{ steps.services_changed.outputs.services }})
+        for dir in "${services[@]}"; do
+          cd $dir
+          echo Building $dir
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" .
+          cd ..
         done
     - name: Setup dumb init
       run: |
-        if ! test -f ~/builds/dumb-init; then
-          git clone https://github.com/Yelp/dumb-init.git
-          cd dumb-init
-          make build
-          mv dumb-init ~/builds/dumb-init
-          cd ..
-        fi
-    - name: Build and Push Docker Image
+        git clone https://github.com/Yelp/dumb-init.git
+        cd dumb-init
+        make build
+        cd ..
+    - name: Build and push docker images
       run: |
-        tag=docker.pkg.github.com/${{ github.repository }}/${GITHUB_REF##*/}
+        mkdir tmp
+        cp dumb-init/dumb-init tmp/dumb-init
+
         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
-        docker build ~/builds -f .github/workflows/Dockerfile -t $tag
-        docker push $tag
-        rm /home/runner/.docker/config.json # Delete credentials
+
+        services=(${{ steps.services_changed.outputs.services }})
+        for srv in "${services[@]}"; do
+          cp $srv/$srv tmp/app
+          tag=docker.pkg.github.com/${{ github.repository }}/$srv
+          docker build tmp -f .github/workflows/Dockerfile -t $tag
+          docker push $tag
+          rm tmp/app
+        done
     - name: Build Finished Webhook
       run: |
         ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
-    - name: Compress new binaries
-      run: |        
-        for dir in */; do
-          if grep $dir $HOME/files.json; then upx ~/builds/${dir::-1}; fi
-        done
