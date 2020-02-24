@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: Detect which services changed
       id: services_changed
-      uses: micro/actions@0.1.10
+      uses: micro/actions@1.0.0
       with:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - name: Check out repository
