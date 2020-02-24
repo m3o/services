@@ -61,3 +61,7 @@ jobs:
     - name: Build Finished Webhook
       run: |
         ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
+    - name: Build Failed Webhook
+      if: failed()
+      run: |
+        ./event.sh "build.failed" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
