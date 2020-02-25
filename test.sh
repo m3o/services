@@ -4,7 +4,7 @@
 #
 # All services should include a README.md
 # All services should include a main.go
-# All services should include a go.mod and go.sum
+# All services should include a go.mod
 # No binaries should be present anywhere
 
 set -e
@@ -18,7 +18,7 @@ function fatal {
 
 function checkFiles() {
 	# should exist
-	for file in README.md go.mod go.sum main.go; do
+	for file in README.md go.mod main.go; do
 		if [ ! -f $file ]; then
 			fatal "$1 does not include $file"
 		fi
