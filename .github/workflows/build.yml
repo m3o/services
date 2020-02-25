@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Build Started Webhook
       run: |
-        ./event.sh "build.started" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
+        ./event.sh "build.started" "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
     - name: Install Go
       uses: actions/setup-go@v1
       with:
@@ -60,8 +60,8 @@ jobs:
         done
     - name: Build Finished Webhook
       run: |
-        ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
+        ./event.sh "build.finished" "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
     - name: Build Failed Webhook
       if: failure()
       run: |
-        ./event.sh "build.failed" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
+        ./event.sh "build.failed" "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
