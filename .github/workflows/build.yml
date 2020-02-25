@@ -35,11 +35,7 @@ jobs:
         make build
         cd ..
     - name: Build and push docker images
-      run: |
-        # Setup tmp directory and add dumb-init (used by docker images)
-        mkdir tmp
-        cp dumb-init/dumb-init tmp/dumb-init
-          
+      run: |          
         # Login to docker
         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
 

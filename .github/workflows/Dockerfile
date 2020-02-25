@@ -1,3 +1,4 @@
 FROM alpine:latest
-COPY . /bin
-ENTRYPOINT ["dumb-init", "app"]
+COPY ./dumb-init /bin/dumb-init
+COPY . .
+ENTRYPOINT ["dumb-init", "./app"]

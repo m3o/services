@@ -6,25 +6,27 @@ export GOARCH=amd64
 
 SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
-echo Repo: $REPO
 echo Services: $SERVICES
 
 for dir in "${SERVICES[@]}"; do
     for path in $(find $dir -name "main.go"); do
-        # transform the name to one suitable for a docker image
-        # e.g. "helloworld/api" => "helloworld-api"
-        name=$(echo $(dirname $path) | tr / -)
-        echo Building $name
+        dir=$(dirname $path)
+        echo Building $dir
 
-        # build the go binary
-        go build -ldflags="-s -w" -o tmp/app $path
+        # build the binaries
+        go build -ldflags="-s -w" -o $dir/app $path
+        cp dumb-init/dumb-init $dir/dumb-init
 
         # build the docker image
-        tag=docker.pkg.github.com/micro/services/$name
-        docker build tmp -t $tag -f .github/workflows/Dockerfile
-        docker push $tag
+        tag=docker.pkg.github.com/micro/services/$(echo $dir | tr / -)
+        docker build $dir -t $tag -f .github/workflows/Dockerfile
 
-        # remove the binary
-        rm tmp/app
+        # push the docker image
+        echo Pushing $tag
+        # docker push $tag
+
+        # remove the binaries
+        rm $dir/app
+        rm $dir/dumb-init
     done
 done
