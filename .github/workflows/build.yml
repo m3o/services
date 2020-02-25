@@ -28,15 +28,6 @@ jobs:
         key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-gomods-
-    - name: Build services with changes
-      run: |
-        services=(${{ steps.services_changed.outputs.services }})
-        for dir in "${services[@]}"; do
-          cd $dir
-          echo Building $dir
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" .
-          cd ..
-        done
     - name: Setup dumb init
       run: |
         git clone https://github.com/Yelp/dumb-init.git
@@ -45,19 +36,18 @@ jobs:
         cd ..
     - name: Build and push docker images
       run: |
+        # Setup tmp directory and add dumb-init (used by docker images)
         mkdir tmp
         cp dumb-init/dumb-init tmp/dumb-init
-
+          
+        # Login to docker
         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
 
-        services=(${{ steps.services_changed.outputs.services }})
-        for srv in "${services[@]}"; do
-          cp $srv/$srv tmp/app
-          tag=docker.pkg.github.com/${{ github.repository }}/$srv
-          docker build tmp -f .github/workflows/Dockerfile -t $tag
-          docker push $tag
-          rm tmp/app
-        done
+        # Build the binaries in the directories which have changed
+        ./build.sh ${{ github.repository }} "${{ steps.services_changed.outputs.services }})"
+
+        # Tidy up the tmp dir
+        rm -rf tmp
     - name: Build Finished Webhook
       run: |
         ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
