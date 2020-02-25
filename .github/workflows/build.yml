@@ -44,7 +44,7 @@ jobs:
         echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
 
         # Build the binaries in the directories which have changed
-        ./build.sh "${GITHUB_REPOSITORY}" "${{ steps.services_changed.outputs.services }}"
+        ./build.sh "micro/services" "${{ steps.services_changed.outputs.services }}"
 
         # Tidy up the tmp dir
         rm -rf tmp
