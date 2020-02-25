@@ -6,7 +6,6 @@ export GOARCH=amd64
 
 SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
-echo Repo: $REPO
 echo Services: $SERVICES
 
 for dir in "${SERVICES[@]}"; do
