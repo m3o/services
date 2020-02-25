@@ -41,9 +41,6 @@ jobs:
 
         # Build the binaries in the directories which have changed
         ./build.sh "${{ steps.services_changed.outputs.services }}"
-
-        # Tidy up the tmp dir
-        rm -rf tmp
     - name: Build Finished Webhook
       run: |
         ./event.sh "build.finished" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
