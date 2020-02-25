@@ -23,7 +23,7 @@ for dir in "${SERVICES[@]}"; do
 
         # push the docker image
         echo Pushing $tag
-        # docker push $tag
+        docker push $tag
 
         # remove the binaries
         rm $dir/app
