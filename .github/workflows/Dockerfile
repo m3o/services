@@ -1,3 +1,3 @@
-FROM scratch
+FROM alpine:latest
 COPY . /bin
-ENTRYPOINT ["dumb-init"]
+ENTRYPOINT ["dumb-init", "app"]
