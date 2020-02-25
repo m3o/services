@@ -4,8 +4,7 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
-REPO=($1) # e.g. "micro/services"
-SERVICES=($2) # e.g. "foobar barfoo helloworld"
+SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
 echo Repo: $REPO
 echo Services: $SERVICES
@@ -21,7 +20,7 @@ for dir in "${SERVICES[@]}"; do
         go build -ldflags="-s -w" -o tmp/app $path
 
         # build the docker image
-        tag=docker.pkg.github.com/$REPO/$name
+        tag=docker.pkg.github.com/micro/services/$name
         docker build tmp -t $tag -f .github/workflows/Dockerfile
         docker push $tag
 
