@@ -3,5 +3,5 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("web #005")
+	fmt.Println("web #006")
 }
