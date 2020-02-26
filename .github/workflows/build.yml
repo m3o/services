@@ -7,44 +7,69 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Detect which services changed
-      id: services_changed
-      uses: micro/actions@1.0.0
-      with:
-        githubToken: ${{ secrets.GITHUB_TOKEN }}
-    - name: Check out repository
-      uses: actions/checkout@v2
-    - name: Build Started Webhook
-      run: |
-        ./event.sh "build.started" "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
-    - name: Install Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.13
-    - name: Setup go-mod cache
-      uses: actions/cache@v1
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-gomods-
-    - name: Setup dumb init
-      run: |
-        git clone https://github.com/Yelp/dumb-init.git
-        cd dumb-init
-        make build
-        cd ..
-    - name: Build and push docker images
-      run: |          
-        # Login to docker
-        echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Detect which services changed
+        id: services_changed
+        uses: micro/actions@1.0.19
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: test
+        run: |
+          cat $HOME/changes.json
+          echo '${{ steps.services_changed.outputs.services }}'
 
-        # Build the binaries in the directories which have changed
-        ./build.sh "${{ steps.services_changed.outputs.services }}"
-    - name: Build Finished Webhook
-      run: |
-        ./event.sh "build.finished" "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
-    - name: Build Failed Webhook
-      if: failure()
-      run: |
-        ./event.sh "build.failed" "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${GITHUB_REPOSITORY}"
+          echo Logging services added
+          services=(${{ steps.services_changed.outputs.services_added }})
+          for dir in "${services[@]}"; do
+            echo Added $dir
+          done
+
+          echo Logging services modified
+          services=(${{ steps.services_changed.outputs.services_modified }})
+          for dir in "${services[@]}"; do
+            echo Modified $dir
+          done
+
+          echo Logging services deleted
+          services=(${{ steps.services_changed.outputs.services_deleted }})
+          for dir in "${services[@]}"; do
+            echo Deleted $dir
+          done
+
+          echo Done
+      - name: Build Started Webhook
+        run: |
+          ./event.sh "build.started"
+      - name: Install Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+      - name: Setup go-mod cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-gomods-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gomods-
+      - name: Setup dumb init
+        run: |
+          git clone https://github.com/Yelp/dumb-init.git
+          cd dumb-init
+          make build
+          cd ..
+      - name: Build and push docker images
+        run: |          
+          # Login to docker
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+
+          # Build the binaries in the directories which have changed
+          ./build.sh "${{ steps.services_changed.outputs.services_added }}"
+          ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+      - name: Build Finished Webhook
+        run: |
+          ./event.sh "build.finished"
+      - name: Build Failed Webhook
+        if: failure()
+        run: |
+          ./event.sh "build.failed"
