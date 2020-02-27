@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package go.micro.srv.cruft;
+package go.micro.srv.ben;
 
-service Cruft {
+service Ben {
 	rpc Call(Request) returns (Response) {}
 	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
 	rpc PingPong(stream Ping) returns (stream Pong) {}

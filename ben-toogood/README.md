@@ -1,11 +1,11 @@
-# Cruft Service
+# Ben Service
 
-This is the Cruft service
+This is the Ben service
 
 Generated with
 
 ```
-micro new cruft --namespace=go.micro --type=srv
+micro new ben-toogood --namespace=go.micro --type=srv
 ```
 
 ## Getting Started
@@ -16,9 +16,9 @@ micro new cruft --namespace=go.micro --type=srv
 
 ## Configuration
 
-- FQDN: go.micro.srv.cruft
+- FQDN: go.micro.srv.ben
 - Type: srv
-- Alias: cruft
+- Alias: ben
 
 ## Dependencies
 
@@ -46,7 +46,7 @@ make build
 
 Run the service
 ```
-./cruft-srv
+./ben-srv
 ```
 
 Build a docker image

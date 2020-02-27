@@ -1,18 +1,18 @@
 package main
 
 import (
-	"cruft/handler"
-	"cruft/subscriber"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/util/log"
+	"ben-toogood/handler"
+	"ben-toogood/subscriber"
 
-	cruft "cruft/proto/cruft"
+	ben "ben-toogood/proto/ben"
 )
 
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.srv.cruft"),
+		micro.Name("go.micro.srv.ben"),
 		micro.Version("latest"),
 	)
 
@@ -20,10 +20,10 @@ func main() {
 	service.Init()
 
 	// Register Handler
-	cruft.RegisterCruftHandler(service.Server(), new(handler.Cruft))
+	ben.RegisterBenHandler(service.Server(), new(handler.Ben))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("go.micro.srv.cruft", service.Server(), new(subscriber.Cruft))
+	micro.RegisterSubscriber("go.micro.srv.ben", service.Server(), new(subscriber.Ben))
 
 	// Run service
 	if err := service.Run(); err != nil {
