@@ -40,7 +40,7 @@ jobs:
           echo Done
       - name: Build Started Webhook
         run: |
-          ./event.sh "build.started"
+          ./event.sh "build.started" "${GITHUB_RUN_ID}"
       - name: Install Go
         uses: actions/setup-go@v1
         with:
@@ -68,8 +68,8 @@ jobs:
           ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
       - name: Build Finished Webhook
         run: |
-          ./event.sh "build.finished"
+          ./event.sh "build.finished" "${GITHUB_RUN_ID}"
       - name: Build Failed Webhook
         if: failure()
         run: |
-          ./event.sh "build.failed"
+          ./event.sh "build.failed" "${GITHUB_RUN_ID}"
