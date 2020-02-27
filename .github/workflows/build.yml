@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Detect which services changed
         id: services_changed
-        uses: micro/actions@1.0.19
+        uses: micro/actions@1.1.0
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: test
@@ -31,10 +31,10 @@ jobs:
             echo Modified $dir
           done
 
-          echo Logging services deleted
-          services=(${{ steps.services_changed.outputs.services_deleted }})
+          echo Logging services removed
+          services=(${{ steps.services_changed.outputs.services_removed }})
           for dir in "${services[@]}"; do
-            echo Deleted $dir
+            echo Removed $dir
           done
 
           echo Done
