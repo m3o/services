@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"platform-test/handler"
 	pb "platform-test/proto"
 
@@ -13,6 +14,8 @@ func main() {
 		micro.Name("go.micro.srv.platform.test"),
 	)
 	service.Init()
+
+	fmt.Println("Foo")
 
 	h := handler.NewHandler(service)
 	pb.RegisterPlatformTestHandler(service.Server(), h)
