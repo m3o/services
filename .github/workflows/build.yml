@@ -14,30 +14,6 @@ jobs:
         uses: micro/actions@1.1.0
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-      - name: test
-        run: |
-          cat $HOME/changes.json
-          echo '${{ steps.services_changed.outputs.services }}'
-
-          echo Logging services added
-          services=(${{ steps.services_changed.outputs.services_added }})
-          for dir in "${services[@]}"; do
-            echo Added $dir
-          done
-
-          echo Logging services modified
-          services=(${{ steps.services_changed.outputs.services_modified }})
-          for dir in "${services[@]}"; do
-            echo Modified $dir
-          done
-
-          echo Logging services removed
-          services=(${{ steps.services_changed.outputs.services_removed }})
-          for dir in "${services[@]}"; do
-            echo Removed $dir
-          done
-
-          echo Done
       - name: Build Started Webhook
         run: |
           ./event.sh "build.started" "${GITHUB_RUN_ID}"

@@ -17,15 +17,15 @@ for dir in "${SERVICES[@]}"; do
 
     # build the docker image
     tag=docker.pkg.github.com/micro/services/$(echo $dir | tr / -)
-    docker build . -t $tag -f .github/workflows/Dockerfile
+    docker build . -t $tag -f $rootDir/.github/workflows/Dockerfile
 
     # push the docker image
     echo Pushing $tag
     docker push $tag
 
     # remove the binaries
-    rm $dir/app
-    rm $dir/dumb-init
+    rm app
+    rm dumb-init
 
     # go back to the top level dir
     cd $rootDir
