@@ -6,16 +6,18 @@ export GOARCH=amd64
 
 SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
+rootDir=$(pwd)
 for dir in "${SERVICES[@]}"; do
     echo Building $dir
+    cd $dir
 
     # build the binaries
-    go build -ldflags="-s -w" -o $dir/app $dir/main.go
-    cp dumb-init/dumb-init $dir/dumb-init
+    go build -ldflags="-s -w" -o app .
+    cp $rootDir/dumb-init/dumb-init dumb-init
 
     # build the docker image
     tag=docker.pkg.github.com/micro/services/$(echo $dir | tr / -)
-    docker build $dir -t $tag -f .github/workflows/Dockerfile
+    docker build . -t $tag -f .github/workflows/Dockerfile
 
     # push the docker image
     echo Pushing $tag
@@ -24,4 +26,7 @@ for dir in "${SERVICES[@]}"; do
     # remove the binaries
     rm $dir/app
     rm $dir/dumb-init
+
+    # go back to the top level dir
+    cd $rootDir
 done
