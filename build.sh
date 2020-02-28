@@ -11,6 +11,9 @@ for dir in "${SERVICES[@]}"; do
     echo Building $dir
     cd $dir
 
+    # build the proto buffers
+    find . -name "*.proto" | xargs protoc --proto_path=. --micro_out=. --go_out=. 
+
     # build the binaries
     go build -ldflags="-s -w" -o app .
     cp $rootDir/dumb-init/dumb-init dumb-init

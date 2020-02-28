@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "github.com/micro/services/location/proto/common.proto";
-
 service Location {
 	rpc Read(ReadRequest) returns (ReadResponse) {}
 	rpc Save(SaveRequest) returns (SaveResponse) {}
@@ -32,4 +30,16 @@ message SearchRequest {
 
 message SearchResponse {
 	repeated Entity entities = 1;
+}
+
+message Point {
+	double latitude = 1;
+	double longitude = 2;
+	int64 timestamp = 3;
+}
+
+message Entity {
+	string id = 1;
+	string type = 2;
+	Point location = 3;
 }
