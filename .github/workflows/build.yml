@@ -16,7 +16,7 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Started Webhook
         run: |
-          ./event.sh "build.started" "${GITHUB_RUN_ID}"
+          ./event.sh -e "build.started" "${GITHUB_RUN_ID}"
       - name: Install Go
         uses: actions/setup-go@v1
         with:
@@ -40,12 +40,12 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
 
           # Build the binaries in the directories which have changed
-          ./build.sh "${{ steps.services_changed.outputs.services_added }}"
-          ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+          ./build.sh -e "${{ steps.services_changed.outputs.services_added }}"
+          ./build.sh -e "${{ steps.services_changed.outputs.services_modified }}"
       - name: Build Finished Webhook
         run: |
-          ./event.sh "build.finished" "${GITHUB_RUN_ID}"
+          ./event.sh -e "build.finished" "${GITHUB_RUN_ID}"
       - name: Build Failed Webhook
         if: failure()
         run: |
-          ./event.sh "build.failed" "${GITHUB_RUN_ID}"
+          ./event.sh -e "build.failed" "${GITHUB_RUN_ID}"
