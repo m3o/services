@@ -15,7 +15,7 @@ for dir in "${SERVICES[@]}"; do
     find . -name "*.proto" | xargs protoc --proto_path=. --micro_out=. --go_out=. 
 
     # build the binaries
-    go build -ldflags="-s -w" -o app .
+    go build -ldflags="-s -w" -o micro-service .
     cp $rootDir/dumb-init/dumb-init dumb-init
 
     # build the docker image
@@ -27,7 +27,7 @@ for dir in "${SERVICES[@]}"; do
     docker push $tag
 
     # remove the binaries
-    rm app
+    rm micro-service
     rm dumb-init
 
     # go back to the top level dir
