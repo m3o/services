@@ -57,7 +57,7 @@ class NotesEditor extends React.Component<Props, State> {
         .then(res => {
           const note = new Note(res.data.note);
           this.props.updateNote(note);
-          this.props.history.push('/notes/' + note.id + '/autoFocus');
+          this.props.history.push('/distributed/notes/' + note.id + '/autoFocus');
         })
         .catch(console.warn)
     } else {
@@ -79,7 +79,7 @@ class NotesEditor extends React.Component<Props, State> {
 
     Call('deleteNote', { note: { id: this.props.noteID } }).catch(console.warn);
     this.props.deleteNote(this.props.note);
-    this.props.history.push('/notes');
+    this.props.history.push('/distributed/notes');
   }
 
   render(): JSX.Element {

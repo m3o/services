@@ -25,7 +25,7 @@ class NotesScene extends React.Component<Props> {
     // Set the default note when navigating to /notes
     if(!match.params.id) {
       const id = notes.length === 0 ? 'new' : notes[0].id;
-      history.push('/notes/' + id);
+      history.push('/distributed/notes/' + id);
       return
     }
 
@@ -75,7 +75,7 @@ class NotesScene extends React.Component<Props> {
   }
 
   onNoteClicked(id: string) {
-    this.props.history.push('/notes/' + id)
+    this.props.history.push('/distributed/notes/' + id)
   }
 }
 

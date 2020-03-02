@@ -17,13 +17,13 @@ window.store = createStore(
 export default class App extends React.Component {
   render():JSX.Element {
     return(
-      <Provider store={window.store}>
+      <Provider store={window.store} basename='/distributed'>
         <BrowserRouter>
           <div className='App'>
-            <Route exact path='/' component={HomeScene}/>
-            <Route exact path='/notes' component={NotesScene}/>
-            <Route exact path='/notes/:id' component={NotesScene}/>
-            <Route exact path='/notes/:id/:options' component={NotesScene}/>
+            <Route exact path='/distributed/' component={HomeScene}/>
+            <Route exact path='/distributed/notes' component={NotesScene}/>
+            <Route exact path='/distributed/notes/:id' component={NotesScene}/>
+            <Route exact path='/distributed/notes/:id/:options' component={NotesScene}/>
           </div>
         </BrowserRouter>
       </Provider>

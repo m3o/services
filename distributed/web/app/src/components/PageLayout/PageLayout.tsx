@@ -20,8 +20,8 @@ export default class PageLayout extends React.Component<Props> {
           </div>
 
           <nav>
-            <NavLink exact to='/'>Home</NavLink>
-            <NavLink to='/notes'>Notes</NavLink>
+            <NavLink exact to='/distributed'>Home</NavLink>
+            <NavLink to='/distributed/notes'>Notes</NavLink>
           </nav>
         </div>
 
