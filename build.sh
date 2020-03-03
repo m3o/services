@@ -13,7 +13,7 @@ for dir in "${SERVICES[@]}"; do
     cd $dir
 
     # build the proto buffers
-    find . -name "*.proto" | xargs --no-run-if-empty protoc --proto_path=. --micro_out=. --go_out=.  
+    #find . -name "*.proto" | xargs --no-run-if-empty protoc --proto_path=. --micro_out=. --go_out=.  
 
     # build the binaries
     go build -ldflags="-s -w" -o micro-service .
