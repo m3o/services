@@ -7,6 +7,7 @@ import (
 	pb "api/proto/client"
 	"github.com/micro/go-micro/v2/client"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/metadata"
 )
 
 type Client struct {
@@ -18,9 +19,14 @@ type Client struct {
 func (c *Client) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	log.Infof("Received Client.Call request service %s endpoint %s", req.Service, req.Endpoint)
 
+	ct, ok := metadata.Get(ctx, "Content-Type")
+	if !ok || len(ct) == 0 {
+		ct = req.ContentType
+	}
+
 	// assume json until otherwise
-	if req.ContentType != "application/json" {
-		req.ContentType = "application/json"
+	if ct != "application/json" {
+		ct = "application/json"
 	}
 
 	// forward the request
@@ -38,7 +44,7 @@ func (c *Client) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) er
 		req.Service,
 		req.Endpoint,
 		&payload,
-		client.WithContentType(req.ContentType),
+		client.WithContentType(ct),
 	)
 
 	// make the call
