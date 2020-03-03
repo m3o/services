@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package go.micro.srv.users;
+
+service Users {
+	rpc Create(CreateRequest) returns (CreateResponse) {}
+	rpc Read(ReadRequest) returns (ReadResponse) {}
+	rpc Update(UpdateRequest) returns (UpdateResponse) {}
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+	rpc Search(SearchRequest) returns (SearchResponse) {}
+}
+
+message User {
+	string id = 1;					// uuid
+	int64 created = 2;			// unix
+	int64 updated = 3;			// unix
+	string first_name = 4;
+	string last_name = 5;
+	string email = 6;
+	string username = 7;		// alphanumeric user or org
+}
+
+message CreateRequest {
+	User user = 1;
+}
+
+message CreateResponse {
+	User user = 1;
+	string token = 2;
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+
+message DeleteResponse {
+}
+
+message ReadRequest {
+	string id = 1;
+}
+
+message ReadResponse {
+	User user = 1;
+}
+
+message UpdateRequest {
+	User user = 1;
+}
+
+message UpdateResponse {
+	User user = 1;
+}
+
+message SearchRequest {
+	string username = 1; 
+}
+
+message SearchResponse {
+	repeated User users = 1;
+}
