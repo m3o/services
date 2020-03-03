@@ -19,7 +19,7 @@ import (
 
 var (
 	// URLSafeRegex is a function which returns true if a string is URL safe
-	URLSafeRegex = regexp.MustCompile(`^[a-z0-9_-].*?$`).MatchString
+	URLSafeRegex = regexp.MustCompile(`^[a-Z0-9_-].*?$`).MatchString
 )
 
 // Handler implements the users service interface
@@ -249,7 +249,8 @@ func (h *Handler) validateUser(u *pb.User) error {
 	}
 
 	// Ensure no other users with this username exist
-	if exists, err := h.usernameExists(u.Username); err != nil {
+	exists, err := h.usernameExists(u.Username)
+	if err != nil && err != store.ErrNotFound {
 		return errors.InternalServerError("go.micro.srv.users", "Could not validate username: %v", err)
 	} else if exists {
 		return errors.BadRequest("go.micro.srv.users", "Username is taken")
