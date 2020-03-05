@@ -19,7 +19,7 @@
     "@angular/platform-browser": "~9.0.4",
     "@angular/platform-browser-dynamic": "~9.0.4",
     "@angular/router": "~9.0.4",
-    "@microhq/ng-client": "0.0.1",
+    "@microhq/ng-client": "file:../../../clients/angular/dist/client",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"

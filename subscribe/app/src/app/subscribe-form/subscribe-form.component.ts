@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { Client } from "@microhq/ng-client";
+import { ClientService } from "@microhq/ng-client";
 
 @Component({
   selector: "app-subscribe-form",
@@ -8,11 +8,13 @@ import { Client } from "@microhq/ng-client";
   providers: []
 })
 export class SubscribeFormComponent implements OnInit {
-  constructor(private mc: Client) {
+  constructor(private mc: ClientService) {
 
   }
 
   ngOnInit() {
-    this.mc.call("go.micro.srv.greeter", "Say.Hello");
+    this.mc.call("go.micro.srv.greeter", "Say.Hello").then(response => {
+      console.log(response)
+    });
   }
 }
