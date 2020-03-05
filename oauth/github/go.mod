@@ -1,0 +1,14 @@
+module github.com/micro/services/oauth/github
+
+go 1.13
+
+require (
+	github.com/dghubble/gologin/v2 v2.2.0
+	github.com/google/go-github v17.0.0+incompatible
+	github.com/google/go-github/v29 v29.0.3
+	github.com/micro/go-micro/v2 v2.2.0
+	github.com/micro/services/users/service v0.0.0-20200305124315-c51572c1eb77
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+)
+
+replace github.com/micro/go-micro/v2 => ../../../go-micro
