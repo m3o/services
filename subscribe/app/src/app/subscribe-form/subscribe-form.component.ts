@@ -29,17 +29,17 @@ export class SubscribeFormComponent implements OnInit {
 
   subscribe() {
     if (!this.email) {
-      return
+      return;
     }
     this.mc
       .call("go.micro.store", "Store.Write", {
         record: {
-          key: this.domain + ":" + this.email,
+          key: this.domain,
           value: btoa(this.email)
         }
       })
       .then(response => {
-        this.subscribed = true
+        this.subscribed = true;
         console.log(response);
       })
       .catch(e => {
