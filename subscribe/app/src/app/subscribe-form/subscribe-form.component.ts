@@ -8,13 +8,13 @@ import { ClientService } from "@microhq/ng-client";
   providers: []
 })
 export class SubscribeFormComponent implements OnInit {
-  constructor(private mc: ClientService) {
+  subscribed: boolean = false;
 
-  }
+  constructor(private mc: ClientService) {}
 
   ngOnInit() {
     this.mc.call("go.micro.srv.greeter", "Say.Hello").then(response => {
-      console.log(response)
+      console.log(response);
     });
   }
 }

@@ -1,1 +1,24 @@
-<p>subscribe-form works!</p>
+<section class="newsletter">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="content">
+          <h2>SUBSCRIBE TO OUR NEWSLETTER</h2>
+          <div *ngIf="!subscribed" class="input-group">
+            <input
+              type="email"
+              class="form-control"
+              placeholder="Enter your email"
+            />
+            <span class="input-group-btn">
+              <button class="btn" type="submit">Subscribe Now</button>
+            </span>
+          </div>
+          <div *ngIf="subscribed">
+              Thank you for your subscription!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
