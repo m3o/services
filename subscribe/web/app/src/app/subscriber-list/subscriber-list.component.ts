@@ -2,15 +2,17 @@ import { Component, OnInit } from "@angular/core";
 import { ClientService } from "@microhq/ng-client";
 import { ActivatedRoute } from "@angular/router";
 
+interface Subscriber {
+  email?: string;
+}
+
 @Component({
-  selector: "app-subscribe-form",
-  templateUrl: "./subscribe-form.component.html",
-  styleUrls: ["./subscribe-form.component.css"],
-  providers: []
+  selector: "app-subscriber-list",
+  templateUrl: "./subscriber-list.component.html",
+  styleUrls: ["./subscriber-list.component.css"]
 })
-export class SubscribeFormComponent implements OnInit {
-  email = "";
-  subscribed: boolean = false;
+export class SubscriberListComponent implements OnInit {
+  subscribers: Subscriber[];
   domain = "";
   error = "";
 
@@ -25,25 +27,13 @@ export class SubscribeFormComponent implements OnInit {
         return;
       }
     });
-  }
 
-  subscribe() {
-    if (!this.email) {
-      return;
-    }
     this.mc
-      .call("go.micro.store", "Store.Write", {
-        record: {
-          key: this.domain,
-          value: btoa(this.email)
-        }
+      .call("go.micro.srv.subscribe", "Subscribe.ListSubscriptions", {
+        namespace: this.domain
       })
-      .then(response => {
-        this.subscribed = true;
-        console.log(response);
-      })
-      .catch(e => {
-        this.error = e;
+      .then((response: any) => {
+        this.subscribers = response.subscriptions
       });
   }
 }

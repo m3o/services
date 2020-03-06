@@ -10,7 +10,7 @@
               *ngFor="let subscriber of subscribers"
               class="input-group"
             >
-              {{ subscriber }}<br />
+              {{ subscriber.email }}<br />
             </div>
           </ng-container>
           <ng-container *ngIf="error"> Error: {{ error }} </ng-container>
