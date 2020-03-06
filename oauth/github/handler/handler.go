@@ -33,11 +33,13 @@ type Handler struct {
 
 // RegisterHandler adds the GitHub oauth handlers to the servie
 func RegisterHandler(srv web.Service) {
+	provider := srv.Options().Service.Options().Auth.Options().Provider
+
 	// Setup oauth2 config
 	oauth2Config := &oauth2.Config{
-		ClientID:     getEnv("GITHUB_OAUTH_CLIENT_ID"),
-		ClientSecret: getEnv("GITHUB_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  getEnv("GITHUB_OAUTH_REDIRECT_URL"),
+		ClientID:     provider.Options().ClientID,
+		ClientSecret: provider.Options().ClientSecret,
+		RedirectURL:  provider.Redirect(),
 		Endpoint:     githubOAuth2.Endpoint,
 		Scopes:       []string{"user:email", "read:org"},
 	}
@@ -58,6 +60,10 @@ func RegisterHandler(srv web.Service) {
 	} else {
 		h.githubOrgID = id
 	}
+
+	srv.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(200)
+	})
 
 	// state param cookies require HTTPS by default; disable for localhost development
 	stateConfig := gologin.DebugOnlyCookieConfig
