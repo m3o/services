@@ -1,11 +1,10 @@
 package main
 
 import (
-	"subscribe/handler"
-
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 
+	handler "subscribe/handler"
 	subscribe "subscribe/proto/subscribe"
 )
 
@@ -20,7 +19,7 @@ func main() {
 	service.Init()
 
 	// Register Handler
-	subscribe.RegisterSubscribeHandler(service.Server(), new(handler.Subscribe))
+	subscribe.RegisterSubscribeHandler(service.Server(), handler.NewSubscribe())
 
 	// Run service
 	if err := service.Run(); err != nil {
