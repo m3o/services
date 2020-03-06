@@ -1,30 +1,31 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"strings"
+	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2"
+	"subscribe/handler"
+	"subscribe/subscriber"
 
-	"github.com/micro/go-micro/v2/web"
+	subscribe "subscribe/proto/subscribe"
 )
 
 func main() {
-	service := web.NewService(
-		web.Name("go.micro.web.subscribe"),
+	// New Service
+	service := micro.NewService(
+		micro.Name("go.micro.srv.subscribe"),
+		micro.Version("latest"),
 	)
 
-	service.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		// Count is an ugly fix to serve urls containing micro service names ie. "go.micro.something"
-		if strings.Contains(req.URL.Path, ".") && !strings.Contains(req.URL.Path, "go.micro") {
-			http.ServeFile(w, req, "./app/dist/micro/"+req.URL.Path[1:])
-			return
-		}
-		http.ServeFile(w, req, "./app/dist/micro/index.html")
-	})
+	// Initialise service
+	service.Init()
 
-	if err := service.Init(); err != nil {
-		log.Fatal(err)
-	}
+	// Register Handler
+	subscribe.RegisterSubscribeHandler(service.Server(), new(handler.Subscribe))
+
+	// Register Struct as Subscriber
+	micro.RegisterSubscriber("go.micro.srv.subscribe", service.Server(), new(subscriber.Subscribe))
+
+	// Run service
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
