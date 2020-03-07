@@ -1,16 +1,40 @@
 import React from 'react';
-import './Sprints.scss';
+
+// Components
 import PageLayout from '../../components/PageLayout';
+import Messenger from '../../components/Messenger';
+import SprintRow from './components/Row';
+
+// Assets
 import Arrow from '../../assets/images/arrow.png';
 import ChatIcon from '../../assets/images/chat-icon-white.png';
 import AddIcon from '../../assets/images/add-icon.png';
-import SprintRow from './components/Row';
+import './Sprints.scss';
 
-export default class SprintsScene extends React.Component {
+interface Props {}
+
+interface State {
+  chatHidden: boolean;
+}
+
+export default class SprintsScene extends React.Component<Props,State> {
+  readonly state:State = { chatHidden: true };
+
+  toggleChat():void {
+    this.setState({ chatHidden: !this.state.chatHidden });
+  }
+
   render() {
     return <PageLayout className='SprintsScene' {...this.props}>
-      { this.renderUpper() }
-      { this.renderLower() }
+      <div className='inner'>
+        { this.renderUpper() }
+        { this.renderLower() }
+      </div>
+
+      <Messenger
+        title='Sprint #1 Chat'
+        hidden={this.state.chatHidden}
+        toggleHidden={this.toggleChat.bind(this)} />
     </PageLayout>
   }
 
@@ -30,7 +54,7 @@ export default class SprintsScene extends React.Component {
         </div>
 
         <div className='right'>
-          <div className='chat-icon active noselect'>
+          <div className='chat-icon active noselect' onClick={this.toggleChat.bind(this)}>
             <img src={ChatIcon} alt='Chat' />
             <p>Chat Active</p>
           </div>

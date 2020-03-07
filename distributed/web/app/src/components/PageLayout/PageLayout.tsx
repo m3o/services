@@ -38,7 +38,7 @@ export default class PageLayout extends React.Component<Props> {
             </NavLink>
 
             <NavLink to='/distributed/sprints'>
-              <img src={ path.startsWith('/distributed/sprints/') ? SprintsActive : SprintsInactive } alt='Sprints' />
+              <img src={ path.startsWith('/distributed/sprints') ? SprintsActive : SprintsInactive } alt='Sprints' />
             </NavLink>
           </nav>
         </div>
