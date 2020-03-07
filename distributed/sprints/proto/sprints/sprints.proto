@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package go.micro.srv.distributed.sprints;
+
+service Sprints {
+	rpc CreateSprint(CreateSprintRequest) returns (CreateSprintResponse) {}
+	rpc ListSprints(ListSprintsRequest) returns (ListSprintsResponse) {}
+	rpc ReadSprint(ReadSprintRequest) returns (ReadSprintResponse) {}
+	
+	rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse) {}
+	rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse) {}
+	rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse) {}
+	
+	rpc CreateObjective(CreateObjectiveRequest) returns (CreateObjectiveResponse) {}
+	rpc UpdateObjective(UpdateObjectiveRequest) returns (UpdateObjectiveResponse) {}
+	rpc DeleteObjective(DeleteObjectiveRequest) returns (DeleteObjectiveResponse) {}
+}
+
+enum Status {
+	PENDING = 0;
+	IN_PROGRESS = 1;
+	BLOCKED = 2;
+	COMPLETED = 3;
+	CANCELLED = 4;
+}
+
+message Sprint {
+	string id = 1;
+	string name = 2;
+	int64 start_time = 3;
+	int64 end_time = 4;
+	repeated Objective objectives = 5;
+	repeated Task tasks = 6;
+	int64 created = 7;
+}
+
+message Objective {
+	string id = 1; // UUID V4
+	string name = 2; // Human desciption, e.g. "102", indicating Sprint #102
+	Status status = 3;
+	int64 created = 4;
+}
+
+message Task {
+	string id = 1;
+	string name = 2;
+	Status status = 3;
+	int64 created = 4;
+}
+
+message CreateSprintRequest {
+	Sprint sprint = 1;
+}
+
+message ListSprintsRequest {}
+
+message ReadSprintRequest {
+	string id = 1;
+}
+
+message CreateTaskRequest {
+	string sprint_id = 1;	
+	Task task = 2;	
+}
+
+message UpdateTaskRequest {
+	string sprint_id = 1;	
+	Task task = 2;	
+}
+
+message DeleteTaskRequest {
+	string sprint_id = 1;	
+	string task_id = 2;
+}
+
+
+message CreateObjectiveRequest {
+	string sprint_id = 1;	
+	Objective objective = 2;	
+}
+
+message UpdateObjectiveRequest {
+	string sprint_id = 1;	
+	Objective objective = 2;	
+}
+
+message DeleteObjectiveRequest {
+	string sprint_id = 1;	
+	string objective_id = 2;
+}
+
+message CreateSprintResponse {
+	Sprint sprint = 1;
+}
+
+message ListSprintsResponse {
+	repeated Sprint sprints = 1;
+}
+
+message ReadSprintResponse {
+	Sprint sprint = 1;
+}
+
+message CreateTaskResponse {
+	Task task = 1;
+}
+
+message UpdateTaskResponse {}
+
+message DeleteTaskResponse {}
+
+message CreateObjectiveResponse {
+	Objective objective = 1;
+}
+
+message UpdateObjectiveResponse {}
+
+message DeleteObjectiveResponse {}
