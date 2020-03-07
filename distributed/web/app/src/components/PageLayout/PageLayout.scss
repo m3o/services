@@ -1,18 +1,22 @@
 .PageLayout {
   display: grid;
-  grid-template-columns: 320px auto;
+  grid-template-columns: 100px auto;
   height: 100vh;
   
   .sidebar {
-    background-color: #F7F7FA;
+    border-right: solid 1px #00000010;
     
     .upper {
-      padding: 60px 0px 60px;
+      padding: 50px 0px 60px;
       display: flex;
       flex-direction: column;
 
+      a {
+        text-align: center;
+      }
+
       img {
-        height: 40px;
+        height: 30px;
         margin-left: auto;
         margin-right: auto;
       }
@@ -29,30 +33,28 @@
       flex-direction: column;
 
       a {
-        font-size: 13pt;
-        line-height: 40px;
-        text-decoration: none;
-        padding-left: 25px;
-        color: black;
-        font-weight: normal;
+        text-align: center;
+        margin-bottom: 20px;
         outline: none;
-        margin: 6px 0px;
+        
+        &.active img {
+          opacity: 1;
+        }
 
-        &.active {
-          color: #E28D46;
-          border-left: solid 5px #E28D46;
-          padding-left: 20px;
-          font-weight: bold;
+        &:hover img {
+          transform: scale(1.1);
+        }
+
+        img {
+          width: 25px;
+          padding:  15px 10px;
+          object-fit: contain;
         }
       }
     }
   }
 
   .content {
-    -webkit-box-shadow: -8px 0px 16px 0px rgba(0,0,0,0.08);
-    -moz-box-shadow: -8px 0px 16px 0px rgba(0,0,0,0.08);
-    box-shadow: -8px 0px 16px 0px rgba(0,0,0,0.08);
-      
     overflow: hidden;
   }
 }

@@ -52,7 +52,7 @@ class NotesScene extends React.Component<Props> {
     const autoFocus = this.props.match.params.options === 'autoFocus';
 
     return(
-      <PageLayout className='NotesScene'>
+      <PageLayout className='NotesScene' {...this.props}>
         <div className='notes-upper'>
           <h1>Notes</h1>
           <p>There are {notes.length} notes</p>
