@@ -4,9 +4,10 @@ import { Provider } from 'react-redux';
 import { BrowserRouter , Route } from 'react-router-dom';
 
 // Scenes 
-import NotesScene from './scenes/Notes';
-import HomeScene from './scenes/Home';
 import { rootReducer } from './store';
+import HomeScene from './scenes/Home';
+import NotesScene from './scenes/Notes';
+import SprintsScene from './scenes/Sprints';
 
 // Redux
 window.store = createStore(
@@ -24,6 +25,7 @@ export default class App extends React.Component {
             <Route exact path='/distributed/notes' component={NotesScene}/>
             <Route exact path='/distributed/notes/:id' component={NotesScene}/>
             <Route exact path='/distributed/notes/:id/:options' component={NotesScene}/>
+            <Route exact path='/distributed/sprints' component={SprintsScene}/>
           </div>
         </BrowserRouter>
       </Provider>
