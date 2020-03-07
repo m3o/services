@@ -19,7 +19,7 @@ func (s *Store) ReadTask(sprintID, taskID string) (*pb.Task, error) {
 	}
 
 	var task *pb.Task
-	if err := json.Unmarshal(recs[0].Value, task); err != nil {
+	if err := json.Unmarshal(recs[0].Value, &task); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func (s *Store) ListTasks(sprintID string) ([]*pb.Task, error) {
 
 	tasks := make([]*pb.Task, len(recs))
 	for i, r := range recs {
-		if err := json.Unmarshal(r.Value, tasks[i]); err != nil {
+		if err := json.Unmarshal(r.Value, &tasks[i]); err != nil {
 			return make([]*pb.Task, 0), err
 		}
 	}

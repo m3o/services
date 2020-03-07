@@ -36,7 +36,7 @@ func (s *Store) ReadSprint(id string) (*pb.Sprint, error) {
 	}
 
 	var sprint *pb.Sprint
-	if err := json.Unmarshal(recs[0].Value, sprint); err != nil {
+	if err := json.Unmarshal(recs[0].Value, &sprint); err != nil {
 		return nil, err
 	}
 
@@ -61,7 +61,7 @@ func (s *Store) ListSprints() ([]*pb.Sprint, error) {
 
 	sprints := make([]*pb.Sprint, len(recs))
 	for i, r := range recs {
-		if err := json.Unmarshal(r.Value, sprints[i]); err != nil {
+		if err := json.Unmarshal(r.Value, &sprints[i]); err != nil {
 			return make([]*pb.Sprint, 0), err
 		}
 	}

@@ -19,7 +19,7 @@ func (s *Store) ReadObjective(sprintID, objID string) (*pb.Objective, error) {
 	}
 
 	var obj *pb.Objective
-	if err := json.Unmarshal(recs[0].Value, obj); err != nil {
+	if err := json.Unmarshal(recs[0].Value, &obj); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func (s *Store) ListObjectives(sprintID string) ([]*pb.Objective, error) {
 
 	objs := make([]*pb.Objective, len(recs))
 	for i, r := range recs {
-		if err := json.Unmarshal(r.Value, objs[i]); err != nil {
+		if err := json.Unmarshal(r.Value, &objs[i]); err != nil {
 			return make([]*pb.Objective, 0), err
 		}
 	}
