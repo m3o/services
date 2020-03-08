@@ -13,9 +13,9 @@ import (
 // CreateSprint generates a new sprint
 func (h *Handler) CreateSprint(ctx context.Context, req *pb.CreateSprintRequest, rsp *pb.CreateSprintResponse) error {
 	// Valiate the request
-	var sprint *pb.Sprint
+	var sprint pb.Sprint
 	if req.Sprint != nil {
-		sprint = req.Sprint
+		sprint = *req.Sprint
 	}
 
 	// Generate a default name
@@ -40,12 +40,12 @@ func (h *Handler) CreateSprint(ctx context.Context, req *pb.CreateSprintRequest,
 	sprint.Created = time.Now().Unix()
 
 	// Write to the store
-	if err := h.store.CreateSprint(sprint); err != nil {
+	if err := h.store.CreateSprint(&sprint); err != nil {
 		return errors.InternalServerError(h.name, "Unable to create sprint: %v", err)
 	}
 
 	// Write the response
-	rsp.Sprint = sprint
+	rsp.Sprint = &sprint
 	rsp.Sprint.Tasks = make([]*pb.Task, 0)
 	rsp.Sprint.Objectives = make([]*pb.Objective, 0)
 	return nil
