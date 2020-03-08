@@ -1,12 +1,25 @@
-package handler
+package notes
 
 import (
 	"context"
 
+	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
-	pb "github.com/micro/services/distributed/api/proto"
+	pb "github.com/micro/services/distributed/api/proto/notes"
 	notes "github.com/micro/services/notes/proto"
 )
+
+// NewHandler returns an initialized Handler
+func NewHandler(srv micro.Service) *Handler {
+	return &Handler{
+		notes: notes.NewNotesService("go.micro.srv.notes", srv.Client()),
+	}
+}
+
+// Handler imlements the notes proto definition
+type Handler struct {
+	notes notes.NotesService
+}
 
 // CreateNote creates a new note in the notes service
 func (h *Handler) CreateNote(ctx context.Context, req *pb.CreateNoteRequest, rsp *pb.CreateNoteResponse) error {
