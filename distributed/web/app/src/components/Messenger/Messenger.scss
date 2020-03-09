@@ -1,0 +1,48 @@
+@import "../../assets/styles/colors.scss";
+
+$width: 400px;
+
+.Messenger {
+  width: $width;
+  overflow: hidden;
+  transition: width 0.8s;
+  transition-timing-function: ease-out;
+
+  &.hidden {
+    width: 0px;
+  }
+
+  .messenger-wrapper {
+    width: $width;
+    overflow: scroll;
+
+    .header {
+      background: linear-gradient(25deg, #5378B4, #8749DD);
+      padding: 25px 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+
+      .left {
+        h3 {
+          margin: 0px;
+        }
+  
+        p {
+          font-size: 10pt;
+          margin-top: 6px;
+          margin-bottom: 0px;
+        }
+      }
+
+      img {
+        height: 15px;
+        padding: 10px;
+        margin-right: -10px;
+        margin-top: auto;
+        margin-bottom: auto;
+        cursor: pointer;
+      }
+    }
+  }
+}

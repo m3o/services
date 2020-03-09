@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.api.distributed;
 
-service Distributed {
+service DistributedNotes {
 	rpc CreateNote(CreateNoteRequest) returns (CreateNoteResponse);
 	rpc UpdateNote(UpdateNoteRequest) returns (UpdateNoteResponse);
 	rpc DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse);
