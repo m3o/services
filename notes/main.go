@@ -19,7 +19,7 @@ func main() {
 	service.Init()
 
 	// Register Handler
-	pb.RegisterNotesHandler(service.Server(), handler.NewHandler())
+	pb.RegisterNotesHandler(service.Server(), handler.NewHandler(service))
 
 	// Run service
 	if err := service.Run(); err != nil {

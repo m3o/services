@@ -34,6 +34,9 @@ type Handler struct {
 // RegisterHandler adds the GitHub oauth handlers to the servie
 func RegisterHandler(srv web.Service) {
 	provider := srv.Options().Service.Options().Auth.Options().Provider
+	if provider == nil {
+		log.Fatal("Oauth Provider Requried")
+	}
 
 	// Setup oauth2 config
 	oauth2Config := &oauth2.Config{
