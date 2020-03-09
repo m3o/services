@@ -1,0 +1,26 @@
+.PageLayout {
+  height: 100vh;
+  
+  .content {
+    overflow: hidden;
+
+    h1 {
+      font-size: 25pt;
+      font-weight: 600;
+    }
+
+    h2 {
+      font-size: 15pt;
+    }
+  }
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
+}

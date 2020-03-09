@@ -1,0 +1,40 @@
+.NotesEditor {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 30px;
+
+  input, textarea {
+    outline: none;
+    border: none;
+  }
+
+  textarea {
+    flex-grow: 1;
+    font-size: 12pt;
+  }
+
+  .upper {
+    display: flex;
+    margin-bottom: 20px;
+
+    input {
+      font-size: 16pt;
+      font-weight: bold;
+      margin-top: auto;
+      margin-bottom: auto;
+      flex-grow: 1;
+    }
+
+    img {
+      &:hover {
+        opacity: 1;
+      }
+      
+      opacity: 0.4;
+      cursor: pointer;
+      height: 20px;
+      padding: 20px;
+      margin: -20px;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-module github.com/micro/services/notes
+module github.com/micro/services/notes/service
 
 go 1.13
 
@@ -8,4 +8,4 @@ require (
 	github.com/micro/go-micro/v2 v2.1.2
 )
 
-replace github.com/micro/go-micro/v2 => ../../go-micro
+replace github.com/micro/go-micro/v2 => ../../../go-micro

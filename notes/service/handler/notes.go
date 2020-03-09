@@ -10,7 +10,7 @@ import (
 
 	"github.com/micro/go-micro/v2/auth"
 
-	pb "github.com/micro/services/notes/proto"
+	pb "github.com/micro/services/notes/service/proto"
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2"
