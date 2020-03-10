@@ -20,11 +20,8 @@ func main() {
 	service.Init()
 
 	// Register the provider
-	h, err := handler.NewHandler()
-	if err != nil {
-		log.Fatalf("Error creating handler: %v", err)
-	}
-	pb.RegisterProviderHandler(service.Server(), &h)
+	h := handler.NewHandler(service)
+	pb.RegisterProviderHandler(service.Server(), h)
 
 	// Run the service
 	if err := service.Run(); err != nil {

@@ -3,8 +3,50 @@ syntax="proto3";
 package go.micro.srv.provider;
 
 service Provider {
-  rpc Test(TestRequest) returns (TestResponse);
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+  rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse);
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
 }
 
-message TestRequest {}
-message TestResponse {}
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  bool active = 4;
+}
+
+message CreateProductRequest {
+  Product product = 1;
+}
+
+message CreateProductResponse {}
+
+enum PlanInterval {
+  UNKNOWN = 0;
+  DAY = 1;
+  WEEK = 2;
+  MONTH = 3;
+  YEAR = 4;
+}
+
+message Plan {
+  string id = 1;
+  string name = 2;
+  int64 amount = 3;
+  string currency = 4;
+  PlanInterval interval = 5;
+  string product_id = 6;
+}
+
+message CreatePlanRequest {
+  Plan plan = 1;
+}
+
+message CreatePlanResponse {}
+
+message CreateCustomerRequest {}
+message CreateCustomerResponse {}
+
+message CreateSubscriptionRequest {}
+message CreateSubscriptionResponse {}

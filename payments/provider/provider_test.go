@@ -13,7 +13,16 @@ import (
 
 type testprovider struct{}
 
-func (t testprovider) Test(ctx context.Context, req *pb.TestRequest, rsp *pb.TestResponse) error {
+func (t testprovider) CreateProduct(ctx context.Context, req *pb.CreateProductRequest, rsp *pb.CreateProductResponse) error {
+	return nil
+}
+func (t testprovider) CreatePlan(ctx context.Context, req *pb.CreatePlanRequest, rsp *pb.CreatePlanResponse) error {
+	return nil
+}
+func (t testprovider) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequest, rsp *pb.CreateCustomerResponse) error {
+	return nil
+}
+func (t testprovider) CreateSubscription(ctx context.Context, req *pb.CreateSubscriptionRequest, rsp *pb.CreateSubscriptionResponse) error {
 	return nil
 }
 

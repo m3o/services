@@ -34,7 +34,10 @@ var _ server.Option
 // Client API for Provider service
 
 type ProviderService interface {
-	Test(ctx context.Context, in *TestRequest, opts ...client.CallOption) (*TestResponse, error)
+	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...client.CallOption) (*CreateProductResponse, error)
+	CreatePlan(ctx context.Context, in *CreatePlanRequest, opts ...client.CallOption) (*CreatePlanResponse, error)
+	CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...client.CallOption) (*CreateCustomerResponse, error)
+	CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...client.CallOption) (*CreateSubscriptionResponse, error)
 }
 
 type providerService struct {
@@ -49,9 +52,39 @@ func NewProviderService(name string, c client.Client) ProviderService {
 	}
 }
 
-func (c *providerService) Test(ctx context.Context, in *TestRequest, opts ...client.CallOption) (*TestResponse, error) {
-	req := c.c.NewRequest(c.name, "Provider.Test", in)
-	out := new(TestResponse)
+func (c *providerService) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...client.CallOption) (*CreateProductResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.CreateProduct", in)
+	out := new(CreateProductResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *providerService) CreatePlan(ctx context.Context, in *CreatePlanRequest, opts ...client.CallOption) (*CreatePlanResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.CreatePlan", in)
+	out := new(CreatePlanResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *providerService) CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...client.CallOption) (*CreateCustomerResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.CreateCustomer", in)
+	out := new(CreateCustomerResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *providerService) CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...client.CallOption) (*CreateSubscriptionResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.CreateSubscription", in)
+	out := new(CreateSubscriptionResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,12 +95,18 @@ func (c *providerService) Test(ctx context.Context, in *TestRequest, opts ...cli
 // Server API for Provider service
 
 type ProviderHandler interface {
-	Test(context.Context, *TestRequest, *TestResponse) error
+	CreateProduct(context.Context, *CreateProductRequest, *CreateProductResponse) error
+	CreatePlan(context.Context, *CreatePlanRequest, *CreatePlanResponse) error
+	CreateCustomer(context.Context, *CreateCustomerRequest, *CreateCustomerResponse) error
+	CreateSubscription(context.Context, *CreateSubscriptionRequest, *CreateSubscriptionResponse) error
 }
 
 func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...server.HandlerOption) error {
 	type provider interface {
-		Test(ctx context.Context, in *TestRequest, out *TestResponse) error
+		CreateProduct(ctx context.Context, in *CreateProductRequest, out *CreateProductResponse) error
+		CreatePlan(ctx context.Context, in *CreatePlanRequest, out *CreatePlanResponse) error
+		CreateCustomer(ctx context.Context, in *CreateCustomerRequest, out *CreateCustomerResponse) error
+		CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, out *CreateSubscriptionResponse) error
 	}
 	type Provider struct {
 		provider
@@ -80,6 +119,18 @@ type providerHandler struct {
 	ProviderHandler
 }
 
-func (h *providerHandler) Test(ctx context.Context, in *TestRequest, out *TestResponse) error {
-	return h.ProviderHandler.Test(ctx, in, out)
+func (h *providerHandler) CreateProduct(ctx context.Context, in *CreateProductRequest, out *CreateProductResponse) error {
+	return h.ProviderHandler.CreateProduct(ctx, in, out)
+}
+
+func (h *providerHandler) CreatePlan(ctx context.Context, in *CreatePlanRequest, out *CreatePlanResponse) error {
+	return h.ProviderHandler.CreatePlan(ctx, in, out)
+}
+
+func (h *providerHandler) CreateCustomer(ctx context.Context, in *CreateCustomerRequest, out *CreateCustomerResponse) error {
+	return h.ProviderHandler.CreateCustomer(ctx, in, out)
+}
+
+func (h *providerHandler) CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, out *CreateSubscriptionResponse) error {
+	return h.ProviderHandler.CreateSubscription(ctx, in, out)
 }
