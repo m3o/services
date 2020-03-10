@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -108,30 +109,30 @@ func (h *Handler) CreatePlan(ctx context.Context, req *pb.CreatePlanRequest, rsp
 	}
 }
 
-// CreateCustomer via the Stripe API, e.g. "John Doe"
-func (h *Handler) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequest, rsp *pb.CreateCustomerResponse) error {
-	if req.Customer == nil {
-		return errors.BadRequest(h.name, "Customer required")
+// CreateUser via the Stripe API, e.g. "John Doe"
+func (h *Handler) CreateUser(ctx context.Context, req *pb.CreateUserRequest, rsp *pb.CreateUserResponse) error {
+	if req.User == nil {
+		return errors.BadRequest(h.name, "User required")
 	}
-	if req.Customer.Metadata == nil {
-		req.Customer.Metadata = make(map[string]string, 0)
+	if req.User.Metadata == nil {
+		req.User.Metadata = make(map[string]string, 0)
 	}
 
 	// Check to see if the user has already been created
-	stripeID, err := h.getStripeIDForUser(req.Customer.Id)
+	stripeID, err := h.getStripeIDForUser(req.User.Id)
 	if err != nil {
 		return err
 	}
 
 	// Construct the params
 	var params stripe.CustomerParams
-	if email := req.Customer.Metadata["email"]; len(email) > 0 {
+	if email := req.User.Metadata["email"]; len(email) > 0 {
 		params.Email = stripe.String(email)
 	}
-	if name := req.Customer.Metadata["name"]; len(name) > 0 {
+	if name := req.User.Metadata["name"]; len(name) > 0 {
 		params.Name = stripe.String(name)
 	}
-	if phone := req.Customer.Metadata["phone"]; len(phone) > 0 {
+	if phone := req.User.Metadata["phone"]; len(phone) > 0 {
 		params.Phone = stripe.String(phone)
 	}
 
@@ -150,11 +151,93 @@ func (h *Handler) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequ
 	}
 
 	// Write the ID to the database
-	return h.setStripeIDForUser(c.ID, req.Customer.Id)
+	return h.setStripeIDForUser(c.ID, req.User.Id)
 }
 
 // CreateSubscription via the Stripe API, e.g. "Subscribe John Doe to Notes Gold"
 func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscriptionRequest, rsp *pb.CreateSubscriptionResponse) error {
+	return nil
+}
+
+// CreatePaymentMethod via the Stripe API, e.g. "Add payment method pm_s93483932 to John Doe"
+func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePaymentMethodRequest, rsp *pb.CreatePaymentMethodResponse) error {
+	if len(req.Id) == 0 {
+		return errors.BadRequest(h.name, "ID required")
+	}
+	if len(req.UserId) == 0 {
+		return errors.BadRequest(h.name, "User ID required")
+	}
+
+	// Check to see if the user has exists
+	stripeID, err := h.getStripeIDForUser(req.UserId)
+	if err != nil {
+		return err
+	}
+	if stripeID == "" {
+		return errors.BadRequest(h.name, "User ID doesn't exist")
+	}
+
+	// Create the payment method
+	pm, err := h.client.PaymentMethods.Attach(req.Id, &stripe.PaymentMethodAttachParams{
+		Customer: stripe.String(stripeID),
+	})
+	if err != nil {
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+
+	// Serialize the response
+	rsp.PaymentMethod = serializePaymentMethod(pm, req.UserId)
+	return nil
+}
+
+// DeletePaymentMethod via the Stripe API, e.g. "Remove payment method pm_s93483932"
+func (h *Handler) DeletePaymentMethod(ctx context.Context, req *pb.DeletePaymentMethodRequest, rsp *pb.DeletePaymentMethodResponse) error {
+	if len(req.Id) == 0 {
+		return errors.BadRequest(h.name, "ID required")
+	}
+
+	// Delete the payment method
+	_, err := h.client.PaymentMethods.Detach(req.Id, &stripe.PaymentMethodDetachParams{})
+	if err != nil {
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+	return nil
+}
+
+// ListPaymentMethods via the Stripe API, e.g. "List payment methods for John Doe"
+func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMethodsRequest, rsp *pb.ListPaymentMethodsResponse) error {
+	if len(req.UserId) == 0 {
+		return errors.BadRequest(h.name, "User ID required")
+	}
+
+	// Check to see if the user has exists
+	stripeID, err := h.getStripeIDForUser(req.UserId)
+	if err != nil {
+		return err
+	}
+	if stripeID == "" {
+		return errors.BadRequest(h.name, "User ID doesn't exist")
+	}
+
+	// List the payment methods
+	iter := h.client.PaymentMethods.List(&stripe.PaymentMethodListParams{
+		Customer: stripe.String(stripeID),
+	})
+	if iter.Err() != nil {
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+
+	// Loop through and serialize
+	rsp.PaymentMethods = make([]*pb.PaymentMethod, 0)
+	for {
+		pm := serializePaymentMethod(iter.PaymentMethod(), req.UserId)
+		rsp.PaymentMethods = append(rsp.PaymentMethods, pm)
+
+		if !iter.Next() {
+			break
+		}
+	}
+
 	return nil
 }
 
@@ -194,4 +277,20 @@ func (h *Handler) setStripeIDForUser(stripeID, userID string) error {
 	return nil
 }
 
-// h.client.PaymentMethods.Attach(, &stripe.PaymentMethodAttachParams{})
+func serializePaymentMethod(pm *stripe.PaymentMethod, userID string) *pb.PaymentMethod {
+	rsp := &pb.PaymentMethod{
+		Id:      pm.ID,
+		Created: pm.Created,
+		UserId:  userID,
+		Type:    fmt.Sprint(pm.Type),
+	}
+
+	if pm.Type == stripe.PaymentMethodTypeCard && pm.Card != nil {
+		rsp.CardBrand = fmt.Sprint(pm.Card.Brand)
+		rsp.CardExpMonth = fmt.Sprint(pm.Card.ExpMonth)
+		rsp.CardExpYear = fmt.Sprint(pm.Card.ExpYear)
+		rsp.CardLast_4 = fmt.Sprint(pm.Card.Last4)
+	}
+
+	return rsp
+}

@@ -5,8 +5,11 @@ package go.micro.srv.provider;
 service Provider {
   rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
   rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse);
-  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
+  rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
+	rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse);
+	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
 }
 
 message Product {
@@ -45,17 +48,50 @@ message CreatePlanRequest {
 
 message CreatePlanResponse {}
 
-message Customer {
+message User {
   string id = 1;
-  string payment_method_id = 2;
-  map<string, string> metadata = 3;
+  map<string, string> metadata = 2;
 }
 
-message CreateCustomerRequest {
-  Customer customer = 1;
+message CreateUserRequest {
+  User User = 1;
 }
 
-message CreateCustomerResponse {}
+message CreateUserResponse {}
 
 message CreateSubscriptionRequest {}
 message CreateSubscriptionResponse {}
+
+message PaymentMethod {
+  string id = 1;
+  int64 created = 2;
+  string user_id = 3;
+  string type = 4;
+  string card_brand = 5;
+  string card_exp_month = 6;
+  string card_exp_year = 7;
+  string card_last_4 = 8;
+}
+
+message CreatePaymentMethodRequest {
+  string id = 1;
+  string user_id =  2;
+}
+
+message ListPaymentMethodsRequest {
+  string user_id = 1;
+}
+
+message DeletePaymentMethodRequest {
+  string id = 1;
+}
+
+message CreatePaymentMethodResponse {
+  PaymentMethod payment_method = 1;
+}
+
+message ListPaymentMethodsResponse {
+  repeated PaymentMethod payment_methods = 1;
+}
+
+message DeletePaymentMethodResponse {}
