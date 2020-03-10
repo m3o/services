@@ -37,7 +37,6 @@
     flex-direction: column;
     flex-grow: 1;
     margin-top: 20px;
-    margin-bottom: 50px;
 
     label {
       margin-bottom: 8px;
@@ -47,6 +46,13 @@
     input{
       border-radius: 4px;
       outline: none;
+    }
+
+    .StripeElement {
+      border-radius: 4px;
+      margin-bottom: 25px;
+      padding: 9px 10px;
+      border: solid 1px #00000020;
     }
 
     input[type=text], input[type=email] {
@@ -81,7 +87,6 @@
     transform: translate(-50%, -50%);
     min-height: 500px;
     min-width: 1000px;
-    max-height: 100vh;
     max-width: 100vh;
     border-radius: 12px;
     -webkit-box-shadow: 0px 4px 16px 0px rgba(0,0,0,0.18);

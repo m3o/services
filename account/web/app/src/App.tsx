@@ -1,9 +1,13 @@
 import React from 'react';
 import Call, { User } from './api';
+import { ElementsConsumer, CardElement } from '@stripe/react-stripe-js';
 import Spinner from './assets/images/spinner.gif'; 
 import './App.scss';
 
-interface Props {}
+interface Props {
+  stripe: any;
+  elements: any;
+}
 
 interface State {
   error?: string;
@@ -11,11 +15,8 @@ interface State {
   saving: boolean;
 }
 
-export default class App extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { saving: false };
-  }
+class App extends React.Component<Props, State> {
+  readonly state: State = { saving: false };
 
   componentDidMount() {
     Call("ReadUser")
@@ -30,11 +31,28 @@ export default class App extends React.Component<Props, State> {
     })});
   };
 
-  onSubmit(e:any) {
+  async onSubmit(e:any) {
     e.preventDefault();
     this.setState({ saving: true });
 
     const { user } = this.state;
+    const { stripe, elements } = this.props;
+
+    // Stripe.js has not yet loaded.
+    if (!stripe || !elements) {
+      return;
+    }
+
+    const result = await stripe.createPaymentMethod({
+      type: 'card',
+      card: elements.getElement(CardElement),
+      billing_details: {
+        email: user!.email,
+      },
+    });
+
+    console.log(result);  
+
     Call("UpdateUser", { user })
       .then(() => this.setState({ error: '' }))
       .catch(err => this.setState({ error: err.message }))
@@ -42,12 +60,12 @@ export default class App extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    const { error, user, saving } = this.state;
+    const { error, user } = this.state;
     if(!user) return this.renderLoading();
 
     return (
       <div className="App">
-        <h1>Your Profile</h1>
+        <h1>Account</h1>
         <p className='error'>{error}</p>
 
         <div className='inner'>
@@ -113,8 +131,21 @@ export default class App extends React.Component<Props, State> {
           disabled={this.state.saving}
           onChange={this.onChange.bind(this)} />
 
+        <label>Card Details</label>
+        <CardElement />
+
         <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : 'Save Changes' } />
       </form>
     );
   }
+}
+
+export default function InjectedCheckoutForm() {
+  return (
+    <ElementsConsumer>
+      {({stripe, elements}) => (
+        <App  stripe={stripe} elements={elements} />
+      )}
+    </ElementsConsumer>
+  );
 }
