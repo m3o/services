@@ -10,6 +10,19 @@ service Users {
 	rpc Search(SearchRequest) returns (SearchResponse) {}
 }
 
+
+enum EventType {
+	Unknown = 0;
+	UserCreated = 1;
+	UserUpdated = 2;
+	UserDeleted = 3;
+}
+
+message Event {
+	EventType type = 1;
+	User user = 2;
+}
+
 message User {
 	string id = 1;					// uuid
 	int64 created = 2;			// unix

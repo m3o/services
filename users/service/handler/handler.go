@@ -23,8 +23,9 @@ var (
 
 // Handler implements the users service interface
 type Handler struct {
-	auth  auth.Auth
-	store store.Store
+	auth      auth.Auth
+	store     store.Store
+	publisher micro.Publisher
 }
 
 // NewHandler returns an initialised handler
@@ -37,8 +38,9 @@ func NewHandler(srv micro.Service) (*Handler, error) {
 
 	// Return the initialised store
 	return &Handler{
-		store: s,
-		auth:  srv.Options().Auth,
+		store:     s,
+		auth:      srv.Options().Auth,
+		publisher: micro.NewPublisher(srv.Name(), srv.Client()),
 	}, nil
 }
 
@@ -76,6 +78,12 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	if err != nil {
 		return errors.InternalServerError("go.micro.srv.users", "Could not generate auth account: %v", err)
 	}
+
+	// Publish the event
+	go h.publisher.Publish(ctx, &pb.Event{
+		Type: pb.EventType_UserCreated,
+		User: &user,
+	})
 
 	// Return the user and token in the response
 	rsp.User = &user
@@ -134,6 +142,12 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
 	}
 
+	// Publish the event
+	go h.publisher.Publish(ctx, &pb.Event{
+		Type: pb.EventType_UserUpdated,
+		User: user,
+	})
+
 	// Return the user in the response
 	rsp.User = user
 	return nil
@@ -151,6 +165,12 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	if err := h.store.Delete(user.Id); err != nil {
 		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
 	}
+
+	// Publish the event
+	go h.publisher.Publish(ctx, &pb.Event{
+		Type: pb.EventType_UserDeleted,
+		User: user,
+	})
 
 	return nil
 }
