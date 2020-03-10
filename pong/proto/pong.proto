@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package pong;
 
+// Most awesome pong service ever.
 service Pong {
+	// Pong returns you a pong.
 	rpc Pong(Request) returns (Response) {}
 }
 
@@ -10,5 +12,6 @@ message Request {
 }
 
 message Response {
+	// Pong will just contain the string literal "pong"
 	string pong = 1;
 }

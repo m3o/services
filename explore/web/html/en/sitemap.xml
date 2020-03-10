@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://crufter.com/docuapi/asim/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/auth/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/ben/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/client/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/distributed/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/graphql/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/helloworld/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/location/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/notes/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/ping/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/platform-test/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/pong/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/rex/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/sokolovstas/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/subscribe/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/sumo/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/users/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/vtolstov/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/xian/</loc>
+  </url>
+  
+  <url>
+    <loc>http://crufter.com/docuapi/</loc>
+    <xhtml:link
+                rel="alternate"
+                hreflang="nn"
+                href="http://crufter.com/docuapi/nn/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="http://crufter.com/docuapi/"
+                />
+  </url>
+  
+</urlset>
