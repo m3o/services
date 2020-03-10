@@ -45,7 +45,16 @@ message CreatePlanRequest {
 
 message CreatePlanResponse {}
 
-message CreateCustomerRequest {}
+message Customer {
+  string id = 1;
+  string payment_method_id = 2;
+  map<string, string> metadata = 3;
+}
+
+message CreateCustomerRequest {
+  Customer customer = 1;
+}
+
 message CreateCustomerResponse {}
 
 message CreateSubscriptionRequest {}

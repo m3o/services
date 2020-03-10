@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"strings"
@@ -46,10 +47,10 @@ func (h *Handler) CreateProduct(ctx context.Context, req *pb.CreateProductReques
 
 	// Construct the stripe product params
 	params := &stripe.ProductParams{
-		ID:          &req.Product.Id,
-		Name:        &req.Product.Name,
-		Description: &req.Product.Description,
-		Active:      &req.Product.Active,
+		ID:          stripe.String(req.Product.Id),
+		Name:        stripe.String(req.Product.Name),
+		Description: stripe.String(req.Product.Description),
+		Active:      stripe.Bool(req.Product.Active),
 	}
 
 	// Create the product
@@ -67,7 +68,7 @@ func (h *Handler) CreateProduct(ctx context.Context, req *pb.CreateProductReques
 		return updateErr
 	default:
 		// the error was not expected
-		return err
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
 	}
 }
 
@@ -82,12 +83,12 @@ func (h *Handler) CreatePlan(ctx context.Context, req *pb.CreatePlanRequest, rsp
 
 	// Construct the stripe product plan params
 	params := &stripe.PlanParams{
-		ID:        &req.Plan.Id,
-		Nickname:  &req.Plan.Name,
-		Amount:    &req.Plan.Amount,
-		Currency:  &req.Plan.Currency,
-		ProductID: &req.Plan.ProductId,
-		Interval:  &interval,
+		ID:        stripe.String(req.Plan.Id),
+		Nickname:  stripe.String(req.Plan.Name),
+		Currency:  stripe.String(req.Plan.Currency),
+		ProductID: stripe.String(req.Plan.ProductId),
+		Interval:  stripe.String(interval),
+		Amount:    stripe.Int64(req.Plan.Amount),
 	}
 
 	// Create the product plan
@@ -103,16 +104,94 @@ func (h *Handler) CreatePlan(ctx context.Context, req *pb.CreatePlanRequest, rsp
 		return nil
 	default:
 		// the error was not expected
-		return err
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
 	}
 }
 
 // CreateCustomer via the Stripe API, e.g. "John Doe"
 func (h *Handler) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequest, rsp *pb.CreateCustomerResponse) error {
-	return nil
+	if req.Customer == nil {
+		return errors.BadRequest(h.name, "Customer required")
+	}
+	if req.Customer.Metadata == nil {
+		req.Customer.Metadata = make(map[string]string, 0)
+	}
+
+	// Check to see if the user has already been created
+	stripeID, err := h.getStripeIDForUser(req.Customer.Id)
+	if err != nil {
+		return err
+	}
+
+	// Construct the params
+	var params stripe.CustomerParams
+	if email := req.Customer.Metadata["email"]; len(email) > 0 {
+		params.Email = stripe.String(email)
+	}
+	if name := req.Customer.Metadata["name"]; len(name) > 0 {
+		params.Name = stripe.String(name)
+	}
+	if phone := req.Customer.Metadata["phone"]; len(phone) > 0 {
+		params.Phone = stripe.String(phone)
+	}
+
+	// If the user already exists, update using the existing attrbutes
+	if len(stripeID) > 0 {
+		if _, err := h.client.Customers.Update(stripeID, &params); err != nil {
+			return errors.InternalServerError(h.name, "Unexepcted stripe update error: %v", err)
+		}
+		return nil
+	}
+
+	// Create the user in stripe
+	c, err := h.client.Customers.New(&params)
+	if err != nil {
+		return errors.InternalServerError(h.name, "Unexepcted stripe create error: %v", err)
+	}
+
+	// Write the ID to the database
+	return h.setStripeIDForUser(c.ID, req.Customer.Id)
 }
 
 // CreateSubscription via the Stripe API, e.g. "Subscribe John Doe to Notes Gold"
 func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscriptionRequest, rsp *pb.CreateSubscriptionResponse) error {
 	return nil
 }
+
+// User is the datatype stored in the store
+type User struct {
+	StripeID string `json:"stripe_id"`
+}
+
+// getStripeIDForUser returns the stripe ID from the store for the given user
+func (h *Handler) getStripeIDForUser(userID string) (string, error) {
+	recs, err := h.store.Read(userID)
+	if err == store.ErrNotFound || len(recs) == 0 {
+		return "", nil
+	} else if err != nil {
+		return "", errors.InternalServerError(h.name, "Could not read from store: %v", err)
+	}
+
+	var user *User
+	if err := json.Unmarshal(recs[0].Value, &user); err != nil {
+		return "", errors.InternalServerError(h.name, "Could not unmarshal json: %v", err)
+	}
+
+	return user.StripeID, nil
+}
+
+// setStripeIDForUser writes the stripe ID to the store for the given user
+func (h *Handler) setStripeIDForUser(stripeID, userID string) error {
+	bytes, err := json.Marshal(&User{StripeID: stripeID})
+	if err != nil {
+		return errors.InternalServerError(h.name, "Could not marshal json: %v", err)
+	}
+
+	if err := h.store.Write(&store.Record{Key: userID, Value: bytes}); err != nil {
+		return errors.InternalServerError(h.name, "Could not write to store: %v", err)
+	}
+
+	return nil
+}
+
+// h.client.PaymentMethods.Attach(, &stripe.PaymentMethodAttachParams{})
