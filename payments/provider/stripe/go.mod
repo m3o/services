@@ -7,7 +7,10 @@ require (
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/v2 v2.2.1-0.20200309204305-241614ff686e
 	github.com/micro/services/payments/provider v0.0.0-00010101000000-000000000000
+	github.com/micro/services/users/service v0.0.0-20200310152257-08645f9ccf39
 	github.com/stripe/stripe-go v70.2.0+incompatible
 )
 
 replace github.com/micro/services/payments/provider => ../
+
+replace github.com/micro/services/users/service => ../../../users/service
