@@ -37,7 +37,7 @@ type ClientService interface {
 	// Call allows a single request to be made
 	Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 	// Stream is a bidirectional stream
-	Stream(ctx context.Context, in *Request, opts ...client.CallOption) (Client_StreamService, error)
+	Stream(ctx context.Context, opts ...client.CallOption) (Client_StreamService, error)
 }
 
 type clientService struct {
@@ -62,13 +62,10 @@ func (c *clientService) Call(ctx context.Context, in *Request, opts ...client.Ca
 	return out, nil
 }
 
-func (c *clientService) Stream(ctx context.Context, in *Request, opts ...client.CallOption) (Client_StreamService, error) {
+func (c *clientService) Stream(ctx context.Context, opts ...client.CallOption) (Client_StreamService, error) {
 	req := c.c.NewRequest(c.name, "Client.Stream", &Request{})
 	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
-		return nil, err
-	}
-	if err := stream.Send(in); err != nil {
 		return nil, err
 	}
 	return &clientServiceStream{stream}, nil
@@ -79,6 +76,7 @@ type Client_StreamService interface {
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
 	Close() error
+	Send(*Request) error
 	Recv() (*Response, error)
 }
 
@@ -102,6 +100,10 @@ func (x *clientServiceStream) RecvMsg(m interface{}) error {
 	return x.stream.Recv(m)
 }
 
+func (x *clientServiceStream) Send(m *Request) error {
+	return x.stream.Send(m)
+}
+
 func (x *clientServiceStream) Recv() (*Response, error) {
 	m := new(Response)
 	err := x.stream.Recv(m)
@@ -117,7 +119,7 @@ type ClientHandler interface {
 	// Call allows a single request to be made
 	Call(context.Context, *Request, *Response) error
 	// Stream is a bidirectional stream
-	Stream(context.Context, *Request, Client_StreamStream) error
+	Stream(context.Context, Client_StreamStream) error
 }
 
 func RegisterClientHandler(s server.Server, hdlr ClientHandler, opts ...server.HandlerOption) error {
@@ -141,11 +143,7 @@ func (h *clientHandler) Call(ctx context.Context, in *Request, out *Response) er
 }
 
 func (h *clientHandler) Stream(ctx context.Context, stream server.Stream) error {
-	m := new(Request)
-	if err := stream.Recv(m); err != nil {
-		return err
-	}
-	return h.ClientHandler.Stream(ctx, m, &clientStreamStream{stream})
+	return h.ClientHandler.Stream(ctx, &clientStreamStream{stream})
 }
 
 type Client_StreamStream interface {
@@ -154,6 +152,7 @@ type Client_StreamStream interface {
 	RecvMsg(interface{}) error
 	Close() error
 	Send(*Response) error
+	Recv() (*Request, error)
 }
 
 type clientStreamStream struct {
@@ -178,4 +177,12 @@ func (x *clientStreamStream) RecvMsg(m interface{}) error {
 
 func (x *clientStreamStream) Send(m *Response) error {
 	return x.stream.Send(m)
+}
+
+func (x *clientStreamStream) Recv() (*Request, error) {
+	m := new(Request)
+	if err := x.stream.Recv(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }

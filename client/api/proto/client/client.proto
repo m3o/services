@@ -7,7 +7,7 @@ service Client {
 	// Call allows a single request to be made
 	rpc Call(Request) returns (Response) {};
 	// Stream is a bidirectional stream
-	rpc Stream(Request) returns (stream Response) {};
+	rpc Stream(stream Request) returns (stream Response) {};
 	// Publish publishes a message and returns an empty Message
 	//rpc Publish(Message) returns (Message) {};
 }
