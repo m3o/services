@@ -1,0 +1,30 @@
+<section class="newsletter">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="content">
+          <h2>SUBSCRIBE TO OUR NEWSLETTER</h2>
+          <ng-container *ngIf="!error">
+            <div *ngIf="!subscribed" class="input-group">
+              <input
+                type="email"
+                class="form-control"
+                [(ngModel)]="email"
+                placeholder="Enter your email"
+              />
+              <span class="input-group-btn">
+                <button class="btn" (click)="subscribe()" type="submit">
+                  Subscribe Now
+                </button>
+              </span>
+            </div>
+            <div *ngIf="subscribed">
+              Thank you for your subscription!
+            </div>
+          </ng-container>
+          <ng-container *ngIf="error"> Error: {{ error }} </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

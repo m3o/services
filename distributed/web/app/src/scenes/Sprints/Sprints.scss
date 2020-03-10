@@ -1,0 +1,107 @@
+@import "../../assets//styles/colors.scss";
+
+.SprintsScene {
+  display: flex;
+
+  .inner {
+    flex-grow: 1;
+    padding: 20px 50px 0px 35px;
+    border-right: solid 1px #00000010;
+
+    .upper {
+      display: flex;
+      justify-content: space-between;
+  
+      .left {
+        .left-upper {
+          display: flex;
+          
+          h1 {
+            margin-right: 20px;
+          }
+  
+          .arrow {
+            height: 12px;
+            margin-top: auto;
+            margin-bottom: auto;
+            padding: 10px;
+            cursor: pointer;
+  
+            &.left {
+              transform: rotate(180deg);
+            }
+          }
+        }
+  
+        .left-lower {
+          p {
+            margin-top: -5px;
+            font-size: 11pt;
+  
+            .split {
+              margin: 0px 10px;
+            }
+          }
+        }
+      }
+  
+      .right {
+        justify-content: space-around;
+        display: flex;
+        flex-direction: column;
+  
+        .chat-icon {
+          padding: 0px 40px;
+          border-radius: 20px;
+          height: 40px;
+          cursor: pointer;
+          display: flex;
+  
+          &:hover {
+            transform: scale(1.025);
+          }
+  
+          img {
+            height: 18px;
+            margin-top: auto;
+            margin-bottom: auto;
+            margin-right: 10px;
+          }
+  
+          p {
+            line-height: 40px;
+            margin: auto;
+            font-size: 10pt;
+            font-weight: 600;
+          }
+  
+          &.active {
+            background-color: $green;
+            color: white;
+          }
+        }
+      }
+    }
+  
+    .lower {
+      .section {
+        margin-top: 40px;
+        margin-bottom: 50px;
+  
+        .section-upper {
+          display: flex;
+          justify-content: space-between;
+  
+          img  {
+            height: 15px;
+            margin-top: auto;
+            margin-bottom: auto;
+            padding: 10px;
+            margin-right: -10px;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+}

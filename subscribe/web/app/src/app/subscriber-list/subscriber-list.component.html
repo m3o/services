@@ -1,0 +1,21 @@
+<section class="newsletter">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="content">
+          <h2>SUBSCRIBERS</h2>
+          <ng-container *ngIf="!error">
+            <div
+              style="text-align: center;"
+              *ngFor="let subscriber of subscribers"
+              class="input-group"
+            >
+              {{ subscriber.email }}<br />
+            </div>
+          </ng-container>
+          <ng-container *ngIf="error"> Error: {{ error }} </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
