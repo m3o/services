@@ -13,6 +13,7 @@ export class User {
   lastName: string;
   email: string;
   username: string;
+  paymentMethods: PaymentMethod[];
 
   constructor(args: any) {
     this.id = args.id;
@@ -20,5 +21,28 @@ export class User {
     this.lastName = args.lastName;
     this.email = args.email;
     this.username = args.username;
+    this.paymentMethods = (args.paymentMethods || []).map(p => new PaymentMethod(p));
+  }
+}
+
+export class PaymentMethod {
+  id: string;
+  created: string;
+  userId: string;
+  type: string;
+  cardBrand: string;
+  cardExpMonth: string;
+  cardExpYear: string;
+  cardLast4: string;
+
+  constructor(args: any) {
+    this.id = args.id;
+    this.created = args.created;
+    this.userId = args.userId;
+    this.type = args.type;
+    this.cardBrand = args.cardBrand;
+    this.cardExpMonth = args.cardExpMonth;
+    this.cardExpYear = args.cardExpYear;
+    this.cardLast4 = args.cardLast4;
   }
 }
