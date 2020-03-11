@@ -1,0 +1,11 @@
+.NewPaymentMethod {
+  margin-top: 50px;
+
+  .StripeElement {
+    border-radius: 4px;
+    margin-bottom: 25px;
+    padding: 15px 10px;
+    margin-top: 10px;
+    border: solid 1px #00000020;
+  }
+}

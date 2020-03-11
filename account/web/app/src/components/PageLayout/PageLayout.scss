@@ -45,6 +45,7 @@
         display: grid;
         grid-template-columns: 50px auto;
         text-decoration: none;
+        outline: none;
 
         &.active  {
           background-color: rgba($color: $green, $alpha: 0.2);

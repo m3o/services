@@ -1,10 +1,13 @@
+@import "../../../../assets/styles/variables.scss";
+
 .PaymentMethod {
-  background-color: #00000010;
+  background-color: #FAFAFA;
   border-radius: 4px;
   padding: 10px 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: row;
+  border: solid 2px #F2F2F2;
 
   .pm-left {
     flex-grow: 1;
@@ -14,7 +17,8 @@
       
       &:first-of-type {
         font-size: 12pt;
-        line-height: 22px;
+        line-height: 30px;
+        font-weight: 500;
 
         span {
           text-transform: capitalize;
@@ -22,8 +26,8 @@
       }
 
       &:last-of-type {
-        font-size: 10pt;
-        margin-bottom: 10px;
+        font-size: 9pt;
+        margin-bottom: 8px;
       }
     }
   }

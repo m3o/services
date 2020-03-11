@@ -1,9 +1,10 @@
 import React from 'react';
-import Call, { PaymentMethod } from '../../api';
-import PaymentMethodComponent from './components/PaymentMethod';
-import { ElementsConsumer, CardElement } from '@stripe/react-stripe-js';
-import './Billing.scss';
+import { connect } from 'react-redux';
+import { PaymentMethod } from '../../api';
 import PageLayout from '../../components/PageLayout';
+import NewPaymentMethod from './components/NewPaymentMethod';
+import PaymentMethodComponent from './components/PaymentMethod';
+import './Billing.scss';
 
 interface Props {
   stripe?: any;
@@ -17,54 +18,11 @@ interface State {
   error?: string;
 }
 
-export default class Billing extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { saving: true };
-  }
-
+class Billing extends React.Component<Props, State> {
+  readonly state: State = { saving: false };
+  
   setError(error?: string) {
-    this.setState({ error })
-  }
-
-
-  async onPaymentMethodSubmit(event: any) {
-    event.preventDefault();
-    this.setState({ error: undefined, saving: true });
-
-    // Ensure stripe has loaded
-    const { stripe, elements } = this.props;
-    if (!stripe || !elements) return;
-
-    // Get the card element from the dom
-    const cardElement = elements.getElement(CardElement);
-
-    // Create the card in the stripe api 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
-    });
-
-    // Handle the error
-    if (error) {
-      this.setError(error);
-      return
-    }
-
-    // Submit to the API
-    Call("CreatePaymentMethod", { id: paymentMethod.id })
-      .catch((error) => this.setState({ error, saving: false }))
-      // .then(res => {
-      //   const user = new User({
-      //     ...this.state.user,
-      //     paymentMethods:[
-      //       ...this.state.user!.paymentMethods,
-      //       res.data.paymentMethod,
-      //     ]
-      //   });
-
-      //   this.setState({ user, savingPaymentMethod: false });
-      // });
+    this.setState({ error, saving: false })
   }
 
   render():JSX.Element {
@@ -72,10 +30,10 @@ export default class Billing extends React.Component<Props, State> {
     const { error, saving } = this.state;
 
     return(
-      <PageLayout className='stripe' {...this.props}>
-        <h3>Payment Methods</h3>
+      <PageLayout className='Billing' {...this.props}>
         { this.state.error ? <p>{error}</p> : null }
 
+        <h3>Existing Payment Methods</h3>
         { paymentMethods.map((pm: PaymentMethod) => {
           return <PaymentMethodComponent
                     key={pm.id}
@@ -83,22 +41,27 @@ export default class Billing extends React.Component<Props, State> {
                     onError={this.setError.bind(this)} />
         })}
 
-        <form onSubmit={this.onPaymentMethodSubmit.bind(this)}>
-          <label>New Payment Method</label>
-          <CardElement key={paymentMethods.length} />
-          <input disabled={saving} type='submit' value={ saving ? 'Saving' : 'Create Payment Method' } />
-        </form>
+        <NewPaymentMethod
+          saving={saving}
+          onSuccess={console.log}
+          key={paymentMethods.length}
+          onError={this.setError.bind(this)}
+          onSubmit={() => this.setState({ saving: true })}  />
       </PageLayout>
     );
   }
 }
 
-// export default function InjectedCheckoutForm(props: Props) {
-//   return (
-//     <ElementsConsumer>
-//       {({stripe, elements}) => (
-//         <Billing stripe={stripe} elements={elements} {...props} />
-//       )}
-//     </ElementsConsumer>
-//   );
-// }
+function mapStateToProps(state: any): any {
+  return({
+    paymentMethods: state.user.user.paymentMethods,
+  });
+}
+
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    // paymentMethods: state.user.user.paymentMethods,
+  });
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Billing);
