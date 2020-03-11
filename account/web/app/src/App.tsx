@@ -6,6 +6,7 @@ import { BrowserRouter , Route } from 'react-router-dom';
 // Scenes
 import Profile from './scenes/Profile';
 import Billing from './scenes/Billing';
+import Login from './scenes/Login';
 
 // Assets
 import Spinner from './assets/images/spinner.gif'; 
@@ -17,22 +18,36 @@ interface Props {
   setUser: (user: User) => void;
 }
 
-class App extends React.Component<Props> {
+interface State {
+  loading: boolean;
+}
+
+const Routes = [
+  <Route key='profile' exact path='/account/' component={Profile}/>,
+  <Route key='billing' exact path='/account/billing' component={Billing}/>,
+];
+
+const UnauthenticatedRoutes = [
+  <Route key='login' exact path='/account/' component={Login}/>,
+]
+
+class App extends React.Component<Props, State> {
+  state = { loading: true };
+
   componentDidMount() {
     Call("ReadUser")
       .then(res => this.props.setUser(res.data.user))
-      .catch(console.warn);
+      .catch(console.warn)
+      .finally(() => this.setState({ loading: false }));
   }
 
   render(): JSX.Element {
-    const { user } = this.props;
-    if(!user) return this.renderLoading();
+    if(this.state.loading) return this.renderLoading();
 
     return (
       <BrowserRouter>
         <div className='App'>
-          <Route exact path='/account/' component={Profile}/>
-          <Route exact path='/account/billing' component={Billing}/>
+          { this.props.user ? Routes : UnauthenticatedRoutes }
         </div>
       </BrowserRouter>
     );
