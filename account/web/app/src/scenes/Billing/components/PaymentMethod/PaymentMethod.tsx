@@ -5,7 +5,7 @@ import './PaymentMethod.scss';
 
 interface Props {
   paymentMethod: PaymentMethod;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   onError: (msg: string) => void;
 }
 
@@ -24,7 +24,7 @@ export default class PaymentMethodComponent extends React.Component<Props, State
 
     const { id } = this.props.paymentMethod;
     Call("DeletePaymentMethod", { id })
-      .then(() => this.props.onDelete(id))
+      // .then(() => this.props.onDelete(id))
       .catch(err => {
         this.props.onError('Error deleting payment method: ' + err);
         this.setState({ deleting: false });

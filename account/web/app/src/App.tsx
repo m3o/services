@@ -1,5 +1,7 @@
 import React from 'react';
 import Call, { User } from './api';
+import { connect } from 'react-redux';
+import { BrowserRouter , Route } from 'react-router-dom';
 
 // Scenes
 import Profile from './scenes/Profile';
@@ -8,56 +10,53 @@ import Billing from './scenes/Billing';
 // Assets
 import Spinner from './assets/images/spinner.gif'; 
 import './App.scss';
+import { setUser } from './store/User';
 
 interface Props {
-}
-
-interface State {
   user?: User;
+  setUser: (user: User) => void;
 }
 
-export default class App extends React.Component<Props, State> {
-  readonly state: State = {};
-
+class App extends React.Component<Props> {
   componentDidMount() {
-    Call("ReadUser").then(res => this.setState({ user: res.data.user }))
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if(this.state !== prevState) console.log("State: ", this.state);
-    if(this.props !== prevProps) console.log("Props: ", this.props);
+    Call("ReadUser")
+      .then(res => this.props.setUser(res.data.user))
+      .catch(console.warn);
   }
 
   render(): JSX.Element {
-    const { user } = this.state;
+    const { user } = this.props;
     if(!user) return this.renderLoading();
 
     return (
-      <div className="App">
-        <h1>Account</h1>
-
-        <div className='inner'>
-          <Profile user={user} />
-          <Billing paymentMethods={user.paymentMethods} deletePaymentMethod={this.deletePaymentMethod.bind(this)} />
+      <BrowserRouter>
+        <div className='App'>
+          <Route exact path='/account/' component={Profile}/>
+          <Route exact path='/account/billing' component={Billing}/>
         </div>
-      </div>
+      </BrowserRouter>
     );
   }
 
   renderLoading(): JSX.Element {
     return(
-      <div className="App">
+      <div className="Loading">
         <img className='spinner' src={Spinner} alt='Loading' />
       </div>
     );
   }
-
-  deletePaymentMethod(id: string) {
-    this.setState({ 
-      user: new User({
-        ...this.state.user,
-        paymentMethods: this.state.user!.paymentMethods.filter(pm => pm.id !== id),
-      }),
-    });
-  }
 }
+
+function mapStateToProps(state: any): any {
+  return({
+    user: state.user.user,
+  });
+}
+
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    setUser: (user: User) => dispatch(setUser(user)),
+  });
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

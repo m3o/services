@@ -1,9 +1,13 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Call, { User } from '../../api';
+import PageLayout from '../../components/PageLayout';
+import { setUser } from '../../store/User';
 import './Profile.scss';
 
 interface Props {
   user: User;
+  updateUser: (user: User) => void;
 }
 
 interface State {
@@ -12,7 +16,7 @@ interface State {
   error: string;
 }
 
-export default class Profile extends React.Component<Props, State> {
+class Profile extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { user: props.user, saving: false, error: '' };
@@ -45,13 +49,10 @@ export default class Profile extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const { saving, user } = this.state;
-    debugger
 
     return(
-      <div className='Profile'>
+      <PageLayout className='Profile' {...this.props}>
         <form onSubmit={this.onSubmit.bind(this)}>
-          <h3>Profile</h3>
-
           <label>First Name</label>
           <input
             type='text'
@@ -86,7 +87,21 @@ export default class Profile extends React.Component<Props, State> {
 
           <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : 'Save Changes' } />
         </form>
-      </div>
+      </PageLayout>
     );
   }
 }
+
+function mapStateToProps(state: any): any {
+  return({
+    user: state.user.user,
+  });
+}
+
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    updateUser: (user: User) => dispatch(setUser(user)),
+  });
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

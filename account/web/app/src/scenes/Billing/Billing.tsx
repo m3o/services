@@ -3,13 +3,13 @@ import Call, { PaymentMethod } from '../../api';
 import PaymentMethodComponent from './components/PaymentMethod';
 import { ElementsConsumer, CardElement } from '@stripe/react-stripe-js';
 import './Billing.scss';
+import PageLayout from '../../components/PageLayout';
 
 interface Props {
   stripe?: any;
   elements?: any;
 
   paymentMethods: PaymentMethod[];
-  deletePaymentMethod: (id: string) => void;
 }
 
 interface State {
@@ -17,7 +17,7 @@ interface State {
   error?: string;
 }
 
-class Billing extends React.Component<Props, State> {
+export default class Billing extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { saving: true };
@@ -68,11 +68,11 @@ class Billing extends React.Component<Props, State> {
   }
 
   render():JSX.Element {
-    const { paymentMethods, deletePaymentMethod } = this.props;
+    const { paymentMethods } = this.props;
     const { error, saving } = this.state;
 
     return(
-      <div className='stripe'>
+      <PageLayout className='stripe' {...this.props}>
         <h3>Payment Methods</h3>
         { this.state.error ? <p>{error}</p> : null }
 
@@ -80,8 +80,7 @@ class Billing extends React.Component<Props, State> {
           return <PaymentMethodComponent
                     key={pm.id}
                     paymentMethod={pm}
-                    onError={this.setError.bind(this)}
-                    onDelete={deletePaymentMethod} />
+                    onError={this.setError.bind(this)} />
         })}
 
         <form onSubmit={this.onPaymentMethodSubmit.bind(this)}>
@@ -89,17 +88,17 @@ class Billing extends React.Component<Props, State> {
           <CardElement key={paymentMethods.length} />
           <input disabled={saving} type='submit' value={ saving ? 'Saving' : 'Create Payment Method' } />
         </form>
-      </div>
+      </PageLayout>
     );
   }
 }
 
-export default function InjectedCheckoutForm(props: Props) {
-  return (
-    <ElementsConsumer>
-      {({stripe, elements}) => (
-        <Billing stripe={stripe} elements={elements} {...props} />
-      )}
-    </ElementsConsumer>
-  );
-}
+// export default function InjectedCheckoutForm(props: Props) {
+//   return (
+//     <ElementsConsumer>
+//       {({stripe, elements}) => (
+//         <Billing stripe={stripe} elements={elements} {...props} />
+//       )}
+//     </ElementsConsumer>
+//   );
+// }
