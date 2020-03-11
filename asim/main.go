@@ -1,10 +1,10 @@
 package main
 
 import (
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
 	"asim/handler"
 	"asim/subscriber"
+	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 
 	asim "asim/proto/asim"
 )
