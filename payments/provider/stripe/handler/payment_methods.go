@@ -72,6 +72,7 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 	// List the payment methods
 	iter := h.client.PaymentMethods.List(&stripe.PaymentMethodListParams{
 		Customer: stripe.String(stripeID),
+		Type:     stripe.String("card"),
 	})
 	if iter.Err() != nil {
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
@@ -80,12 +81,12 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 	// Loop through and serialize
 	rsp.PaymentMethods = make([]*pb.PaymentMethod, 0)
 	for {
-		pm := serializePaymentMethod(iter.PaymentMethod(), req.UserId)
-		rsp.PaymentMethods = append(rsp.PaymentMethods, pm)
-
 		if !iter.Next() {
 			break
 		}
+
+		pm := serializePaymentMethod(iter.PaymentMethod(), req.UserId)
+		rsp.PaymentMethods = append(rsp.PaymentMethods, pm)
 	}
 
 	return nil

@@ -6,6 +6,13 @@ service Account {
 	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {}
 	rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
 	rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+
+	rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
+  rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
+}
+
+message Subscription {
+
 }
 
 message User {
@@ -16,6 +23,8 @@ message User {
 	string last_name = 5;
 	string email = 6;
 	string username = 7;		// alphanumeric user or org
+	repeated PaymentMethod payment_methods = 8;
+	repeated Subscription subscriptions = 9;
 }
 
 message ReadUserRequest {}
@@ -35,3 +44,27 @@ message UpdateUserResponse {
 message DeleteUserRequest {}
 
 message DeleteUserResponse {}
+
+message PaymentMethod {
+  string id = 1;
+  int64 created = 2;
+  string user_id = 3;
+  string type = 4;
+  string card_brand = 5;
+  string card_exp_month = 6;
+  string card_exp_year = 7;
+  string card_last_4 = 8;
+}
+
+message CreatePaymentMethodRequest {
+  string id = 1;
+}
+message DeletePaymentMethodRequest {
+  string id = 1;
+}
+
+message CreatePaymentMethodResponse {
+  PaymentMethod payment_method = 1;
+}
+
+message DeletePaymentMethodResponse {}

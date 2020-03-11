@@ -37,6 +37,8 @@ type AccountService interface {
 	ReadUser(ctx context.Context, in *ReadUserRequest, opts ...client.CallOption) (*ReadUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...client.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...client.CallOption) (*DeleteUserResponse, error)
+	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
+	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
 }
 
 type accountService struct {
@@ -81,12 +83,34 @@ func (c *accountService) DeleteUser(ctx context.Context, in *DeleteUserRequest, 
 	return out, nil
 }
 
+func (c *accountService) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Account.CreatePaymentMethod", in)
+	out := new(CreatePaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountService) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Account.DeletePaymentMethod", in)
+	out := new(DeletePaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Account service
 
 type AccountHandler interface {
 	ReadUser(context.Context, *ReadUserRequest, *ReadUserResponse) error
 	UpdateUser(context.Context, *UpdateUserRequest, *UpdateUserResponse) error
 	DeleteUser(context.Context, *DeleteUserRequest, *DeleteUserResponse) error
+	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
+	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
 }
 
 func RegisterAccountHandler(s server.Server, hdlr AccountHandler, opts ...server.HandlerOption) error {
@@ -94,6 +118,8 @@ func RegisterAccountHandler(s server.Server, hdlr AccountHandler, opts ...server
 		ReadUser(ctx context.Context, in *ReadUserRequest, out *ReadUserResponse) error
 		UpdateUser(ctx context.Context, in *UpdateUserRequest, out *UpdateUserResponse) error
 		DeleteUser(ctx context.Context, in *DeleteUserRequest, out *DeleteUserResponse) error
+		CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error
+		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
 	}
 	type Account struct {
 		account
@@ -116,4 +142,12 @@ func (h *accountHandler) UpdateUser(ctx context.Context, in *UpdateUserRequest, 
 
 func (h *accountHandler) DeleteUser(ctx context.Context, in *DeleteUserRequest, out *DeleteUserResponse) error {
 	return h.AccountHandler.DeleteUser(ctx, in, out)
+}
+
+func (h *accountHandler) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error {
+	return h.AccountHandler.CreatePaymentMethod(ctx, in, out)
+}
+
+func (h *accountHandler) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error {
+	return h.AccountHandler.DeletePaymentMethod(ctx, in, out)
 }

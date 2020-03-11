@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/micro/go-micro/v2/errors"
 	pb "github.com/micro/services/payments/provider/proto"
@@ -23,8 +22,6 @@ func (h *Handler) CreateUser(ctx context.Context, req *pb.CreateUserRequest, rsp
 	if err != nil {
 		return err
 	}
-	fmt.Println(stripeID)
-	fmt.Println(req.User)
 
 	// Construct the params
 	var params stripe.CustomerParams

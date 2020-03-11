@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -53,6 +54,7 @@ func (h *Handler) getStripeIDForUser(userID string) (string, error) {
 		return "", errors.InternalServerError(h.name, "Could not unmarshal json: %v", err)
 	}
 
+	fmt.Printf("User #%v has stripe ID: %v\n", userID, user.StripeID)
 	return user.StripeID, nil
 }
 
