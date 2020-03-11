@@ -1,6 +1,6 @@
 import React from 'react';
-import Call, { PaymentMethod } from '../../api';
-import DeleteIcon from '../../assets/images/bin.png';
+import Call, { PaymentMethod } from '../../../../api';
+import DeleteIcon from '../../../../assets/images/bin.png';
 import './PaymentMethod.scss';
 
 interface Props {
@@ -37,13 +37,7 @@ export default class PaymentMethodComponent extends React.Component<Props, State
     return(
       <div className='PaymentMethod'>
         <div className='pm-left'>
-          <p>
-            <span>••••</span>
-            <span>••••</span>
-            <span>••••</span>
-            {pm.cardLast4}
-          </p>
-
+          <p><span>{pm.cardBrand}</span> ending in {pm.cardLast4}</p>
           <p>Exp: {pm.cardExpMonth}/{pm.cardExpYear}</p>
         </div>
 
