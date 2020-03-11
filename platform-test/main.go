@@ -15,8 +15,6 @@ func main() {
 	)
 	service.Init()
 
-	fmt.Println("Foo")
-
 	h := handler.NewHandler(service)
 	pb.RegisterPlatformTestHandler(service.Server(), h)
 
