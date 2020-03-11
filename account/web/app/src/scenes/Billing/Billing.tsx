@@ -5,12 +5,15 @@ import PageLayout from '../../components/PageLayout';
 import NewPaymentMethod from './components/NewPaymentMethod';
 import PaymentMethodComponent from './components/PaymentMethod';
 import './Billing.scss';
+import { removePaymentMethod, addPaymentMethod } from '../../store/User';
 
 interface Props {
   stripe?: any;
   elements?: any;
 
   paymentMethods: PaymentMethod[];
+  addPaymentMethod: (pm: PaymentMethod) => void;
+  removePaymentMethod: (pm: PaymentMethod) => void;
 }
 
 interface State {
@@ -38,14 +41,15 @@ class Billing extends React.Component<Props, State> {
           return <PaymentMethodComponent
                     key={pm.id}
                     paymentMethod={pm}
-                    onError={this.setError.bind(this)} />
+                    onError={this.setError.bind(this)} 
+                    onDelete={this.props.removePaymentMethod} />
         })}
 
         <NewPaymentMethod
           saving={saving}
-          onSuccess={console.log}
           key={paymentMethods.length}
           onError={this.setError.bind(this)}
+          onSuccess={this.props.addPaymentMethod}
           onSubmit={() => this.setState({ saving: true })}  />
       </PageLayout>
     );
@@ -60,7 +64,8 @@ function mapStateToProps(state: any): any {
 
 function mapDispatchToProps(dispatch: Function): any {
   return({
-    // paymentMethods: state.user.user.paymentMethods,
+    addPaymentMethod: (pm: PaymentMethod) => dispatch(addPaymentMethod(pm)),
+    removePaymentMethod: (pm: PaymentMethod) => dispatch(removePaymentMethod(pm)),
   });
 }
 

@@ -12,43 +12,37 @@ interface Props {
 
 interface State {
   saving: boolean;
-  user?: User;
   error: string;
 }
 
 class Profile extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { user: props.user, saving: false, error: '' };
+    this.state = { saving: false, error: '' };
   }
   
-  componentDidUpdate(prevProps: Props)  {
-    if(prevProps.user !== this.props.user) {
-      this.setState({ user: this.props.user });
-    }
-  }
-
   onChange(e:any) {
-    this.setState({ user: new User({
-      ...this.state.user,
+    this.props.updateUser(new User({
+      ...this.props.user,
       [e.target.name]: e.target.value,
-    })});
+    }));
   };
 
   async onSubmit(e:any) {
     e.preventDefault();
     this.setState({ saving: true });
 
-    const { user } = this.state;
+    const { user } = this.props;
 
     Call("UpdateUser", { user })
       .then(() => this.setState({ error: '' }))
       .catch(err => this.setState({ error: err.message }))
-      .finally(() => this.setState({ saving: false }));
+      .finally(() => setTimeout(() => this.setState({ saving: false }), 500));
   }
 
   render(): JSX.Element {
-    const { saving, user } = this.state;
+    const { saving } = this.state;
+    const { user } = this.props;
 
     return(
       <PageLayout className='Profile' {...this.props}>
