@@ -134,7 +134,7 @@ func issueSession(service web.Service) http.Handler {
 			Path:    "/",
 		})
 
-		http.Redirect(w, req, os.Getenv("FRONTEND_ADDRESS")+"/services", http.StatusFound)
+		http.Redirect(w, req, os.Getenv("FRONTEND_ADDRESS")+"/", http.StatusFound)
 	}
 	return http.HandlerFunc(fn)
 }

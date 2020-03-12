@@ -118,3 +118,14 @@ export interface Event {
   metadata: { string: string };
   service: EventService;
 }
+
+export interface Organisation {
+  login?: string;
+  name?: string;
+  id?: string;
+}
+
+export interface Repository {
+  full_name?: string;
+  id?: string;
+}

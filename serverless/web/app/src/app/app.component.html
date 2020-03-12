@@ -20,10 +20,10 @@
       <span class="menu-spacer"></span>
       <div style="padding-top: 4px;" fxShow="true" fxHide.lt-md>
         <!-- The following menu items will be hidden on both SM and XS screen sizes -->
-        <a *ngIf="user && user.name" routerLink="/services" mat-button
+        <a *ngIf="false" routerLink="/services" mat-button
           >Services</a
         >
-        <a *ngIf="user && user.name" routerLink="/events" mat-button>Events</a>
+        <a *ngIf="false" routerLink="/events" mat-button>Events</a>
 
         <mat-menu id="matmenu" #menu="matMenu">
           <button
@@ -119,12 +119,12 @@
             />{{ user.teamName }}</a
           >
         </div>
-        <div *ngIf="user && user.name">
+        <div *ngIf="false">
           <a mat-list-item (click)="sidenav.toggle()" routerLink="/services"
             >Services</a
           >
         </div>
-        <div *ngIf="user && user.name">
+        <div *ngIf="false">
           <a mat-list-item (click)="sidenav.toggle()" routerLink="/events"
             >Events</a
           >

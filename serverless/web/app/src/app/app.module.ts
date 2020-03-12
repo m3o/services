@@ -12,7 +12,8 @@ import {
   MatToolbar,
   MatList,
   MatMenu,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatSelect
 } from "@angular/material";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
@@ -27,7 +28,8 @@ import {
   MatInputModule,
   MatExpansionModule,
   MatProgressBarModule,
-  MatCheckboxModule
+  MatCheckboxModule,
+  MatSelectModule,
 } from "@angular/material";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatListModule } from "@angular/material";
@@ -63,6 +65,7 @@ import { TraceListComponent } from "./trace-list/trace-list.component";
 import { EndpointListComponent } from "./endpoint-list/endpoint-list.component";
 import { LogsComponent } from "./logs/logs.component";
 import { NodesComponent } from "./nodes/nodes.component";
+import { NewProjectComponent } from './new-project/new-project.component';
 
 /**
  * Import specific languages to avoid importing everything
@@ -98,7 +101,8 @@ export function getHighlightLanguages() {
     TraceListComponent,
     EndpointListComponent,
     LogsComponent,
-    NodesComponent
+    NodesComponent,
+    NewProjectComponent
   ],
   imports: [
     BrowserModule,
@@ -131,7 +135,8 @@ export function getHighlightLanguages() {
     Ng2GoogleChartsModule,
     MatPaginatorModule,
     MatCheckboxModule,
-    MonacoEditorModule.forRoot()
+    MonacoEditorModule.forRoot(),
+    MatSelectModule
   ],
   providers: [
     CookieService,
