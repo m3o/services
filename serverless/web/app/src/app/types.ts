@@ -129,3 +129,13 @@ export interface Repository {
   full_name?: string;
   id?: string;
 }
+
+export interface BuildPack {
+  name?: string;
+}
+
+export interface RepoContents {
+  type?: string;
+  path?: string;
+  name?: string;
+}

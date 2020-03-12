@@ -47,4 +47,32 @@ export class ProjectService {
         });
     });
   }
+
+  listContents(
+    organisation: string,
+    repository: string,
+    path: string
+  ): Promise<types.RepoContents[]> {
+    return new Promise<types.RepoContents[]>((resolve, reject) => {
+      return this.http
+        .get<types.RepoContents[]>(
+          environment.backendUrl +
+            "/v1/github/folders?token=" +
+            this.us.token() +
+            "&organisation=" +
+            organisation +
+            "&repository=" +
+            repository +
+            "&path=" +
+            path
+        )
+        .toPromise()
+        .then(servs => {
+          resolve(servs as types.RepoContents[]);
+        })
+        .catch(e => {
+          reject(e);
+        });
+    });
+  }
 }
