@@ -8,12 +8,33 @@ service Account {
 	rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
 
 	rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
-  rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
+	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
+
+	rpc EmailSignup(EmailSignupRequest) returns (EmailSignupResponse);
+	rpc EmailLogin(EmailLoginRequest) returns (EmailLoginResponse);
 }
 
-message Subscription {
-
+message EmailSignupRequest {
+	string email = 1;
+	string password = 2;
 }
+
+message EmailSignupResponse {
+	User user = 1;
+	string token = 2;
+}
+
+message EmailLoginRequest {
+	string email = 1;
+	string password = 2;
+}
+
+message EmailLoginResponse {
+	User user = 1;
+	string token = 2;
+}
+
+message Subscription {}
 
 message User {
 	string id = 1;					// uuid
