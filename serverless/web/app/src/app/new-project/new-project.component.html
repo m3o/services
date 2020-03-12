@@ -77,6 +77,7 @@
       </mat-form-field>
     </ng-container>
     <div *ngIf="selectedRepo">
+      <br />
       <span *ngIf="path">{{ path }}&nbsp;&nbsp;&nbsp;</span>
       <mat-form-field *ngIf="path == '' || add == true">
         <mat-label>Folder</mat-label>
@@ -88,11 +89,14 @@
           >
         </mat-select>
       </mat-form-field>
-      <mat-icon (click)="add = true" *ngIf="!add">add</mat-icon>
+      <mat-icon style="vertical-align: middle" (click)="add = true" *ngIf="!add"
+        >add</mat-icon
+      >
     </div>
     <div *ngIf="path != ''">
+      <br /><br />
       <mat-form-field>
-        <mat-label>Language</mat-label>
+        <mat-label>Build pack</mat-label>
         <mat-select
           (selectionChange)="bpSelected($event.value)"
           [(value)]="selectedBuildPack"

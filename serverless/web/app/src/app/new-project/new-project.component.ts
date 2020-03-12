@@ -56,7 +56,7 @@ export class NewProjectComponent implements OnInit {
   folderSelected(v: string) {
     this.add = false;
     this.path += "/" + v;
-    this.loadFolders()
+    this.loadFolders();
   }
 }
 
@@ -84,5 +84,8 @@ const buildPacks: types.BuildPack[] = [
   },
   {
     name: "java"
+  },
+  {
+    name: "html"
   }
 ];

@@ -114,15 +114,7 @@ THE SOFTWARE.
 
 @angular/material/card
 
-@angular/material/checkbox
-
-@angular/material/chips
-
 @angular/material/core
-
-@angular/material/divider
-
-@angular/material/expansion
 
 @angular/material/form-field
 
@@ -132,17 +124,11 @@ THE SOFTWARE.
 
 @angular/material/menu
 
-@angular/material/paginator
-
-@angular/material/progress-bar
-
 @angular/material/progress-spinner
 
 @angular/material/select
 
 @angular/material/sidenav
-
-@angular/material/tabs
 
 @angular/material/toolbar
 
