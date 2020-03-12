@@ -9,6 +9,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 
 	pb "github.com/micro/services/account/api/proto/account"
+	login "github.com/micro/services/login/service/proto/login"
 	"github.com/micro/services/payments/provider"
 	payment "github.com/micro/services/payments/provider/proto"
 	users "github.com/micro/services/users/service/proto"
@@ -18,6 +19,7 @@ import (
 type Handler struct {
 	name    string
 	users   users.UsersService
+	login   login.LoginService
 	payment payment.ProviderService
 }
 
@@ -29,9 +31,10 @@ func NewHandler(srv micro.Service) *Handler {
 	}
 
 	return &Handler{
+		payment: pay,
 		name:    srv.Name(),
 		users:   users.NewUsersService("go.micro.srv.users", srv.Client()),
-		payment: pay,
+		login:   login.NewLoginService("go.micro.srv.login", srv.Client()),
 	}
 }
 
@@ -87,14 +90,29 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	}
 	req.User.Id = acc.Id
 
-	// Update the user
-	resp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
+	// Get the user
+	rRsp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.Id})
 	if err != nil {
 		return err
 	}
 
+	// Update the user
+	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
+	if err != nil {
+		return err
+	}
+
+	// If the users email changed, notify the login service
+	// TODO: Remove this once it's handled by event consumption
+	if rRsp.User.Email != uRsp.User.Email {
+		h.login.UpdateEmail(ctx, &login.UpdateEmailRequest{
+			OldEmail: rRsp.User.Email,
+			NewEmail: uRsp.User.Email,
+		})
+	}
+
 	// Serialize the response
-	rsp.User = serializeUser(resp.User)
+	rsp.User = serializeUser(uRsp.User)
 	return nil
 }
 
