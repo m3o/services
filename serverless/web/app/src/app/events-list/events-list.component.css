@@ -1,0 +1,7 @@
+.list-comma::before {
+  content: ", ";
+}
+
+.list-comma:first-child::before {
+  content: "";
+}
