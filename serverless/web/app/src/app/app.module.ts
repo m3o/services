@@ -54,7 +54,6 @@ import { HighlightModule, HIGHLIGHT_OPTIONS } from "ngx-highlightjs";
 import { NotInvitedComponent } from "./not-invited/not-invited.component";
 
 import { Ng2GoogleChartsModule } from "ng2-google-charts";
-import { MonacoEditorModule } from "ngx-monaco-editor";
 import { SettingsComponent } from "./settings/settings.component";
 import { DateAgoPipe } from "./dateago.pipe";
 import { NewProjectComponent } from "./new-project/new-project.component";
@@ -119,7 +118,6 @@ export function getHighlightLanguages() {
     Ng2GoogleChartsModule,
     MatPaginatorModule,
     MatCheckboxModule,
-    MonacoEditorModule.forRoot(),
     MatSelectModule
   ],
   providers: [

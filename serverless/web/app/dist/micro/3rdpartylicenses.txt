@@ -420,9 +420,6 @@ SOFTWARE.
 ngx-highlightjs
 MIT
 
-ngx-monaco-editor
-MIT
-
 ngx-window-token
 MIT
 
