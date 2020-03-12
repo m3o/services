@@ -27,11 +27,13 @@ func RegisterHandlers(srv web.Service) error {
 		ClientSecret: os.Getenv("GITHUB_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
 		Endpoint:     githubOAuth2.Endpoint,
-		Scopes:       []string{"user:email", "read:org"},
+		Scopes:       []string{"user:email", "read:org", "public_repo"},
 	}
 
 	// state param cookies require HTTPS by default; disable for localhost development
 	stateConfig := gologin.DebugOnlyCookieConfig
+	srv.HandleFunc("/v1/github/organisations", listOrgs(srv))
+	srv.HandleFunc("/v1/github/repositories", listRepos(srv))
 	srv.Handle("/v1/github/login", github.StateHandler(stateConfig, github.LoginHandler(oauth2Config, nil)))
 	srv.Handle("/v1/auth/verify", github.StateHandler(stateConfig, github.CallbackHandler(oauth2Config, func() http.Handler {
 		return issueSession(srv)
@@ -114,6 +116,7 @@ func issueSession(service web.Service) http.Handler {
 				"team_name":               teamName,
 				"team_url":                teamURL,
 				"organization_avatar_url": org.GetAvatarURL(),
+				"github_access_token":     oauthToken.AccessToken,
 			}))
 		if err != nil {
 			utils.Write500(w, err)
@@ -182,5 +185,97 @@ func userHandler(service web.Service) func(http.ResponseWriter, *http.Request) {
 			OrganizationAvatarURL: acc.Metadata["organization_avatar_url"],
 			Login:                 acc.Metadata["login"],
 		})
+	}
+}
+
+func listOrgs(service web.Service) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+		utils.SetupResponse(&w, req)
+		if (*req).Method == "OPTIONS" {
+			return
+		}
+		token := req.URL.Query().Get("token")
+		if len(token) == 0 {
+			utils.Write400(w, errors.New("Token missing"))
+			return
+		}
+
+		acc, err := service.Options().Service.Options().Auth.Verify(token)
+		if err != nil {
+			utils.Write400(w, err)
+			return
+		}
+		if acc == nil {
+			utils.Write400(w, errors.New("Not found"))
+			return
+		}
+
+		if acc.Metadata == nil {
+			utils.Write400(w, errors.New("Metadata not found"))
+			return
+		}
+
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: acc.Metadata["github_access_token"]},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+		client := githubApi.NewClient(tc)
+
+		orgs, _, err := client.Organizations.List(ctx, acc.Metadata["login"], nil)
+		if err != nil {
+			utils.Write500(w, err)
+			return
+		}
+		utils.WriteJSON(w, orgs)
+	}
+}
+
+func listRepos(service web.Service) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+		utils.SetupResponse(&w, req)
+		if (*req).Method == "OPTIONS" {
+			return
+		}
+		token := req.URL.Query().Get("token")
+		if len(token) == 0 {
+			utils.Write400(w, errors.New("Token missing"))
+			return
+		}
+
+		acc, err := service.Options().Service.Options().Auth.Verify(token)
+		if err != nil {
+			utils.Write400(w, err)
+			return
+		}
+		if acc == nil {
+			utils.Write400(w, errors.New("Not found"))
+			return
+		}
+
+		if acc.Metadata == nil {
+			utils.Write400(w, errors.New("Metadata not found"))
+			return
+		}
+
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: acc.Metadata["github_access_token"]},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+		client := githubApi.NewClient(tc)
+
+		org := req.URL.Query().Get("organisation")
+		if len(org) == 0 {
+			utils.Write400(w, errors.New("Organization missing"))
+			return
+		}
+
+		repos, _, err := client.Repositories.ListByOrg(ctx, org, nil)
+		if err != nil {
+			utils.Write500(w, err)
+			return
+		}
+		utils.WriteJSON(w, repos)
 	}
 }
