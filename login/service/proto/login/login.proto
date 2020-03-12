@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package go.micro.srv.login;
+
+service Login {
+	rpc CreateLogin(CreateLoginRequest) returns (CreateLoginResponse) {}
+	rpc VerifyLogin(VerifyLoginRequest) returns (VerifyLoginResponse) {}
+
+	// TODO: Remove the RPC and replace with consuming users update events
+	// once we have update diff implemented.
+	rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse) {}
+}
+
+message CreateLoginRequest {
+	string id = 1;
+	string email = 2;
+	string password = 3;
+	bool validate_only = 4;
+}
+
+message CreateLoginResponse {}
+
+message VerifyLoginRequest {
+	string email = 1;
+	string password = 2;
+}
+
+message VerifyLoginResponse {
+	string id = 1;
+}
+
+message UpdateEmailRequest {
+	string old_email = 1;
+	string new_email = 2;
+}
+
+message UpdateEmailResponse {}
