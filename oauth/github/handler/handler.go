@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dghubble/gologin/v2"
 	"github.com/dghubble/gologin/v2/github"
+	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	util "github.com/micro/go-micro/v2/util/http"
 	"github.com/micro/go-micro/v2/web"
@@ -33,33 +34,30 @@ type Handler struct {
 
 // RegisterHandler adds the GitHub oauth handlers to the servie
 func RegisterHandler(srv web.Service) {
-	provider := srv.Options().Service.Options().Auth.Options().Provider
-	if provider == nil {
-		log.Fatal("Oauth Provider Requried")
-	}
+	service := srv.Options().Service
 
 	// Setup oauth2 config
 	oauth2Config := &oauth2.Config{
-		ClientID:     provider.Options().ClientID,
-		ClientSecret: provider.Options().ClientSecret,
-		RedirectURL:  provider.Redirect(),
+		ClientID:     getConfig(service, "client_id"),
+		ClientSecret: getConfig(service, "client_secret"),
+		RedirectURL:  getConfig(service, "redirect"),
 		Endpoint:     githubOAuth2.Endpoint,
 		Scopes:       []string{"user:email", "read:org"},
 	}
 
 	h := Handler{
-		auth: srv.Options().Service.Options().Auth,
+		auth: service.Options().Auth,
 	}
 
 	// Set GitHub Env Vars
-	if id, err := strconv.ParseInt(getEnv("GITHUB_TEAM_ID"), 10, 64); err != nil {
-		log.Fatalf("Invalid GITHUB_TEAM_ID: %v", err)
+	if id, err := strconv.ParseInt(getConfig(service, "team_id"), 10, 64); err != nil {
+		log.Fatalf("Invalid team_id: %v", err)
 	} else {
 		h.githubTeamID = id
 	}
 
-	if id, err := strconv.ParseInt(getEnv("GITHUB_ORG_ID"), 10, 64); err != nil {
-		log.Fatalf("Invalid GITHUB_ORG_ID: %v", err)
+	if id, err := strconv.ParseInt(getConfig(service, "org_id"), 10, 64); err != nil {
+		log.Fatalf("Invalid org_id: %v", err)
 	} else {
 		h.githubOrgID = id
 	}
@@ -158,12 +156,13 @@ func (h *Handler) metadataForUser(ctx context.Context, client *githubApi.Client,
 	}
 }
 
-// getEnv loads a variable using os.Getenv and will log fatal if
-// no value is set
-func getEnv(name string) string {
-	val := os.Getenv(name)
+// getConfig loads a string variable from micro config
+func getConfig(srv micro.Service, key string) string {
+	path := []string{"micro", "oauth", "github", key}
+	val := srv.Options().Config.Get(path...).String("")
+
 	if len(val) == 0 {
-		log.Fatalf("Missing Required Env: %v", name)
+		log.Fatalf("Missing Required Config: %v", strings.Join(path, "."))
 	}
 	return val
 }

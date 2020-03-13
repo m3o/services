@@ -2,6 +2,9 @@ package handler
 
 import (
 	"log"
+	"strings"
+
+	"github.com/micro/go-micro/v2/auth/provider/oauth"
 
 	"github.com/micro/go-micro/v2/auth/provider"
 
@@ -12,10 +15,18 @@ import (
 
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) *Handler {
-	prov := srv.Options().Auth.Options().Provider
-	if prov == nil {
-		log.Fatal("Micro Auth provider required")
-	}
+	prov := oauth.NewProvider(
+		provider.Credentials(
+			getConfig(srv, "oauth", "google", "client_id"),
+			getConfig(srv, "oauth", "google", "client_secret"),
+		),
+		provider.Redirect(
+			getConfig(srv, "oauth", "google", "redirect"),
+		),
+		provider.Endpoint(
+			getConfig(srv, "oauth", "google", "endpoint"),
+		),
+	)
 
 	return &Handler{
 		provider: prov,
@@ -29,4 +40,13 @@ type Handler struct {
 	users    users.UsersService
 	login    login.LoginService
 	provider provider.Provider
+}
+
+func getConfig(srv micro.Service, keys ...string) string {
+	path := append([]string{"micro", "account"}, keys...)
+	val := srv.Options().Config.Get(path...).String("")
+	if len(val) == 0 {
+		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
+	}
+	return val
 }
