@@ -2,6 +2,9 @@ package handler
 
 import (
 	"log"
+	"strings"
+
+	"github.com/micro/go-micro/v2/auth/provider/oauth"
 
 	"github.com/micro/go-micro/v2/auth/provider"
 
@@ -12,21 +15,53 @@ import (
 
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) *Handler {
-	prov := srv.Options().Auth.Options().Provider
-	if prov == nil {
-		log.Fatal("Micro Auth provider required")
-	}
+	googleProv := oauth.NewProvider(
+		provider.Credentials(
+			getConfig(srv, "google", "client_id"),
+			getConfig(srv, "google", "client_secret"),
+		),
+		provider.Redirect(
+			getConfig(srv, "google", "redirect"),
+		),
+		provider.Endpoint(
+			getConfig(srv, "google", "endpoint"),
+		),
+	)
+
+	githubProv := oauth.NewProvider(
+		provider.Credentials(
+			getConfig(srv, "github", "client_id"),
+			getConfig(srv, "github", "client_secret"),
+		),
+		provider.Redirect(
+			getConfig(srv, "github", "redirect"),
+		),
+		provider.Endpoint(
+			getConfig(srv, "github", "endpoint"),
+		),
+	)
 
 	return &Handler{
-		provider: prov,
-		users:    users.NewUsersService("go.micro.srv.users", srv.Client()),
-		login:    login.NewLoginService("go.micro.srv.login", srv.Client()),
+		google: googleProv,
+		github: githubProv,
+		users:  users.NewUsersService("go.micro.srv.users", srv.Client()),
+		login:  login.NewLoginService("go.micro.srv.login", srv.Client()),
 	}
 }
 
 // Handler is used to handle oauth logic
 type Handler struct {
-	users    users.UsersService
-	login    login.LoginService
-	provider provider.Provider
+	users  users.UsersService
+	login  login.LoginService
+	google provider.Provider
+	github provider.Provider
+}
+
+func getConfig(srv micro.Service, keys ...string) string {
+	path := append([]string{"micro", "oauth"}, keys...)
+	val := srv.Options().Config.Get(path...).String("")
+	if len(val) == 0 {
+		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
+	}
+	return val
 }

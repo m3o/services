@@ -5,25 +5,25 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	users "github.com/micro/services/users/service/proto"
 )
 
-// HandleOauthLogin redirects the user to begin the oauth flow
-func (h *Handler) HandleOauthLogin(w http.ResponseWriter, req *http.Request) {
-	http.Redirect(w, req, h.provider.Endpoint(), http.StatusFound)
+// HandleGithubOauthLogin redirects the user to begin the oauth flow
+func (h *Handler) HandleGithubOauthLogin(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req, h.github.Endpoint(), http.StatusFound)
 }
 
-// HandleOauthVerify redirects the user to begin the oauth flow
-func (h *Handler) HandleOauthVerify(w http.ResponseWriter, req *http.Request) {
+// HandleGithubOauthVerify redirects the user to begin the oauth flow
+func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Request) {
 	// Get the token using the oauth code
-	resp, err := http.PostForm("https://oauth2.googleapis.com/token", url.Values{
-		"client_id":     {h.provider.Options().ClientID},
-		"client_secret": {h.provider.Options().ClientSecret},
-		"redirect_uri":  {h.provider.Redirect()},
+	resp, err := http.PostForm("https://github.com/login/oauth/access_token", url.Values{
+		"client_id":     {h.github.Options().ClientID},
+		"client_secret": {h.github.Options().ClientSecret},
+		"redirect_uri":  {h.github.Redirect()},
 		"code":          {req.FormValue("code")},
-		"grant_type":    {"authorization_code"},
 	})
 	if err != nil || resp.StatusCode != http.StatusOK {
 		http.Redirect(w, req, "/account/error", http.StatusFound)
@@ -38,7 +38,10 @@ func (h *Handler) HandleOauthVerify(w http.ResponseWriter, req *http.Request) {
 	json.NewDecoder(resp.Body).Decode(&oauthResult)
 
 	// Use the token to get the users profile
-	resp, err = http.Get("https://www.googleapis.com/oauth2/v1/userinfo?oauth_token=" + oauthResult.Token)
+	req, err = http.NewRequest("GET", "https://api.github.com/user", nil)
+	req.Header.Add("Authorization", "Bearer "+oauthResult.Token)
+	client := &http.Client{}
+	resp, err = client.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		http.Redirect(w, req, "/account/error", http.StatusFound)
 		fmt.Println(err)
@@ -48,17 +51,28 @@ func (h *Handler) HandleOauthVerify(w http.ResponseWriter, req *http.Request) {
 	// Decode the users profile
 	var profile struct {
 		ID        string `json:"id"`
+		Username  string `json:"login"`
+		Name      string `json:"name"`
 		Email     string `json:"email"`
-		FirstName string `json:"given_name"`
-		LastName  string `json:"family_name"`
+		FirstName string
+		LastName  string
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
+
+	nameComps := strings.Split(profile.Name, "")
+	if len(nameComps) > 0 {
+		profile.FirstName = nameComps[0]
+	}
+	if len(nameComps) > 1 {
+		profile.LastName = strings.Join(nameComps[1:len(nameComps)-1], " ")
+	}
 
 	// Create the user in the users service
 	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
 		User: &users.User{
-			Id:        fmt.Sprintf("google_%v", profile.ID),
+			Id:        fmt.Sprintf("Github_%v", profile.ID),
 			Email:     profile.Email,
+			Username:  profile.Username,
 			FirstName: profile.FirstName,
 			LastName:  profile.LastName,
 		},
@@ -68,6 +82,10 @@ func (h *Handler) HandleOauthVerify(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(err)
 		return
 	}
+
+	// TODO:
+	// - Add the developer role to the user
+	// - Add the collaborator role to the user if they're part of the micro GH team
 
 	// Set the cookie and redirect
 	http.SetCookie(w, &http.Cookie{

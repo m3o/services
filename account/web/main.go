@@ -24,10 +24,8 @@ func main() {
 
 	// Handle the redirect from google when oauth completes
 	h := handler.NewHandler(service.Options().Service)
-	service.HandleFunc("/oauth/login", h.HandleOauthLogin)
-	service.HandleFunc("/oauth/verify", h.HandleOauthVerify)
-	service.HandleFunc("/login/email/signup", h.HandleEmailSignup)
-	service.HandleFunc("/login/email/login", h.HandleEmailLogin)
+	service.HandleFunc("/oauth/google/login", h.HandleGoogleOauthLogin)
+	service.HandleFunc("/oauth/google/verify", h.HandleGoogleOauthVerify)
 
 	// Serve the web app
 	service.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
