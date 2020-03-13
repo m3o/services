@@ -67,6 +67,11 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return err
 	}
 
+	// If validating only, return here
+	if req.ValidateOnly {
+		return nil
+	}
+
 	// Add the auto-generate fields
 	var user pb.User = *req.User
 	if len(user.Id) == 0 {
@@ -197,7 +202,7 @@ func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.Sea
 	}
 
 	// List all the records
-	recs, err := h.store.List()
+	recs, err := h.store.Read("", store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.srv.users", "Could not read from store: %v", err)
 	}

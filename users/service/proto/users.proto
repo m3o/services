@@ -36,6 +36,7 @@ message User {
 
 message CreateRequest {
 	User user = 1;
+	bool validate_only = 2;
 }
 
 message CreateResponse {
