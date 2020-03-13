@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ClientService } from "@microhq/ng-client";
 import { ActivatedRoute } from "@angular/router";
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: "app-subscribe-form",
@@ -31,7 +32,7 @@ export class SubscribeFormComponent implements OnInit {
     if (!this.email) {
       return;
     }
-    this.mc.setOptions({ local: true });
+    this.mc.setOptions({ local: !environment.production });
     this.mc
       .call("go.micro.srv.subscribe", "Subscribe.Subscribe", {
         namespace: this.domain,
