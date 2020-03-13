@@ -260,6 +260,7 @@ github.com/micro/micro/v2 v2.2.0/go.mod h1:zOBPvvN7g+ve5ccRGY3K5Cdf4PDcDahfzdOCt
 github.com/micro/platform v0.0.0-20200311101935-4896fbcbe178 h1:64Ct/YtzbiFO9B1+qSzYAbwhmpojMMNPsOPhaLGriDM=
 github.com/micro/platform/web v0.0.0-20200311101935-4896fbcbe178 h1:MUFPnzAy3evTAR5Fu2yHcvhWijHedN5VkRoCStLilyg=
 github.com/micro/services v0.0.0-20200311145701-949f1a383199 h1:QXtQc+HJ0104gE6gnzB+eH57HphILJJLCkxfcGb8lGc=
+github.com/micro/services v0.0.0-20200313105341-66ab9d74feb7 h1:RS9IzN4oGmOQQs99IAP6nyiKTavynJHshxRmcsDm85Y=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
