@@ -26,6 +26,8 @@ func main() {
 	h := handler.NewHandler(service.Options().Service)
 	service.HandleFunc("/oauth/login", h.HandleOauthLogin)
 	service.HandleFunc("/oauth/verify", h.HandleOauthVerify)
+	service.HandleFunc("/login/email/signup", h.HandleEmailSignup)
+	service.HandleFunc("/login/email/login", h.HandleEmailLogin)
 
 	// Serve the web app
 	service.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {

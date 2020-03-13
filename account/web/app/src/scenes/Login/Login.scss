@@ -45,6 +45,18 @@
     }
   }
 
+  .subtitle {
+    line-height: 25px;
+  }
+
+  .error {
+    text-align: left;
+    margin-bottom: 25px;
+    color: red;
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
   form {
     display: flex;
     flex-direction: column;
@@ -58,6 +70,7 @@
 
     span {
       color: $blue;
+      cursor: pointer;
     }
   }
 }

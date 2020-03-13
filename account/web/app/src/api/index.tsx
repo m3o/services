@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+export const Domain = 'dev.micro.mu';
+
 const BaseURL = 'http://dev.micro.mu:8080/account/'
 // const BaseURL = 'https://api.micro.mu/account/'
 

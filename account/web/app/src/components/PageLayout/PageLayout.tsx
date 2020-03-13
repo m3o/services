@@ -38,17 +38,17 @@ export default class PageLayout extends React.Component<Props> {
             </NavLink>
 
             <NavLink exact to='/account/billing'>
-              <img src={ path === '/account/billing/' ? BillingActive : BillingInctive } alt='Billing' />
+              <img src={ path === '/account/billing' ? BillingActive : BillingInctive } alt='Billing' />
               <p>Billing</p>
             </NavLink>
 
             <NavLink exact to='/account/subscriptions'>
-              <img src={ path === '/account/subscriptions/' ? SubscriptionsActive : SubscriptionsInctive } alt='Subscriptions' />
+              <img src={ path === '/account/subscriptions' ? SubscriptionsActive : SubscriptionsInctive } alt='Subscriptions' />
               <p>Subscriptions</p>
             </NavLink>
 
             <NavLink exact to='/account/settings'>
-              <img src={ path === '/account/settings/' ? SettingsActive : SettingsInctive } alt='Settings' />
+              <img src={ path === '/account/settings' ? SettingsActive : SettingsInctive } alt='Settings' />
               <p>Settings</p>
             </NavLink>
           </nav>
