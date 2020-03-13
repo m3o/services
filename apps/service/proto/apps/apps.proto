@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package go.micro.service.apps;
+
+service Apps {
+	rpc Create(CreateRequest) returns (CreateResponse);
+	rpc List(ListRequest) returns (ListResponse);
+	rpc Read(ReadRequest) returns (ReadResponse);
+	rpc Update(UpdateRequest) returns (UpdateResponse);
+}
+
+message App {
+	string id = 1;
+	string name = 2;
+	string category = 3;
+	string description = 4;
+	repeated string required_roles = 5;
+	repeated Plan plans = 6;
+}
+
+message Plan {
+	string id = 1;
+	string name = 2;
+	int64 amount = 3;
+	string interval = 4;
+}
+
+message CreateRequest {
+	App app = 1;
+}
+
+message CreateResponse {}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated App apps = 1;
+}
+
+message ReadRequest {
+	string id = 1;
+}
+
+message ReadResponse {
+	App app = 1;
+}
+
+message UpdateRequest {
+	App app = 1;
+}
+
+message UpdateResponse {}
