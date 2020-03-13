@@ -6,7 +6,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
 	pb "github.com/micro/services/distributed/api/proto/notes"
-	notes "github.com/micro/services/notes/proto"
+	notes "github.com/micro/services/notes/service/proto"
 )
 
 // NewHandler returns an initialized Handler

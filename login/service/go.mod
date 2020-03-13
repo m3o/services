@@ -4,9 +4,7 @@ go 1.13
 
 require (
 	github.com/golang/protobuf v1.3.4
-	github.com/micro/go-micro/v2 v2.2.1-0.20200311230942-1ca4619506bd
-	github.com/micro/services/users/service v0.0.0-20200311145701-949f1a383199
+	github.com/micro/go-micro/v2 v2.2.1-0.20200312220411-62a644ddd898
+	github.com/micro/services/users/service v0.0.0-20200313083714-e72c0c76aa9a
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 )
-
-replace github.com/micro/services/users/service => ../../users/service
