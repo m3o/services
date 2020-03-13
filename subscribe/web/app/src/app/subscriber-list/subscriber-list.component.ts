@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ClientService } from "@microhq/ng-client";
 import { ActivatedRoute } from "@angular/router";
+import { environment } from '../../environments/environment';
 
 interface Subscriber {
   email?: string;
@@ -28,11 +29,13 @@ export class SubscriberListComponent implements OnInit {
       }
     });
 
+    this.mc.setOptions({ local: !environment.production })
     this.mc
       .call("go.micro.srv.subscribe", "Subscribe.ListSubscriptions", {
         namespace: this.domain
       })
       .then((response: any) => {
+        console.log(response)
         this.subscribers = response.subscriptions
       });
   }

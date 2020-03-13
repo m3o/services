@@ -6,11 +6,10 @@
           <h2>SUBSCRIBERS</h2>
           <ng-container *ngIf="!error">
             <div
-              style="text-align: center;"
               *ngFor="let subscriber of subscribers"
               class="input-group"
             >
-              {{ subscriber.email }}<br />
+              <div style="margin: auto;">{{ subscriber.email }}</div>
             </div>
           </ng-container>
           <ng-container *ngIf="error"> Error: {{ error }} </ng-container>
