@@ -16,3 +16,17 @@ export class User {
     this.lastName = args.lastName;
   }
 }
+
+export class App {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+
+  constructor(args: any) {
+    this.id = args.id;
+    this.name = args.name;
+    this.category = args.category || '';
+    this.icon = args.icon || '';
+  }
+}

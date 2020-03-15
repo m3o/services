@@ -1,17 +1,23 @@
 import React from 'react';
 import Cookies from 'universal-cookie';
-import Serverless from  './assets/images/serverless.png';
-import Distributed from  './assets/images/distributed.png';
-import Notes from  './assets/images/notes.png';
+import DefaultIcon from  './assets/images/default-icon.png';
 import Person from './assets/images/person.png';
-import Call, { User } from './api';
+import Call, { User, App } from './api';
 import './App.scss';
 
-export default class App extends React.Component {
-  state: { user?: User } = {};
+interface Props {}
+
+interface State {
+  user?: User;
+  apps: App[];
+}
+
+export default class AppComponent extends React.Component<Props, State> {
+  readonly state: State = { apps: [] };
 
   componentDidMount() {
-    Call('ReadUser').then((res: any) => this.setState({ user: res.data.user }));
+    Call('ReadUser').then((res: any) => this.setState({ user: new User(res.data.user) }));
+    Call('ListApps').then((res: any) => this.setState({ apps: res.data.apps.map((a:any) => new App(a)) }));
   }
 
   render() {
@@ -23,7 +29,7 @@ export default class App extends React.Component {
     const dateOpts = { weekday: 'long', month: 'long', day: 'numeric' };
     const date = now.toLocaleDateString("en-uk", dateOpts);
 
-    const { user } = this.state;
+    const { user, apps } = this.state;
 
     return (
       <div className="App">
@@ -47,34 +53,28 @@ export default class App extends React.Component {
           </div>
         </div>
 
-        <div className={`main ${user ? '' : 'hidden'}`}>
+        <div className={`main ${apps.length > 0 ? '' : 'hidden'}`}>
           <div className='section'>
             <div className='section-upper'>
               <h3>Apps</h3>
               <p className='action'>Browse</p>
             </div>
 
-            <div className='AppCard'>
-              <img src={Serverless} alt='Serverless' />
-              <p className='name'>Serverless</p>
-              <p className='category'>Development</p>
-            </div>
-
-            <div className='AppCard'>
-              <img src={Distributed} alt='Distributed' />
-              <p className='name'>Distributed</p>
-              <p className='category'>Development</p>
-            </div>
-          
-            <div className='AppCard'>
-              <img src={Notes} alt='Notes' />
-              <p className='name'>Notes</p>
-              <p className='category'>Productivity</p>
-            </div>
+            { apps.map(this.renderApp) }
           </div>
         </div>
       </div>
     );
+  }
+
+  renderApp(app: App): JSX.Element {
+    return(
+      <div key={app.id} className='AppCard'>
+        <img src={app.icon.length > 0 ? app.icon : DefaultIcon} alt='' />
+        <p className='name'>{app.name}</p>
+        <p className='category'>{app.category}</p>
+      </div>
+    )
   }
 
   onLogoutPressed() {
