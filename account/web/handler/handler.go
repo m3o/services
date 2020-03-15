@@ -26,6 +26,9 @@ func NewHandler(srv micro.Service) *Handler {
 		provider.Endpoint(
 			getConfig(srv, "google", "endpoint"),
 		),
+		provider.Scope(
+			getConfig(srv, "google", "scope"),
+		),
 	)
 
 	githubProv := oauth.NewProvider(
@@ -38,6 +41,9 @@ func NewHandler(srv micro.Service) *Handler {
 		),
 		provider.Endpoint(
 			getConfig(srv, "github", "endpoint"),
+		),
+		provider.Scope(
+			getConfig(srv, "github", "scope"),
 		),
 	)
 
