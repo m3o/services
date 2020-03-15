@@ -11,7 +11,5 @@ type Store struct {
 
 // NewStore returns an initialised store
 func NewStore(srvName string) *Store {
-	s := store.DefaultStore
-	s.Init(store.Namespace(srvName))
-	return &Store{s}
+	return &Store{store: store.DefaultStore}
 }

@@ -30,15 +30,9 @@ type Handler struct {
 
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) (*Handler, error) {
-	// create a new namespace in the default store
-	s := store.DefaultStore
-	if err := s.Init(store.Namespace(srv.Name())); err != nil {
-		return nil, err
-	}
-
 	// Return the initialised store
 	return &Handler{
-		store:     s,
+		store:     store.DefaultStore,
 		auth:      srv.Options().Auth,
 		publisher: micro.NewPublisher(srv.Name(), srv.Client()),
 	}, nil
@@ -196,11 +190,6 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 // Search the users in th store, using username
 func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.SearchResponse) error {
-	// Validate the request
-	if len(req.Username) == 0 {
-		return errors.BadRequest("go.micro.srv.users", "Missing username")
-	}
-
 	// List all the records
 	recs, err := h.store.Read("", store.ReadPrefix())
 	if err != nil {
