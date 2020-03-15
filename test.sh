@@ -51,8 +51,8 @@ ls | while read service; do
 done
 
 # Check for outlier binaries
-find . -type f -size +1M | grep -v \.git | while read file; do
+find . -type f -size +2M | grep -v \.git | while read file; do
 	if ! grep $(basename -- $file) $(dirname -- $file)/.gitignore; then
-		fatal "$file is larger than 1M"
+		fatal "$file is larger than 2M"
 	fi
 done

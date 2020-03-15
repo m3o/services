@@ -1,0 +1,115 @@
+<div style="margin: auto;">
+  <mat-card
+    style="margin-bottom: 0; padding-bottom: 0; margin-top: 0em; padding-top: 0em;"
+    class="mat-card-flat"
+  >
+    <mat-card-title>
+      <a routerLink="/services">Projects</a> &gt; &nbsp;<span
+        *ngIf="step > 0"
+        >{{ alias }}</span
+      >
+      <!-- Using ngif here breaks viewchild, see:
+          https://stackoverflow.com/questions/39158922/viewchild-not-working-cannot-read-property-nativeelement-of-undefined
+        -->
+      <mat-form-field
+        id="new-service-input"
+        *ngIf="step == 0"
+        style="padding-top: 0em; margin-top: 0em; width: 9em;"
+      >
+        <input
+          id="sinput"
+          #sinput
+          matInputAutofocus
+          matInput
+          [(ngModel)]="alias"
+          (keyup)="keyPress($event)"
+          autocomplete="off"
+        />
+        <mat-error *ngIf="projectExists">Service already exists.</mat-error>
+        <mat-spinner
+          *ngIf="loadingProjects"
+          matSuffix
+          [diameter]="18"
+          style="float: right; margin-left: 8px"
+        ></mat-spinner>
+      </mat-form-field>
+    </mat-card-title>
+  </mat-card>
+  <mat-card
+    *ngIf="loaded"
+    style="padding-top: 0; margin-top: 0;"
+    class="mat-card-flat"
+  >
+    <!-- Next level cruft alert. Input box adds margin which is not present on steps 1+ -->
+    <br *ngIf="step != 0" />
+    <mat-card-title>
+      New project
+    </mat-card-title>
+
+    <br />
+    <mat-form-field>
+      <mat-label>Organisation</mat-label>
+      <mat-select
+        (selectionChange)="orgSelected($event.value)"
+        [(value)]="selectedOrg"
+      >
+        <mat-option *ngFor="let org of organisations" value="{{ org.login }}">{{
+          org.login
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <ng-container *ngIf="repositories.length > 0">
+      <mat-icon style="padding-left: 1em; padding-right: 1em;"
+        >keyboard_arrow_right</mat-icon
+      >
+      <mat-form-field>
+        <mat-label>Repository</mat-label>
+        <mat-select
+          (selectionChange)="repoSelected($event.value)"
+          [(value)]="selectedRepo"
+        >
+          <mat-option
+            *ngFor="let repo of repositories"
+            value="{{ repo.full_name }}"
+            >{{ repo.full_name }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <div *ngIf="selectedRepo">
+      <br />
+      <span *ngIf="path">{{ path }}&nbsp;&nbsp;&nbsp;</span>
+      <mat-form-field *ngIf="path == '' || add == true">
+        <mat-label>Folder</mat-label>
+        <mat-select (selectionChange)="folderSelected($event.value)">
+          <mat-option
+            *ngFor="let content of contents"
+            value="{{ content.name }}"
+            >{{ content.name }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      <mat-icon style="vertical-align: middle" (click)="add = true" *ngIf="!add"
+        >add</mat-icon
+      >
+    </div>
+    <div *ngIf="path != ''">
+      <br /><br />
+      <mat-form-field>
+        <mat-label>Build pack</mat-label>
+        <mat-select
+          (selectionChange)="bpSelected($event.value)"
+          [(value)]="selectedBuildPack"
+        >
+          <mat-option *ngFor="let bp of buildPacks" value="{{ bp.name }}">{{
+            bp.name
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div *ngIf="selectedBuildPack">
+      <br />
+      <button mat-raised-button color="primary">Deploy</button>
+    </div>
+  </mat-card>
+</div>

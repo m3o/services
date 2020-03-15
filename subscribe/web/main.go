@@ -16,10 +16,10 @@ func main() {
 	service.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		// Count is an ugly fix to serve urls containing micro service names ie. "go.micro.something"
 		if strings.Contains(req.URL.Path, ".") && !strings.Contains(req.URL.Path, "go.micro") {
-			http.ServeFile(w, req, "./app/dist/micro/"+req.URL.Path[1:])
+			http.ServeFile(w, req, "./app/dist/subscribe/"+req.URL.Path[1:])
 			return
 		}
-		http.ServeFile(w, req, "./app/dist/micro/index.html")
+		http.ServeFile(w, req, "./app/dist/subscribe/index.html")
 	})
 
 	if err := service.Init(); err != nil {

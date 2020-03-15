@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package go.micro.service.serverless;
+
+service Apps {
+	rpc Create(CreateRequest) returns (CreateResponse) {};
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {};
+	rpc List(ListRequest) returns (ListResponse) {};
+}
+
+message App {
+	string name = 1;
+	string version = 2;
+	string source = 3;
+	string language = 4;
+}
+
+message CreateRequest {
+	App app = 1;
+}
+
+message CreateResponse {}
+
+message DeleteRequest {
+	App app = 1;
+}
+
+message DeleteResponse {}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated App apps = 1;
+}

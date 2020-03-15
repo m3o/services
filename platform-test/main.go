@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"platform-test/handler"
 	pb "platform-test/proto"
 

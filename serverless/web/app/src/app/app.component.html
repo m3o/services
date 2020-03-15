@@ -1,0 +1,150 @@
+<div
+  ngStyle.lt-md="width: 95%; height: 100%; margin: auto;"
+  ngStyle.lt-lg="width: 90%; height: 100%; margin: auto;"
+  style="width: 70%; height: 100%; margin: auto;"
+>
+  <mat-toolbar style="padding: 1em; padding-left: 0em; background-color: white">
+    <mat-toolbar-row
+      style="padding-bottom: 0; padding-left: 0.5em; padding-right: 0.5em;"
+    >
+      <button mat-icon-button (click)="sidenav.toggle()" fxHide.gt-sm>
+        <mat-icon>menu</mat-icon>&nbsp;&nbsp;&nbsp;
+      </button>
+      <img
+        class="hover"
+        routerLink="/"
+        style="width: 50px; margin-right: 0.75em;"
+        src="./assets/logo.png"
+      />
+      <span id="logo" class="hover" routerLink="/">Micro</span>
+      <span class="menu-spacer"></span>
+      <div style="padding-top: 4px;" fxShow="true" fxHide.lt-md>
+        <!-- The following menu items will be hidden on both SM and XS screen sizes -->
+        <a *ngIf="false" routerLink="/services" mat-button
+          >Services</a
+        >
+        <a *ngIf="false" routerLink="/events" mat-button>Events</a>
+
+        <mat-menu id="matmenu" #menu="matMenu">
+          <button
+            mat-menu-item
+            (click)="goToTeam()"
+            *ngIf="user && user.teamName && user.teamURL"
+          >
+            <img
+              *ngIf="user.organizationAvatarURL"
+              style="vertical-align: middle; margin-right: 0.25em; border-radius: 3px; height: 2em; width: 2em;"
+              src="{{ user.organizationAvatarURL }}"
+            />
+            <span style="font-weight: 700">{{ user.teamName }}</span>
+          </button>
+          <button
+            class="tokens"
+            id="tokens"
+            mat-menu-item
+            routerLink="/settings/tokens"
+          >
+            Settings
+          </button>
+          <button
+            class="logout"
+            id="logout"
+            *ngIf="user && user.name"
+            mat-menu-item
+            (click)="us.logout()"
+          >
+            Sign out
+          </button>
+        </mat-menu>
+        <span fxHide="false" fxHide.lt-md>
+          <button
+            *ngIf="user && user.name"
+            mat-button
+            [matMenuTriggerFor]="menu"
+            class="dropdown-menu"
+            id="dropdown-menu"
+          >
+            <img
+              *ngIf="user.avatarURL"
+              style="vertical-align: middle; margin-right: 0.25em; border-radius: 3px; height: 2em; width: 2em;"
+              src="{{ user.avatarURL }}"
+            />
+            {{ user.name }}
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+
+          <!-- <ng-container *ngIf="!us.loggedIn() || !user || !user.name">
+            <a routerLink="/login" color="accent" mat-raised-button>Login</a>
+          </ng-container> -->
+        </span>
+
+        <span fxHide="false" fxHide.gt-sm>
+          <button
+            style="padding-right: 0; margin-right: 0;"
+            mat-button
+            [matMenuTriggerFor]="menu"
+          >
+            <mat-icon style="color: white">dehaze</mat-icon>
+          </button>
+        </span>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <mat-sidenav-container>
+    <mat-sidenav style="width: 66%;" #sidenav>
+      <mat-nav-list>
+        <div
+          *ngIf="user && user.teamName"
+          style="margin-bottom: 1em; padding-left: 1em;"
+        >
+          <img
+            *ngIf="user.avatarURL"
+            style="vertical-align: middle; margin-right: 0.5em; border-radius: 3px; height: 2em; width: 2em;"
+            src="{{ user.avatarURL }}"
+          />
+          {{ user.name }}
+        </div>
+        <div>
+          <a (click)="sidenav.toggle()" mat-list-item
+            ><mat-icon style="margin-right: 0.15em;">close</mat-icon>Close</a
+          >
+        </div>
+        <div *ngIf="user && user.teamName && user.teamURL">
+          <a mat-list-item (click)="goToTeam()"
+            ><img
+              *ngIf="user.organizationAvatarURL"
+              style="vertical-align: middle; margin-right: 0.5em; border-radius: 3px; height: 2em; width: 2em;"
+              src="{{ user.organizationAvatarURL }}"
+            />{{ user.teamName }}</a
+          >
+        </div>
+        <div *ngIf="false">
+          <a mat-list-item (click)="sidenav.toggle()" routerLink="/services"
+            >Services</a
+          >
+        </div>
+        <div *ngIf="false">
+          <a mat-list-item (click)="sidenav.toggle()" routerLink="/events"
+            >Events</a
+          >
+        </div>
+        <div *ngIf="user && user.name">
+          <a
+            routerLink="/settings/tokens"
+            (click)="sidenav.toggle()"
+            mat-list-item
+            >Settings</a
+          >
+        </div>
+        <div *ngIf="user && user.name">
+          <a (click)="us.logout()" mat-list-item>Sign out</a>
+        </div>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content style="background: white;" fxFlexFill>
+      <simple-notifications></simple-notifications>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
