@@ -74,7 +74,7 @@ class Login extends React.Component<Props, State> {
         <h1>Welcome back!</h1>
         <p className='subtitle'>To continue, log in with a Google or Micro account.</p>
 
-        <div className='google-oauth' onClick={() => window.location.href = "/account/oauth/login"}>
+        <div className='google-oauth' onClick={() => window.location.href = "/account/oauth/google/login"}>
           <img src={GoogleLogo} alt='Sign in with Google' />
           <p>Sign in with Google</p>
         </div>
