@@ -73,8 +73,10 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 
 	// Set the cookie and redirect
 	http.SetCookie(w, &http.Cookie{
-		Name:  auth.CookieName,
-		Value: uRsp.Token,
+		Name:   auth.CookieName,
+		Value:  uRsp.Token,
+		Domain: "micro.mu",
+		Path:   "/",
 	})
 	http.Redirect(w, req, "/account", http.StatusFound)
 }
