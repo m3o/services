@@ -69,11 +69,11 @@ export default class AppComponent extends React.Component<Props, State> {
 
   renderApp(app: App): JSX.Element {
     return(
-      <div key={app.id} className='AppCard'>
+      <a key={app.id} className='AppCard' href={`/${app.id}`}>
         <img src={app.icon.length > 0 ? app.icon : DefaultIcon} alt='' />
         <p className='name'>{app.name}</p>
         <p className='category'>{app.category}</p>
-      </div>
+      </a>
     )
   }
 

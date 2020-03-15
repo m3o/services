@@ -35,6 +35,7 @@ var _ server.Option
 
 type HomeService interface {
 	ReadUser(ctx context.Context, in *ReadUserRequest, opts ...client.CallOption) (*ReadUserResponse, error)
+	ListApps(ctx context.Context, in *ListAppsRequest, opts ...client.CallOption) (*ListAppsResponse, error)
 }
 
 type homeService struct {
@@ -59,15 +60,27 @@ func (c *homeService) ReadUser(ctx context.Context, in *ReadUserRequest, opts ..
 	return out, nil
 }
 
+func (c *homeService) ListApps(ctx context.Context, in *ListAppsRequest, opts ...client.CallOption) (*ListAppsResponse, error) {
+	req := c.c.NewRequest(c.name, "Home.ListApps", in)
+	out := new(ListAppsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Home service
 
 type HomeHandler interface {
 	ReadUser(context.Context, *ReadUserRequest, *ReadUserResponse) error
+	ListApps(context.Context, *ListAppsRequest, *ListAppsResponse) error
 }
 
 func RegisterHomeHandler(s server.Server, hdlr HomeHandler, opts ...server.HandlerOption) error {
 	type home interface {
 		ReadUser(ctx context.Context, in *ReadUserRequest, out *ReadUserResponse) error
+		ListApps(ctx context.Context, in *ListAppsRequest, out *ListAppsResponse) error
 	}
 	type Home struct {
 		home
@@ -82,4 +95,8 @@ type homeHandler struct {
 
 func (h *homeHandler) ReadUser(ctx context.Context, in *ReadUserRequest, out *ReadUserResponse) error {
 	return h.HomeHandler.ReadUser(ctx, in, out)
+}
+
+func (h *homeHandler) ListApps(ctx context.Context, in *ListAppsRequest, out *ListAppsResponse) error {
+	return h.HomeHandler.ListApps(ctx, in, out)
 }
