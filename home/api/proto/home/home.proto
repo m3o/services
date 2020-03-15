@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package go.micro.api.home;
+
+service Home {
+	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse);
+}
+
+message ReadUserRequest {}
+
+message ReadUserResponse {
+	User user = 1;
+}
+
+message User {
+	string first_name = 1;
+	string last_name = 2;
+}

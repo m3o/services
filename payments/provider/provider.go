@@ -9,6 +9,9 @@ import (
 	pb "github.com/micro/services/payments/provider/proto"
 )
 
+// Provider is an alias type so clients don't need to also import the pb
+type Provider = pb.ProviderService
+
 // ServicePrefix is the prefix appended to a provider name to get
 // the service type
 const ServicePrefix = "go.micro.srv.payment."
