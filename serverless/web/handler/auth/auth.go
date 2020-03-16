@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -23,10 +22,27 @@ import (
 
 // RegisterHandlers adds the GitHub oauth handlers to the servie
 func RegisterHandlers(srv web.Service) error {
+	conf := srv.Options().Service.Options().Config
+
+	oauthClientID := conf.Get("micro", "serverless", "github", "oauth_client_id").String("")
+	if len(oauthClientID) == 0 {
+		return errors.New("No pauth client ID")
+	}
+
+	oauthClientSecret := conf.Get("micro", "serverless", "github", "oauth_client_secret").String("")
+	if len(oauthClientSecret) == 0 {
+		return errors.New("No oauth client secret")
+	}
+
+	redirectURL := conf.Get("micro", "serverless", "github", "oauth_redirect_url").String("")
+	if len(redirectURL) == 0 {
+		return errors.New("No oauth redirect url")
+	}
+
 	oauth2Config := &oauth2.Config{
-		ClientID:     os.Getenv("GITHUB_OAUTH_CLIENT_ID"),
-		ClientSecret: os.Getenv("GITHUB_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
+		ClientID:     oauthClientID,
+		ClientSecret: oauthClientSecret,
+		RedirectURL:  redirectURL,
 		Endpoint:     githubOAuth2.Endpoint,
 		Scopes:       []string{"user:email", "read:org", "public_repo"},
 	}
@@ -81,24 +97,26 @@ func issueSession(service web.Service) http.Handler {
 		}
 		githubUser.Email = &primaryEmail
 
-		teamID, err := strconv.ParseInt(os.Getenv("GITHUB_TEAM_ID"), 10, 64)
+		conf := service.Options().Service.Options().Config
+		teamID, err := strconv.ParseInt(conf.Get("micro", "serverless", "github", "team_id").String(""), 10, 64)
 		if err != nil {
 			utils.Write500(w, err)
 			return
 		}
 
+		frontendAddress := conf.Get("micro", "serverless", "frontend_address").String("")
 		membership, _, err := client.Teams.GetTeamMembership(req.Context(), teamID, githubUser.GetLogin())
 		if err != nil {
-			http.Redirect(w, req, os.Getenv("FRONTEND_ADDRESS")+"/not-invited", http.StatusFound)
+			http.Redirect(w, req, frontendAddress+"/not-invited", http.StatusFound)
 			return
 		}
 		if membership.GetState() != "active" {
-			http.Redirect(w, req, os.Getenv("FRONTEND_ADDRESS")+"/not-invited", http.StatusFound)
+			http.Redirect(w, req, frontendAddress+"/not-invited", http.StatusFound)
 			return
 		}
 		// gracefully degrading in case we have no ORG ID
 		// ORG ID is only needed so we can read the team for teamname
-		orgID, _ := strconv.ParseInt(os.Getenv("GITHUB_ORG_ID"), 10, 64)
+		orgID, _ := strconv.ParseInt(conf.Get("micro", "serverless", "github", "org_id").String(""), 10, 64)
 		team, _, err := client.Teams.GetTeamByID(req.Context(), orgID, teamID)
 		teamName := ""
 		if err == nil {
@@ -136,7 +154,7 @@ func issueSession(service web.Service) http.Handler {
 			Path:    "/",
 		})
 
-		http.Redirect(w, req, os.Getenv("FRONTEND_ADDRESS")+"/", http.StatusFound)
+		http.Redirect(w, req, frontendAddress+"/", http.StatusFound)
 	}
 	return http.HandlerFunc(fn)
 }
