@@ -65,7 +65,9 @@ func (s *Store) Read(id string) (*pb.App, error) {
 // List returns all the apps in the store
 func (s *Store) List() ([]*pb.App, error) {
 	recs, err := s.store.Read("", store.ReadPrefix())
-	if err != nil {
+	if err == store.ErrNotFound {
+		return make([]*pb.App, 0), nil
+	} else if err != nil {
 		return nil, errors.InternalServerError(s.name, "Unable to read from store: %v", err)
 	}
 

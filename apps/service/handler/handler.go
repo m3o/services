@@ -5,7 +5,6 @@ import (
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/services/payments/provider"
 	payments "github.com/micro/services/payments/provider/proto"
 
@@ -22,20 +21,10 @@ type Handler struct {
 
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) *Handler {
-	provName := srv.Options().Config.Get("micro", "payments", "provider").String("")
-	if len(provName) == 0 {
-		log.Fatal("Missing required config: micro.payments.provider")
-	}
-
-	provider, err := provider.NewProvider(provName, srv.Client())
-	if err != nil {
-		log.Fatalf("Error creating new provider %v: %v", provName, err)
-	}
-
 	return &Handler{
 		name:     srv.Name(),
 		store:    store.NewStore(srv),
-		payments: provider,
+		payments: payments.NewProviderService("go.micro.srv.payment.stripe", srv.Client()),
 	}
 }
 
