@@ -26,7 +26,7 @@ var conf = config{}
 type githubConfig struct {
 	OauthClientID     string `json:"oauth_client_id"`
 	OauthClientSecret string `json:"oauth_client_secret"`
-	OauthRedirectURL  string `json:"pauth_redirect_url"`
+	OauthRedirectURL  string `json:"oauth_redirect_url"`
 	OrgID             string `json:"org_id"`
 	TeamID            string `json:"team_id"`
 }
@@ -36,7 +36,7 @@ type config struct {
 	FrontendAddress string       `json:"frontend_address"`
 }
 
-// RegisterHandlers adds the GitHub oauth handlers to the servie
+// RegisterHandlers adds the GitHub oauth handlers to the service
 func RegisterHandlers(srv web.Service) error {
 	err := srv.Options().Service.Options().Config.Get("micro", "serverless").Scan(&conf)
 	if err != nil {
