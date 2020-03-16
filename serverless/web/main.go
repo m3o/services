@@ -17,6 +17,10 @@ func main() {
 		web.Name("go.micro.web.serverless"),
 	)
 
+	if err := service.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	auth.RegisterHandlers(service)
 
 	services.RegisterHandlers(service)
@@ -29,10 +33,6 @@ func main() {
 		}
 		http.ServeFile(w, req, "./app/dist/micro/index.html")
 	})
-
-	if err := service.Init(); err != nil {
-		log.Fatal(err)
-	}
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
