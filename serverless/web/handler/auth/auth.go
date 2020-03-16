@@ -10,6 +10,7 @@ import (
 	"github.com/dghubble/gologin/v2"
 	"github.com/dghubble/gologin/v2/github"
 	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/web"
 	utils "github.com/micro/services/serverless/web/util"
 
@@ -20,29 +21,32 @@ import (
 	githubOAuth2 "golang.org/x/oauth2/github"
 )
 
+var conf = config{}
+
+type githubConfig struct {
+	OauthClientID     string `json:"oauth_client_id"`
+	OauthClientSecret string `json:"oauth_client_secret"`
+	RedirectURL       string `json:"redirect_url`
+	OrgID             string `json:"org_id`
+	TeamID            string `json:"team_id`
+}
+
+type config struct {
+	Github          githubConfig `json:"github"`
+	FrontendAddress string       `json:"frontend_address`
+}
+
 // RegisterHandlers adds the GitHub oauth handlers to the servie
 func RegisterHandlers(srv web.Service) error {
-	conf := srv.Options().Service.Options().Config
-
-	oauthClientID := conf.Get("micro", "serverless", "github", "oauth_client_id").String("")
-	if len(oauthClientID) == 0 {
-		return errors.New("No pauth client ID")
-	}
-
-	oauthClientSecret := conf.Get("micro", "serverless", "github", "oauth_client_secret").String("")
-	if len(oauthClientSecret) == 0 {
-		return errors.New("No oauth client secret")
-	}
-
-	redirectURL := conf.Get("micro", "serverless", "github", "oauth_redirect_url").String("")
-	if len(redirectURL) == 0 {
-		return errors.New("No oauth redirect url")
+	err := srv.Options().Service.Options().Config.Scan(&conf)
+	if err != nil {
+		log.Error(err)
 	}
 
 	oauth2Config := &oauth2.Config{
-		ClientID:     oauthClientID,
-		ClientSecret: oauthClientSecret,
-		RedirectURL:  redirectURL,
+		ClientID:     conf.Github.OauthClientID,
+		ClientSecret: conf.Github.OauthClientSecret,
+		RedirectURL:  conf.Github.RedirectURL,
 		Endpoint:     githubOAuth2.Endpoint,
 		Scopes:       []string{"user:email", "read:org", "public_repo"},
 	}
@@ -97,26 +101,24 @@ func issueSession(service web.Service) http.Handler {
 		}
 		githubUser.Email = &primaryEmail
 
-		conf := service.Options().Service.Options().Config
-		teamID, err := strconv.ParseInt(conf.Get("micro", "serverless", "github", "team_id").String(""), 10, 64)
+		teamID, err := strconv.ParseInt(conf.Github.TeamID, 10, 64)
 		if err != nil {
 			utils.Write500(w, err)
 			return
 		}
 
-		frontendAddress := conf.Get("micro", "serverless", "frontend_address").String("")
 		membership, _, err := client.Teams.GetTeamMembership(req.Context(), teamID, githubUser.GetLogin())
 		if err != nil {
-			http.Redirect(w, req, frontendAddress+"/not-invited", http.StatusFound)
+			http.Redirect(w, req, conf.FrontendAddress+"/not-invited", http.StatusFound)
 			return
 		}
 		if membership.GetState() != "active" {
-			http.Redirect(w, req, frontendAddress+"/not-invited", http.StatusFound)
+			http.Redirect(w, req, conf.FrontendAddress+"/not-invited", http.StatusFound)
 			return
 		}
 		// gracefully degrading in case we have no ORG ID
 		// ORG ID is only needed so we can read the team for teamname
-		orgID, _ := strconv.ParseInt(conf.Get("micro", "serverless", "github", "org_id").String(""), 10, 64)
+		orgID, _ := strconv.ParseInt(conf.Github.OrgID, 10, 64)
 		team, _, err := client.Teams.GetTeamByID(req.Context(), orgID, teamID)
 		teamName := ""
 		if err == nil {
@@ -154,7 +156,7 @@ func issueSession(service web.Service) http.Handler {
 			Path:    "/",
 		})
 
-		http.Redirect(w, req, frontendAddress+"/", http.StatusFound)
+		http.Redirect(w, req, conf.FrontendAddress+"/", http.StatusFound)
 	}
 	return http.HandlerFunc(fn)
 }
