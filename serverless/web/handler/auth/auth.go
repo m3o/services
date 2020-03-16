@@ -26,7 +26,7 @@ var conf = config{}
 type githubConfig struct {
 	OauthClientID     string `json:"oauth_client_id"`
 	OauthClientSecret string `json:"oauth_client_secret"`
-	RedirectURL       string `json:"redirect_url"`
+	OauthRedirectURL  string `json:"pauth_redirect_url"`
 	OrgID             string `json:"org_id"`
 	TeamID            string `json:"team_id"`
 }
@@ -46,7 +46,7 @@ func RegisterHandlers(srv web.Service) error {
 	oauth2Config := &oauth2.Config{
 		ClientID:     conf.Github.OauthClientID,
 		ClientSecret: conf.Github.OauthClientSecret,
-		RedirectURL:  conf.Github.RedirectURL,
+		RedirectURL:  conf.Github.OauthRedirectURL,
 		Endpoint:     githubOAuth2.Endpoint,
 		Scopes:       []string{"user:email", "read:org", "public_repo"},
 	}
