@@ -1,6 +1,6 @@
 # Slack Service
 
-This is the Slack service
+This is the Slack service (currently just redirect)
 
 Generated with
 
