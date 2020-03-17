@@ -10,6 +10,7 @@ import { ProjectService } from "../project.service";
 export class NewProjectComponent implements OnInit {
   buildPacks: types.BuildPack[] = buildPacks;
   organisations: types.Organisation[] = [];
+  source = "";
   repositories: types.Repository[] = [];
   contents: types.RepoContents[] = [];
   step = 0;
@@ -26,66 +27,37 @@ export class NewProjectComponent implements OnInit {
   constructor(private ps: ProjectService) {}
 
   ngOnInit() {
-    this.ps.listOrganisations().then(orgs => {
-      this.organisations = orgs;
-    });
   }
 
   keyPress($event) {}
-
-  orgSelected(v: string) {
-    this.ps.listRepositories(v).then(repos => {
-      this.repositories = repos;
-    });
-  }
-
-  repoSelected(v: string) {
-    this.loadFolders();
-  }
-
-  loadFolders() {
-    this.ps
-      .listContents(this.selectedOrg, this.selectedRepo, this.path)
-      .then(contents => {
-        this.contents = contents.filter(c => c.type == "dir");
-      });
-  }
-
-  bpSelected(v: string) {}
-
-  folderSelected(v: string) {
-    this.add = false;
-    this.path += "/" + v;
-    this.loadFolders();
-  }
 }
 
 const buildPacks: types.BuildPack[] = [
   {
-    name: "go"
+    name: "Go"
   },
   {
-    name: "node.js"
+    name: "Node.js"
   },
   {
-    name: "shell"
+    name: "HTML"
   },
   {
-    name: "php"
+    name: "Shell"
   },
   {
-    name: "python"
+    name: "PHP"
   },
   {
-    name: "ruby"
+    name: "Python"
   },
   {
-    name: "rust"
+    name: "Ruby"
   },
   {
-    name: "java"
+    name: "Rust"
   },
   {
-    name: "html"
+    name: "Java"
   }
 ];
