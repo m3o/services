@@ -78,7 +78,21 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 	if err != nil {
 		return err
 	}
-	rsp.Apps = apps
+
+	// Don't filter to active apps only
+	if !req.OnlyActive {
+		rsp.Apps = apps
+		return nil
+	}
+
+	// Do filter to active apps
+	rsp.Apps = make([]*pb.App, 0)
+	for _, a := range apps {
+		if a.Active == true {
+			rsp.Apps = append(rsp.Apps, a)
+		}
+	}
+
 	return nil
 }
 
@@ -89,7 +103,7 @@ func (h *Handler) updateAppAndPricing(ctx context.Context, app *pb.App) error {
 			Id:          app.Id,
 			Name:        app.Name,
 			Description: app.Description,
-			Active:      true,
+			Active:      app.Active,
 		},
 	})
 	if err != nil {

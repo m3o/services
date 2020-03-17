@@ -16,6 +16,7 @@ message App {
 	string description = 4;
 	repeated string required_roles = 5;
 	repeated Plan plans = 6;
+	bool active = 7;
 }
 
 message Plan {
@@ -31,7 +32,9 @@ message CreateRequest {
 
 message CreateResponse {}
 
-message ListRequest {}
+message ListRequest {
+	bool only_active = 1;
+}
 
 message ListResponse {
 	repeated App apps = 1;
