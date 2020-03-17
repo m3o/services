@@ -139,3 +139,10 @@ export interface RepoContents {
   path?: string;
   name?: string;
 }
+
+export interface App {
+  name?: string;
+  version?: string;
+  source?: string;
+  language?: string;
+}

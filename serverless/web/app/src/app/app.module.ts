@@ -57,6 +57,8 @@ import { Ng2GoogleChartsModule } from "ng2-google-charts";
 import { SettingsComponent } from "./settings/settings.component";
 import { DateAgoPipe } from "./dateago.pipe";
 import { NewProjectComponent } from "./new-project/new-project.component";
+import { ProjectListComponent } from './project-list/project-list.component';
+import { ClientModule } from '@microhq/ng-client';
 
 /**
  * Import specific languages to avoid importing everything
@@ -85,7 +87,8 @@ export function getHighlightLanguages() {
     NotInvitedComponent,
     SettingsComponent,
     DateAgoPipe,
-    NewProjectComponent
+    NewProjectComponent,
+    ProjectListComponent
   ],
   imports: [
     BrowserModule,
@@ -118,7 +121,8 @@ export function getHighlightLanguages() {
     Ng2GoogleChartsModule,
     MatPaginatorModule,
     MatCheckboxModule,
-    MatSelectModule
+    MatSelectModule,
+    ClientModule
   ],
   providers: [
     CookieService,

@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import * as types from "../types";
 import { ProjectService } from "../project.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-new-project",
@@ -15,6 +16,8 @@ export class NewProjectComponent implements OnInit {
   contents: types.RepoContents[] = [];
   step = 0;
   alias = "my-first-app";
+  version = "";
+
   projectExists = false;
   loadingProjects = false;
   loaded = true;
@@ -24,12 +27,23 @@ export class NewProjectComponent implements OnInit {
   selectedBuildPack: types.BuildPack;
   path: string = "";
 
-  constructor(private ps: ProjectService) {}
+  constructor(private ps: ProjectService, private router: Router) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   keyPress($event) {}
+
+  create() {
+    this.ps
+      .create({
+        name: this.alias,
+        source: this.source,
+        version: this.version
+      })
+      .then(() => {
+        this.router.navigate(["/"]);
+      });
+  }
 }
 
 const buildPacks: types.BuildPack[] = [

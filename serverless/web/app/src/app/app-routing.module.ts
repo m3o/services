@@ -4,6 +4,7 @@ import { NewProjectComponent } from "./new-project/new-project.component";
 import { AuthGuard } from "./auth.guard";
 import { WelcomeComponent } from "./welcome/welcome.component";
 import { NotInvitedComponent } from "./not-invited/not-invited.component";
+import { ProjectListComponent } from "./project-list/project-list.component";
 
 const routes: Routes = [
   {
@@ -16,13 +17,18 @@ const routes: Routes = [
     component: NotInvitedComponent
   },
   {
-    path: "project/new",
+    path: "app/new",
     component: NewProjectComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "project/new/:id",
+    path: "app/new/:id",
     component: NewProjectComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "apps",
+    component: ProjectListComponent,
     canActivate: [AuthGuard]
   }
 ];
