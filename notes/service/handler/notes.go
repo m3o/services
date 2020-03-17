@@ -146,32 +146,33 @@ func (h *Handler) UpdateStream(ctx context.Context, stream pb.Notes_UpdateStream
 		// Lookup the note from the store
 		recs, err := s.Read(req.Note.Id)
 		if err != nil {
-		if err == store.ErrNotFound {
-			return errors.NotFound(h.name, "Note not found")
-		} else if err != nil {
-			return errors.InternalServerError(h.name, "Error reading from store: %v", err.Error())
-		}
+			if err == store.ErrNotFound {
+				return errors.NotFound(h.name, "Note not found")
+			} else if err != nil {
+				return errors.InternalServerError(h.name, "Error reading from store: %v", err.Error())
+			}
 
-		// Decode the note
-		var note *pb.Note
-		if err := json.Unmarshal(recs[0].Value, &note); err != nil {
-			return errors.InternalServerError(h.name, "Error unmarshaling JSON: %v", err.Error())
-		}
+			// Decode the note
+			var note *pb.Note
+			if err := json.Unmarshal(recs[0].Value, &note); err != nil {
+				return errors.InternalServerError(h.name, "Error unmarshaling JSON: %v", err.Error())
+			}
 
-		// Update the notes title and text
-		note.Title = req.Note.Title
-		note.Text = req.Note.Text
+			// Update the notes title and text
+			note.Title = req.Note.Title
+			note.Text = req.Note.Text
 
-		// Remarshal the note into bytes
-		bytes, err := json.Marshal(note)
-		if err != nil {
-			return errors.InternalServerError(h.name, "Error marshaling JSON: %v", err.Error())
-		}
+			// Remarshal the note into bytes
+			bytes, err := json.Marshal(note)
+			if err != nil {
+				return errors.InternalServerError(h.name, "Error marshaling JSON: %v", err.Error())
+			}
 
-		// Write the updated note to the store
-		err = s.Write(&store.Record{Key: note.Id, Value: bytes})
-		if err != nil {
-			return errors.InternalServerError(h.name, "Error writing to store: %v", err.Error())
+			// Write the updated note to the store
+			err = s.Write(&store.Record{Key: note.Id, Value: bytes})
+			if err != nil {
+				return errors.InternalServerError(h.name, "Error writing to store: %v", err.Error())
+			}
 		}
 	}
 
