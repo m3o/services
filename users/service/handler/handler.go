@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/services/users/service/proto"
@@ -23,7 +22,6 @@ var (
 
 // Handler implements the users service interface
 type Handler struct {
-	auth      auth.Auth
 	store     store.Store
 	publisher micro.Publisher
 }
@@ -33,7 +31,6 @@ func NewHandler(srv micro.Service) (*Handler, error) {
 	// Return the initialised store
 	return &Handler{
 		store:     store.DefaultStore,
-		auth:      srv.Options().Auth,
 		publisher: micro.NewPublisher(srv.Name(), srv.Client()),
 	}, nil
 }
@@ -48,11 +45,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	// Check to see if the user already exists
 	if user, err := h.findUser(req.User.Id); err == nil {
 		rsp.User = user
-
-		if acc, err := h.auth.Generate(user.Id); err == nil {
-			rsp.Token = acc.Token
-		}
-
 		return nil
 	}
 
@@ -86,12 +78,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
 	}
 
-	// Generate an auth account
-	acc, err := h.auth.Generate(user.Id)
-	if err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Could not generate auth account: %v", err)
-	}
-
 	// Publish the event
 	go h.publisher.Publish(ctx, &pb.Event{
 		Type: pb.EventType_UserCreated,
@@ -100,7 +86,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	// Return the user and token in the response
 	rsp.User = &user
-	rsp.Token = acc.Token
 	return nil
 }
 

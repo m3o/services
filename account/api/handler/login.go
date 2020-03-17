@@ -77,9 +77,15 @@ func (h *Handler) EmailSignup(ctx context.Context, req *pb.EmailSignupRequest, r
 		return err
 	}
 
+	// Generate a token
+	acc, err := h.auth.Generate(uRsp.User.Id)
+	if err != nil {
+		return err
+	}
+
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
-	rsp.Token = uRsp.Token
+	rsp.Token = acc.Token
 
 	return nil
 }
