@@ -23,14 +23,27 @@ class PageLayout extends React.Component<Props> {
     const { className, match, redirect } = this.props;
     const path = match.path
 
+    let redirectUI: JSX.Element;
+    if(redirect) { 
+      redirectUI = (
+        <a href={redirect} className='page-return-link'>
+          <img src={BackArrow} alt='Return' />
+          <p>Return <span>{redirect.replace('/', '')}</span></p>
+        </a>
+      );
+    } else {
+      redirectUI = (
+        <a href='/home' className='page-return-link'>
+          <img src={BackArrow} alt='Go Home' />
+          <p>Home</p>
+        </a>
+      );
+    }
+
     return(
       <div className='PageLayout'>
         <h1>Account Management</h1>
-
-        { redirect ? <a href={redirect} className='page-return-link'>
-          <img src={BackArrow} alt='Go back' />
-          <p>Back to <span>{redirect}</span></p>
-        </a> : null }
+        { redirectUI }
 
         <div className='page-container'>
           <nav>
