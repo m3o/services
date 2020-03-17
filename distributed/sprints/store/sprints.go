@@ -31,9 +31,6 @@ func (s *Store) ReadSprint(id string) (*pb.Sprint, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(recs) != 1 {
-		return nil, store.ErrNotFound
-	}
 
 	var sprint *pb.Sprint
 	if err := json.Unmarshal(recs[0].Value, &sprint); err != nil {

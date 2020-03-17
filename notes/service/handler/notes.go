@@ -88,11 +88,10 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateNoteRequest, rsp *pb
 	// Lookup the note from the store
 	s := scope.NewScope(h.store, user.Id)
 	recs, err := s.Read(req.Note.Id)
-	if err != nil {
-		return errors.InternalServerError(h.name, "Error reading from store: %v", err.Error())
-	}
-	if len(recs) == 0 {
+	if err == store.ErrNotFound {
 		return errors.NotFound(h.name, "Note not found")
+	} else if err != nil {
+		return errors.InternalServerError(h.name, "Error reading from store: %v", err.Error())
 	}
 
 	// Decode the note
@@ -147,10 +146,10 @@ func (h *Handler) UpdateStream(ctx context.Context, stream pb.Notes_UpdateStream
 		// Lookup the note from the store
 		recs, err := s.Read(req.Note.Id)
 		if err != nil {
-			return errors.InternalServerError(h.name, "Error reading from store: %v", err.Error())
-		}
-		if len(recs) == 0 {
+		if err == store.ErrNotFound {
 			return errors.NotFound(h.name, "Note not found")
+		} else if err != nil {
+			return errors.InternalServerError(h.name, "Error reading from store: %v", err.Error())
 		}
 
 		// Decode the note

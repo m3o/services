@@ -42,7 +42,7 @@ type User struct {
 // getStripeIDForUser returns the stripe ID from the store for the given user
 func (h *Handler) getStripeIDForUser(userID string) (string, error) {
 	recs, err := h.store.Read(userID)
-	if err == store.ErrNotFound || len(recs) == 0 {
+	if err == store.ErrNotFound {
 		return "", nil
 	} else if err != nil {
 		return "", errors.InternalServerError(h.name, "Could not read from store: %v", err)

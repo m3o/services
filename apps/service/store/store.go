@@ -48,7 +48,7 @@ func (s *Store) Write(app *pb.App) error {
 // Read looks up an app in the store
 func (s *Store) Read(id string) (*pb.App, error) {
 	recs, err := s.store.Read(id)
-	if err == store.ErrNotFound || len(recs) != 1 {
+	if err == store.ErrNotFound {
 		return nil, ErrNotFound
 	} else if err != nil {
 		return nil, errors.InternalServerError(s.name, "Unable to read from store: %v", err)
