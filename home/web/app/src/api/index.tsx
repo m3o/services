@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-const BaseURL = 'http://dev.micro.mu:8080/home/'
-// const BaseURL = 'https://api.micro.mu/home/'
+let BaseURL = 'https://api.micro.mu/home/';
+
+// Toggle dev enviroment
+if(window.location.protocol !== 'https:') {
+  BaseURL = 'http://dev.micro.mu/home/'; 
+}
 
 export default async function Call(path: string, params?: any): Promise<any> {
   return axios.post(BaseURL + path, params, { withCredentials: true });
