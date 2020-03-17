@@ -4,18 +4,20 @@ import { environment } from "../environments/environment";
 import { ClientService } from "@microhq/ng-client";
 import * as _ from "lodash";
 
+interface AppListResponse {
+  apps: types.App[];
+}
+
 @Injectable({
   providedIn: "root"
 })
 export class ProjectService {
-  constructor(
-    private mc: ClientService,
-  ) {
+  constructor(private mc: ClientService) {
     this.mc.setOptions({ local: !environment.production });
   }
 
-  list(): Promise<types.App[]> {
-    return this.mc.call<types.App[]>(
+  list(): Promise<AppListResponse> {
+    return this.mc.call<AppListResponse>(
       "go.micro.service.serverless",
       "Apps.List",
       {}
@@ -25,6 +27,6 @@ export class ProjectService {
   create(app: types.App): Promise<void> {
     return this.mc.call("go.micro.service.serverless", "Apps.Create", {
       app: app
-    })
+    });
   }
 }

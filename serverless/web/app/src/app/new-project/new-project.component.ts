@@ -17,7 +17,7 @@ export class NewProjectComponent implements OnInit {
   source = "";
   alias = "my-first-app";
   version = "";
-  selectedBuildPack = "";
+  selectedBuildPackImageTag = "go";
 
   constructor(
     private ps: ProjectService,
@@ -34,9 +34,7 @@ export class NewProjectComponent implements OnInit {
       name: this.alias,
       source: this.source,
       version: this.version,
-      language: this.buildPacks.filter(
-        bp => bp.name == this.selectedBuildPack
-      )[0].imageTag
+      language: this.selectedBuildPackImageTag
     };
     console.log(app);
     this.ps

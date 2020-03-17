@@ -64,10 +64,12 @@
         <br />
         <mat-form-field class="full-width-field">
           <mat-label>Language / Framework</mat-label>
-          <mat-select [(value)]="selectedBuildPack">
-            <mat-option *ngFor="let bp of buildPacks" value="{{ bp.name }}">{{
-              bp.name
-            }}</mat-option>
+          <mat-select [(value)]="selectedBuildPackImageTag">
+            <mat-option
+              *ngFor="let bp of buildPacks"
+              value="{{ bp.imageTag }}"
+              >{{ bp.name }}</mat-option
+            >
           </mat-select>
         </mat-form-field>
       </div>
