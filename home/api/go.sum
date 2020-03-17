@@ -248,10 +248,9 @@ github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOt
 github.com/micro/go-micro/v2 v2.2.1-0.20200313093044-fbde872e7f02/go.mod h1:GR69d1AXMg/WjMNf/7K1VO6hCBJDIpqCqnVYNTV6M5w=
 github.com/micro/go-micro/v2 v2.2.1-0.20200314211841-0449138f61f5 h1:/7fYGDgWHkGgWnyewq5+EmfXVYgpT1f8nb5v22+C9nc=
 github.com/micro/go-micro/v2 v2.2.1-0.20200314211841-0449138f61f5/go.mod h1:GR69d1AXMg/WjMNf/7K1VO6hCBJDIpqCqnVYNTV6M5w=
-github.com/micro/go-micro/v2 v2.2.1-0.20200317112720-ab7312706317 h1:B0bu5eVkkzrdpEWaJUbaQlmg+uuhIRYY5A4l9md5MO4=
-github.com/micro/go-micro/v2 v2.2.1-0.20200317112720-ab7312706317/go.mod h1:GR69d1AXMg/WjMNf/7K1VO6hCBJDIpqCqnVYNTV6M5w=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
+github.com/micro/services v0.0.0-20200314202359-d26e45488e28 h1:mArCjtCG5uQb/DmjgjLAsP2RKmOOBPMz5sqUBxnHDks=
 github.com/micro/services/payments/provider v0.0.0-20200313105341-66ab9d74feb7/go.mod h1:OaFNoAKtfD9XCrft78ZdywMudNa68dZJqVSyTMUjUY4=
 github.com/micro/services/users/service v0.0.0-20200313151537-5407234f5db7 h1:QmhNQxihXMBlDJ2lsWD6sWbdm4j7R4tm+OvjaiZnH3s=
 github.com/micro/services/users/service v0.0.0-20200313151537-5407234f5db7/go.mod h1:VaQ4w1qvAeJNAtVFI2ji5G0Ep3kmLdMxkNnWnoUmYNU=
