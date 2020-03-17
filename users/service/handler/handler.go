@@ -224,7 +224,7 @@ func (h *Handler) findUser(id string) (*pb.User, error) {
 	}
 
 	// Get the records
-	recs, err := h.store.Read(id, store.ReadPrefix())
+	recs, err := h.store.Read(id)
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.srv.users", "Could not read from store: %v", err)
 	}

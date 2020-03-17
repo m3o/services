@@ -12,9 +12,14 @@
     color: #A6A6A6;
     display: flex;
     justify-content: center;
+    text-decoration: none;
 
     p {
       font-weight: 600;
+      
+      span {
+        text-transform: capitalize;
+      }
     }
 
     img {
