@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-export const Domain = 'dev.micro.mu';
 
 // const BaseURL = 'http://dev.micro.mu:8080/account/'
+
+export const Domain = 'micro.mu';
 const BaseURL = 'https://api.micro.mu/account/'
 
 export default async function Call(path: string, params?: any): Promise<any> {
