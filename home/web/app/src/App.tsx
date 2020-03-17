@@ -1,4 +1,5 @@
 import React from 'react';
+import Cookies from 'universal-cookie';
 import DefaultIcon from  './assets/images/default-icon.png';
 import Person from './assets/images/person.png';
 import Call, { User, App } from './api';
@@ -81,8 +82,8 @@ export default class AppComponent extends React.Component<Props, State> {
     if(!confirm("Are you sure you want to logout?")) return;
 
     // remove cookies
-    const cookies = document.cookie.split('; ');
-    document.cookie = cookies.filter((k: string) => !k.startsWith('micro-token')).join('; ');
+    const cookies = new Cookies();
+    cookies.remove("micro-token", {path: "/", domain: "micro.mu"});
 
     // reload so micro web will redirect to login
     window.location.reload();
