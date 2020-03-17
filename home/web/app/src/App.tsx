@@ -46,7 +46,7 @@ export default class AppComponent extends React.Component<Props, State> {
               <img src={Person} alt='My Account' />
 
               <div className="dropdown-content">
-                <p onClick={() => window.location.href='/account?back=home'}>My Account</p>
+                <p onClick={() => window.location.href='/account?redirect_to=/home'}>My Account</p>
                 <p onClick={this.onLogoutPressed} className='logout'>Logout</p>
               </div>
             </div>

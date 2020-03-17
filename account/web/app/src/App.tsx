@@ -26,7 +26,7 @@ interface State {
 }
 
 interface Params {
-  back?: string;
+  redirect_to?: string;
 }
 
 const Routes = [
@@ -43,7 +43,7 @@ class App extends React.Component<Props, State> {
 
   componentDidMount() {
     const params: Params = queryString.parse(window.location.search);
-    if(params.back) this.props.setRedirect(params.back);
+    if(params.redirect_to) this.props.setRedirect(params.redirect_to);
     
     Call("ReadUser")
       .then(res => this.props.setUser(res.data.user))
