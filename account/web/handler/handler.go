@@ -4,11 +4,11 @@ import (
 	"log"
 	"strings"
 
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/auth/provider"
 	"github.com/micro/go-micro/v2/auth/provider/oauth"
 
-	"github.com/micro/go-micro/v2/auth/provider"
-
-	"github.com/micro/go-micro/v2"
 	login "github.com/micro/services/login/service/proto/login"
 	users "github.com/micro/services/users/service/proto"
 )
@@ -50,6 +50,7 @@ func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
 		google: googleProv,
 		github: githubProv,
+		auth:   srv.Options().Auth,
 		users:  users.NewUsersService("go.micro.srv.users", srv.Client()),
 		login:  login.NewLoginService("go.micro.srv.login", srv.Client()),
 	}
@@ -57,6 +58,7 @@ func NewHandler(srv micro.Service) *Handler {
 
 // Handler is used to handle oauth logic
 type Handler struct {
+	auth   auth.Auth
 	users  users.UsersService
 	login  login.LoginService
 	google provider.Provider

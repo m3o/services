@@ -71,10 +71,17 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
+	// Create an auth token
+	acc, err := h.auth.Generate(uRsp.User.Id)
+	if err != nil {
+		http.Redirect(w, req, "/account/error", http.StatusFound)
+		logger.Errorf("Error creating auth account: %v", err)
+	}
+
 	// Set the cookie and redirect
 	http.SetCookie(w, &http.Cookie{
 		Name:   auth.CookieName,
-		Value:  uRsp.Token,
+		Value:  acc.Token,
 		Domain: "micro.mu",
 		Path:   "/",
 	})
