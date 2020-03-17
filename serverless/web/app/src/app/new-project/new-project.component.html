@@ -9,17 +9,13 @@
         style="vertical-align: middle; padding-left: 0.5em; padding-right: 0.5em;"
         >keyboard_arrow_right</mat-icon
       >
-      New<span *ngIf="step > 0"></span>
+      New
       <!-- Using ngif here breaks viewchild, see:
           https://stackoverflow.com/questions/39158922/viewchild-not-working-cannot-read-property-nativeelement-of-undefined
         -->
     </mat-card-title>
   </mat-card>
-  <mat-card
-    *ngIf="loaded"
-    style="padding-top: 0; margin-top: 0;"
-    class="mat-card-flat"
-  >
+  <mat-card style="padding-top: 0; margin-top: 0;" class="mat-card-flat">
     <!-- Next level cruft alert. Input box adds margin which is not present on steps 1+ -->
     <br />
 
@@ -68,9 +64,7 @@
         <br />
         <mat-form-field class="full-width-field">
           <mat-label>Language / Framework</mat-label>
-          <mat-select
-            [(value)]="selectedBuildPack"
-          >
+          <mat-select [(value)]="selectedBuildPack">
             <mat-option *ngFor="let bp of buildPacks" value="{{ bp.name }}">{{
               bp.name
             }}</mat-option>
@@ -79,7 +73,9 @@
       </div>
       <div>
         <br />
-        <button mat-raised-button color="primary">Deploy</button>
+        <button mat-raised-button (click)="create()" color="primary">
+          Deploy
+        </button>
       </div>
     </div>
   </mat-card>

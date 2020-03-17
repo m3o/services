@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import * as types from "../types";
 import { ProjectService } from "../project.service";
 import { Router } from "@angular/router";
+import { NotificationsService } from "angular2-notifications";
 
 @Component({
   selector: "app-new-project",
@@ -9,69 +10,81 @@ import { Router } from "@angular/router";
   styleUrls: ["./new-project.component.css"]
 })
 export class NewProjectComponent implements OnInit {
-  buildPacks: types.BuildPack[] = buildPacks;
-  organisations: types.Organisation[] = [];
-  source = "";
-  repositories: types.Repository[] = [];
-  contents: types.RepoContents[] = [];
-  step = 0;
-  alias = "my-first-app";
-  version = "";
-
   projectExists = false;
   loadingProjects = false;
-  loaded = true;
-  selectedOrg: string;
-  selectedRepo: string;
-  add = true;
-  selectedBuildPack: types.BuildPack;
-  path: string = "";
 
-  constructor(private ps: ProjectService, private router: Router) {}
+  buildPacks: types.BuildPack[] = buildPacks;
+  source = "";
+  alias = "my-first-app";
+  version = "";
+  selectedBuildPack = "";
+
+  constructor(
+    private ps: ProjectService,
+    private router: Router,
+    private notif: NotificationsService
+  ) {}
 
   ngOnInit() {}
 
   keyPress($event) {}
 
   create() {
+    const app = {
+      name: this.alias,
+      source: this.source,
+      version: this.version,
+      language: this.buildPacks.filter(
+        bp => bp.name == this.selectedBuildPack
+      )[0].imageTag
+    };
+    console.log(app);
     this.ps
-      .create({
-        name: this.alias,
-        source: this.source,
-        version: this.version
-      })
+      .create(app)
       .then(() => {
-        this.router.navigate(["/"]);
+        this.router.navigate(["/apps"]);
+      })
+      .catch(e => {
+        this.notif.error("Error creating application", e);
       });
   }
 }
 
 const buildPacks: types.BuildPack[] = [
   {
-    name: "Go"
+    name: "Go",
+    imageTag: "go"
   },
   {
-    name: "Node.js"
+    name: "Node.js",
+    imageTag: "nodejs"
   },
   {
-    name: "HTML"
+    name: "HTML",
+    imageTag: "html"
   },
   {
-    name: "Shell"
+    name: "Shell",
+    imageTag: "shell"
   },
   {
-    name: "PHP"
+    name: "PHP",
+    imageTag: "php"
   },
   {
-    name: "Python"
+    name: "Python",
+    imageTag: "python"
   },
   {
-    name: "Ruby"
+    name: "Ruby",
+    imageTag: "ruby"
   },
   {
-    name: "Rust"
+    name: "Rust",
+    imageTag: "rust"
   },
   {
-    name: "Java"
+    name: "Java",
+    imageTag: "java"
   }
 ];

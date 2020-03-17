@@ -16,12 +16,12 @@ export class WelcomeComponent implements OnInit {
 
   ngOnInit() {
     if (this.us.loggedIn()) {
-      this.router.navigate(['/project/new'])
+      this.router.navigate(['app/new'])
       return
     }
     this.us.isUserLoggedIn.subscribe(isIt => {
       if (isIt) {
-        this.router.navigate(['/project/new']);
+        this.router.navigate(['app/new']);
       }
     })
   }

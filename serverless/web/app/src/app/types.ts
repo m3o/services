@@ -132,6 +132,7 @@ export interface Repository {
 
 export interface BuildPack {
   name?: string;
+  imageTag?: string;
 }
 
 export interface RepoContents {

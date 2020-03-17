@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/services/serverless/web/handler/auth"
+	"serverless/web/handler/auth"
 
 	"github.com/micro/go-micro/v2/web"
 )
