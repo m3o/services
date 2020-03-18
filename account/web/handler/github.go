@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -42,18 +41,16 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	bytes, _ := ioutil.ReadAll(resp.Body)
-	log.Infof("Response: %v", string(bytes))
-
 	// Decode the token
-	var oauthResult struct {
+	var result struct {
 		Token string `json:"access_token"`
 	}
-	json.NewDecoder(resp.Body).Decode(&oauthResult)
+	json.NewDecoder(resp.Body).Decode(&result)
+	log.Infof("Token: %v", result.Token)
 
 	// Use the token to get the users profile
 	r, err = http.NewRequest("GET", "https://api.github.com/user", nil)
-	r.Header.Add("Authorization", "Bearer "+oauthResult.Token)
+	r.Header.Add("Authorization", "Bearer "+result.Token)
 	resp, err = client.Do(r)
 	if err != nil {
 		h.handleError(w, r, "Error getting user from GitHub: %v", err)
