@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -32,6 +33,9 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		h.handleError(w, req, "Error getting access token from GitHub. Status: %v", resp.Status)
 		return
 	}
+
+	bytes, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(bytes))
 
 	// Decode the token
 	var oauthResult struct {
