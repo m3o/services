@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
@@ -32,7 +33,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	rsp.User = serializeUser(resp.User)
 	rsp.User.Roles = make([]string, 0, len(acc.Roles))
 	for _, r := range acc.Roles {
-		rsp.User.Roles = append(rsp.User.Roles, r.Name)
+		rsp.User.Roles = append(rsp.User.Roles, strings.Title(r.Name))
 	}
 
 	// Fetch the payment methods
