@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/logger"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -82,16 +84,30 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	_ = uRsp
+	h.loginUser(w, req, uRsp.User, "developer")
+}
 
-	// TODO:
-	// - Add the developer role to the user
-	// - Add the collaborator role to the user if they're part of the micro GH team
+func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *users.User, roleNames ...string) {
+	// Determine the users roles
+	var roles []*auth.Role
+	for _, n := range roleNames {
+		roles = append(roles, &auth.Role{Name: n})
+	}
 
-	// Set the cookie and redirect
-	// http.SetCookie(w, &http.Cookie{
-	// Name: auth.CookieName,
-	// Value: uRsp.Token,
-	// })
+	// Create an auth token
+	acc, err := h.auth.Generate(user.Id, auth.Roles(roles))
+	if err != nil {
+		http.Redirect(w, req, "/account/error", http.StatusFound)
+		logger.Errorf("Error creating auth account: %v", err)
+	}
+
+	// Set cookie and redirect
+	http.SetCookie(w, &http.Cookie{
+		Name:   auth.CookieName,
+		Value:  acc.Token,
+		Domain: "micro.mu",
+		Path:   "/",
+	})
+
 	http.Redirect(w, req, "/account", http.StatusFound)
 }

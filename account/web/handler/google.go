@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/micro/go-micro/v2/logger"
 
-	"github.com/micro/go-micro/v2/auth"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -71,19 +71,9 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	// Create an auth token
-	acc, err := h.auth.Generate(uRsp.User.Id)
-	if err != nil {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		logger.Errorf("Error creating auth account: %v", err)
+	var roles []string
+	if strings.HasSuffix(profile.Email, "@micro.mu") {
+		roles = append(roles, "admin", "developer", "collaborator")
 	}
-
-	// Set the cookie and redirect
-	http.SetCookie(w, &http.Cookie{
-		Name:   auth.CookieName,
-		Value:  acc.Token,
-		Domain: "micro.mu",
-		Path:   "/",
-	})
-	http.Redirect(w, req, "/account", http.StatusFound)
+	h.loginUser(w, req, uRsp.User, roles...)
 }
