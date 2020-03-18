@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 
+	serverless "serverless/proto/serverless"
+
 	"github.com/micro/go-micro/v2/errors"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	serverless "serverless/proto/serverless"
 )
 
 var (
@@ -48,6 +49,11 @@ func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *s
 	// set the image to use
 	image := Image + lang
 
+	args := []string{source}
+	folder req.GetApp().GetFolder()
+	if len(folder) != 0 {
+		args = append(args, folder)
+	} 
 	_, err := e.Client.Create(ctx, &pb.CreateRequest{
 		Service: &pb.Service{
 			Name:    Prefix + name,
@@ -61,7 +67,7 @@ func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *s
 		Options: &pb.CreateOptions{
 			Type:  "app",
 			Image: image,
-			Args:  []string{source},
+			Args:  args,
 		},
 	})
 	if err != nil {

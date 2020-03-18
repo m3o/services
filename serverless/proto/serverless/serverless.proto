@@ -9,10 +9,17 @@ service Apps {
 }
 
 message App {
+	// eg. "my-app-1"
 	string name = 1;
+	// Optional commit hash to deploy a certain version
 	string version = 2;
+	// URL of the GitHub repo
 	string source = 3;
+	// One of the predefined image tags from here https://github.com/micro/cells
+	// See top level folders
 	string language = 4;
+	// Optional folder to cd into while building the app.
+	string folder = 5;
 }
 
 message CreateRequest {
