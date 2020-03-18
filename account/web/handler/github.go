@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -26,9 +24,12 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		"redirect_uri":  {h.github.Redirect()},
 		"code":          {req.FormValue("code")},
 	})
-	if err != nil || resp.StatusCode != http.StatusOK {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		fmt.Println(err)
+	if err != nil {
+		h.handleError(w, req, "Error getting access token from GitHub: %v", err)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		h.handleError(w, req, "Error getting access token from GitHub. Status: %v", resp.Status)
 		return
 	}
 
@@ -43,10 +44,12 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	req.Header.Add("Authorization", "Bearer "+oauthResult.Token)
 	client := &http.Client{}
 	resp, err = client.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		fmt.Println(err)
-		fmt.Println("Status Code: " + resp.Status)
+	if err != nil {
+		h.handleError(w, req, "Error getting user from GitHub: %v", err)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		h.handleError(w, req, "Error getting user from GitHub. Status: %v", resp.Status)
 		return
 	}
 
@@ -80,35 +83,9 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		},
 	})
 	if err != nil {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		fmt.Println(err)
+		h.handleError(w, req, "Error creating account: %v", err)
 		return
 	}
 
 	h.loginUser(w, req, uRsp.User, "developer")
-}
-
-func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *users.User, roleNames ...string) {
-	// Determine the users roles
-	var roles []*auth.Role
-	for _, n := range roleNames {
-		roles = append(roles, &auth.Role{Name: n})
-	}
-
-	// Create an auth token
-	acc, err := h.auth.Generate(user.Id, auth.Roles(roles))
-	if err != nil {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		logger.Errorf("Error creating auth account: %v", err)
-	}
-
-	// Set cookie and redirect
-	http.SetCookie(w, &http.Cookie{
-		Name:   auth.CookieName,
-		Value:  acc.Token,
-		Domain: "micro.mu",
-		Path:   "/",
-	})
-
-	http.Redirect(w, req, "/account", http.StatusFound)
 }

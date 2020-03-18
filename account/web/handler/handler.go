@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/micro/go-micro/v2"
@@ -60,4 +63,35 @@ func getConfig(srv micro.Service, keys ...string) string {
 		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
 	}
 	return val
+}
+
+func (h *Handler) handleError(w http.ResponseWriter, req *http.Request, format string, args ...interface{}) {
+	var params url.Values
+	params.Add("error", fmt.Sprintf(format, args...))
+	http.Redirect(w, req, "/account?"+params.Encode(), http.StatusInternalServerError)
+}
+
+func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *users.User, roleNames ...string) {
+	// Determine the users roles
+	var roles []*auth.Role
+	for _, n := range roleNames {
+		roles = append(roles, &auth.Role{Name: n})
+	}
+
+	// Create an auth token
+	acc, err := h.auth.Generate(user.Id, auth.Roles(roles))
+	if err != nil {
+		h.handleError(w, req, "Error creating auth account: %v", err)
+		return
+	}
+
+	// Set cookie and redirect
+	http.SetCookie(w, &http.Cookie{
+		Name:   auth.CookieName,
+		Value:  acc.Token,
+		Domain: "micro.mu",
+		Path:   "/",
+	})
+
+	http.Redirect(w, req, "/account", http.StatusFound)
 }
