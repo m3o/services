@@ -1,10 +1,11 @@
 import React from 'react';
 import Cookies from 'universal-cookie';
 import { connect } from 'react-redux';
-import GoogleLogo from '../../assets/images/google-logo.png';
-import './Login.scss';
 import Call, { User, Domain } from '../../api';
 import { setUser } from '../../store/User';
+import GoogleLogo from '../../assets/images/google-logo.png';
+import GitHubLogo from '../../assets/images/github-logo.png';
+import './Login.scss';
 
 interface Props {
   setUser: (user: User) => void;
@@ -74,9 +75,14 @@ class Login extends React.Component<Props, State> {
         <h1>Welcome back!</h1>
         <p className='subtitle'>To continue, log in with a Google or Micro account.</p>
 
-        <div className='google-oauth' onClick={() => window.location.href = "/account/oauth/google/login"}>
+        <div className='google oauth' onClick={() => window.location.href = "/account/oauth/google/login"}>
           <img src={GoogleLogo} alt='Sign in with Google' />
           <p>Sign in with Google</p>
+        </div>
+
+        <div className='github oauth' onClick={() => window.location.href = "/account/oauth/github/login"}>
+          <img src={GitHubLogo} alt='Sign in with GitHub' />
+          <p>Sign in with GitHub</p>
         </div>
 
         { error ? <p className='error'>Error: {error}</p> : null }
