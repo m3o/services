@@ -78,6 +78,13 @@ class Profile extends React.Component<Props, State> {
             value={user!.username}
             disabled={this.state.saving}
             onChange={this.onChange.bind(this)} />
+          
+          <label>Roles</label>
+          <input
+            disabled
+            type='text'
+            name='roles'
+            value={user!.roles.join(', ')} />
 
           <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : 'Save Changes' } />
         </form>
