@@ -67,7 +67,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		ID       int64  `json:"id"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
-		Username string `json:"username"`
+		Username string `json:"login"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
 
@@ -88,7 +88,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	roles := []string{"developer"}
 
 	// Check to see if the user is part of the micro team
-	url := fmt.Sprintf("https://api.github.com/orgs/%v/teams/%v/memberships/%v", h.githubOrgID, h.githubTeamID, profile.Username)
+	url := fmt.Sprintf("https://api.github.com/teams/%v/memberships/%v", h.githubTeamID, profile.Username)
 	r, _ = http.NewRequest("GET", url, nil)
 	r.Header.Add("Authorization", "Bearer "+result.Token)
 	resp, err = client.Do(r)
