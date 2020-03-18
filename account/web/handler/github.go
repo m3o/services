@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	log "github.com/micro/go-micro/v2/logger"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -35,7 +36,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(bytes))
+	log.Infof("Response: %v", string(bytes))
 
 	// Decode the token
 	var oauthResult struct {
