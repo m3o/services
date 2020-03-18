@@ -1,0 +1,58 @@
+<div>
+  <div>
+    <mat-form-field class="full-width-field">
+      <mat-label>App name</mat-label>
+      <input
+        id="sinput"
+        #sinput
+        matInputAutofocus
+        matInput
+        [(ngModel)]="app.name"
+        (keyup)="keyPress($event)"
+        autocomplete="off"
+      />
+      <mat-error *ngIf="projectExists">Service already exists.</mat-error>
+      <mat-spinner
+        *ngIf="loadingApps"
+        matSuffix
+        [diameter]="18"
+        style="float: right; margin-left: 8px"
+      ></mat-spinner>
+    </mat-form-field>
+  </div>
+  <div>
+    <br />
+    <mat-form-field class="full-width-field">
+      <mat-label>Source</mat-label>
+      <input
+        id="sinput"
+        #sinput
+        matInputAutofocus
+        matInput
+        [(ngModel)]="app.source"
+        autocomplete="off"
+      />
+      <mat-hint
+        >GitHub link to your repository or a folder inside that repository, eg.
+        "https://github.com/yourname/repo"</mat-hint
+      >
+    </mat-form-field>
+  </div>
+  <div>
+    <br />
+    <mat-form-field class="full-width-field">
+      <mat-label>Language / Framework</mat-label>
+      <mat-select [(value)]="selectedBuildPackImageTag">
+        <mat-option *ngFor="let bp of buildPacks" value="{{ bp.imageTag }}">{{
+          bp.name
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <br />
+    <button mat-raised-button (click)="createApp()" color="primary">
+      Deploy
+    </button>
+  </div>
+</div>

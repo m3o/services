@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { ServiceService } from "../service.service";
 import * as types from "../types";
+import { ProjectService } from "../project.service";
 import { NotificationsService } from "angular2-notifications";
 
 var groupBy = function(xs, key) {
@@ -11,30 +11,30 @@ var groupBy = function(xs, key) {
 };
 
 @Component({
-  selector: "app-services",
-  templateUrl: "./services.component.html",
-  styleUrls: ["./services.component.scss"]
+  selector: "app-project-list",
+  templateUrl: "./app-list.component.html",
+  styleUrls: ["./app-list.component.css"]
 })
-export class ServicesComponent implements OnInit {
-  services: Map<string, types.Service[]>;
-  query: string;
+export class AppListComponent implements OnInit {
+  apps: types.App[];
+  query = "";
 
   constructor(
-    private ses: ServiceService,
+    private ps: ProjectService,
     private notif: NotificationsService
   ) {}
 
   ngOnInit() {
-    this.ses
+    this.ps
       .list()
-      .then(servs => {
-        this.services = groupBy(servs, "name");
+      .then(apps => {
+        this.apps = groupBy(apps.apps, "name");
       })
       .catch(e => {
         console.log(e);
         this.notif.error(
           "Error listing services",
-          JSON.parse(e.error.error).detail
+          e
         );
       });
   }

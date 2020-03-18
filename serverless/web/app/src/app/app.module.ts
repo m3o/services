@@ -35,7 +35,6 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatListModule } from "@angular/material";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { LoginComponent } from "./login/login.component";
-import { ServicesComponent } from "./services/services.component";
 
 import { CookieService } from "ngx-cookie-service";
 import { UserService } from "./user.service";
@@ -43,7 +42,6 @@ import { HttpClientModule } from "@angular/common/http";
 import { SimpleNotificationsModule } from "angular2-notifications";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { SearchPipe } from "./search.pipe";
-import { NewServiceComponent } from "./new-service/new-service.component";
 
 import { ChartsModule } from "ng2-charts";
 import { WelcomeComponent } from "./welcome/welcome.component";
@@ -56,9 +54,11 @@ import { NotInvitedComponent } from "./not-invited/not-invited.component";
 import { Ng2GoogleChartsModule } from "ng2-google-charts";
 import { SettingsComponent } from "./settings/settings.component";
 import { DateAgoPipe } from "./dateago.pipe";
-import { NewProjectComponent } from "./new-project/new-project.component";
-import { ProjectListComponent } from './project-list/project-list.component';
-import { ClientModule } from '@microhq/ng-client';
+import { NewAppComponent } from "./new-app/new-app.component";
+import { AppListComponent } from "./app-list/app-list.component";
+import { ClientModule } from "@microhq/ng-client";
+import { AppSingleComponent } from "./app-single/app-single.component";
+import { AppFormComponent } from "./app-form/app-form.component";
 
 /**
  * Import specific languages to avoid importing everything
@@ -79,16 +79,16 @@ export function getHighlightLanguages() {
     HeaderComponent,
     HomeComponent,
     LoginComponent,
-    ServicesComponent,
     SearchPipe,
-    NewServiceComponent,
     WelcomeComponent,
     LogUserInComponent,
     NotInvitedComponent,
     SettingsComponent,
     DateAgoPipe,
-    NewProjectComponent,
-    ProjectListComponent
+    NewAppComponent,
+    AppListComponent,
+    AppSingleComponent,
+    AppFormComponent
   ],
   imports: [
     BrowserModule,

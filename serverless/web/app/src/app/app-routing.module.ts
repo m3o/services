@@ -1,10 +1,11 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
-import { NewProjectComponent } from "./new-project/new-project.component";
+import { NewAppComponent } from "./new-app/new-app.component";
 import { AuthGuard } from "./auth.guard";
 import { WelcomeComponent } from "./welcome/welcome.component";
 import { NotInvitedComponent } from "./not-invited/not-invited.component";
-import { ProjectListComponent } from "./project-list/project-list.component";
+import { AppListComponent } from "./app-list/app-list.component";
+import { AppComponent } from "./app/app.component";
 
 const routes: Routes = [
   {
@@ -18,17 +19,22 @@ const routes: Routes = [
   },
   {
     path: "app/new",
-    component: NewProjectComponent,
+    component: NewAppComponent,
     canActivate: [AuthGuard]
   },
   {
     path: "app/new/:id",
-    component: NewProjectComponent,
+    component: NewAppComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "app/:id",
+    component: AppComponent,
     canActivate: [AuthGuard]
   },
   {
     path: "apps",
-    component: ProjectListComponent,
+    component: AppListComponent,
     canActivate: [AuthGuard]
   }
 ];
