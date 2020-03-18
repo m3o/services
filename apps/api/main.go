@@ -4,14 +4,14 @@ import (
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 
-	"github.com/micro/services/apps/importer/handler"
-	pb "github.com/micro/services/apps/importer/proto/importer"
+	"github.com/micro/services/apps/api/handler"
+	pb "github.com/micro/services/apps/api/proto/apps"
 )
 
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.api.apps.importer"),
+		micro.Name("go.micro.api.apps"),
 		micro.Version("latest"),
 	)
 
@@ -20,7 +20,7 @@ func main() {
 
 	// Register the handler
 	h := handler.NewHandler(service)
-	pb.RegisterImporterHandler(service.Server(), h)
+	pb.RegisterAppsHandler(service.Server(), h)
 
 	// Run the service
 	if err := service.Run(); err != nil {

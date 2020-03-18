@@ -1,4 +1,4 @@
-module github.com/micro/services/apps/importer
+module github.com/micro/services/apps/api
 
 go 1.13
 

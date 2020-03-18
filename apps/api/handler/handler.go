@@ -11,7 +11,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"gopkg.in/yaml.v2"
 
-	pb "github.com/micro/services/apps/importer/proto/importer"
+	pb "github.com/micro/services/apps/api/proto/apps"
 	apps "github.com/micro/services/apps/service/proto/apps"
 )
 
@@ -22,7 +22,7 @@ type File struct {
 	URL  string `json:"download_url"`
 }
 
-// Handler implements the importer service interface
+// Handler implements the apps API interface
 type Handler struct {
 	apps apps.AppsService
 }

@@ -8,7 +8,7 @@ proto:
 
 .PHONY: build
 build: proto
-	go build -o importer-api *.go
+	go build -o apps-api *.go
 
 .PHONY: test
 test:
@@ -16,4 +16,4 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t importer-api:latest
+	docker build . -t apps-api:latest
