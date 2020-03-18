@@ -59,31 +59,19 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 
 	// Decode the users profile
 	var profile struct {
-		ID        string `json:"id"`
-		Username  string `json:"login"`
-		Name      string `json:"name"`
-		Email     string `json:"email"`
-		FirstName string
-		LastName  string
+		ID       int64  `json:"id"`
+		Username string `json:"login"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
-
-	nameComps := strings.Split(profile.Name, "")
-	if len(nameComps) > 0 {
-		profile.FirstName = nameComps[0]
-	}
-	if len(nameComps) > 1 {
-		profile.LastName = strings.Join(nameComps[1:len(nameComps)-1], " ")
-	}
 
 	// Create the user in the users service
 	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
 		User: &users.User{
-			Id:        fmt.Sprintf("Github_%v", profile.ID),
-			Email:     profile.Email,
-			Username:  profile.Username,
-			FirstName: profile.FirstName,
-			LastName:  profile.LastName,
+			Id:       fmt.Sprintf("github_%v", profile.ID),
+			Email:    profile.Email,
+			Username: profile.Username,
 		},
 	})
 	if err != nil {
