@@ -39,25 +39,25 @@ func NewHandler(srv micro.Service) *Handler {
 	)
 
 	return &Handler{
-		google:         googleProv,
-		github:         githubProv,
-		githubOrgID:    getConfigInt(srv, "github", "org_id"),
-		githubTeamSlug: getConfigString(srv, "github", "team_slug"),
-		auth:           srv.Options().Auth,
-		users:          users.NewUsersService("go.micro.srv.users", srv.Client()),
-		login:          login.NewLoginService("go.micro.srv.login", srv.Client()),
+		google:       googleProv,
+		github:       githubProv,
+		githubOrgID:  getConfigInt(srv, "github", "org_id"),
+		githubTeamID: getConfigInt(srv, "github", "team_id"),
+		auth:         srv.Options().Auth,
+		users:        users.NewUsersService("go.micro.srv.users", srv.Client()),
+		login:        login.NewLoginService("go.micro.srv.login", srv.Client()),
 	}
 }
 
 // Handler is used to handle oauth logic
 type Handler struct {
-	githubOrgID    int
-	githubTeamSlug string
-	auth           auth.Auth
-	users          users.UsersService
-	login          login.LoginService
-	google         provider.Provider
-	github         provider.Provider
+	githubOrgID  int
+	githubTeamID int
+	auth         auth.Auth
+	users        users.UsersService
+	login        login.LoginService
+	google       provider.Provider
+	github       provider.Provider
 }
 
 func getConfigString(srv micro.Service, keys ...string) string {
