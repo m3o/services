@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,7 +54,8 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		h.handleError(w, r, "Error getting user from GitHub. Status: %v. Token: %v", resp.Status, result.Token)
+		bytes, _ := ioutil.ReadAll(resp.Body)
+		h.handleError(w, r, "Error getting user from GitHub. Status: %v. Error: %v", resp.Status, string(bytes))
 		return
 	}
 
