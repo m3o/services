@@ -253,6 +253,8 @@ github.com/micro/go-micro/v2 v2.3.1-0.20200317165957-8a41d369f2e4 h1:5U7GGrCCXv0
 github.com/micro/go-micro/v2 v2.3.1-0.20200317165957-8a41d369f2e4/go.mod h1:GR69d1AXMg/WjMNf/7K1VO6hCBJDIpqCqnVYNTV6M5w=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
+github.com/micro/services/payments/provider v0.0.0-20200318105532-9c3078c484d5 h1:TzH9NafDfkYsX1w0hlaCgqk5ScHzbr8B72kxvKnevhA=
+github.com/micro/services/payments/provider v0.0.0-20200318105532-9c3078c484d5/go.mod h1:mc3CiHwUsNPwVneJURB7s07b/ob8+7QDo+eofxKPmdI=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
