@@ -1,5 +1,6 @@
 import React from 'react';
 import Cookies from 'universal-cookie';
+import queryString from 'query-string';
 import { connect } from 'react-redux';
 import Call, { User, Domain } from '../../api';
 import { setUser } from '../../store/User';
@@ -19,8 +20,17 @@ interface State {
   error?: string;
 }
 
+interface Params {
+  error?: string;
+}
+
 class Login extends React.Component<Props, State> {
   readonly state: State = { email: '', password: '', loading: false, signup: false };
+
+  componentDidMount() {
+    const params: Params = queryString.parse(window.location.search);
+    if(params.error) this.setState({ error: params.error });
+  }
 
   async onSubmit(event) {
     event.preventDefault();
