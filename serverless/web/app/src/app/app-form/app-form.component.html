@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="app?.name">
   <div>
     <mat-form-field class="full-width-field">
       <mat-label>App name</mat-label>
@@ -51,8 +51,21 @@
   </div>
   <div>
     <br />
-    <button mat-raised-button (click)="createApp()" color="primary">
-      Deploy
+    <button
+      *ngIf="create"
+      mat-raised-button
+      (click)="createApp()"
+      color="primary"
+    >
+      Create
+    </button>
+    <button
+      *ngIf="!create"
+      mat-raised-button
+      (click)="saveApp()"
+      color="primary"
+    >
+      Save
     </button>
   </div>
 </div>

@@ -5,7 +5,7 @@ import { AuthGuard } from "./auth.guard";
 import { WelcomeComponent } from "./welcome/welcome.component";
 import { NotInvitedComponent } from "./not-invited/not-invited.component";
 import { AppListComponent } from "./app-list/app-list.component";
-import { AppComponent } from "./app/app.component";
+import { AppSingleComponent } from "./app-single/app-single.component";
 
 const routes: Routes = [
   {
@@ -29,7 +29,7 @@ const routes: Routes = [
   },
   {
     path: "app/:id",
-    component: AppComponent,
+    component: AppSingleComponent,
     canActivate: [AuthGuard]
   },
   {

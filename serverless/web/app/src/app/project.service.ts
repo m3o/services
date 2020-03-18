@@ -17,11 +17,16 @@ export class ProjectService {
   }
 
   list(): Promise<AppListResponse> {
-    return this.mc.call<AppListResponse>(
-      "go.micro.service.serverless",
-      "Apps.List",
-      {}
-    );
+    return this.mc
+      .call<AppListResponse>("go.micro.service.serverless", "Apps.List", {})
+      .then(rsp => {
+        return {
+          apps: rsp.apps.map(app => {
+            app.name = app.name.split("/")[1];
+            return app;
+          })
+        };
+      });
   }
 
   create(app: types.App): Promise<void> {

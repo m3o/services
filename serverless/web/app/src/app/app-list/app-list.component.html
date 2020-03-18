@@ -5,6 +5,7 @@
     *ngIf="!apps"
   ></mat-spinner>
 </div>
+<br />
 <div *ngIf="apps" style="margin: auto; width: 66%;">
   <mat-card style="margin-top: 0em; padding-top: 0em;" class="mat-card-flat">
     <mat-card-title>
@@ -20,6 +21,7 @@
         <b style="font-weight: 700">New</b>
       </button>
     </mat-card-title>
+    <br />
     <form class="example-form">
       <mat-form-field class="example-full-width">
         <input name="query" matInput [(ngModel)]="query" placeholder="Search" />
@@ -29,19 +31,17 @@
     <br />
     <mat-card
       class="mat-card-flat"
-      *ngFor="let service of apps | keyvalue | search: 'key':query"
-      style="margin-bottom: 1em; background: #fcfcfc;"
+      *ngFor="let app of apps | keyvalue | search: 'key':query"
+      style="padding-left: 0;"
     >
       <mat-card-title
         style="display: flex; align-items: center; font-size: 1.25em;"
       >
-        <a href="#" routerLink="/service/{{ service.key }}">{{ service.key }}</a
+        <a href="#" routerLink="/app/{{ app.key }}">{{ app.key }}</a
         >&nbsp;&nbsp;
-        <mat-chip-list aria-label="Versions">
-          <mat-chip *ngFor="let serv of service.value">{{
-            serv.version
-          }}</mat-chip>
-        </mat-chip-list>
+        <mat-chip-list
+          ><mat-chip>{{ app.value[0].language }} </mat-chip></mat-chip-list
+        >
       </mat-card-title>
     </mat-card>
     <br />&nbsp;

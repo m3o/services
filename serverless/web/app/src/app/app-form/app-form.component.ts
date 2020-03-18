@@ -24,7 +24,7 @@ export class AppFormComponent implements OnInit {
     private router: Router,
     private notif: NotificationsService
   ) {
-    if (!this.app) {
+    if (!this.app || !this.app.name) {
       this.create = true;
       this.app = {
         name: "my-app-" + makeid(6)
