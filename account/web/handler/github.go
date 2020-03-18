@@ -46,6 +46,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	if err != nil || resp.StatusCode != http.StatusOK {
 		http.Redirect(w, req, "/account/error", http.StatusFound)
 		fmt.Println(err)
+		fmt.Println("Status Code: " + resp.Status)
 		return
 	}
 
