@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strings"
 
-	log "github.com/micro/go-micro/v2/logger"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -45,9 +44,6 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	var result struct {
 		Token string `json:"access_token"`
 	}
-	json.NewDecoder(resp.Body).Decode(&result)
-	log.Infof("Token: %v", result.Token)
-
 	// Use the token to get the users profile
 	r, err = http.NewRequest("GET", "https://api.github.com/user", nil)
 	r.Header.Add("Authorization", "Bearer "+result.Token)
