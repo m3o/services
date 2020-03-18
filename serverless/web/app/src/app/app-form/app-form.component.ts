@@ -29,6 +29,8 @@ export class AppFormComponent implements OnInit {
       this.app = {
         name: "my-app-" + makeid(6)
       };
+
+      this.selectedBuildPackImageTag = this.app.language;
     }
   }
 

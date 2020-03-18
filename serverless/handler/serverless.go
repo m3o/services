@@ -21,6 +21,10 @@ type Apps struct {
 	Client pb.RuntimeService
 }
 
+func sanitizeSource(s string) string {
+	return strings.Replace(s, "https://", "", -1)
+}
+
 func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *serverless.CreateResponse) error {
 	if req.App == nil {
 		return errors.BadRequest("go.micro.service.serverless", "app is blank")
@@ -58,7 +62,9 @@ func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *s
 		Service: &pb.Service{
 			Name:    Prefix + name,
 			Version: version,
-			Source:  source,
+			// using sanitizeSource here because not sure about
+			// the implications of having "https://" in source
+			Source:  sanitizeSource(source),
 			Metadata: map[string]string{
 				"lang":  lang,
 				"image": image,

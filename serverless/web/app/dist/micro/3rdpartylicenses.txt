@@ -114,6 +114,8 @@ THE SOFTWARE.
 
 @angular/material/card
 
+@angular/material/chips
+
 @angular/material/core
 
 @angular/material/form-field
@@ -139,6 +141,9 @@ MIT
 
 @angular/router
 MIT
+
+@microhq/ng-client
+Apache-2.0
 
 angular2-notifications
 MIT
