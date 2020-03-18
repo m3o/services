@@ -57,10 +57,10 @@ class PageLayout extends React.Component<Props> {
               <p>Billing</p>
             </NavLink>
 
-            <NavLink exact to='/account/subscriptions'>
+            {/* <NavLink exact to='/account/subscriptions'>
               <img src={ path === '/account/subscriptions' ? SubscriptionsActive : SubscriptionsInctive } alt='Subscriptions' />
               <p>Subscriptions</p>
-            </NavLink>
+            </NavLink> */}
 
             <NavLink exact to='/account/settings'>
               <img src={ path === '/account/settings' ? SettingsActive : SettingsInctive } alt='Settings' />

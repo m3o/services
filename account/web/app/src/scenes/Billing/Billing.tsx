@@ -44,6 +44,7 @@ class Billing extends React.Component<Props, State> {
                     onError={this.setError.bind(this)} 
                     onDelete={this.props.removePaymentMethod} />
         })}
+        { paymentMethods.length === 0 ? <p className='empty'>You have no payment methods setup.</p> : null }
 
         <NewPaymentMethod
           saving={saving}

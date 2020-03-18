@@ -39,6 +39,40 @@
     grid-gap: 80px;
     margin-left: auto;
     margin-right: auto;
+ 
+    p {
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #00000080;
+    }
+
+    button {
+      height: 40px;
+      padding: 0px 40px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: solid 0.5px $blue;
+      font-weight: bold;
+      color: $blue;
+      cursor: pointer;
+      font-size: 8.5pt;
+      outline: none;
+      
+      &:hover {
+        background-color: $blue;
+        color: white;
+      }
+
+      &.danger {
+        border: solid 0.5px $red;
+        color: $red;  
+
+        &:hover {
+          background-color: $red;
+          color: white;
+        }
+      }
+    }
 
     nav {
       display: flex;

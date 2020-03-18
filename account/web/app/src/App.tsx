@@ -7,6 +7,7 @@ import { BrowserRouter , Route } from 'react-router-dom';
 // Scenes
 import Profile from './scenes/Profile';
 import Billing from './scenes/Billing';
+import Settings from './scenes/Settings';
 import Login from './scenes/Login';
 
 // Assets
@@ -32,6 +33,7 @@ interface Params {
 const Routes = [
   <Route key='profile' exact path='/account/' component={Profile}/>,
   <Route key='billing' exact path='/account/billing' component={Billing}/>,
+  <Route key='settings' exact path='/account/settings' component={Settings}/>,
 ];
 
 const UnauthenticatedRoutes = [
