@@ -154,9 +154,10 @@
         }
 
         img {
-          height: 20px;
+          width: 22px;
           margin-top: auto;
           margin-bottom: auto;
+          object-fit: cover;
         }
 
         .name {
