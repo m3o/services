@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/micro/go-micro/v2/logger"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -91,6 +92,8 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	r, _ = http.NewRequest("GET", url, nil)
 	r.Header.Add("Authorization", "Bearer "+result.Token)
 	resp, err = client.Do(r)
+	logger.Info("GitHub url: ", url)
+	logger.Info("GitHub response: ", resp.StatusCode)
 	if err != nil {
 		h.handleError(w, req, "Error getting user team membership from GitHub: %v", err)
 		return
