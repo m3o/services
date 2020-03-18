@@ -25,13 +25,13 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		"redirect_uri":  {h.github.Redirect()},
 		"code":          {req.FormValue("code")},
 	}
-	r1, _ := http.NewRequest("POST", "https://github.com/login/oauth/access_token", strings.NewReader(data.Encode()))
-	r1.Header.Add("Accept", "application/json")
-	r1.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r, _ := http.NewRequest("POST", "https://github.com/login/oauth/access_token", strings.NewReader(data.Encode()))
+	r.Header.Add("Accept", "application/json")
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	client := &http.Client{}
 
 	// Execute the request
-	resp, err := client.Do(r1)
+	resp, err := client.Do(r)
 	if err != nil {
 		h.handleError(w, req, "Error getting access token from GitHub: %v", err)
 		return
@@ -45,10 +45,12 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	var result struct {
 		Token string `json:"access_token"`
 	}
+	json.NewDecoder(resp.Body).Decode(&result)
+
 	// Use the token to get the users profile
-	r2, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
-	r2.Header.Add("Authorization", "Bearer "+result.Token)
-	resp, err = client.Do(r2)
+	r, _ = http.NewRequest("GET", "https://api.github.com/user", nil)
+	r.Header.Add("Authorization", "Bearer "+result.Token)
+	resp, err = client.Do(r)
 	if err != nil {
 		h.handleError(w, req, "Error getting user from GitHub: %v", err)
 		return
