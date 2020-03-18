@@ -17,6 +17,7 @@ message App {
 	repeated string required_roles = 5;
 	repeated Plan plans = 6;
 	bool active = 7;
+	string icon = 8;
 }
 
 message Plan {
