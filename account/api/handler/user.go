@@ -30,6 +30,10 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 	// Serialize the User
 	rsp.User = serializeUser(resp.User)
+	rsp.User.Roles = make([]string, 0, len(acc.Roles))
+	for _, r := range acc.Roles {
+		rsp.User.Roles = append(rsp.User.Roles, r.Name)
+	}
 
 	// Fetch the payment methods
 	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.Id})
