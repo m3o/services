@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
@@ -49,22 +50,30 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 // ListApps returns all the apps a user has access to
 func (h *Handler) ListApps(ctx context.Context, req *pb.ListAppsRequest, rsp *pb.ListAppsResponse) error {
-	// acc, err := auth.AccountFromContext(ctx)
-	// if err != nil {
-	// 	return err
-	// }
+	_, err := auth.AccountFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
-	aRsp, err := h.apps.List(ctx, &apps.ListRequest{})
+	aRsp, err := h.apps.List(ctx, &apps.ListRequest{OnlyActive: true})
 	if err != nil {
 		return err
 	}
 
 	rsp.Apps = make([]*pb.App, len(aRsp.Apps))
 	for i, a := range aRsp.Apps {
+		// Asset are served from root, e.g.icon.png
+		// would become /distributed/icon.png
+		var icon string
+		if len(a.Icon) > 0 {
+			icon = fmt.Sprintf("/%v/%v", a.Id, a.Icon)
+		}
+
 		rsp.Apps[i] = &pb.App{
 			Id:       a.Id,
 			Name:     a.Name,
 			Category: a.Category,
+			Icon:     icon,
 		}
 	}
 
