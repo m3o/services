@@ -1,0 +1,11 @@
+syntax="proto3";
+
+package go.micro.api.apps;
+
+service Apps {
+  rpc Import(ImportRequest) returns (ImportResponse);
+}
+
+message ImportRequest {};
+
+message ImportResponse {};

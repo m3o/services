@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/services/users/service/proto"
@@ -23,23 +22,15 @@ var (
 
 // Handler implements the users service interface
 type Handler struct {
-	auth      auth.Auth
 	store     store.Store
 	publisher micro.Publisher
 }
 
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) (*Handler, error) {
-	// create a new namespace in the default store
-	s := store.DefaultStore
-	if err := s.Init(store.Namespace(srv.Name())); err != nil {
-		return nil, err
-	}
-
 	// Return the initialised store
 	return &Handler{
-		store:     s,
-		auth:      srv.Options().Auth,
+		store:     store.DefaultStore,
 		publisher: micro.NewPublisher(srv.Name(), srv.Client()),
 	}, nil
 }
@@ -54,11 +45,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	// Check to see if the user already exists
 	if user, err := h.findUser(req.User.Id); err == nil {
 		rsp.User = user
-
-		if acc, err := h.auth.Generate(user.Id); err == nil {
-			rsp.Token = acc.Token
-		}
-
 		return nil
 	}
 
@@ -92,12 +78,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
 	}
 
-	// Generate an auth account
-	acc, err := h.auth.Generate(user.Id)
-	if err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Could not generate auth account: %v", err)
-	}
-
 	// Publish the event
 	go h.publisher.Publish(ctx, &pb.Event{
 		Type: pb.EventType_UserCreated,
@@ -106,7 +86,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	// Return the user and token in the response
 	rsp.User = &user
-	rsp.Token = acc.Token
 	return nil
 }
 
@@ -196,11 +175,6 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 // Search the users in th store, using username
 func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.SearchResponse) error {
-	// Validate the request
-	if len(req.Username) == 0 {
-		return errors.BadRequest("go.micro.srv.users", "Missing username")
-	}
-
 	// List all the records
 	recs, err := h.store.Read("", store.ReadPrefix())
 	if err != nil {
@@ -235,7 +209,7 @@ func (h *Handler) findUser(id string) (*pb.User, error) {
 	}
 
 	// Get the records
-	recs, err := h.store.Read(id, store.ReadPrefix())
+	recs, err := h.store.Read(id)
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.srv.users", "Could not read from store: %v", err)
 	}

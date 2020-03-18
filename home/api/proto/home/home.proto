@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package go.micro.api.home;
+
+service Home {
+	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse);
+	rpc ListApps(ListAppsRequest) returns (ListAppsResponse);
+}
+
+message App {
+	string id = 1;
+	string name = 2;
+	string category = 3;
+	string icon = 4;
+}
+
+message User {
+	string first_name = 1;
+	string last_name = 2;
+}
+
+message ReadUserRequest {}
+
+message ReadUserResponse {
+	User user = 1;
+}
+
+message ListAppsRequest {}
+
+message ListAppsResponse {
+	repeated App apps = 1;
+}

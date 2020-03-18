@@ -14,9 +14,6 @@ func (s *Store) ReadTask(sprintID, taskID string) (*pb.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(recs) != 1 {
-		return nil, store.ErrNotFound
-	}
 
 	var task *pb.Task
 	if err := json.Unmarshal(recs[0].Value, &task); err != nil {

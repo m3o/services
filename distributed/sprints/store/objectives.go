@@ -14,9 +14,6 @@ func (s *Store) ReadObjective(sprintID, objID string) (*pb.Objective, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(recs) != 1 {
-		return nil, store.ErrNotFound
-	}
 
 	var obj *pb.Objective
 	if err := json.Unmarshal(recs[0].Value, &obj); err != nil {

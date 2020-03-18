@@ -41,7 +41,6 @@ message CreateRequest {
 
 message CreateResponse {
 	User user = 1;
-	string token = 2;
 }
 
 message DeleteRequest {

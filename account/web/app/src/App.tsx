@@ -1,6 +1,7 @@
 import React from 'react';
 import Call, { User } from './api';
 import { connect } from 'react-redux';
+import queryString from 'query-string';
 import { BrowserRouter , Route } from 'react-router-dom';
 
 // Scenes
@@ -12,14 +13,20 @@ import Login from './scenes/Login';
 import Spinner from './assets/images/spinner.gif'; 
 import './App.scss';
 import { setUser } from './store/User';
+import { setRedirect } from './store/Redirect';
 
 interface Props {
   user?: User;
   setUser: (user: User) => void;
+  setRedirect: (path: string) => void;
 }
 
 interface State {
   loading: boolean;
+}
+
+interface Params {
+  redirect_to?: string;
 }
 
 const Routes = [
@@ -35,6 +42,9 @@ class App extends React.Component<Props, State> {
   state = { loading: true };
 
   componentDidMount() {
+    const params: Params = queryString.parse(window.location.search);
+    if(params.redirect_to) this.props.setRedirect(params.redirect_to);
+    
     Call("ReadUser")
       .then(res => this.props.setUser(res.data.user))
       .catch(console.warn)
@@ -71,6 +81,7 @@ function mapStateToProps(state: any): any {
 function mapDispatchToProps(dispatch: Function): any {
   return({
     setUser: (user: User) => dispatch(setUser(user)),
+    setRedirect: (path: string) => dispatch(setRedirect(path)),
   });
 }
 

@@ -22,9 +22,9 @@ type Handler struct {
 // NewHandler returns an initialised Handler, it will error if any of
 // the required enviroment variables are not set
 func NewHandler(srv micro.Service) *Handler {
-	apiKey := srv.Options().Config.Get("micro", "payments", "stripe", "api_key").String("")
+	apiKey := srv.Options().Config.Get("micro", "payments", "stripe", "api_keyx").String("sk_test_1A0uDCJejTrH6DuBuX7dBhxh")
 	if len(apiKey) == 0 {
-		log.Fatalf("Missing required env: STRIPE_API_KEY")
+		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
 	}
 
 	return &Handler{
@@ -42,7 +42,7 @@ type User struct {
 // getStripeIDForUser returns the stripe ID from the store for the given user
 func (h *Handler) getStripeIDForUser(userID string) (string, error) {
 	recs, err := h.store.Read(userID)
-	if err == store.ErrNotFound || len(recs) == 0 {
+	if err == store.ErrNotFound {
 		return "", nil
 	} else if err != nil {
 		return "", errors.InternalServerError(h.name, "Could not read from store: %v", err)

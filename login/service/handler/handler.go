@@ -106,7 +106,7 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.CreateLoginRequest, r
 func (h *Handler) VerifyLogin(ctx context.Context, req *pb.VerifyLoginRequest, rsp *pb.VerifyLoginResponse) error {
 	// Look up the user
 	recs, err := h.store.Read(req.Email)
-	if err == store.ErrNotFound || len(recs) != 1 {
+	if err == store.ErrNotFound {
 		return errors.BadRequest(h.name, "Invalid Email")
 	} else if err != nil {
 		return errors.InternalServerError(h.name, "Unable to read from store: %v", err)
@@ -132,7 +132,7 @@ func (h *Handler) VerifyLogin(ctx context.Context, req *pb.VerifyLoginRequest, r
 func (h *Handler) UpdateEmail(ctx context.Context, req *pb.UpdateEmailRequest, rsp *pb.UpdateEmailResponse) error {
 	// Look up the user
 	recs, err := h.store.Read(req.OldEmail)
-	if err == store.ErrNotFound || len(recs) != 1 {
+	if err == store.ErrNotFound {
 		return nil
 	} else if err != nil {
 		return errors.InternalServerError(h.name, "Unable to read from store: %v", err)

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/micro/go-micro/v2/logger"
+
 	"github.com/micro/go-micro/v2/auth"
 	users "github.com/micro/services/users/service/proto"
 )
@@ -41,7 +43,7 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 	resp, err = http.Get("https://www.googleapis.com/oauth2/v1/userinfo?oauth_token=" + oauthResult.Token)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		http.Redirect(w, req, "/account/error", http.StatusFound)
-		fmt.Println(err)
+		logger.Errorf("Error fetching google account: %v", err)
 		return
 	}
 
@@ -65,14 +67,23 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 	})
 	if err != nil {
 		http.Redirect(w, req, "/account/error", http.StatusFound)
-		fmt.Println(err)
+		logger.Errorf("Error creating user account: %v", err)
 		return
+	}
+
+	// Create an auth token
+	acc, err := h.auth.Generate(uRsp.User.Id)
+	if err != nil {
+		http.Redirect(w, req, "/account/error", http.StatusFound)
+		logger.Errorf("Error creating auth account: %v", err)
 	}
 
 	// Set the cookie and redirect
 	http.SetCookie(w, &http.Cookie{
-		Name:  auth.CookieName,
-		Value: uRsp.Token,
+		Name:   auth.CookieName,
+		Value:  acc.Token,
+		Domain: "micro.mu",
+		Path:   "/",
 	})
 	http.Redirect(w, req, "/account", http.StatusFound)
 }

@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v2/auth"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -83,14 +82,16 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
+	_ = uRsp
+
 	// TODO:
 	// - Add the developer role to the user
 	// - Add the collaborator role to the user if they're part of the micro GH team
 
 	// Set the cookie and redirect
-	http.SetCookie(w, &http.Cookie{
-		Name:  auth.CookieName,
-		Value: uRsp.Token,
-	})
+	// http.SetCookie(w, &http.Cookie{
+	// Name: auth.CookieName,
+	// Value: uRsp.Token,
+	// })
 	http.Redirect(w, req, "/account", http.StatusFound)
 }

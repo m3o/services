@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import BackArrow from '../../assets/images/back-arrow.png';
 import ProfileActive from '../../assets/images/nav/profile-active.png';
@@ -14,21 +15,35 @@ import './PageLayout.scss';
 interface Props {
   className: string;
   match?: any;
+  redirect?: string;
 }
 
-export default class PageLayout extends React.Component<Props> {
+class PageLayout extends React.Component<Props> {
   render():JSX.Element {
-    const { className, match } = this.props;
+    const { className, match, redirect } = this.props;
     const path = match.path
+
+    let redirectUI: JSX.Element;
+    if(redirect) { 
+      redirectUI = (
+        <a href={redirect} className='page-return-link'>
+          <img src={BackArrow} alt='Return' />
+          <p>Return <span>{redirect.replace('/', '')}</span></p>
+        </a>
+      );
+    } else {
+      redirectUI = (
+        <a href='/home' className='page-return-link'>
+          <img src={BackArrow} alt='Go Home' />
+          <p>Home</p>
+        </a>
+      );
+    }
 
     return(
       <div className='PageLayout'>
         <h1>Account Management</h1>
-
-        <div className='page-return-link'>
-          <img src={BackArrow} alt='Go back' />
-          <p>Back to FooBar</p>
-        </div>
+        { redirectUI }
 
         <div className='page-container'>
           <nav>
@@ -61,3 +76,11 @@ export default class PageLayout extends React.Component<Props> {
     )
   }
 }
+
+function mapStateToProps(state: any): any {
+  return({
+    redirect: state.redirect.path,
+  });
+}
+
+export default connect(mapStateToProps)(PageLayout);

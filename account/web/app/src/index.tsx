@@ -6,12 +6,14 @@ import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import { createStore, combineReducers } from 'redux';
 import UserReducer from './store/User';
+import RedirectReducer from './store/Redirect';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
 // Redux Setup
 window.store = createStore(combineReducers({
   user: UserReducer,
+  redirect: RedirectReducer,
 })); 
 
 // Declare global window interface so we can mount redux

@@ -74,7 +74,7 @@ class Login extends React.Component<Props, State> {
         <h1>Welcome back!</h1>
         <p className='subtitle'>To continue, log in with a Google or Micro account.</p>
 
-        <div className='google-oauth' onClick={() => window.location.href = "/account/oauth/login"}>
+        <div className='google-oauth' onClick={() => window.location.href = "/account/oauth/google/login"}>
           <img src={GoogleLogo} alt='Sign in with Google' />
           <p>Sign in with Google</p>
         </div>
@@ -113,7 +113,7 @@ class Login extends React.Component<Props, State> {
           <label>Password *</label>
           <input type='password' name='password' value={password} disabled={loading} onChange={this.onChange.bind(this)} />
 
-          <input type='submit' value={loading ? 'Logging In' : 'Log in to your account'} disabled={loading} />
+          <input type='submit' value={loading ? 'Creating your account' : 'Create an account'} disabled={loading} />
         </form>
 
         <p className='signup'>Already have an account? <span onClick={this.toggleSignup.bind(this)} className='link'>Click here to login.</span></p>
