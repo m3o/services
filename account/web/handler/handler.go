@@ -20,46 +20,59 @@ import (
 func NewHandler(srv micro.Service) *Handler {
 	googleProv := oauth.NewProvider(
 		provider.Credentials(
-			getConfig(srv, "google", "client_id"),
-			getConfig(srv, "google", "client_secret"),
+			getConfigString(srv, "google", "client_id"),
+			getConfigString(srv, "google", "client_secret"),
 		),
-		provider.Redirect(getConfig(srv, "google", "redirect")),
-		provider.Endpoint(getConfig(srv, "google", "endpoint")),
-		provider.Scope(getConfig(srv, "google", "scope")),
+		provider.Redirect(getConfigString(srv, "google", "redirect")),
+		provider.Endpoint(getConfigString(srv, "google", "endpoint")),
+		provider.Scope(getConfigString(srv, "google", "scope")),
 	)
 
 	githubProv := oauth.NewProvider(
 		provider.Credentials(
-			getConfig(srv, "github", "client_id"),
-			getConfig(srv, "github", "client_secret"),
+			getConfigString(srv, "github", "client_id"),
+			getConfigString(srv, "github", "client_secret"),
 		),
-		provider.Redirect(getConfig(srv, "github", "redirect")),
-		provider.Endpoint(getConfig(srv, "github", "endpoint")),
-		provider.Scope(getConfig(srv, "github", "scope")),
+		provider.Redirect(getConfigString(srv, "github", "redirect")),
+		provider.Endpoint(getConfigString(srv, "github", "endpoint")),
+		provider.Scope(getConfigString(srv, "github", "scope")),
 	)
 
 	return &Handler{
-		google: googleProv,
-		github: githubProv,
-		auth:   srv.Options().Auth,
-		users:  users.NewUsersService("go.micro.srv.users", srv.Client()),
-		login:  login.NewLoginService("go.micro.srv.login", srv.Client()),
+		google:       googleProv,
+		github:       githubProv,
+		githubTeamID: getConfigInt(srv, "github", "team_id"),
+		githubOrgID:  getConfigInt(srv, "github", "org_id"),
+		auth:         srv.Options().Auth,
+		users:        users.NewUsersService("go.micro.srv.users", srv.Client()),
+		login:        login.NewLoginService("go.micro.srv.login", srv.Client()),
 	}
 }
 
 // Handler is used to handle oauth logic
 type Handler struct {
-	auth   auth.Auth
-	users  users.UsersService
-	login  login.LoginService
-	google provider.Provider
-	github provider.Provider
+	githubTeamID int
+	githubOrgID  int
+	auth         auth.Auth
+	users        users.UsersService
+	login        login.LoginService
+	google       provider.Provider
+	github       provider.Provider
 }
 
-func getConfig(srv micro.Service, keys ...string) string {
+func getConfigString(srv micro.Service, keys ...string) string {
 	path := append([]string{"micro", "oauth"}, keys...)
 	val := srv.Options().Config.Get(path...).String("")
 	if len(val) == 0 {
+		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
+	}
+	return val
+}
+
+func getConfigInt(srv micro.Service, keys ...string) int {
+	path := append([]string{"micro", "oauth"}, keys...)
+	val := srv.Options().Config.Get(path...).Int(0)
+	if val == 0 {
 		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
 	}
 	return val

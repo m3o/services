@@ -64,9 +64,9 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	// Decode the users profile
 	var profile struct {
 		ID       int64  `json:"id"`
-		Username string `json:"login"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
+		Username string `json:"username"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
 
@@ -83,5 +83,22 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	h.loginUser(w, req, uRsp.User, "developer")
+	// Setup the roles
+	roles := []string{"developer"}
+
+	// Check to see if the user is part of the micro team
+	url := fmt.Sprintf("https://api.github.com/orgs/%v/teams/%v/memberships/%v", h.githubOrgID, h.githubTeamID, profile.Username)
+	r, _ = http.NewRequest("GET", url, nil)
+	r.Header.Add("Authorization", "Bearer "+result.Token)
+	resp, err = client.Do(r)
+	if err != nil {
+		h.handleError(w, req, "Error getting user team membership from GitHub: %v", err)
+		return
+	}
+	if resp.StatusCode == http.StatusOK {
+		roles = append(roles, "collaborator")
+	}
+
+	// Logiin the user
+	h.loginUser(w, req, uRsp.User, roles...)
 }
