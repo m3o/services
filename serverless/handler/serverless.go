@@ -61,6 +61,7 @@ func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *s
 		Options: &pb.CreateOptions{
 			Type:  "app",
 			Image: image,
+			Args:  []string{source},
 		},
 	})
 	if err != nil {
