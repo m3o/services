@@ -66,8 +66,7 @@ func getConfig(srv micro.Service, keys ...string) string {
 }
 
 func (h *Handler) handleError(w http.ResponseWriter, req *http.Request, format string, args ...interface{}) {
-	var params url.Values
-	params.Add("error", fmt.Sprintf(format, args...))
+	params := url.Values{"error": {fmt.Sprintf(format, args...)}}
 	http.Redirect(w, req, "/account?"+params.Encode(), http.StatusInternalServerError)
 }
 
