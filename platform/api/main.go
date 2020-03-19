@@ -35,10 +35,10 @@ type Handler struct {
 }
 
 // NewHandler returns an initialized Handler
-func NewHandler(service micro.Service) *Handler {
+func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
-		Users:    users.NewUsersService("go.micro.service.users", srv.Options().Service.Client()),
-		Platform: platform.NewPlatformService("go.micro.service.platform", service.Client()),
+		Users:    users.NewUsersService("go.micro.service.users", srv.Client()),
+		Platform: platform.NewPlatformService("go.micro.service.platform", srv.Client()),
 	}
 }
 
