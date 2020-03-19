@@ -38,22 +38,15 @@ export class UserService {
     // todo We are nulling out the name here because that's what we use
     // for user existence checks.
     this.user.name = "";
-    this.cookie.delete("micro_token", "/")
+    this.cookie.delete("micro-token", "/")
     document.location.href = "/";
-  }
-
-  token(): string {
-    return this.cookie.get("micro_token")
   }
 
   // gets current user
   get(): Promise<types.User> {
-    if (!this.token() || this.token().length === 0) {
-      return Promise.reject("Not logged in")
-    }
     return this.http
       .get<types.User>(
-        environment.backendUrl + "/v1/user?token=" + this.token()
+        environment.backendUrl + "/v1/user"
       )
       .toPromise();
   }
