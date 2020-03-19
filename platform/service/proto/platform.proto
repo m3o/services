@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package go.micro.service.platform;
+
+service Platform {
+    rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+    rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {}
+    rpc GetEvent(GetEventRequest) returns (GetEventResponse) {}
+    
+    rpc CreateService(CreateServiceRequest) returns (CreateServiceResponse) {};
+    rpc ReadService(ReadServiceRequest) returns (ReadServiceResponse) {};
+    rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {};
+    rpc DeleteService(DeleteServiceRequest) returns (DeleteServiceResponse) {};
+    rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {};
+}
+
+message CreateEventRequest {
+    Event event = 1;
+}
+
+message CreateEventResponse {}
+
+message GetEventRequest {
+    Event event = 1;
+}
+
+message GetEventResponse {
+    Event event = 1;
+}
+
+message ListEventsRequest {
+    Service service = 1;
+}
+
+message ListEventsResponse {
+    repeated Event events = 1;
+}
+
+enum EventType {
+    Unknown = 0;
+    ServiceCreated = 1;
+    ServiceDeleted = 2;
+    ServiceUpdated = 3;
+    BuildStarted = 5;
+    BuildFinished = 6;
+    BuildFailed = 7;
+    SourceCreated = 4;
+    SourceUpdated = 8;
+    SourceDeleted = 9;
+}
+
+message Event {
+    EventType type = 1;
+    int64 timestamp = 2;
+    map<string,string> metadata = 3;
+    Service service = 4;
+    string id = 5;
+}
+
+message CreateServiceRequest {
+    Service service = 1;
+}
+
+message CreateServiceResponse {}
+
+message ReadServiceRequest {
+    Service service = 1;
+}
+
+message ReadServiceResponse {
+    repeated Service services = 1;
+}
+
+message UpdateServiceRequest {
+    Service service = 1;
+}
+
+message UpdateServiceResponse {}
+
+message DeleteServiceRequest {
+    Service service = 1;
+}
+
+message DeleteServiceResponse {}
+
+message ListServicesRequest {}
+
+message ListServicesResponse {
+    repeated Service services = 1;
+}
+
+message Service {
+    string name = 1;
+    string version = 2;
+    string source = 3;
+    string type = 4;
+    map<string,string> metadata = 5;
+}
