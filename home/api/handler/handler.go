@@ -24,7 +24,7 @@ func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
 		name:  srv.Name(),
 		apps:  apps.NewAppsService("go.micro.service.apps", srv.Client()),
-		users: users.NewUsersService("go.micro.srv.users", srv.Client()),
+		users: users.NewUsersService("go.micro.service.users", srv.Client()),
 	}
 }
 

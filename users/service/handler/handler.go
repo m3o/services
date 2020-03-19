@@ -39,7 +39,7 @@ func NewHandler(srv micro.Service) (*Handler, error) {
 func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// Validate the request
 	if req.User == nil {
-		return errors.BadRequest("go.micro.srv.users", "User is missing")
+		return errors.BadRequest("go.micro.service.users", "User is missing")
 	}
 
 	// Check to see if the user already exists
@@ -70,12 +70,12 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	// Encode the user
 	bytes, err := json.Marshal(user)
 	if err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Coould not marshal user: %v", err)
+		return errors.InternalServerError("go.micro.service.users", "Coould not marshal user: %v", err)
 	}
 
 	// Write to the store
 	if err := h.store.Write(&store.Record{Key: user.Id, Value: bytes}); err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
+		return errors.InternalServerError("go.micro.service.users", "Could not write to store: %v", err)
 	}
 
 	// Publish the event
@@ -104,7 +104,7 @@ func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	// Validate the request
 	if req.User == nil {
-		return errors.BadRequest("go.micro.srv.users", "User is missing")
+		return errors.BadRequest("go.micro.service.users", "User is missing")
 	}
 
 	// Lookup the user
@@ -132,12 +132,12 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	// Encode the updated user
 	bytes, err := json.Marshal(user)
 	if err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Coould not marshal user: %v", err)
+		return errors.InternalServerError("go.micro.service.users", "Coould not marshal user: %v", err)
 	}
 
 	// Write to the store
 	if err := h.store.Write(&store.Record{Key: user.Id, Value: bytes}); err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
+		return errors.InternalServerError("go.micro.service.users", "Could not write to store: %v", err)
 	}
 
 	// Publish the event
@@ -161,7 +161,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// Delete from the store
 	if err := h.store.Delete(user.Id); err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Could not write to store: %v", err)
+		return errors.InternalServerError("go.micro.service.users", "Could not write to store: %v", err)
 	}
 
 	// Publish the event
@@ -178,14 +178,14 @@ func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.Sea
 	// List all the records
 	recs, err := h.store.Read("", store.ReadPrefix())
 	if err != nil {
-		return errors.InternalServerError("go.micro.srv.users", "Could not read from store: %v", err)
+		return errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}
 
 	// Decode the records
 	users := make([]*pb.User, len(recs))
 	for i, r := range recs {
 		if err := json.Unmarshal(r.Value, &users[i]); err != nil {
-			return errors.InternalServerError("go.micro.srv.users", "Could not unmarshal user: %v", err)
+			return errors.InternalServerError("go.micro.service.users", "Could not unmarshal user: %v", err)
 		}
 	}
 
@@ -205,25 +205,25 @@ func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.Sea
 func (h *Handler) findUser(id string) (*pb.User, error) {
 	// Validate the request
 	if len(id) == 0 {
-		return nil, errors.BadRequest("go.micro.srv.users", "Missing ID")
+		return nil, errors.BadRequest("go.micro.service.users", "Missing ID")
 	}
 
 	// Get the records
 	recs, err := h.store.Read(id)
 	if err != nil {
-		return nil, errors.InternalServerError("go.micro.srv.users", "Could not read from store: %v", err)
+		return nil, errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}
 	if len(recs) == 0 {
-		return nil, errors.NotFound("go.micro.srv.users", "User not found")
+		return nil, errors.NotFound("go.micro.service.users", "User not found")
 	}
 	if len(recs) > 1 {
-		return nil, errors.InternalServerError("go.micro.srv.users", "Store corrupted, %b records found for ID", len(recs))
+		return nil, errors.InternalServerError("go.micro.service.users", "Store corrupted, %b records found for ID", len(recs))
 	}
 
 	// Decode the user
 	var user *pb.User
 	if err := json.Unmarshal(recs[0].Value, &user); err != nil {
-		return nil, errors.InternalServerError("go.micro.srv.users", "Could not unmarshal user: %v", err)
+		return nil, errors.InternalServerError("go.micro.service.users", "Could not unmarshal user: %v", err)
 	}
 
 	return user, nil
@@ -247,12 +247,12 @@ func (h *Handler) validateUser(u *pb.User) error {
 
 	// Validate the username is url safe
 	if safe := URLSafeRegex(u.Username); !safe {
-		return errors.BadRequest("go.micro.srv.users", "Username is invalid, only a-Z, 0-9, dashes and underscores allowed")
+		return errors.BadRequest("go.micro.service.users", "Username is invalid, only a-Z, 0-9, dashes and underscores allowed")
 	}
 
 	// Ensure no other users with this username exist
 	if exists, err := h.usernameExists(u.Username); err == nil && exists {
-		return errors.BadRequest("go.micro.srv.users", "Username is taken")
+		return errors.BadRequest("go.micro.service.users", "Username is taken")
 	}
 
 	return nil

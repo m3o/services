@@ -36,7 +36,7 @@ var (
 )
 
 func requestEntity(typ string, num int64, radius, lat, lon float64) ([]*loc.Entity, error) {
-	req := service.Client().NewRequest("go.micro.srv.geo", "Location.Search", &loc.SearchRequest{
+	req := service.Client().NewRequest("go.micro.service.geo", "Location.Search", &loc.SearchRequest{
 		Center: &loc.Point{
 			Latitude:  lat,
 			Longitude: lon,
@@ -65,7 +65,7 @@ func saveEntity(id, typ string, lat, lon float64) {
 		},
 	}
 
-	req := service.Client().NewRequest("go.micro.srv.geo", "Location.Save", &loc.SaveRequest{
+	req := service.Client().NewRequest("go.micro.service.geo", "Location.Save", &loc.SaveRequest{
 		Entity: entity,
 	})
 

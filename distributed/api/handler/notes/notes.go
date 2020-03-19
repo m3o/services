@@ -12,7 +12,7 @@ import (
 // NewHandler returns an initialized Handler
 func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
-		notes: notes.NewNotesService("go.micro.srv.notes", srv.Client()),
+		notes: notes.NewNotesService("go.micro.service.notes", srv.Client()),
 	}
 }
 

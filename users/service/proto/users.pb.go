@@ -584,20 +584,20 @@ func (m *SearchResponse) GetUsers() []*User {
 }
 
 func init() {
-	proto.RegisterEnum("go.micro.srv.users.EventType", EventType_name, EventType_value)
-	proto.RegisterType((*Event)(nil), "go.micro.srv.users.Event")
-	proto.RegisterType((*User)(nil), "go.micro.srv.users.User")
-	proto.RegisterMapType((map[string]string)(nil), "go.micro.srv.users.User.MetadataEntry")
-	proto.RegisterType((*CreateRequest)(nil), "go.micro.srv.users.CreateRequest")
-	proto.RegisterType((*CreateResponse)(nil), "go.micro.srv.users.CreateResponse")
-	proto.RegisterType((*DeleteRequest)(nil), "go.micro.srv.users.DeleteRequest")
-	proto.RegisterType((*DeleteResponse)(nil), "go.micro.srv.users.DeleteResponse")
-	proto.RegisterType((*ReadRequest)(nil), "go.micro.srv.users.ReadRequest")
-	proto.RegisterType((*ReadResponse)(nil), "go.micro.srv.users.ReadResponse")
-	proto.RegisterType((*UpdateRequest)(nil), "go.micro.srv.users.UpdateRequest")
-	proto.RegisterType((*UpdateResponse)(nil), "go.micro.srv.users.UpdateResponse")
-	proto.RegisterType((*SearchRequest)(nil), "go.micro.srv.users.SearchRequest")
-	proto.RegisterType((*SearchResponse)(nil), "go.micro.srv.users.SearchResponse")
+	proto.RegisterEnum("go.micro.service.users.EventType", EventType_name, EventType_value)
+	proto.RegisterType((*Event)(nil), "go.micro.service.users.Event")
+	proto.RegisterType((*User)(nil), "go.micro.service.users.User")
+	proto.RegisterMapType((map[string]string)(nil), "go.micro.service.users.User.MetadataEntry")
+	proto.RegisterType((*CreateRequest)(nil), "go.micro.service.users.CreateRequest")
+	proto.RegisterType((*CreateResponse)(nil), "go.micro.service.users.CreateResponse")
+	proto.RegisterType((*DeleteRequest)(nil), "go.micro.service.users.DeleteRequest")
+	proto.RegisterType((*DeleteResponse)(nil), "go.micro.service.users.DeleteResponse")
+	proto.RegisterType((*ReadRequest)(nil), "go.micro.service.users.ReadRequest")
+	proto.RegisterType((*ReadResponse)(nil), "go.micro.service.users.ReadResponse")
+	proto.RegisterType((*UpdateRequest)(nil), "go.micro.service.users.UpdateRequest")
+	proto.RegisterType((*UpdateResponse)(nil), "go.micro.service.users.UpdateResponse")
+	proto.RegisterType((*SearchRequest)(nil), "go.micro.service.users.SearchRequest")
+	proto.RegisterType((*SearchResponse)(nil), "go.micro.service.users.SearchResponse")
 }
 
 func init() { proto.RegisterFile("proto/users.proto", fileDescriptor_b1c161a4c7514913) }

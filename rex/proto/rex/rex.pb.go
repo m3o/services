@@ -294,13 +294,13 @@ func (m *Pong) GetStroke() int64 {
 }
 
 func init() {
-	proto.RegisterType((*Message)(nil), "go.micro.srv.rex.Message")
-	proto.RegisterType((*Request)(nil), "go.micro.srv.rex.Request")
-	proto.RegisterType((*Response)(nil), "go.micro.srv.rex.Response")
-	proto.RegisterType((*StreamingRequest)(nil), "go.micro.srv.rex.StreamingRequest")
-	proto.RegisterType((*StreamingResponse)(nil), "go.micro.srv.rex.StreamingResponse")
-	proto.RegisterType((*Ping)(nil), "go.micro.srv.rex.Ping")
-	proto.RegisterType((*Pong)(nil), "go.micro.srv.rex.Pong")
+	proto.RegisterType((*Message)(nil), "go.micro.service.rex.Message")
+	proto.RegisterType((*Request)(nil), "go.micro.service.rex.Request")
+	proto.RegisterType((*Response)(nil), "go.micro.service.rex.Response")
+	proto.RegisterType((*StreamingRequest)(nil), "go.micro.service.rex.StreamingRequest")
+	proto.RegisterType((*StreamingResponse)(nil), "go.micro.service.rex.StreamingResponse")
+	proto.RegisterType((*Ping)(nil), "go.micro.service.rex.Ping")
+	proto.RegisterType((*Pong)(nil), "go.micro.service.rex.Pong")
 }
 
 func init() {

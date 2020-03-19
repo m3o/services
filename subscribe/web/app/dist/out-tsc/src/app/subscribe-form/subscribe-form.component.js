@@ -5,7 +5,7 @@ let SubscribeFormComponent = class SubscribeFormComponent {
         this.mc = mc;
     }
     ngOnInit() {
-        this.mc.call("go.micro.srv.greeter", "Say.Hello");
+        this.mc.call("go.micro.service.greeter", "Say.Hello");
     }
 };
 SubscribeFormComponent = tslib_1.__decorate([

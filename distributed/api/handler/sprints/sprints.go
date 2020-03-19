@@ -16,7 +16,7 @@ type Handler struct {
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
-		sprints: sprints.NewSprintsService("go.micro.srv.distributed.sprints", srv.Client()),
+		sprints: sprints.NewSprintsService("go.micro.service.distributed.sprints", srv.Client()),
 	}
 }
 

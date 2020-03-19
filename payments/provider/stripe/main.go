@@ -25,7 +25,7 @@ func main() {
 	pb.RegisterProviderHandler(service.Server(), h)
 
 	// Consume events from the users service
-	micro.RegisterSubscriber("go.micro.srv.users", service.Server(), h.HandleUserEvent, server.SubscriberQueue("queue.stripe"))
+	micro.RegisterSubscriber("go.micro.service.users", service.Server(), h.HandleUserEvent, server.SubscriberQueue("queue.stripe"))
 
 	// Run the service
 	if err := service.Run(); err != nil {

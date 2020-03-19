@@ -31,7 +31,7 @@ export class SubscriberListComponent implements OnInit {
 
     this.mc.setOptions({ local: !environment.production })
     this.mc
-      .call("go.micro.srv.subscribe", "Subscribe.ListSubscriptions", {
+      .call("go.micro.service.subscribe", "Subscribe.ListSubscriptions", {
         namespace: this.domain
       })
       .then((response: any) => {

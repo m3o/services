@@ -24,7 +24,7 @@ func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
 		name:     srv.Name(),
 		store:    store.NewStore(srv),
-		payments: payments.NewProviderService("go.micro.srv.payment.stripe", srv.Client()),
+		payments: payments.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
 	}
 }
 

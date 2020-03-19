@@ -294,13 +294,13 @@ func (m *Pong) GetStroke() int64 {
 }
 
 func init() {
-	proto.RegisterType((*Message)(nil), "go.micro.srv.vtolstov.Message")
-	proto.RegisterType((*Request)(nil), "go.micro.srv.vtolstov.Request")
-	proto.RegisterType((*Response)(nil), "go.micro.srv.vtolstov.Response")
-	proto.RegisterType((*StreamingRequest)(nil), "go.micro.srv.vtolstov.StreamingRequest")
-	proto.RegisterType((*StreamingResponse)(nil), "go.micro.srv.vtolstov.StreamingResponse")
-	proto.RegisterType((*Ping)(nil), "go.micro.srv.vtolstov.Ping")
-	proto.RegisterType((*Pong)(nil), "go.micro.srv.vtolstov.Pong")
+	proto.RegisterType((*Message)(nil), "go.micro.service.vtolstov.Message")
+	proto.RegisterType((*Request)(nil), "go.micro.service.vtolstov.Request")
+	proto.RegisterType((*Response)(nil), "go.micro.service.vtolstov.Response")
+	proto.RegisterType((*StreamingRequest)(nil), "go.micro.service.vtolstov.StreamingRequest")
+	proto.RegisterType((*StreamingResponse)(nil), "go.micro.service.vtolstov.StreamingResponse")
+	proto.RegisterType((*Ping)(nil), "go.micro.service.vtolstov.Ping")
+	proto.RegisterType((*Pong)(nil), "go.micro.service.vtolstov.Pong")
 }
 
 func init() { proto.RegisterFile("proto/vtolstov/vtolstov.proto", fileDescriptor_08472d6544b296c7) }

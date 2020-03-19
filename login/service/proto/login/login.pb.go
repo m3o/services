@@ -279,12 +279,12 @@ func (m *UpdateEmailResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_UpdateEmailResponse proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*CreateLoginRequest)(nil), "go.micro.srv.login.CreateLoginRequest")
-	proto.RegisterType((*CreateLoginResponse)(nil), "go.micro.srv.login.CreateLoginResponse")
-	proto.RegisterType((*VerifyLoginRequest)(nil), "go.micro.srv.login.VerifyLoginRequest")
-	proto.RegisterType((*VerifyLoginResponse)(nil), "go.micro.srv.login.VerifyLoginResponse")
-	proto.RegisterType((*UpdateEmailRequest)(nil), "go.micro.srv.login.UpdateEmailRequest")
-	proto.RegisterType((*UpdateEmailResponse)(nil), "go.micro.srv.login.UpdateEmailResponse")
+	proto.RegisterType((*CreateLoginRequest)(nil), "go.micro.service.login.CreateLoginRequest")
+	proto.RegisterType((*CreateLoginResponse)(nil), "go.micro.service.login.CreateLoginResponse")
+	proto.RegisterType((*VerifyLoginRequest)(nil), "go.micro.service.login.VerifyLoginRequest")
+	proto.RegisterType((*VerifyLoginResponse)(nil), "go.micro.service.login.VerifyLoginResponse")
+	proto.RegisterType((*UpdateEmailRequest)(nil), "go.micro.service.login.UpdateEmailRequest")
+	proto.RegisterType((*UpdateEmailResponse)(nil), "go.micro.service.login.UpdateEmailResponse")
 }
 
 func init() { proto.RegisterFile("proto/login/login.proto", fileDescriptor_a27ccefc36a61526) }

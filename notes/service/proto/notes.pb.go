@@ -372,15 +372,15 @@ func (m *ListNotesResponse) GetNotes() []*Note {
 }
 
 func init() {
-	proto.RegisterType((*Note)(nil), "go.micro.srv.notes.Note")
-	proto.RegisterType((*CreateNoteRequest)(nil), "go.micro.srv.notes.CreateNoteRequest")
-	proto.RegisterType((*CreateNoteResponse)(nil), "go.micro.srv.notes.CreateNoteResponse")
-	proto.RegisterType((*UpdateNoteRequest)(nil), "go.micro.srv.notes.UpdateNoteRequest")
-	proto.RegisterType((*UpdateNoteResponse)(nil), "go.micro.srv.notes.UpdateNoteResponse")
-	proto.RegisterType((*DeleteNoteRequest)(nil), "go.micro.srv.notes.DeleteNoteRequest")
-	proto.RegisterType((*DeleteNoteResponse)(nil), "go.micro.srv.notes.DeleteNoteResponse")
-	proto.RegisterType((*ListNotesRequest)(nil), "go.micro.srv.notes.ListNotesRequest")
-	proto.RegisterType((*ListNotesResponse)(nil), "go.micro.srv.notes.ListNotesResponse")
+	proto.RegisterType((*Note)(nil), "go.micro.service.notes.Note")
+	proto.RegisterType((*CreateNoteRequest)(nil), "go.micro.service.notes.CreateNoteRequest")
+	proto.RegisterType((*CreateNoteResponse)(nil), "go.micro.service.notes.CreateNoteResponse")
+	proto.RegisterType((*UpdateNoteRequest)(nil), "go.micro.service.notes.UpdateNoteRequest")
+	proto.RegisterType((*UpdateNoteResponse)(nil), "go.micro.service.notes.UpdateNoteResponse")
+	proto.RegisterType((*DeleteNoteRequest)(nil), "go.micro.service.notes.DeleteNoteRequest")
+	proto.RegisterType((*DeleteNoteResponse)(nil), "go.micro.service.notes.DeleteNoteResponse")
+	proto.RegisterType((*ListNotesRequest)(nil), "go.micro.service.notes.ListNotesRequest")
+	proto.RegisterType((*ListNotesResponse)(nil), "go.micro.service.notes.ListNotesResponse")
 }
 
 func init() { proto.RegisterFile("notes/proto/notes.proto", fileDescriptor_7f19915b807268a5) }

@@ -217,11 +217,11 @@ func (m *Subscription) GetEmail() string {
 }
 
 func init() {
-	proto.RegisterType((*SubscribeRequest)(nil), "go.micro.srv.subscribe.SubscribeRequest")
-	proto.RegisterType((*SubscribeResponse)(nil), "go.micro.srv.subscribe.SubscribeResponse")
-	proto.RegisterType((*ListSubscriptionsRequest)(nil), "go.micro.srv.subscribe.ListSubscriptionsRequest")
-	proto.RegisterType((*ListSubscriptionsResponse)(nil), "go.micro.srv.subscribe.ListSubscriptionsResponse")
-	proto.RegisterType((*Subscription)(nil), "go.micro.srv.subscribe.Subscription")
+	proto.RegisterType((*SubscribeRequest)(nil), "go.micro.service.subscribe.SubscribeRequest")
+	proto.RegisterType((*SubscribeResponse)(nil), "go.micro.service.subscribe.SubscribeResponse")
+	proto.RegisterType((*ListSubscriptionsRequest)(nil), "go.micro.service.subscribe.ListSubscriptionsRequest")
+	proto.RegisterType((*ListSubscriptionsResponse)(nil), "go.micro.service.subscribe.ListSubscriptionsResponse")
+	proto.RegisterType((*Subscription)(nil), "go.micro.service.subscribe.Subscription")
 }
 
 func init() {

@@ -61,7 +61,7 @@ func main() {
 
 			cli := service.Options().Service.Client()
 
-			cl := hello.NewHelloworldService("go.micro.srv.helloworld", cli)
+			cl := hello.NewHelloworldService("go.micro.service.helloworld", cli)
 			rsp, err := cl.Call(context.Background(), &hello.Request{
 				Name: name,
 			})

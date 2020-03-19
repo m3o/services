@@ -34,7 +34,7 @@ export class SubscribeFormComponent implements OnInit {
     }
     this.mc.setOptions({ local: !environment.production });
     this.mc
-      .call("go.micro.srv.subscribe", "Subscribe.Subscribe", {
+      .call("go.micro.service.subscribe", "Subscribe.Subscribe", {
         namespace: this.domain,
         email: this.email
       })

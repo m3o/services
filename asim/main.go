@@ -12,7 +12,7 @@ import (
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.srv.asim"),
+		micro.Name("go.micro.service.asim"),
 		micro.Version("latest"),
 	)
 
@@ -23,7 +23,7 @@ func main() {
 	asim.RegisterAsimHandler(service.Server(), new(handler.Asim))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("go.micro.srv.asim", service.Server(), new(subscriber.Asim))
+	micro.RegisterSubscriber("go.micro.service.asim", service.Server(), new(subscriber.Asim))
 
 	// Run service
 	if err := service.Run(); err != nil {

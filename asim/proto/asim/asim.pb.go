@@ -294,13 +294,13 @@ func (m *Pong) GetStroke() int64 {
 }
 
 func init() {
-	proto.RegisterType((*Message)(nil), "go.micro.srv.asim.Message")
-	proto.RegisterType((*Request)(nil), "go.micro.srv.asim.Request")
-	proto.RegisterType((*Response)(nil), "go.micro.srv.asim.Response")
-	proto.RegisterType((*StreamingRequest)(nil), "go.micro.srv.asim.StreamingRequest")
-	proto.RegisterType((*StreamingResponse)(nil), "go.micro.srv.asim.StreamingResponse")
-	proto.RegisterType((*Ping)(nil), "go.micro.srv.asim.Ping")
-	proto.RegisterType((*Pong)(nil), "go.micro.srv.asim.Pong")
+	proto.RegisterType((*Message)(nil), "go.micro.service.asim.Message")
+	proto.RegisterType((*Request)(nil), "go.micro.service.asim.Request")
+	proto.RegisterType((*Response)(nil), "go.micro.service.asim.Response")
+	proto.RegisterType((*StreamingRequest)(nil), "go.micro.service.asim.StreamingRequest")
+	proto.RegisterType((*StreamingResponse)(nil), "go.micro.service.asim.StreamingResponse")
+	proto.RegisterType((*Ping)(nil), "go.micro.service.asim.Ping")
+	proto.RegisterType((*Pong)(nil), "go.micro.service.asim.Pong")
 }
 
 func init() { proto.RegisterFile("proto/asim/asim.proto", fileDescriptor_5439df4ac9ce4215) }

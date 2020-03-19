@@ -18,7 +18,7 @@ type Handler struct {
 // NewHandler returns an initialised handler
 func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
-		users: users.NewUsersService("go.micro.srv.users", srv.Client()),
+		users: users.NewUsersService("go.micro.service.users", srv.Client()),
 	}
 }
 

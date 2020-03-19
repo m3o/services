@@ -77,7 +77,7 @@ func main() {
 	cli.Init()
 
 	// use client stub
-	cl = loc.NewLocationService("go.micro.srv.location", cli.Client())
+	cl = loc.NewLocationService("go.micro.service.location", cli.Client())
 
 	// do requests
 	saveEntity()

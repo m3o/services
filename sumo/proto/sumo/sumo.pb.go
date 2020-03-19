@@ -294,13 +294,13 @@ func (m *Pong) GetStroke() int64 {
 }
 
 func init() {
-	proto.RegisterType((*Message)(nil), "go.micro.srv.sumo.Message")
-	proto.RegisterType((*Request)(nil), "go.micro.srv.sumo.Request")
-	proto.RegisterType((*Response)(nil), "go.micro.srv.sumo.Response")
-	proto.RegisterType((*StreamingRequest)(nil), "go.micro.srv.sumo.StreamingRequest")
-	proto.RegisterType((*StreamingResponse)(nil), "go.micro.srv.sumo.StreamingResponse")
-	proto.RegisterType((*Ping)(nil), "go.micro.srv.sumo.Ping")
-	proto.RegisterType((*Pong)(nil), "go.micro.srv.sumo.Pong")
+	proto.RegisterType((*Message)(nil), "go.micro.service.sumo.Message")
+	proto.RegisterType((*Request)(nil), "go.micro.service.sumo.Request")
+	proto.RegisterType((*Response)(nil), "go.micro.service.sumo.Response")
+	proto.RegisterType((*StreamingRequest)(nil), "go.micro.service.sumo.StreamingRequest")
+	proto.RegisterType((*StreamingResponse)(nil), "go.micro.service.sumo.StreamingResponse")
+	proto.RegisterType((*Ping)(nil), "go.micro.service.sumo.Ping")
+	proto.RegisterType((*Pong)(nil), "go.micro.service.sumo.Pong")
 }
 
 func init() { proto.RegisterFile("proto/sumo/sumo.proto", fileDescriptor_9dcab8782ed43054) }

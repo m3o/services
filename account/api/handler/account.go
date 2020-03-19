@@ -23,8 +23,8 @@ func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
 		name:    srv.Name(),
 		auth:    srv.Options().Auth,
-		users:   users.NewUsersService("go.micro.srv.users", srv.Client()),
-		login:   login.NewLoginService("go.micro.srv.login", srv.Client()),
-		payment: payment.NewProviderService("go.micro.srv.payment.stripe", srv.Client()),
+		users:   users.NewUsersService("go.micro.service.users", srv.Client()),
+		login:   login.NewLoginService("go.micro.service.login", srv.Client()),
+		payment: payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
 	}
 }

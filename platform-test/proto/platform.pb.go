@@ -159,9 +159,9 @@ func (m *GetHealthResponse) GetStore() HealthStatus {
 }
 
 func init() {
-	proto.RegisterEnum("go.micro.srv.platform.test.HealthStatus", HealthStatus_name, HealthStatus_value)
-	proto.RegisterType((*GetHealthRequest)(nil), "go.micro.srv.platform.test.GetHealthRequest")
-	proto.RegisterType((*GetHealthResponse)(nil), "go.micro.srv.platform.test.GetHealthResponse")
+	proto.RegisterEnum("go.micro.service.platform.test.HealthStatus", HealthStatus_name, HealthStatus_value)
+	proto.RegisterType((*GetHealthRequest)(nil), "go.micro.service.platform.test.GetHealthRequest")
+	proto.RegisterType((*GetHealthResponse)(nil), "go.micro.service.platform.test.GetHealthResponse")
 }
 
 func init() { proto.RegisterFile("proto/platform.proto", fileDescriptor_b1f44f0a1bd49131) }

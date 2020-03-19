@@ -13,7 +13,7 @@ import (
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.srv.login"),
+		micro.Name("go.micro.service.login"),
 		micro.Version("latest"),
 	)
 
@@ -25,7 +25,7 @@ func main() {
 	pb.RegisterLoginHandler(service.Server(), h)
 
 	// Subscribe to user update events
-	micro.RegisterSubscriber("go.micro.srv.users", service.Server(), h.HandleUserEvent, server.SubscriberQueue("queue.login"))
+	micro.RegisterSubscriber("go.micro.service.users", service.Server(), h.HandleUserEvent, server.SubscriberQueue("queue.login"))
 
 	// Run service
 	if err := service.Run(); err != nil {

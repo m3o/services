@@ -40,7 +40,7 @@ func main() {
 	// Register Handlers
 	proto.RegisterHelloworldHandler(service.Server(), &Helloworld{
 		// Create Service Client
-		Client: hello.NewHelloworldService("go.micro.srv.helloworld", service.Client()),
+		Client: hello.NewHelloworldService("go.micro.service.helloworld", service.Client()),
 	})
 
 	// for handler use

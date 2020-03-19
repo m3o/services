@@ -11,7 +11,7 @@ import (
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.srv.notes"),
+		micro.Name("go.micro.service.notes"),
 		micro.Version("latest"),
 	)
 

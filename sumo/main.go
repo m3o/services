@@ -12,7 +12,7 @@ import (
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.srv.sumo"),
+		micro.Name("go.micro.service.sumo"),
 		micro.Version("latest"),
 	)
 
@@ -23,7 +23,7 @@ func main() {
 	sumo.RegisterSumoHandler(service.Server(), new(handler.Sumo))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("go.micro.srv.sumo", service.Server(), new(subscriber.Sumo))
+	micro.RegisterSubscriber("go.micro.service.sumo", service.Server(), new(subscriber.Sumo))
 
 	// Run service
 	if err := service.Run(); err != nil {

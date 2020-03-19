@@ -14,7 +14,7 @@ type Provider = pb.ProviderService
 
 // ServicePrefix is the prefix appended to a provider name to get
 // the service type
-const ServicePrefix = "go.micro.srv.payment."
+const ServicePrefix = "go.micro.service.payment."
 
 var (
 	// ErrNotFound is returned when a provider is not found in the registry
@@ -23,7 +23,7 @@ var (
 
 // NewProvider returns an initialized client with the name provided,
 // e.g. "stripe" will return a payment provider with the service name
-// "go.micro.srv.payments.stripe"
+// "go.micro.service.payments.stripe"
 func NewProvider(name string, client client.Client) (pb.ProviderService, error) {
 	// Construct the service name
 	srvName := ServicePrefix + name

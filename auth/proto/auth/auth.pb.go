@@ -280,11 +280,11 @@ func (m *RegisterResponse) GetMessage() string {
 }
 
 func init() {
-	proto.RegisterType((*User)(nil), "go.micro.srv.auth.User")
-	proto.RegisterType((*LoginRequest)(nil), "go.micro.srv.auth.LoginRequest")
-	proto.RegisterType((*LoginResponse)(nil), "go.micro.srv.auth.LoginResponse")
-	proto.RegisterType((*RegisterRequest)(nil), "go.micro.srv.auth.RegisterRequest")
-	proto.RegisterType((*RegisterResponse)(nil), "go.micro.srv.auth.RegisterResponse")
+	proto.RegisterType((*User)(nil), "go.micro.service.auth.User")
+	proto.RegisterType((*LoginRequest)(nil), "go.micro.service.auth.LoginRequest")
+	proto.RegisterType((*LoginResponse)(nil), "go.micro.service.auth.LoginResponse")
+	proto.RegisterType((*RegisterRequest)(nil), "go.micro.service.auth.RegisterRequest")
+	proto.RegisterType((*RegisterResponse)(nil), "go.micro.service.auth.RegisterResponse")
 }
 
 func init() {

@@ -12,7 +12,7 @@ import (
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("go.micro.srv.explore"),
+		micro.Name("go.micro.service.explore"),
 		micro.Version("latest"),
 	)
 
@@ -23,7 +23,7 @@ func main() {
 	explore.RegisterExploreHandler(service.Server(), new(handler.Explore))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("go.micro.srv.explore", service.Server(), new(subscriber.Explore))
+	micro.RegisterSubscriber("go.micro.service.explore", service.Server(), new(subscriber.Explore))
 
 	// Run service
 	if err := service.Run(); err != nil {

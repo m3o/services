@@ -294,13 +294,13 @@ func (m *Pong) GetStroke() int64 {
 }
 
 func init() {
-	proto.RegisterType((*Message)(nil), "go.micro.srv.xian.Message")
-	proto.RegisterType((*Request)(nil), "go.micro.srv.xian.Request")
-	proto.RegisterType((*Response)(nil), "go.micro.srv.xian.Response")
-	proto.RegisterType((*StreamingRequest)(nil), "go.micro.srv.xian.StreamingRequest")
-	proto.RegisterType((*StreamingResponse)(nil), "go.micro.srv.xian.StreamingResponse")
-	proto.RegisterType((*Ping)(nil), "go.micro.srv.xian.Ping")
-	proto.RegisterType((*Pong)(nil), "go.micro.srv.xian.Pong")
+	proto.RegisterType((*Message)(nil), "go.micro.service.xian.Message")
+	proto.RegisterType((*Request)(nil), "go.micro.service.xian.Request")
+	proto.RegisterType((*Response)(nil), "go.micro.service.xian.Response")
+	proto.RegisterType((*StreamingRequest)(nil), "go.micro.service.xian.StreamingRequest")
+	proto.RegisterType((*StreamingResponse)(nil), "go.micro.service.xian.StreamingResponse")
+	proto.RegisterType((*Ping)(nil), "go.micro.service.xian.Ping")
+	proto.RegisterType((*Pong)(nil), "go.micro.service.xian.Pong")
 }
 
 func init() { proto.RegisterFile("proto/xian/xian.proto", fileDescriptor_f867ef22df3839ae) }
