@@ -69,15 +69,17 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Username string `json:"login"`
+		Picture  string `json:"avatar_url"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
 
 	// Create the user in the users service
 	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
 		User: &users.User{
-			Id:       fmt.Sprintf("github_%v", profile.ID),
-			Email:    profile.Email,
-			Username: profile.Username,
+			Id:                fmt.Sprintf("github_%v", profile.ID),
+			Email:             profile.Email,
+			Username:          profile.Username,
+			ProfilePictureUrl: profile.Picture,
 		},
 	})
 	if err != nil {

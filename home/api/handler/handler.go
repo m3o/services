@@ -41,8 +41,9 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	rsp.User = &pb.User{
-		FirstName: uRsp.User.FirstName,
-		LastName:  uRsp.User.LastName,
+		FirstName:         uRsp.User.FirstName,
+		LastName:          uRsp.User.LastName,
+		ProfilePictureUrl: uRsp.User.ProfilePictureUrl,
 	}
 
 	return nil

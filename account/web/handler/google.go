@@ -57,16 +57,18 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		Email     string `json:"email"`
 		FirstName string `json:"given_name"`
 		LastName  string `json:"family_name"`
+		Picture   string `json:"picture"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
 
 	// Create the user in the users service
 	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
 		User: &users.User{
-			Id:        fmt.Sprintf("google_%v", profile.ID),
-			Email:     profile.Email,
-			FirstName: profile.FirstName,
-			LastName:  profile.LastName,
+			Id:                fmt.Sprintf("google_%v", profile.ID),
+			Email:             profile.Email,
+			FirstName:         profile.FirstName,
+			LastName:          profile.LastName,
+			ProfilePictureUrl: profile.Picture,
 		},
 	})
 	if err != nil {

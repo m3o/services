@@ -270,6 +270,8 @@ github.com/micro/services/login/service v0.0.0-20200313083714-e72c0c76aa9a/go.mo
 github.com/micro/services/users/service v0.0.0-20200311145701-949f1a383199/go.mod h1:Hcf5NpJ3vuxnd/ES6jcMzbDeAPpo+J/WJdKMAKr5Mbk=
 github.com/micro/services/users/service v0.0.0-20200313083714-e72c0c76aa9a h1:ETBAN5K/y5tw61M1VxcFj/s0Dhwx3mJEe/5K0qx9BkU=
 github.com/micro/services/users/service v0.0.0-20200313083714-e72c0c76aa9a/go.mod h1:YQq4kA2IWMAGaH9/ziOfv7yjsDTQafQjysbGKmAKRE4=
+github.com/micro/services/users/service v0.0.0-20200319140645-20aa308d0728 h1:zvpTm2+tZWB0r2rAgYWm8OQYKospbLXPULqwYuzyUdI=
+github.com/micro/services/users/service v0.0.0-20200319140645-20aa308d0728/go.mod h1:vHam99KMOXWOD+Rt8IfWMSpqzrPZ8gdZtDSTwgot5EU=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
