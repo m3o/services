@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"strings"
 
 	serverless "serverless/proto/serverless"
 
@@ -54,17 +55,17 @@ func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *s
 	image := Image + lang
 
 	args := []string{source}
-	folder req.GetApp().GetFolder()
+	folder := req.GetApp().GetFolder()
 	if len(folder) != 0 {
 		args = append(args, folder)
-	} 
+	}
 	_, err := e.Client.Create(ctx, &pb.CreateRequest{
 		Service: &pb.Service{
 			Name:    Prefix + name,
 			Version: version,
 			// using sanitizeSource here because not sure about
 			// the implications of having "https://" in source
-			Source:  sanitizeSource(source),
+			Source: sanitizeSource(source),
 			Metadata: map[string]string{
 				"lang":  lang,
 				"image": image,
