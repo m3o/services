@@ -26,46 +26,36 @@ type Config = {
 };
 
 export function register(config?: Config) {
-  console.log("1")
   if ('serviceWorker' in navigator) {
-    console.log("2")
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(
       process.env.PUBLIC_URL,
       window.location.href
     );
-    console.log(publicUrl)
-    console.log("3")
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
       // serve assets; see https://github.com/facebook/create-react-app/issues/2374
-      console.log("Different origin, not registering serviceWorker")
       return;
     }
-    
+
     window.addEventListener('load', () => {
-      console.log("4")
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
-      console.log(swUrl)
-      
+
       if (isLocalhost) {
-        console.log("5")
         // This is running on localhost. Let's check if a service worker still exists or not.
         checkValidServiceWorker(swUrl, config);
-        
+
         // Add some additional logging to localhost, pointing developers to the
         // service worker/PWA documentation.
-        console.log("6")
         navigator.serviceWorker.ready.then(() => {
           console.log(
             'This web app is being served cache-first by a service ' +
-            'worker. To learn more, visit https://bit.ly/CRA-PWA'
-            );
-          });
+              'worker. To learn more, visit https://bit.ly/CRA-PWA'
+          );
+        });
       } else {
-        console.log("7")
-          // Is not localhost. Just register service worker
+        // Is not localhost. Just register service worker
         registerValidSW(swUrl, config);
       }
     });
