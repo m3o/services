@@ -4,7 +4,7 @@ let BaseURL = 'https://api.micro.mu/home/';
 
 // Toggle dev enviroment
 if(window.location.protocol !== 'https:') {
-  BaseURL = 'http://dev.micro.mu/home/'; 
+  // BaseURL = 'http://dev.micro.mu/home/'; 
 }
 
 export default async function Call(path: string, params?: any): Promise<any> {
@@ -14,10 +14,12 @@ export default async function Call(path: string, params?: any): Promise<any> {
 export class User {
   firstName: string;
   lastName: string;
+  picture: string;
 
   constructor(args: any) {
     this.firstName = args.firstName;
     this.lastName = args.lastName;
+    this.picture = args.profilePictureUrl || '';
   }
 }
 

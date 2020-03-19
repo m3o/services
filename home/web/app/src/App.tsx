@@ -43,7 +43,7 @@ export default class AppComponent extends React.Component<Props, State> {
             <p>Welcome back {user?.firstName}</p>
 
             <div className='dropdown'>
-              <img src={Person} alt='My Account' />
+              <img src={user && user!.picture.length > 0 ? user!.picture : Person} alt='My Account' />
 
               <div className="dropdown-content">
                 <p onClick={() => window.location.href='/account?redirect_to=/home'}>My Account</p>
