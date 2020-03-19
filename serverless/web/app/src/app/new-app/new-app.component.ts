@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import * as types from "../types";
 
-
 @Component({
   selector: "app-new-project",
   templateUrl: "./new-app.component.html",
