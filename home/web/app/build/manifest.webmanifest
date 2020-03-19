@@ -24,7 +24,7 @@
       "type": "image/png"
     }
   ],
-  "start_url": "/home",
+  "start_url": "https://web.micro.mu/home",
   "display": "fullscreen",
   "theme_color": "#2F2C3D",
   "background_color": "#2F2C3D"
