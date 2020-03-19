@@ -50,7 +50,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 // ListApps returns all the apps a user has access to
 func (h *Handler) ListApps(ctx context.Context, req *pb.ListAppsRequest, rsp *pb.ListAppsResponse) error {
-	_, err := auth.AccountFromContext(ctx)
+	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -60,8 +60,14 @@ func (h *Handler) ListApps(ctx context.Context, req *pb.ListAppsRequest, rsp *pb
 		return err
 	}
 
-	rsp.Apps = make([]*pb.App, len(aRsp.Apps))
-	for i, a := range aRsp.Apps {
+	rsp.Apps = make([]*pb.App, 0, len(aRsp.Apps))
+	for _, a := range aRsp.Apps {
+		// Ensure the user has the required roles
+		// to access the app
+		if !canAccessApp(acc, a) {
+			continue
+		}
+
 		// Asset are served from root, e.g.icon.png
 		// would become /distributed/icon.png
 		var icon string
@@ -69,13 +75,29 @@ func (h *Handler) ListApps(ctx context.Context, req *pb.ListAppsRequest, rsp *pb
 			icon = fmt.Sprintf("/%v/%v", a.Id, a.Icon)
 		}
 
-		rsp.Apps[i] = &pb.App{
+		rsp.Apps = append(rsp.Apps, &pb.App{
 			Id:       a.Id,
 			Name:     a.Name,
 			Category: a.Category,
 			Icon:     icon,
-		}
+		})
 	}
 
 	return nil
+}
+
+func canAccessApp(acc *auth.Account, app *apps.App) bool {
+	if len(app.Roles) == 0 {
+		return true
+	}
+
+	for _, reqRole := range app.Roles {
+		for _, accRole := range acc.Roles {
+			if reqRole == accRole.Name {
+				return true
+			}
+		}
+	}
+
+	return false
 }
