@@ -48,7 +48,7 @@ class App extends React.Component<Props, State> {
     if(params.redirect_to) this.props.setRedirect(params.redirect_to);
     
     Call("ReadUser")
-      .then(res => this.props.setUser(res.data.user))
+      .then(res => this.props.setUser(new User(res.data.user)))
       .catch(console.warn)
       .finally(() => this.setState({ loading: false }));
   }
