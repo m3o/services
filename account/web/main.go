@@ -26,6 +26,8 @@ func main() {
 	h := handler.NewHandler(service.Options().Service)
 	service.HandleFunc("/oauth/google/login", h.HandleGoogleOauthLogin)
 	service.HandleFunc("/oauth/google/verify", h.HandleGoogleOauthVerify)
+	service.HandleFunc("/oauth/github/login", h.HandleGithubOauthLogin)
+	service.HandleFunc("/oauth/github/verify", h.HandleGithubOauthVerify)
 
 	// Serve the web app
 	service.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {

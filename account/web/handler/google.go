@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
-	"github.com/micro/go-micro/v2/logger"
-
-	"github.com/micro/go-micro/v2/auth"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -27,9 +25,12 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		"code":          {req.FormValue("code")},
 		"grant_type":    {"authorization_code"},
 	})
-	if err != nil || resp.StatusCode != http.StatusOK {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		fmt.Println(err)
+	if err != nil {
+		h.handleError(w, req, "Error getting access token from Google: %v", err)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		h.handleError(w, req, "Error getting access token from Google. Status: %v", resp.Status)
 		return
 	}
 
@@ -41,9 +42,12 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 
 	// Use the token to get the users profile
 	resp, err = http.Get("https://www.googleapis.com/oauth2/v1/userinfo?oauth_token=" + oauthResult.Token)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		logger.Errorf("Error fetching google account: %v", err)
+	if err != nil {
+		h.handleError(w, req, "Error getting account from Google: %v", err)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		h.handleError(w, req, "Error getting account from Google. Status: %v", resp.Status)
 		return
 	}
 
@@ -66,24 +70,13 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		},
 	})
 	if err != nil {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		logger.Errorf("Error creating user account: %v", err)
+		h.handleError(w, req, "Error creating user account: %v", err)
 		return
 	}
 
-	// Create an auth token
-	acc, err := h.auth.Generate(uRsp.User.Id)
-	if err != nil {
-		http.Redirect(w, req, "/account/error", http.StatusFound)
-		logger.Errorf("Error creating auth account: %v", err)
+	var roles []string
+	if strings.HasSuffix(profile.Email, "@micro.mu") {
+		roles = append(roles, "admin", "developer", "collaborator")
 	}
-
-	// Set the cookie and redirect
-	http.SetCookie(w, &http.Cookie{
-		Name:   auth.CookieName,
-		Value:  acc.Token,
-		Domain: "micro.mu",
-		Path:   "/",
-	})
-	http.Redirect(w, req, "/account", http.StatusFound)
+	h.loginUser(w, req, uRsp.User, roles...)
 }

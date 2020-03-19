@@ -17,6 +17,7 @@ export class User {
   email: string;
   username: string;
   paymentMethods: PaymentMethod[];
+  roles: string[];
 
   constructor(args: any) {
     this.id = args.id;
@@ -25,6 +26,7 @@ export class User {
     this.email = args.email;
     this.username = args.username;
     this.paymentMethods = (args.paymentMethods || []).map(p => new PaymentMethod(p));
+    this.roles = args.roles || [];
   }
 }
 

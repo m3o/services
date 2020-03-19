@@ -1,0 +1,20 @@
+# GraphQL schema example
+scalar Time
+scalar Map
+scalar Any
+scalar Timestamp
+
+"The `Upload` scalar type represents a multipart file upload."
+scalar Upload
+
+directive @goModel(model: String, models: [String!]) on OBJECT
+  | INPUT_OBJECT
+  | SCALAR
+  | ENUM
+  | INTERFACE
+  | UNION
+
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+  | FIELD_DEFINITION
+
+directive @serviceCall(service: String!, endpoint: String!)  on OBJECT | FIELD_DEFINITION

@@ -1,0 +1,43 @@
+# GraphQL schema example
+# import "./shared.graphql"
+
+type User {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  firstname: String!
+  lastname: String!
+  primaryEmail: String!
+}
+
+type AuthPayload {
+  id: ID!
+  user: User!
+}
+
+input LoginInput {
+  password: String
+  email: String
+}
+
+input RegisterInput {
+  firstname: String!
+  lastname: String!
+  email: String!
+  username: String
+  password: String!
+}
+
+type BooleanPayload {
+  success: Boolean!
+}
+
+type Query {
+  me: User
+}
+
+type Mutation {
+  login(input: LoginInput!): AuthPayload! @serviceCall(service: "user", endpoint: "Account.Login")
+  register(input: RegisterInput!): BooleanPayload! @serviceCall(service: "user", endpoint: "Auth.Register")
+  logout: BooleanPayload! @serviceCall(service: "user", endpoint: "Auth.Logout")
+}

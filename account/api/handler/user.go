@@ -2,9 +2,12 @@ package handler
 
 import (
 	"context"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
+	log "github.com/micro/go-micro/v2/logger"
+
 	pb "github.com/micro/services/account/api/proto/account"
 	login "github.com/micro/services/login/service/proto/login"
 	payment "github.com/micro/services/payments/provider/proto"
@@ -30,11 +33,16 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 	// Serialize the User
 	rsp.User = serializeUser(resp.User)
+	rsp.User.Roles = make([]string, 0, len(acc.Roles))
+	for _, r := range acc.Roles {
+		rsp.User.Roles = append(rsp.User.Roles, strings.Title(r.Name))
+	}
 
 	// Fetch the payment methods
 	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.Id})
 	if err != nil {
-		return errors.InternalServerError(h.name, "Error listing payment methods: %v", err)
+		log.Infof("Error listing payment methods: %v", err)
+		return nil
 	}
 
 	// Serialize the payment methods
