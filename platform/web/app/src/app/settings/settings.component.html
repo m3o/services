@@ -14,16 +14,6 @@
           </mat-toolbar-row>
         </mat-toolbar>
       </div>
-
-      <div fxFlex="100%">
-        <mat-card-subtitle>API Token</mat-card-subtitle>
-        Here is your full API token:
-        <div class="code-wrapper"><code id="token-box" highlight="{{token}}" [languages]="languages" [lineNumbers]="false"></code><mat-icon ngxClipboard cbContent="{{token}}" class="copy-icon">file_copy</mat-icon></div>
-        <br />
-        <mat-card-subtitle>Login command:</mat-card-subtitle>
-        Click the copy icon to copy your login command:
-        <div class="code-wrapper"><code highlight="micro login $token" [languages]="languages" [lineNumbers]="false"></code><mat-icon ngxClipboard cbContent="micro login {{token}}" class="copy-icon">file_copy</mat-icon></div>
-      </div>
     </div>
   </mat-card>
 </div>

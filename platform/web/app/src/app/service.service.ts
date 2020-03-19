@@ -23,7 +23,7 @@ export class ServiceService {
     return new Promise<types.Service[]>((resolve, reject) => {
       return this.http
         .get<types.Service[]>(
-          environment.backendUrl + "/v1/services?token=" + this.us.token()
+          environment.backendUrl + "/v1/services"
         )
         .toPromise()
         .then(servs => {
@@ -40,10 +40,7 @@ export class ServiceService {
       return this.http
         .get<types.LogRecord[]>(
           environment.backendUrl +
-            "/v1/service/logs?service=" +
-            service +
-            "&token=" +
-            this.us.token()
+            "/v1/service/logs?service=" + service
         )
         .toPromise()
         .then(servs => {
@@ -60,10 +57,7 @@ export class ServiceService {
       return this.http
         .get<types.DebugSnapshot[]>(
           environment.backendUrl +
-            "/v1/service/stats?service=" +
-            service +
-            "&token=" +
-            this.us.token()
+            "/v1/service/stats?service=" + service
         )
         .toPromise()
         .then(servs => {
@@ -83,9 +77,7 @@ export class ServiceService {
           environment.backendUrl +
             "/v1/service/trace?" +
             qs +
-            "token=" +
-            this.us.token() +
-            "&limit=1000"
+            "limit=1000"
         )
         .toPromise()
         .then(servs => {

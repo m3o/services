@@ -6,13 +6,9 @@ import { UserService } from "../user.service";
   styleUrls: ["./settings.component.css"]
 })
 export class SettingsComponent implements OnInit {
-  token = "";
-
   constructor(private us: UserService) {}
 
-  ngOnInit() {
-    this.token = this.us.token();
-  }
+  ngOnInit() {}
 
   languages = ["bash"];
 }
