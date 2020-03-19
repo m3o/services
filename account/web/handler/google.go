@@ -60,7 +60,6 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		Picture   string `json:"picture"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
-	fmt.Println(profile)
 
 	// Create the user in the users service
 	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
