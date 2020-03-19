@@ -29,12 +29,12 @@
           <button
             mat-menu-item
             (click)="goToTeam()"
-            *ngIf="user && user.teamName && user.teamURL"
+            *ngIf="user && user.teamName && user.teamUrl"
           >
             <img
-              *ngIf="user.organizationAvatarURL"
+              *ngIf="user.organizationAvatarUrl"
               style="vertical-align: middle; margin-right: 0.25em; border-radius: 3px; height: 2em; width: 2em;"
-              src="{{ user.organizationAvatarURL }}"
+              src="{{ user.organizationAvatarUrl }}"
             />
             <span style="font-weight: 700">{{ user.teamName }}</span>
           </button>
@@ -65,9 +65,9 @@
             id="dropdown-menu"
           >
             <img
-              *ngIf="user.avatarURL"
+              *ngIf="user.avatarUrl"
               style="vertical-align: middle; margin-right: 0.25em; border-radius: 3px; height: 2em; width: 2em;"
-              src="{{ user.avatarURL }}"
+              src="{{ user.avatarUrl }}"
             />
             {{ user.name }}
             <mat-icon>keyboard_arrow_down</mat-icon>
@@ -99,9 +99,9 @@
           style="margin-bottom: 1em; padding-left: 1em;"
         >
           <img
-            *ngIf="user.avatarURL"
+            *ngIf="user.avatarUrl"
             style="vertical-align: middle; margin-right: 0.5em; border-radius: 3px; height: 2em; width: 2em;"
-            src="{{ user.avatarURL }}"
+            src="{{ user.avatarUrl }}"
           />
           {{ user.name }}
         </div>
@@ -110,12 +110,12 @@
             ><mat-icon style="margin-right: 0.15em;">close</mat-icon>Close</a
           >
         </div>
-        <div *ngIf="user && user.teamName && user.teamURL">
+        <div *ngIf="user && user.teamName && user.teamUrl">
           <a mat-list-item (click)="goToTeam()"
             ><img
-              *ngIf="user.organizationAvatarURL"
+              *ngIf="user.organizationAvatarUrl"
               style="vertical-align: middle; margin-right: 0.5em; border-radius: 3px; height: 2em; width: 2em;"
-              src="{{ user.organizationAvatarURL }}"
+              src="{{ user.organizationAvatarUrl }}"
             />{{ user.teamName }}</a
           >
         </div>

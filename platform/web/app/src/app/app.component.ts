@@ -21,6 +21,6 @@ export class AppComponent implements OnInit {
   }
 
   goToTeam() {
-    window.location.replace(this.us.user.teamURL)
+    window.location.replace(this.us.user.teamUrl)
   }
 }

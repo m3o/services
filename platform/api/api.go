@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 
 	pb "github.com/micro/services/platform/api/proto"
 	platform "github.com/micro/services/platform/service/proto"
+	users "github.com/micro/services/users/service/proto"
 )
 
 func main() {
@@ -28,11 +31,13 @@ func main() {
 // Handler is an impementation of the platform api
 type Handler struct {
 	Platform platform.PlatformService
+	Users    users.UsersService
 }
 
 // NewHandler returns an initialized Handler
 func NewHandler(service micro.Service) *Handler {
 	return &Handler{
+		Users:    users.NewUsersService("go.micro.service.users", srv.Options().Service.Client()),
 		Platform: platform.NewPlatformService("go.micro.service.platform", service.Client()),
 	}
 }
@@ -107,6 +112,35 @@ func (h *Handler) ListServices(ctx context.Context, req *pb.ListServicesRequest,
 	rsp.Services = make([]*pb.Service, len(resp.Services))
 	for i, s := range resp.Services {
 		rsp.Services[i] = serializeService(s)
+	}
+
+	return nil
+}
+
+// ReadUser gets the current user
+func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb.ReadUserResponse) error {
+	acc, err := auth.AccountFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if acc.Metadata == nil {
+		acc.Metadata = make(map[string]string)
+	}
+
+	uRsp, err := h.Users.Read(ctx, &users.ReadRequest{Id: acc.Id})
+	if err != nil {
+		return err
+	}
+
+	rsp.User = &pb.User{
+		Name:                  fmt.Sprintf("%v %v", uRsp.User.FirstName, uRsp.User.LastName),
+		Email:                 uRsp.User.Email,
+		Login:                 uRsp.User.Username,
+		AvatarUrl:             uRsp.User.ProfilePictureUrl,
+		TeamName:              "Community",
+		TeamUrl:               "https://github.com/orgs/micro/teams/community",
+		OrganizationAvatarUrl: "https://avatars3.githubusercontent.com/u/5161210?v=4",
 	}
 
 	return nil

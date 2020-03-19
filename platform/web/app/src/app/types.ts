@@ -3,10 +3,10 @@
 export interface User {
   name: string;
   email: string;
-  avatarURL: string;
+  avatarUrl: string;
   teamName: string;
-  teamURL: string;
-  organizationAvatarURL: string;
+  teamUrl: string;
+  organizationAvatarUrl: string;
   login: string;
 }
 

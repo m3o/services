@@ -3,11 +3,19 @@ syntax = "proto3";
 package go.micro.api.platform;
 
 service Platform {
+    rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {};
+
     rpc CreateService(CreateServiceRequest) returns (CreateServiceResponse) {};
     rpc ReadService(ReadServiceRequest) returns (ReadServiceResponse) {};
     rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {};
     rpc DeleteService(DeleteServiceRequest) returns (DeleteServiceResponse) {};
     rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {};
+}
+
+message ReadUserRequest {}
+
+message ReadUserResponse {
+    User user = 1;
 }
 
 message CreateServiceRequest {
@@ -48,4 +56,14 @@ message Service {
     string source = 3;
     string type = 4;
     map<string,string> metadata = 5;
+}
+
+message User {
+    string name = 1;
+    string email = 2;
+    string login = 3;
+    string avatar_url = 4;
+    string team_name = 5;
+    string team_url = 6;
+    string organization_avatar_url = 7;
 }

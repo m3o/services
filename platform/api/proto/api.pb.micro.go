@@ -34,6 +34,7 @@ var _ server.Option
 // Client API for Platform service
 
 type PlatformService interface {
+	ReadUser(ctx context.Context, in *ReadUserRequest, opts ...client.CallOption) (*ReadUserResponse, error)
 	CreateService(ctx context.Context, in *CreateServiceRequest, opts ...client.CallOption) (*CreateServiceResponse, error)
 	ReadService(ctx context.Context, in *ReadServiceRequest, opts ...client.CallOption) (*ReadServiceResponse, error)
 	UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...client.CallOption) (*UpdateServiceResponse, error)
@@ -51,6 +52,16 @@ func NewPlatformService(name string, c client.Client) PlatformService {
 		c:    c,
 		name: name,
 	}
+}
+
+func (c *platformService) ReadUser(ctx context.Context, in *ReadUserRequest, opts ...client.CallOption) (*ReadUserResponse, error) {
+	req := c.c.NewRequest(c.name, "Platform.ReadUser", in)
+	out := new(ReadUserResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *platformService) CreateService(ctx context.Context, in *CreateServiceRequest, opts ...client.CallOption) (*CreateServiceResponse, error) {
@@ -106,6 +117,7 @@ func (c *platformService) ListServices(ctx context.Context, in *ListServicesRequ
 // Server API for Platform service
 
 type PlatformHandler interface {
+	ReadUser(context.Context, *ReadUserRequest, *ReadUserResponse) error
 	CreateService(context.Context, *CreateServiceRequest, *CreateServiceResponse) error
 	ReadService(context.Context, *ReadServiceRequest, *ReadServiceResponse) error
 	UpdateService(context.Context, *UpdateServiceRequest, *UpdateServiceResponse) error
@@ -115,6 +127,7 @@ type PlatformHandler interface {
 
 func RegisterPlatformHandler(s server.Server, hdlr PlatformHandler, opts ...server.HandlerOption) error {
 	type platform interface {
+		ReadUser(ctx context.Context, in *ReadUserRequest, out *ReadUserResponse) error
 		CreateService(ctx context.Context, in *CreateServiceRequest, out *CreateServiceResponse) error
 		ReadService(ctx context.Context, in *ReadServiceRequest, out *ReadServiceResponse) error
 		UpdateService(ctx context.Context, in *UpdateServiceRequest, out *UpdateServiceResponse) error
@@ -130,6 +143,10 @@ func RegisterPlatformHandler(s server.Server, hdlr PlatformHandler, opts ...serv
 
 type platformHandler struct {
 	PlatformHandler
+}
+
+func (h *platformHandler) ReadUser(ctx context.Context, in *ReadUserRequest, out *ReadUserResponse) error {
+	return h.PlatformHandler.ReadUser(ctx, in, out)
 }
 
 func (h *platformHandler) CreateService(ctx context.Context, in *CreateServiceRequest, out *CreateServiceResponse) error {

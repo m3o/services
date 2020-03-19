@@ -46,7 +46,7 @@ export class UserService {
   get(): Promise<types.User> {
     return this.http
       .get<types.User>(
-        environment.backendUrl + "/v1/user"
+        environment.apiUrl + "/ReadUser"
       )
       .toPromise();
   }

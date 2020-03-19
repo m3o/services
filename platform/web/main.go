@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/services/platform/web/handler/auth"
 	"github.com/micro/services/platform/web/handler/events"
 	"github.com/micro/services/platform/web/handler/github"
 	"github.com/micro/services/platform/web/handler/services"
@@ -18,7 +17,6 @@ func main() {
 		web.Name("go.micro.web.platform"),
 	)
 
-	auth.RegisterHandlers(service)
 	github.RegisterHandlers(service)
 	events.RegisterHandlers(service)
 	services.RegisterHandlers(service)
