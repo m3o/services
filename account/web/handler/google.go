@@ -41,7 +41,6 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 	json.NewDecoder(resp.Body).Decode(&oauthResult)
 
 	// Use the token to get the users profile
-	fmt.Println(oauthResult.Token)
 	resp, err = http.Get("https://www.googleapis.com/oauth2/v1/userinfo?oauth_token=" + oauthResult.Token)
 	if err != nil {
 		h.handleError(w, req, "Error getting account from Google: %v", err)
@@ -61,6 +60,7 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		Picture   string `json:"picture"`
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
+	fmt.Println(profile)
 
 	// Create the user in the users service
 	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
