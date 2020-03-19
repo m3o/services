@@ -14,7 +14,7 @@ message App {
 	string name = 2;
 	string category = 3;
 	string description = 4;
-	repeated string required_roles = 5;
+	repeated string roles = 5;
 	repeated Plan plans = 6;
 	bool active = 7;
 	string icon = 8;
