@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -42,8 +43,12 @@ func (h *UserHandler) ReadUser(w http.ResponseWriter, req *http.Request) {
 	}
 
 	acc, err := auth.AccountFromContext(req.Context())
-	if err != nil || acc == nil {
+	if err != nil {
 		utils.Write500(w, err)
+		return
+	}
+	if acc == nil {
+		utils.Write500(w, errors.New("Missing auth account"))
 		return
 	}
 
