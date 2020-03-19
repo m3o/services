@@ -45,9 +45,7 @@ export class UserService {
   // gets current user
   get(): Promise<types.User> {
     return this.http
-      .get<types.User>(
-        environment.apiUrl + "/ReadUser"
-      )
+      .get<types.User>(environment.apiUrl + "/ReadUser", { withCredentials: true })
       .toPromise();
   }
 }
