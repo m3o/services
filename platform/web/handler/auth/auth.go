@@ -42,7 +42,7 @@ func (h *UserHandler) ReadUser(w http.ResponseWriter, req *http.Request) {
 	}
 
 	acc, err := auth.AccountFromContext(req.Context())
-	if err != nil {
+	if err != nil || acc == nil {
 		utils.Write500(w, err)
 		return
 	}
