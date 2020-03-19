@@ -32,6 +32,7 @@ message User {
 	string email = 6;
 	string username = 7;		// alphanumeric user or org
 	map<string, string> metadata = 8;
+	string profile_picture_url = 9;
 }
 
 message CreateRequest {
