@@ -134,10 +134,10 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	rsp.User = &pb.User{
-		Name:                  fmt.Sprintf("%v %v", uRsp.User.FirstName, uRsp.User.LastName),
 		Email:                 uRsp.User.Email,
 		Login:                 uRsp.User.Username,
 		AvatarUrl:             uRsp.User.ProfilePictureUrl,
+		Name:                  fmt.Sprintf("%v %v", uRsp.User.FirstName, uRsp.User.LastName),
 		TeamName:              "Community",
 		TeamUrl:               "https://github.com/orgs/micro/teams/community",
 		OrganizationAvatarUrl: "https://avatars3.githubusercontent.com/u/5161210?v=4",
