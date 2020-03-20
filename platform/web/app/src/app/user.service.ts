@@ -38,14 +38,22 @@ export class UserService {
     // todo We are nulling out the name here because that's what we use
     // for user existence checks.
     this.user.name = "";
-    this.cookie.delete("micro-token", "/")
+    this.cookie.delete("micro-token", "/");
     document.location.href = "/";
   }
 
   // gets current user
   get(): Promise<types.User> {
     return this.http
-      .get<types.User>(environment.apiUrl + "/ReadUser", { withCredentials: true })
-      .toPromise();
+      .get<types.User>(environment.apiUrl + "/ReadUser", {
+        withCredentials: true
+      })
+      .toPromise()
+      .then(user => {
+        if (!user.name && user.login) {
+          user.name = user.login;
+        }
+        return user;
+      });
   }
 }
