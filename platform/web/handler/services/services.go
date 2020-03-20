@@ -184,10 +184,6 @@ func servicesHandler(service web.Service) func(http.ResponseWriter, *http.Reques
 		if (*req).Method == "OPTIONS" {
 			return
 		}
-		if err := utils.IsLoggedIn(service, req.URL.Query().Get("token")); err != nil {
-			utils.Write400(w, err)
-			return
-		}
 		reg := service.Options().Service.Options().Registry
 		services, err := reg.ListServices()
 		if err != nil {
@@ -213,10 +209,6 @@ func logsHandler(service web.Service) func(http.ResponseWriter, *http.Request) {
 		if (*req).Method == "OPTIONS" {
 			return
 		}
-		if err := utils.IsLoggedIn(service, req.URL.Query().Get("token")); err != nil {
-			utils.Write400(w, err)
-			return
-		}
 		serviceName := req.URL.Query().Get("service")
 		if len(serviceName) == 0 {
 			utils.Write400(w, errors.New("Service missing"))
@@ -239,10 +231,6 @@ func statsHandler(service web.Service) func(http.ResponseWriter, *http.Request) 
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.SetupResponse(&w, req)
 		if (*req).Method == "OPTIONS" {
-			return
-		}
-		if err := utils.IsLoggedIn(service, req.URL.Query().Get("token")); err != nil {
-			utils.Write400(w, err)
 			return
 		}
 		serviceName := req.URL.Query().Get("service")
@@ -275,10 +263,6 @@ func tracesHandler(service web.Service) func(http.ResponseWriter, *http.Request)
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.SetupResponse(&w, req)
 		if (*req).Method == "OPTIONS" {
-			return
-		}
-		if err := utils.IsLoggedIn(service, req.URL.Query().Get("token")); err != nil {
-			utils.Write400(w, err)
 			return
 		}
 		serviceName := req.URL.Query().Get("service")
