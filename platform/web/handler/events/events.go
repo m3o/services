@@ -3,6 +3,7 @@ package events
 import (
 	"net/http"
 
+	ghttp "github.com/micro/go-micro/v2/util/http"
 	"github.com/micro/go-micro/v2/web"
 	platform "github.com/micro/services/platform/service/proto"
 	utils "github.com/micro/services/platform/web/util"
@@ -30,6 +31,7 @@ func (h *Handler) EventsHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method == "OPTIONS" {
 		return
 	}
+	ctx := ghttp.RequestToContext(req)
 	// construct the request to the platform service
 	var eReq platform.ListEventsRequest
 	if srvName := req.URL.Query().Get("service"); len(srvName) > 0 {
@@ -37,7 +39,7 @@ func (h *Handler) EventsHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// execute the request and handle any errors
-	resp, err := h.platform.ListEvents(req.Context(), &eReq)
+	resp, err := h.platform.ListEvents(ctx, &eReq)
 	if err != nil {
 		utils.Write500(w, err)
 		return
