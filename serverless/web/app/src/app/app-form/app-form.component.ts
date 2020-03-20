@@ -67,7 +67,7 @@ const buildPacks: types.BuildPack[] = [
   },
   {
     name: "Node.js",
-    imageTag: "nodejs"
+    imageTag: "node.js"
   },
   {
     name: "HTML",
