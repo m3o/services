@@ -129,6 +129,9 @@ func (e *Apps) List(ctx context.Context, req *serverless.ListRequest, rsp *serve
 	}
 
 	for _, app := range resp.Services {
+		if !strings.HasPrefix("serverless", app.GetName()) {
+			continue
+		}
 		rsp.Apps = append(rsp.Apps, &serverless.App{
 			Name:     app.Name,
 			Version:  app.Version,
