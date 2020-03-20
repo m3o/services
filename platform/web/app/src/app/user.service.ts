@@ -7,6 +7,10 @@ import { CookieService } from "ngx-cookie-service";
 import { NotificationsService } from "angular2-notifications";
 import { Router } from "@angular/router";
 
+interface ReadUserResponse {
+  user: types.User;
+}
+
 @Injectable()
 export class UserService {
   public user: types.User = {} as types.User;
@@ -38,14 +42,23 @@ export class UserService {
     // todo We are nulling out the name here because that's what we use
     // for user existence checks.
     this.user.name = "";
-    this.cookie.delete("micro-token", "/")
+    this.cookie.delete("micro-token", "/");
     document.location.href = "/";
   }
 
   // gets current user
   get(): Promise<types.User> {
     return this.http
-      .get<types.User>(environment.apiUrl + "/ReadUser", { withCredentials: true })
-      .toPromise();
+      .get<ReadUserResponse>(environment.apiUrl + "/ReadUser", {
+        withCredentials: true
+      })
+      .toPromise()
+      .then(userResponse => {
+        const user = userResponse.user;
+        if (!user.name && user.login) {
+          user.name = user.login;
+        }
+        return user;
+      });
   }
 }
