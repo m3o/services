@@ -22,9 +22,9 @@ export class ServiceService {
   list(): Promise<types.Service[]> {
     return new Promise<types.Service[]>((resolve, reject) => {
       return this.http
-        .get<types.Service[]>(
-          environment.backendUrl + "/v1/services"
-        )
+        .get<types.Service[]>(environment.backendUrl + "/v1/services", {
+          withCredentials: true
+        })
         .toPromise()
         .then(servs => {
           resolve(servs as types.Service[]);
@@ -39,8 +39,10 @@ export class ServiceService {
     return new Promise<types.LogRecord[]>((resolve, reject) => {
       return this.http
         .get<types.LogRecord[]>(
-          environment.backendUrl +
-            "/v1/service/logs?service=" + service
+          environment.backendUrl + "/v1/service/logs?service=" + service,
+          {
+            withCredentials: true
+          }
         )
         .toPromise()
         .then(servs => {
@@ -56,8 +58,10 @@ export class ServiceService {
     return new Promise<types.DebugSnapshot[]>((resolve, reject) => {
       return this.http
         .get<types.DebugSnapshot[]>(
-          environment.backendUrl +
-            "/v1/service/stats?service=" + service
+          environment.backendUrl + "/v1/service/stats?service=" + service,
+          {
+            withCredentials: true
+          }
         )
         .toPromise()
         .then(servs => {
@@ -74,10 +78,10 @@ export class ServiceService {
     return new Promise<types.Span[]>((resolve, reject) => {
       return this.http
         .get<types.Span[]>(
-          environment.backendUrl +
-            "/v1/service/trace?" +
-            qs +
-            "limit=1000"
+          environment.backendUrl + "/v1/service/trace?" + qs + "limit=1000",
+          {
+            withCredentials: true
+          }
         )
         .toPromise()
         .then(servs => {
@@ -92,7 +96,9 @@ export class ServiceService {
   call(rpc: RPCRequest): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       return this.http
-        .post<string>(environment.backendUrl + "/v1/service/call", rpc)
+        .post<string>(environment.backendUrl + "/v1/service/call", rpc, {
+          withCredentials: true
+        })
         .toPromise()
         .then(response => {
           resolve(JSON.stringify(response, null, "  "));
@@ -108,7 +114,10 @@ export class ServiceService {
     return new Promise<types.Event[]>((resolve, reject) => {
       return this.http
         .get<types.Event[]>(
-          environment.backendUrl + "/v1/events" + serviceQuery
+          environment.backendUrl + "/v1/events" + serviceQuery,
+          {
+            withCredentials: true
+          }
         )
         .toPromise()
         .then(events => {
