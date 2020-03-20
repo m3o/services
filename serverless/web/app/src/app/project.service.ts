@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import * as types from "./types";
 import { environment } from "../environments/environment";
 import { ClientService } from "@microhq/ng-client";
+import { UserService } from "./user.service";
 import * as _ from "lodash";
 
 interface AppListResponse {
@@ -12,8 +13,17 @@ interface AppListResponse {
   providedIn: "root"
 })
 export class ProjectService {
-  constructor(private mc: ClientService) {
-    this.mc.setOptions({ local: !environment.production });
+  constructor(private mc: ClientService, private us: UserService) {
+    if (environment.production) {
+      this.mc.setOptions({
+        local: false,
+        token: this.us.longToken()
+      });
+      return;
+    }
+    this.mc.setOptions({
+      local: true
+    });
   }
 
   list(): Promise<AppListResponse> {

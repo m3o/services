@@ -46,6 +46,11 @@ export class UserService {
     return this.cookie.get("micro_token")
   }
 
+  // @todo why do we have two tokens in live?
+  longToken(): string {
+    return this.cookie.get("micro-token")
+  }
+
   // gets current user
   get(): Promise<types.User> {
     if (!this.token() || this.token().length === 0) {

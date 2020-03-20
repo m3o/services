@@ -7,7 +7,8 @@ BUILD=$2
 # the url to send events to
 URL=https://web.micro.mu/platform/v1/github/events
 
-curl $URL -X POST -d @$HOME/changes.json \
+curl --connect-timeout 5 --retry 3 -s -S \
+$URL -X POST -d @$HOME/changes.json \
 -H "Content-Type: application/json" \
 -H "X-Github-Build: $BUILD" \
 -H "Micro-Event: $EVENT"
