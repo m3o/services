@@ -1,9 +1,10 @@
 package main
 
 import (
+	"net/http"
+
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/web"
-	"web/handler"
 )
 
 func main() {
@@ -18,7 +19,9 @@ func main() {
 	}
 
 	// register html handler
-	service.HandleFunc("/", handler.Go)
+	service.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/micro/go-micro", 302)
+	})
 
 	// run service
 	if err := service.Run(); err != nil {
