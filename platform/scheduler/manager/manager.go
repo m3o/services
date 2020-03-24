@@ -64,54 +64,18 @@ type manager struct {
 	client *github.Client
 }
 
-func (m *manager) lastCommitForWorkflow() (string, error) {
-	log.Info("Listing workflows")
-	w, _, err := m.client.Actions.ListWorkflowRunsByFileName(
-		context.Background(),
-		owner,
-		repo,
-		m.workflow,
-		&github.ListWorkflowRunsOptions{
-			Status: "success",
-			Branch: "master",
-		},
-	)
-	// failed to get the workflow run
-	if err != nil {
-		return "", err
-	}
-
-	if len(w.WorkflowRuns) == 0 {
-		return "", fmt.Errorf("no workflows")
-	}
-
-	// we got one
-	wr := w.WorkflowRuns[0]
-
-	// TODO: process different statuses
-	if *wr.Status != "completed" {
-		return m.latest, nil
-	}
-
-	if *wr.Conclusion != "success" {
-		return m.latest, nil
-	}
-
-	return *wr.HeadSHA, nil
-}
-
 // returns a map key -> values of serviceName -> serviceStatus
-func (m *manager) getChangedFolders(fromCommit, toCommit string) (map[string]serviceStatus, error) {
-	log.Infof("Listing files for commit diff %v %v", fromCommit, toCommit)
-	commitDiff, _, err := m.client.Repositories.CompareCommits(context.Background(), owner, repo, fromCommit, toCommit)
+func (m *manager) getChangedFolders(commitHash string) (map[string]serviceStatus, error) {
+	log.Infof("Listing files for commit %v", commitHash)
+	commit, _, err := m.client.Repositories.GetCommit(context.Background(), owner, repo, commitHash)
 	if err != nil {
 		return nil, err
 	}
-	if len(*&commitDiff.Files) == 0 {
+	if len(commit.Files) == 0 {
 		log.Info("No files for diff")
 	}
 	filesToStatuses := []fileToStatus{}
-	for _, v := range *&commitDiff.Files {
+	for _, v := range commit.Files {
 		filesToStatuses = append(filesToStatuses, fileToStatus{
 			fileName: v.GetFilename(),
 			status:   githubFileChangeStatus(v.GetStatus()),
@@ -219,14 +183,25 @@ func (m *manager) Run() {
 	for {
 		select {
 		case <-t.C:
-			latest, err := m.lastCommitForWorkflow()
+			log.Info("Listing workflows")
+			allWorkflows, _, err := m.client.Actions.ListWorkflowRunsByFileName(
+				context.Background(),
+				owner,
+				repo,
+				m.workflow,
+				&github.ListWorkflowRunsOptions{
+					Status: "success",
+					Branch: "master",
+				},
+			)
 			if err != nil {
-				log.Errorf("Error checking latest: %v", err)
+				log.Errorf("Error listing workflows: %v", err)
 				continue
 			}
-			if latest == "" {
-				log.Error("Can't get commit hash")
-				continue
+
+			workflows := successfulWorkflows(allWorkflows)
+			for _, workflow := range workflows {
+
 			}
 
 			// same as last time
@@ -234,7 +209,7 @@ func (m *manager) Run() {
 				continue
 			}
 
-			folderStatuses, err := m.getChangedFolders(m.latest, latest)
+			folderStatuses, err := m.getChangedFolders(commit)
 			if err != nil {
 				log.Errorf("Can't get services from commit", err)
 			}
@@ -254,24 +229,22 @@ func (m *manager) Run() {
 	}
 }
 
+func successfulWorkflows(workflows *github.WorkflowRuns) []*github.WorkflowRun {
+	ret := []*github.WorkflowRun{}
+	for _, wf := range workflows.WorkflowRuns {
+		if wf.GetConclusion() != "success" {
+			continue
+		}
+		ret = append(ret, wf)
+	}
+	return ret
+}
+
 // Start the scheduler
 func Start(workflowFilename string) error {
 	m := new(manager)
 	m.workflow = workflowFilename
 	m.client = github.NewClient(nil)
-
-	commits, _, err := m.client.Repositories.ListCommits(context.Background(), owner, repo, &github.CommitsListOptions{
-		SHA: "master",
-	})
-	if err != nil {
-		return err
-	}
-	if len(commits) > commitsToInit {
-		m.latest = commits[commitsToInit-1].GetSHA()
-	} else {
-		m.latest = commits[len(commits)-1].GetSHA()
-	}
-	log.Infof("Latest is commit '%v'", m.latest)
 
 	go m.Run()
 	return nil
