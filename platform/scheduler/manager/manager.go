@@ -212,7 +212,7 @@ func typeFromFolder(folder string) string {
 }
 
 func (m *manager) Run() {
-	t := time.NewTicker(time.Second * 10)
+	t := time.NewTicker(time.Minute)
 	defer t.Stop()
 
 	// every minute we look for changes and apply any updates
