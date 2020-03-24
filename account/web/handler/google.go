@@ -78,7 +78,7 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 
 	var roles []string
 	if strings.HasSuffix(profile.Email, "@micro.mu") {
-		roles = append(roles, "admin", "developer", "collaborator")
+		roles = append(roles, "admin", "user", "user.developer", "user.collaborator")
 	}
 	h.loginUser(w, req, uRsp.User, roles...)
 }
