@@ -83,24 +83,25 @@ func (h *Handler) handleError(w http.ResponseWriter, req *http.Request, format s
 	http.Redirect(w, req, "/account?"+params.Encode(), http.StatusFound)
 }
 
-func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *users.User, roleNames ...string) {
-	// Determine the users roles
-	var roles []*auth.Role
-	for _, n := range roleNames {
-		roles = append(roles, &auth.Role{Name: n})
-	}
-
-	// Create an auth token
-	acc, err := h.auth.Generate(user.Id, auth.Roles(roles))
+func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *users.User, roles ...string) {
+	// Create an auth account
+	acc, err := h.auth.Generate(user.Id, auth.WithRoles(roles))
 	if err != nil {
 		h.handleError(w, req, "Error creating auth account: %v", err)
 		return
 	}
 
+	// Create an auth token
+	tok, err := h.auth.Refresh(acc.Secret.Token)
+	if err != nil {
+		h.handleError(w, req, "Error creating auth token: %v", err)
+		return
+	}
+
 	// Set cookie and redirect
 	http.SetCookie(w, &http.Cookie{
-		Name:   auth.CookieName,
-		Value:  acc.Token,
+		Name:   auth.TokenCookieName,
+		Value:  tok.Token,
 		Domain: "micro.mu",
 		Path:   "/",
 	})
