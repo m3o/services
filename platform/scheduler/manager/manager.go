@@ -24,7 +24,7 @@ const (
 	DefaultNamespace = "go.micro"
 	// how many commits to load at service startup
 	// when we have no "latest" commit cached in memory
-	commitsToInit = 10
+	commitsToInit = 1
 )
 
 type serviceStatus string
