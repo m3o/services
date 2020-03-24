@@ -21,12 +21,12 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	if err != nil {
 		return err
 	}
-	if len(acc.Id) == 0 {
+	if len(acc.ID) == 0 {
 		return errors.Unauthorized(h.name, "A valid auth token is required")
 	}
 
 	// Lookup the user
-	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.Id})
+	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
@@ -35,11 +35,11 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	rsp.User = serializeUser(resp.User)
 	rsp.User.Roles = make([]string, 0, len(acc.Roles))
 	for _, r := range acc.Roles {
-		rsp.User.Roles = append(rsp.User.Roles, strings.Title(r.Name))
+		rsp.User.Roles = append(rsp.User.Roles, strings.Title(r))
 	}
 
 	// Fetch the payment methods
-	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.Id})
+	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
 	if err != nil {
 		log.Infof("Error listing payment methods: %v", err)
 		return nil
@@ -61,7 +61,7 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	if err != nil {
 		return err
 	}
-	if len(acc.Id) == 0 {
+	if len(acc.ID) == 0 {
 		return errors.Unauthorized(h.name, "A valid auth token is required")
 	}
 
@@ -69,10 +69,10 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	if req.User == nil {
 		return errors.BadRequest(h.name, "User is missing")
 	}
-	req.User.Id = acc.Id
+	req.User.Id = acc.ID
 
 	// Get the user
-	rRsp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.Id})
+	rRsp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
@@ -104,12 +104,12 @@ func (h *Handler) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest, rsp
 	if err != nil {
 		return err
 	}
-	if len(acc.Id) == 0 {
+	if len(acc.ID) == 0 {
 		return errors.Unauthorized(h.name, "A valid auth token is required")
 	}
 
 	// Delete the user
-	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: acc.Id})
+	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: acc.ID})
 	return err
 }
 
@@ -125,12 +125,12 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	if err != nil {
 		return err
 	}
-	if len(acc.Id) == 0 {
+	if len(acc.ID) == 0 {
 		return errors.Unauthorized(h.name, "A valid auth token is required")
 	}
 
 	// Create a payment method
-	pRsp, err := h.payment.CreatePaymentMethod(ctx, &payment.CreatePaymentMethodRequest{UserId: acc.Id, Id: req.Id})
+	pRsp, err := h.payment.CreatePaymentMethod(ctx, &payment.CreatePaymentMethodRequest{UserId: acc.ID, Id: req.Id})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Error creating payment method: %v", err)
 	}
@@ -154,6 +154,13 @@ func (h *Handler) DeletePaymentMethod(ctx context.Context, req *pb.DeletePayment
 	}
 
 	return nil
+}
+
+func serializeToken(t *auth.Token) *pb.Token {
+	return &pb.Token{
+		Token:   t.Token,
+		Expires: t.Expiry.Unix(),
+	}
 }
 
 func serializePaymentMethod(p *payment.PaymentMethod) *pb.PaymentMethod {

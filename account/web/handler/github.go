@@ -86,7 +86,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Setup the roles
-	roles := []string{"developer"}
+	roles := []string{"user", "user.developer"}
 
 	// Check to see if the user is part of the micro team
 	url := fmt.Sprintf("https://api.github.com/teams/%v/memberships/%v", h.githubTeamID, profile.Username)
@@ -98,7 +98,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 	if resp.StatusCode == http.StatusOK {
-		roles = append(roles, "collaborator")
+		roles = append(roles, "user.collaborator")
 	}
 
 	// Logiin the user
