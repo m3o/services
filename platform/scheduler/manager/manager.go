@@ -65,7 +65,7 @@ type manager struct {
 }
 
 func (m *manager) lastCommitForWorkflow() (string, error) {
-	log.Debug("Listing workflows")
+	log.Info("Listing workflows")
 	w, _, err := m.client.Actions.ListWorkflowRunsByFileName(
 		context.Background(),
 		owner,
@@ -102,10 +102,13 @@ func (m *manager) lastCommitForWorkflow() (string, error) {
 
 // returns a map key -> values of serviceName -> serviceStatus
 func (m *manager) getChangedFolders(fromCommit, toCommit string) (map[string]serviceStatus, error) {
-	log.Debugf("Listing files for commit diff %v %v", fromCommit, toCommit)
+	log.Infof("Listing files for commit diff %v %v", fromCommit, toCommit)
 	commitDiff, _, err := m.client.Repositories.CompareCommits(context.Background(), owner, repo, fromCommit, toCommit)
 	if err != nil {
 		return nil, err
+	}
+	if len(*&commitDiff.Files) == 0 {
+		log.Info("No files for diff")
 	}
 	filesToStatuses := []fileToStatus{}
 	for _, v := range *&commitDiff.Files {
@@ -264,7 +267,7 @@ func Start(workflowFilename string) error {
 		return err
 	}
 	if len(commits) > commitsToInit {
-		m.latest = commits[commitsToInit].GetSHA()
+		m.latest = commits[commitsToInit-1].GetSHA()
 	} else {
 		m.latest = commits[len(commits)-1].GetSHA()
 	}
