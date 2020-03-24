@@ -15,11 +15,11 @@ func TestFilesToServiceStatus(t *testing.T) {
 			files: []fileToStatus{
 				{
 					fileName: "asim/main.go",
-					status:   "created",
+					status:   githubFileChangeStatusCreated,
 				},
 				{
 					fileName: "asim/handler/something.go",
-					status:   "changed",
+					status:   githubFileChangeStatusChanged,
 				},
 			},
 			expect: map[string]serviceStatus{
@@ -31,16 +31,32 @@ func TestFilesToServiceStatus(t *testing.T) {
 			files: []fileToStatus{
 				{
 					fileName: "asim/scheduler/main.go",
-					status:   "removed",
+					status:   githubFileChangeStatusRemoved,
 				},
 				{
 					fileName: "asim/service/handler/somehandler.go",
-					status:   "changed",
+					status:   githubFileChangeStatusChanged,
 				},
 			},
 			expect: map[string]serviceStatus{
 				"asim/scheduler": serviceStatusDeleted,
 				"asim/service":   serviceStatusUpdated,
+				"asim":           serviceStatusUpdated,
+			},
+		},
+		{
+			files: []fileToStatus{
+				{
+					fileName: "asim/scheduler/something.go",
+					status:   githubFileChangeStatusChanged,
+				},
+				{
+					fileName: "asim/scheduler/hander/something.go",
+					status:   githubFileChangeStatusRemoved,
+				},
+			},
+			expect: map[string]serviceStatus{
+				"asim/scheduler": serviceStatusUpdated,
 				"asim":           serviceStatusUpdated,
 			},
 		},

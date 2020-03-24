@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	WorkflowFilename = "docker.yml"
+	WorkflowFilename = "build.yml"
 )
 
 func main() {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-github/v30/github"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/runtime"
 )
 
 const (
@@ -31,9 +32,20 @@ var (
 	serviceStatusDeleted serviceStatus = "deleted"
 )
 
+type githubFileChangeStatus string
+
+// a list of github file status changes.
+// not documented in the github API
+var (
+	githubFileChangeStatusCreated  githubFileChangeStatus = "created"
+	githubFileChangeStatusChanged  githubFileChangeStatus = "changed"
+	githubFileChangeStatusModified githubFileChangeStatus = "modified"
+	githubFileChangeStatusRemoved  githubFileChangeStatus = "removed"
+)
+
 type fileToStatus struct {
 	fileName string
-	status   string
+	status   githubFileChangeStatus
 }
 
 type manager struct {
@@ -97,13 +109,14 @@ func (m *manager) getChangedFolders(commit string) (map[string]serviceStatus, er
 	for _, v := range repoCommit.Files {
 		filesToStatuses = append(filesToStatuses, fileToStatus{
 			fileName: v.GetFilename(),
-			status:   v.GetStatus(),
+			status:   githubFileChangeStatus(v.GetStatus()),
 		})
 	}
-	fmt.Println(filesToStatuses)
-	return nil, nil
+	return folderStatuses(filesToStatuses), nil
 }
 
+// maps github file change statuses to folders and their deployment status
+// ie. "asim/scheduler/main.go" "removed" will become "asim/scheduler" "deleted"
 func folderStatuses(statuses []fileToStatus) map[string]serviceStatus {
 	folders := map[string]serviceStatus{}
 	// Prioritize main.go creates and deletes
@@ -113,7 +126,7 @@ func folderStatuses(statuses []fileToStatus) map[string]serviceStatus {
 		if !strings.HasSuffix(fname, "main.go") {
 			continue
 		}
-		fold := lastFolder(fname)
+		fold := path.Dir(fname)
 
 		_, exists := folders[fold]
 		if exists {
@@ -141,10 +154,8 @@ func folderStatuses(statuses []fileToStatus) map[string]serviceStatus {
 	return folders
 }
 
-func lastFolder(p string) string {
-	return path.Dir(p)
-}
-
+// from path returns the top level dirs to be deployed
+// ie.
 func topFolders(path string) []string {
 	parts := strings.Split(path, "/")
 	ret := []string{parts[0]}
@@ -154,12 +165,49 @@ func topFolders(path string) []string {
 	return ret
 }
 
-func (m *manager) updateService(folderPath string, status serviceStatus) error {
-	return nil
+func (m *manager) updateService(folderPath, commit string, status serviceStatus) error {
+	service := &runtime.Service{
+		Name:    folderPath,
+		Version: commit,
+	}
+	typ := typeFromFolder(folderPath)
+	image := "micro/services"
+
+	switch status {
+	case serviceStatusCreated:
+		opts := []runtime.CreateOption{
+			// create a specific service type
+			runtime.CreateType(typ),
+			runtime.CreateImage(image),
+		}
+
+		if err := runtime.DefaultRuntime.Create(service, opts...); err != nil {
+			return err
+		}
+	case serviceStatusUpdated:
+		if err := runtime.DefaultRuntime.Update(service); err != nil {
+			return err
+		}
+	case serviceStatusDeleted:
+		if err := runtime.DefaultRuntime.Delete(service); err != nil {
+			return err
+		}
+	}
+	return fmt.Errorf("Unrecognized service status: '%v'", status)
+}
+
+func typeFromFolder(folder string) string {
+	if strings.Contains(folder, "api") {
+		return "api"
+	}
+	if strings.Contains(folder, "web") {
+		return "web"
+	}
+	return "service"
 }
 
 func (m *manager) Run() {
-	t := time.NewTicker(time.Second * 3)
+	t := time.NewTicker(time.Second * 10)
 	defer t.Stop()
 
 	// every minute we look for changes and apply any updates
@@ -188,8 +236,8 @@ func (m *manager) Run() {
 
 			// perform an update
 			for folder, status := range folderStatuses {
-				if err := m.updateService(folder, status); err != nil {
-					log.Errorf("Error updating latest: %v", err)
+				if err := m.updateService(folder, latest, status); err != nil {
+					log.Errorf("Error updating service '%v': %v", folder, err)
 					continue
 				}
 			}
