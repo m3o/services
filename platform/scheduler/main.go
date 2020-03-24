@@ -1,13 +1,14 @@
 package main
 
 import (
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
 	"scheduler/manager"
+
+	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 )
 
 var (
-	WorkflowID = "599918"
+	WorkflowFilename = "docker.yml"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 	service.Init()
 
 	// start the scheduler
-	manager.Start(WorkflowID)
+	manager.Start(WorkflowFilename)
 
 	// Run service
 	if err := service.Run(); err != nil {
