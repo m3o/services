@@ -21,7 +21,9 @@ func main() {
 	service.Init()
 
 	// start the scheduler
-	manager.Start(WorkflowFilename)
+	if err := manager.Start(WorkflowFilename); err != nil {
+		log.Fatal(err)
+	}
 
 	// Run service
 	if err := service.Run(); err != nil {

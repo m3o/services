@@ -22,6 +22,9 @@ const (
 	// DefaultNamespace is the default namespace of the services,
 	// this will eventually be loaded from config
 	DefaultNamespace = "go.micro"
+	// how many commits to load at service startup
+	// when we have no "latest" commit cached in memory
+	commitsToInit = 10
 )
 
 type serviceStatus string
@@ -98,15 +101,14 @@ func (m *manager) lastCommitForWorkflow() (string, error) {
 }
 
 // returns a map key -> values of serviceName -> serviceStatus
-func (m *manager) getChangedFolders(commit string) (map[string]serviceStatus, error) {
-	log.Debugf("Listing files for commit %v", commit)
-
-	repoCommit, _, err := m.client.Repositories.GetCommit(context.Background(), owner, repo, commit)
+func (m *manager) getChangedFolders(fromCommit, toCommit string) (map[string]serviceStatus, error) {
+	log.Debugf("Listing files for commit diff %v %v", fromCommit, toCommit)
+	commitDiff, _, err := m.client.Repositories.CompareCommits(context.Background(), owner, repo, fromCommit, toCommit)
 	if err != nil {
 		return nil, err
 	}
 	filesToStatuses := []fileToStatus{}
-	for _, v := range repoCommit.Files {
+	for _, v := range *&commitDiff.Files {
 		filesToStatuses = append(filesToStatuses, fileToStatus{
 			fileName: v.GetFilename(),
 			status:   githubFileChangeStatus(v.GetStatus()),
@@ -229,7 +231,7 @@ func (m *manager) Run() {
 				continue
 			}
 
-			folderStatuses, err := m.getChangedFolders(latest)
+			folderStatuses, err := m.getChangedFolders(m.latest, latest)
 			if err != nil {
 				log.Errorf("Can't get services from commit", err)
 			}
@@ -250,10 +252,24 @@ func (m *manager) Run() {
 }
 
 // Start the scheduler
-func Start(workflowFilename string) {
+func Start(workflowFilename string) error {
 	m := new(manager)
 	m.workflow = workflowFilename
 	m.client = github.NewClient(nil)
 
+	commits, _, err := m.client.Repositories.ListCommits(context.Background(), owner, repo, &github.CommitsListOptions{
+		SHA: "master",
+	})
+	if err != nil {
+		return err
+	}
+	if len(commits) > commitsToInit {
+		m.latest = commits[commitsToInit].GetSHA()
+	} else {
+		m.latest = commits[len(commits)-1].GetSHA()
+	}
+	log.Infof("Latest is commit '%v'", m.latest)
+
 	go m.Run()
+	return nil
 }
