@@ -3,6 +3,8 @@ package manager
 import (
 	"context"
 	"fmt"
+	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -13,7 +15,26 @@ import (
 const (
 	owner = "micro"
 	repo  = "services"
+	// DefaultVersion is the default version of the service
+	// the assume if none is specified
+	DefaultVersion = "latest"
+	// DefaultNamespace is the default namespace of the services,
+	// this will eventually be loaded from config
+	DefaultNamespace = "go.micro"
 )
+
+type serviceStatus string
+
+var (
+	serviceStatusCreated serviceStatus = "created"
+	serviceStatusUpdated serviceStatus = "updated"
+	serviceStatusDeleted serviceStatus = "deleted"
+)
+
+type fileToStatus struct {
+	fileName string
+	status   string
+}
 
 type manager struct {
 	// workflow file name
@@ -64,30 +85,76 @@ func (m *manager) lastCommitForWorkflow() (string, error) {
 	return *wr.HeadSHA, nil
 }
 
-func (m *manager) getChangedServices(commit string) ([]string, error) {
+// returns a map key -> values of serviceName -> serviceStatus
+func (m *manager) getChangedFolders(commit string) (map[string]serviceStatus, error) {
 	log.Debugf("Listing files for commit %v", commit)
 
 	repoCommit, _, err := m.client.Repositories.GetCommit(context.Background(), owner, repo, commit)
 	if err != nil {
 		return nil, err
 	}
-	folders := map[string]struct{}{}
-	for _, file := range repoCommit.Files {
-		fname := file.GetFilename()
-
-		// do not care about files or hidden folders
-		if strings.Contains(fname, "/") && !strings.HasPrefix(fname, ".") {
-			folders[fname] = struct{}{}
-		}
+	filesToStatuses := []fileToStatus{}
+	for _, v := range repoCommit.Files {
+		filesToStatuses = append(filesToStatuses, fileToStatus{
+			fileName: v.GetFilename(),
+			status:   v.GetStatus(),
+		})
 	}
-	ret := []string{}
-	for k := range folders {
-		ret = append(ret, k)
-	}
-	return ret, nil
+	fmt.Println(filesToStatuses)
+	return nil, nil
 }
 
-func (m *manager) updateService(serviceName, commit string) error {
+func folderStatuses(statuses []fileToStatus) map[string]serviceStatus {
+	folders := map[string]serviceStatus{}
+	// Prioritize main.go creates and deletes
+	for _, status := range statuses {
+		fname := status.fileName
+		status := status.status
+		if !strings.HasSuffix(fname, "main.go") {
+			continue
+		}
+		fold := lastFolder(fname)
+
+		_, exists := folders[fold]
+		if exists {
+			continue
+		}
+		if status == "created" {
+			folders[fold] = serviceStatusCreated
+		} else if status == "removed" {
+			folders[fold] = serviceStatusDeleted
+		}
+
+	}
+	// continue with normal file changes for service updates
+	for _, status := range statuses {
+		fname := status.fileName
+		folds := topFolders(fname)
+		for _, fold := range folds {
+			_, exists := folders[fold]
+			if exists {
+				continue
+			}
+			folders[fold] = serviceStatusUpdated
+		}
+	}
+	return folders
+}
+
+func lastFolder(p string) string {
+	return path.Dir(p)
+}
+
+func topFolders(path string) []string {
+	parts := strings.Split(path, "/")
+	ret := []string{parts[0]}
+	if len(parts) > 2 {
+		ret = append(ret, filepath.Join(parts[0], parts[1]))
+	}
+	return ret
+}
+
+func (m *manager) updateService(folderPath string, status serviceStatus) error {
 	return nil
 }
 
@@ -114,14 +181,14 @@ func (m *manager) Run() {
 				continue
 			}
 
-			serviceNames, err := m.getChangedServices(latest)
+			folderStatuses, err := m.getChangedFolders(latest)
 			if err != nil {
 				log.Errorf("Can't get services from commit", err)
 			}
 
 			// perform an update
-			for _, serviceName := range serviceNames {
-				if err := m.updateService(serviceName, latest); err != nil {
+			for folder, status := range folderStatuses {
+				if err := m.updateService(folder, status); err != nil {
 					log.Errorf("Error updating latest: %v", err)
 					continue
 				}
