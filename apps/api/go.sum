@@ -254,8 +254,8 @@ github.com/micro/go-micro/v2 v2.3.1-0.20200317165957-8a41d369f2e4 h1:5U7GGrCCXv0
 github.com/micro/go-micro/v2 v2.3.1-0.20200317165957-8a41d369f2e4/go.mod h1:GR69d1AXMg/WjMNf/7K1VO6hCBJDIpqCqnVYNTV6M5w=
 github.com/micro/go-micro/v2 v2.3.1-0.20200318224703-40ff6ddfcfcd h1:CybgcSc6fcfu9GnVOQbW0Cfc/7/aZIzAJL3pcXj1nBM=
 github.com/micro/go-micro/v2 v2.3.1-0.20200318224703-40ff6ddfcfcd/go.mod h1:254aNmT1xntRYyPTFQWAA5dZtAEORyH99bGMEyafgwc=
-github.com/micro/go-micro/v2 v2.3.1-0.20200324101834-86272a306446 h1:0eFNMpKvzQVBnUXmKoSxdN3pf8YASxWp7+NpD7J+ObQ=
-github.com/micro/go-micro/v2 v2.3.1-0.20200324101834-86272a306446/go.mod h1:254aNmT1xntRYyPTFQWAA5dZtAEORyH99bGMEyafgwc=
+github.com/micro/go-micro/v2 v2.3.1-0.20200324141657-84b4eb54049d h1:0hhfVd3BWUasZoKDCesyJsnVZAdg8XS1OHd9X8m4FUQ=
+github.com/micro/go-micro/v2 v2.3.1-0.20200324141657-84b4eb54049d/go.mod h1:254aNmT1xntRYyPTFQWAA5dZtAEORyH99bGMEyafgwc=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/services/apps/service v0.0.0-20200319114110-20fdbb64fedd h1:I/HSdcZ2xDnktdhZn6E4KKrxhHPFbAdiEZVQP74UmCc=
