@@ -2,4 +2,4 @@ module github.com/micro/services/notes/web
 
 go 1.13
 
-require github.com/micro/go-micro/v2 v2.3.1-0.20200325093529-0e563821076b
+require github.com/micro/go-micro/v2 v2.3.1-0.20200325103133-35e2a68a988c
