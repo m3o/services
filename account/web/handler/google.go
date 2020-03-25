@@ -63,7 +63,7 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 	json.NewDecoder(resp.Body).Decode(&profile)
 
 	// Generate a context with elevated privelages
-	privCtx, err := auth.ContextWithAccount(req.Context(), h.account)
+	privCtx, err := auth.ContextWithToken(req.Context(), h.authToken)
 	if err != nil {
 		h.handleError(w, req, "Error creating account with privelages: %v", err)
 		return

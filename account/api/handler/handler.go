@@ -14,12 +14,12 @@ import (
 
 // Handler implements the account api proto interface
 type Handler struct {
-	name    string
-	auth    auth.Auth
-	account *auth.Account
-	users   users.UsersService
-	login   login.LoginService
-	payment payment.ProviderService
+	authToken string
+	name      string
+	auth      auth.Auth
+	users     users.UsersService
+	login     login.LoginService
+	payment   payment.ProviderService
 }
 
 // NewHandler returns an initialised handle
@@ -30,13 +30,17 @@ func NewHandler(srv micro.Service) *Handler {
 	if err != nil {
 		log.Fatalf("Unable to generate service auth account: %v", err)
 	}
+	token, err := srv.Options().Auth.Refresh(account.Secret.Token)
+	if err != nil {
+		log.Fatalf("Unable to generate service auth token: %v", err)
+	}
 
 	return &Handler{
-		name:    srv.Name(),
-		auth:    srv.Options().Auth,
-		account: account,
-		users:   users.NewUsersService("go.micro.service.users", srv.Client()),
-		login:   login.NewLoginService("go.micro.service.login", srv.Client()),
-		payment: payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
+		authToken: token.Token,
+		name:      srv.Name(),
+		auth:      srv.Options().Auth,
+		users:     users.NewUsersService("go.micro.service.users", srv.Client()),
+		login:     login.NewLoginService("go.micro.service.login", srv.Client()),
+		payment:   payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
 	}
 }

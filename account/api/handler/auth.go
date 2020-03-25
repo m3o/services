@@ -22,7 +22,7 @@ func (h *Handler) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest,
 // Login looks up an account using an email and password
 func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.LoginResponse) error {
 	// Generate a context with elevated privelages
-	privCtx, err := auth.ContextWithAccount(ctx, h.account)
+	privCtx, err := auth.ContextWithToken(ctx, h.authToken)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 // Signup creates an account using an email and password
 func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.SignupResponse) error {
 	// Generate a context with elevated privelages
-	privCtx, err := auth.ContextWithAccount(ctx, h.account)
+	privCtx, err := auth.ContextWithToken(ctx, h.authToken)
 	if err != nil {
 		return err
 	}
