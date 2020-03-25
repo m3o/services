@@ -38,9 +38,17 @@ func NewHandler(srv micro.Service) *Handler {
 		provider.Scope(getConfigString(srv, "github", "scope")),
 	)
 
+	account, err := srv.Options().Auth.Generate(srv.Name(),
+		auth.WithRoles("service", fmt.Sprintf("service.%v", srv.Name())),
+	)
+	if err != nil {
+		log.Fatalf("Unable to generate service auth account: %v", err)
+	}
+
 	return &Handler{
 		google:       googleProv,
 		github:       githubProv,
+		account:      account,
 		githubOrgID:  getConfigInt(srv, "github", "org_id"),
 		githubTeamID: getConfigInt(srv, "github", "team_id"),
 		auth:         srv.Options().Auth,
@@ -54,6 +62,7 @@ type Handler struct {
 	githubOrgID  int
 	githubTeamID int
 	auth         auth.Auth
+	account      *auth.Account
 	users        users.UsersService
 	login        login.LoginService
 	google       provider.Provider

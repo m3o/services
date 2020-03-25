@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/micro/go-micro/v2/auth"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -61,8 +62,15 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 	json.NewDecoder(resp.Body).Decode(&profile)
 
+	// Generate a context with elevated privelages
+	privCtx, err := auth.ContextWithAccount(req.Context(), h.account)
+	if err != nil {
+		h.handleError(w, req, "Error creating account with privelages: %v", err)
+		return
+	}
+
 	// Create the user in the users service
-	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
+	uRsp, err := h.users.Create(privCtx, &users.CreateRequest{
 		User: &users.User{
 			Id:                fmt.Sprintf("google_%v", profile.ID),
 			Email:             profile.Email,
