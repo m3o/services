@@ -34,7 +34,7 @@ func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// Lookup the user
-	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.Id})
+	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	if req.User == nil {
 		return errors.BadRequest("go.micro.api.users", "User is missing")
 	}
-	req.User.Id = acc.Id
+	req.User.Id = acc.ID
 
 	// Update the user
 	resp, err := h.users.Update(ctx, &users.UpdateRequest{User: h.deserializeUser(req.User)})
@@ -84,7 +84,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// Delete the user
-	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: acc.Id})
+	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: acc.ID})
 	return err
 }
 
