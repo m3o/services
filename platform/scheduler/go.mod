@@ -4,6 +4,5 @@ go 1.13
 
 require (
 	github.com/google/go-github/v30 v30.0.0
-	github.com/micro/go-micro v1.18.0
-	github.com/micro/go-micro/v2 v2.3.0
+	github.com/micro/go-micro/v2 v2.3.1-0.20200325144037-511ebd8ec287
 )
