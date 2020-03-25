@@ -54,7 +54,6 @@ message User {
 	string username = 7;		// alphanumeric user or org
 	repeated PaymentMethod payment_methods = 8;
 	repeated Subscription subscriptions = 9;
-	repeated string roles = 10;
 }
 
 message ReadUserRequest {}
