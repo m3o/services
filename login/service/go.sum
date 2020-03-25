@@ -259,8 +259,8 @@ github.com/mholt/certmagic v0.9.3/go.mod h1:nu8jbsbtwK4205EDH/ZUMTKsfYpJA1Q7MKXH
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
 github.com/micro/go-micro/v2 v2.2.1-0.20200312220411-62a644ddd898/go.mod h1:Tw77PsD9l00hrnhE+wNclFndAO9GBIQ3p0Vlfyj4HEw=
-github.com/micro/go-micro/v2 v2.3.1-0.20200325103133-35e2a68a988c h1:j/V7JQoqs+0YgQw+CDvfZTMZA2FbC8weYc8jHEwq52s=
-github.com/micro/go-micro/v2 v2.3.1-0.20200325103133-35e2a68a988c/go.mod h1:BZ3q7pvyaKYl+U2s4l0RCYjcmOjNpgnjedbYYAS/E04=
+github.com/micro/go-micro/v2 v2.3.1-0.20200325112053-1057ef6acb54 h1:Ffvhj080B9L2Ywh1G8rcWSjZGhHc3CVDOlRIMxg3xo4=
+github.com/micro/go-micro/v2 v2.3.1-0.20200325112053-1057ef6acb54/go.mod h1:BZ3q7pvyaKYl+U2s4l0RCYjcmOjNpgnjedbYYAS/E04=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/services/users/service v0.0.0-20200313083714-e72c0c76aa9a h1:ETBAN5K/y5tw61M1VxcFj/s0Dhwx3mJEe/5K0qx9BkU=
