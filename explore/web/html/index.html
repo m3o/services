@@ -5,13 +5,20 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Micro Services - Explore</title>
+    <title>DocuAPI Example Site</title>
+    
 
-<link href='./styles/screen.min.3cfaf877873801d20836e07f7d60c446e1a81bbe338985c65355362c37f116b2.css' rel="stylesheet" media="screen" integrity="sha256-PPr4d4c4AdIINuB/fWDERuGoG74ziYXGU1U2LDfxFrI=" />
-<link href='./styles/print.min.9c7d3c118c66de77e439d080b5fd628d6a5ed904dcaccf395285fffb0d97feb6.css' rel="stylesheet" media="print" integrity="sha256-nH08EYxm3nfkOdCAtf1ijWpe2QTcrM85UoX/&#43;w2X/rY=" />
 
-<!-- Custom styles -->
-<link href='./styles/custom.css' rel="stylesheet" />
+
+
+
+
+
+
+<link href='./styles/screen.min.30ba74a4a53c4565f9745db8f717130ad9eadce5eb152999a572c35fe2112c0c.css' rel="stylesheet" media="screen" integrity="sha256-MLp0pKU8RWX5dF249xcTCtnq3OXrFSmZpXLDX&#43;IRLAw=" />
+<link href='./styles/print.min.f81e7a99ed549d15d473ed507bcc72a8e34b421e4b158121912e1c47032558e6.css' rel="stylesheet" media="print" integrity="sha256-&#43;B56me1UnRXUc&#43;1Qe8xyqONLQh5LFYEhkS4cRwMlWOY=" />
+
+
     
 
 
@@ -38,7 +45,7 @@
     <div class="toc-wrapper">
         
          <img src='./images/logo.png' class="logo" />
- 	<h2 style="margin: 15px;">Services</h2>       
+        
         <div class="lang-selector">
             
             <a href="#" data-language-name="go">Go</a>
@@ -56,6 +63,42 @@
         
     <ul id="toc" class="toc-list-h1">
         
+        
+            <li>
+                <a href="#account" class="toc-h1 toc-link" data-title="account">account</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#accountcreatepaymentmethod" class="toc-h2 toc-link" data-title="Account.CreatePaymentMethod">Account.CreatePaymentMethod</a></li>
+                        
+                            <li><a href="#accountdeletepaymentmethod" class="toc-h2 toc-link" data-title="Account.DeletePaymentMethod">Account.DeletePaymentMethod</a></li>
+                        
+                            <li><a href="#accountdeleteuser" class="toc-h2 toc-link" data-title="Account.DeleteUser">Account.DeleteUser</a></li>
+                        
+                            <li><a href="#accountlogin" class="toc-h2 toc-link" data-title="Account.Login">Account.Login</a></li>
+                        
+                            <li><a href="#accountreaduser" class="toc-h2 toc-link" data-title="Account.ReadUser">Account.ReadUser</a></li>
+                        
+                            <li><a href="#accountrefreshtoken" class="toc-h2 toc-link" data-title="Account.RefreshToken">Account.RefreshToken</a></li>
+                        
+                            <li><a href="#accountsignup" class="toc-h2 toc-link" data-title="Account.Signup">Account.Signup</a></li>
+                        
+                            <li><a href="#accountupdateuser" class="toc-h2 toc-link" data-title="Account.UpdateUser">Account.UpdateUser</a></li>
+                        
+                    </ul>
+                
+            </li>
+        
+            <li>
+                <a href="#apps" class="toc-h1 toc-link" data-title="apps">apps</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#appsimport" class="toc-h2 toc-link" data-title="Apps.Import">Apps.Import</a></li>
+                        
+                    </ul>
+                
+            </li>
         
             <li>
                 <a href="#asim" class="toc-h1 toc-link" data-title="asim">asim</a>
@@ -168,6 +211,19 @@
             </li>
         
             <li>
+                <a href="#home" class="toc-h1 toc-link" data-title="home">home</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#homelistapps" class="toc-h2 toc-link" data-title="Home.ListApps">Home.ListApps</a></li>
+                        
+                            <li><a href="#homereaduser" class="toc-h2 toc-link" data-title="Home.ReadUser">Home.ReadUser</a></li>
+                        
+                    </ul>
+                
+            </li>
+        
+            <li>
                 <a href="#location" class="toc-h1 toc-link" data-title="location">location</a>
                 
                     <ul class="toc-list-h2">
@@ -183,19 +239,55 @@
             </li>
         
             <li>
+                <a href="#login" class="toc-h1 toc-link" data-title="login">login</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#logincreatelogin" class="toc-h2 toc-link" data-title="Login.CreateLogin">Login.CreateLogin</a></li>
+                        
+                            <li><a href="#loginupdateemail" class="toc-h2 toc-link" data-title="Login.UpdateEmail">Login.UpdateEmail</a></li>
+                        
+                            <li><a href="#loginverifylogin" class="toc-h2 toc-link" data-title="Login.VerifyLogin">Login.VerifyLogin</a></li>
+                        
+                    </ul>
+                
+            </li>
+        
+            <li>
                 <a href="#notes" class="toc-h1 toc-link" data-title="notes">notes</a>
                 
                     <ul class="toc-list-h2">
                         
-                            <li><a href="#notescreate" class="toc-h2 toc-link" data-title="Notes.Create">Notes.Create</a></li>
+                            <li><a href="#notescreatenote" class="toc-h2 toc-link" data-title="Notes.CreateNote">Notes.CreateNote</a></li>
                         
-                            <li><a href="#notesdelete" class="toc-h2 toc-link" data-title="Notes.Delete">Notes.Delete</a></li>
+                            <li><a href="#notesdeletenote" class="toc-h2 toc-link" data-title="Notes.DeleteNote">Notes.DeleteNote</a></li>
                         
-                            <li><a href="#noteslist" class="toc-h2 toc-link" data-title="Notes.List">Notes.List</a></li>
+                            <li><a href="#noteslistnotes" class="toc-h2 toc-link" data-title="Notes.ListNotes">Notes.ListNotes</a></li>
                         
-                            <li><a href="#notesupdate" class="toc-h2 toc-link" data-title="Notes.Update">Notes.Update</a></li>
+                            <li><a href="#notesupdatenote" class="toc-h2 toc-link" data-title="Notes.UpdateNote">Notes.UpdateNote</a></li>
                         
-                            <li><a href="#notesupdatestream" class="toc-h2 toc-link" data-title="Notes.UpdateStream">Notes.UpdateStream</a></li>
+                    </ul>
+                
+            </li>
+        
+            <li>
+                <a href="#payments" class="toc-h1 toc-link" data-title="payments">payments</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#providercreatepaymentmethod" class="toc-h2 toc-link" data-title="Provider.CreatePaymentMethod">Provider.CreatePaymentMethod</a></li>
+                        
+                            <li><a href="#providercreateplan" class="toc-h2 toc-link" data-title="Provider.CreatePlan">Provider.CreatePlan</a></li>
+                        
+                            <li><a href="#providercreateproduct" class="toc-h2 toc-link" data-title="Provider.CreateProduct">Provider.CreateProduct</a></li>
+                        
+                            <li><a href="#providercreatesubscription" class="toc-h2 toc-link" data-title="Provider.CreateSubscription">Provider.CreateSubscription</a></li>
+                        
+                            <li><a href="#providercreateuser" class="toc-h2 toc-link" data-title="Provider.CreateUser">Provider.CreateUser</a></li>
+                        
+                            <li><a href="#providerdeletepaymentmethod" class="toc-h2 toc-link" data-title="Provider.DeletePaymentMethod">Provider.DeletePaymentMethod</a></li>
+                        
+                            <li><a href="#providerlistpaymentmethods" class="toc-h2 toc-link" data-title="Provider.ListPaymentMethods">Provider.ListPaymentMethods</a></li>
                         
                     </ul>
                 
@@ -207,6 +299,27 @@
                     <ul class="toc-list-h2">
                         
                             <li><a href="#pingping" class="toc-h2 toc-link" data-title="Ping.Ping">Ping.Ping</a></li>
+                        
+                    </ul>
+                
+            </li>
+        
+            <li>
+                <a href="#platform" class="toc-h1 toc-link" data-title="platform">platform</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#platformcreateservice" class="toc-h2 toc-link" data-title="Platform.CreateService">Platform.CreateService</a></li>
+                        
+                            <li><a href="#platformdeleteservice" class="toc-h2 toc-link" data-title="Platform.DeleteService">Platform.DeleteService</a></li>
+                        
+                            <li><a href="#platformlistservices" class="toc-h2 toc-link" data-title="Platform.ListServices">Platform.ListServices</a></li>
+                        
+                            <li><a href="#platformreadservice" class="toc-h2 toc-link" data-title="Platform.ReadService">Platform.ReadService</a></li>
+                        
+                            <li><a href="#platformreaduser" class="toc-h2 toc-link" data-title="Platform.ReadUser">Platform.ReadUser</a></li>
+                        
+                            <li><a href="#platformupdateservice" class="toc-h2 toc-link" data-title="Platform.UpdateService">Platform.UpdateService</a></li>
                         
                     </ul>
                 
@@ -244,6 +357,21 @@
                             <li><a href="#rexpingpong" class="toc-h2 toc-link" data-title="Rex.PingPong">Rex.PingPong</a></li>
                         
                             <li><a href="#rexstream" class="toc-h2 toc-link" data-title="Rex.Stream">Rex.Stream</a></li>
+                        
+                    </ul>
+                
+            </li>
+        
+            <li>
+                <a href="#serverless" class="toc-h1 toc-link" data-title="serverless">serverless</a>
+                
+                    <ul class="toc-list-h2">
+                        
+                            <li><a href="#appscreate" class="toc-h2 toc-link" data-title="Apps.Create">Apps.Create</a></li>
+                        
+                            <li><a href="#appsdelete" class="toc-h2 toc-link" data-title="Apps.Delete">Apps.Delete</a></li>
+                        
+                            <li><a href="#appslist" class="toc-h2 toc-link" data-title="Apps.List">Apps.List</a></li>
                         
                     </ul>
                 
@@ -362,7 +490,7 @@
             
 <ul>
     
-        <li class="toc-h2"><a href="http://crufter.com/docuapi/nn/">Nynorsk</a></li>
+        <li class="toc-h2"><a href="https://explore.micro.mu/nn/">Nynorsk</a></li>
     
 </ul>
 
@@ -388,6 +516,1224 @@
         <div class="dark-box"></div>
         <div class="content">
             
+    
+        <h1 id="account">account</h1>
+<h2 id="accountcreatepaymentmethod">Account.CreatePaymentMethod</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">CreatePaymentMethodRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">CreatePaymentMethodResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.CreatePaymentMethod&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.CreatePaymentMethod&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>payment_method</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-paymentmethod">Message PaymentMethod</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountdeletepaymentmethod">Account.DeletePaymentMethod</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">DeletePaymentMethodRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">DeletePaymentMethodResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.DeletePaymentMethod&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.DeletePaymentMethod&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-1">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-1">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-1"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountdeleteuser">Account.DeleteUser</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">DeleteUserRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">DeleteUserResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.DeleteUser&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.DeleteUser&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-2">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-2">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-2"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountlogin">Account.Login</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">LoginRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">LoginResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.Login&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.Login&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-3">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-3">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+<tr>
+<td>token</td>
+<td>Token</td>
+<td></td>
+</tr>
+<tr>
+<td>secret</td>
+<td>Token</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-user">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>updated</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>first_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>username</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>payment_methods</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+<tr>
+<td>subscriptions</td>
+<td>Subscription</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-paymentmethod-1">Message PaymentMethod</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-subscription">Message Subscription</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-token">Message Token</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>expires</td>
+<td>int64</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-3"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountreaduser">Account.ReadUser</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">ReadUserRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">ReadUserResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.ReadUser&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.ReadUser&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-4">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-4">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-user-1">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>updated</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>first_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>username</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>payment_methods</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+<tr>
+<td>subscriptions</td>
+<td>Subscription</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-paymentmethod-2">Message PaymentMethod</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-subscription-1">Message Subscription</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-4"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountrefreshtoken">Account.RefreshToken</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">RefreshTokenRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">RefreshTokenResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.RefreshToken&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.RefreshToken&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-5">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>secret</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-5">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>Token</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-token-1">Message Token</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>expires</td>
+<td>int64</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-5"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountsignup">Account.Signup</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">SignupRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">SignupResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.Signup&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.Signup&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-6">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-6">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+<tr>
+<td>token</td>
+<td>Token</td>
+<td></td>
+</tr>
+<tr>
+<td>secret</td>
+<td>Token</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-user-2">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>updated</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>first_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>username</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>payment_methods</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+<tr>
+<td>subscriptions</td>
+<td>Subscription</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-paymentmethod-3">Message PaymentMethod</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-subscription-2">Message Subscription</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-token-2">Message Token</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>expires</td>
+<td>int64</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-6"></h3>
+<!-- raw HTML omitted -->
+<h2 id="accountupdateuser">Account.UpdateUser</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">account_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/account/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">UpdateUserRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">account_proto</span>.<span style="color:#a6e22e">UpdateUserResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.UpdateUser&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.account&#34;</span>, <span style="color:#e6db74">&#34;Account.UpdateUser&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-7">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-7">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-user-3">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>updated</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>first_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>username</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>payment_methods</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+<tr>
+<td>subscriptions</td>
+<td>Subscription</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-paymentmethod-4">Message PaymentMethod</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-subscription-3">Message Subscription</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-7"></h3>
+<!-- raw HTML omitted -->
+
+    
+        <h1 id="apps">apps</h1>
+<h2 id="appsimport">Apps.Import</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">apps_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/apps/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">apps_proto</span>.<span style="color:#a6e22e">ImportRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">apps_proto</span>.<span style="color:#a6e22e">ImportResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.apps&#34;</span>, <span style="color:#e6db74">&#34;Apps.Import&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.apps&#34;</span>, <span style="color:#e6db74">&#34;Apps.Import&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+
     
         <h1 id="asim">asim</h1>
 <h2 id="asimcall">Asim.Call</h2>
@@ -1925,6 +3271,194 @@
 <!-- raw HTML omitted -->
 
     
+        <h1 id="home">home</h1>
+<h2 id="homelistapps">Home.ListApps</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">home_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/home/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">home_proto</span>.<span style="color:#a6e22e">ListAppsRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">home_proto</span>.<span style="color:#a6e22e">ListAppsResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.home&#34;</span>, <span style="color:#e6db74">&#34;Home.ListApps&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.home&#34;</span>, <span style="color:#e6db74">&#34;Home.ListApps&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>apps</td>
+<td>App</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-app">Message App</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>category</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>icon</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+<h2 id="homereaduser">Home.ReadUser</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">home_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/home/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">home_proto</span>.<span style="color:#a6e22e">ReadUserRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">home_proto</span>.<span style="color:#a6e22e">ReadUserResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.home&#34;</span>, <span style="color:#e6db74">&#34;Home.ReadUser&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.home&#34;</span>, <span style="color:#e6db74">&#34;Home.ReadUser&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-1">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-1">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-user">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>first_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>profile_picture_url</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-1"></h3>
+<!-- raw HTML omitted -->
+
+    
         <h1 id="location">location</h1>
 <h2 id="locationread">Location.Read</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
@@ -2308,18 +3842,18 @@
 <!-- raw HTML omitted -->
 
     
-        <h1 id="notes">notes</h1>
-<h2 id="notescreate">Notes.Create</h2>
+        <h1 id="login">login</h1>
+<h2 id="logincreatelogin">Login.CreateLogin</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 <span style="color:#f92672">import</span> (
   <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
-  <span style="color:#a6e22e">notes_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/notes/proto&#34;</span>
+  <span style="color:#a6e22e">login_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/login/proto&#34;</span>
 )
 <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
   <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
-  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">CreateNoteRequest</span>{}
-  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">CreateNoteResponse</span>{}
-  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.Create&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">login_proto</span>.<span style="color:#a6e22e">CreateLoginRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">login_proto</span>.<span style="color:#a6e22e">CreateLoginResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.login&#34;</span>, <span style="color:#e6db74">&#34;Login.CreateLogin&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
     <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
     <span style="color:#66d9ef">return</span>
   }
@@ -2337,7 +3871,233 @@
   <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
   <span style="color:#a6e22e">ngOnInit</span>() {
     <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
-      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.Create&#34;</span>, {})
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.login&#34;</span>, <span style="color:#e6db74">&#34;Login.CreateLogin&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>validate_only</td>
+<td>bool</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+<h2 id="loginupdateemail">Login.UpdateEmail</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">login_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/login/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">login_proto</span>.<span style="color:#a6e22e">UpdateEmailRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">login_proto</span>.<span style="color:#a6e22e">UpdateEmailResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.login&#34;</span>, <span style="color:#e6db74">&#34;Login.UpdateEmail&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.login&#34;</span>, <span style="color:#e6db74">&#34;Login.UpdateEmail&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><p>TODO: Remove the RPC and replace with consuming users update events
+once we have update diff implemented.</p>
+<h3 id="request-parameters-1">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>old_email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>new_email</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-1">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-1"></h3>
+<!-- raw HTML omitted -->
+<h2 id="loginverifylogin">Login.VerifyLogin</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">login_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/login/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">login_proto</span>.<span style="color:#a6e22e">VerifyLoginRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">login_proto</span>.<span style="color:#a6e22e">VerifyLoginResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.login&#34;</span>, <span style="color:#e6db74">&#34;Login.VerifyLogin&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.login&#34;</span>, <span style="color:#e6db74">&#34;Login.VerifyLogin&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-2">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-2">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-2"></h3>
+<!-- raw HTML omitted -->
+
+    
+        <h1 id="notes">notes</h1>
+<h2 id="notescreatenote">Notes.CreateNote</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">notes_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/notes/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">CreateNoteRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">CreateNoteResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.CreateNote&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.CreateNote&#34;</span>, {})
       .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
         <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
       });
@@ -2411,7 +4171,7 @@
 </table>
 <h3 id="heading"></h3>
 <!-- raw HTML omitted -->
-<h2 id="notesdelete">Notes.Delete</h2>
+<h2 id="notesdeletenote">Notes.DeleteNote</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 <span style="color:#f92672">import</span> (
   <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
@@ -2421,7 +4181,7 @@
   <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
   <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">DeleteNoteRequest</span>{}
   <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">DeleteNoteResponse</span>{}
-  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.Delete&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.DeleteNote&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
     <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
     <span style="color:#66d9ef">return</span>
   }
@@ -2439,7 +4199,7 @@
   <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
   <span style="color:#a6e22e">ngOnInit</span>() {
     <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
-      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.Delete&#34;</span>, {})
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.DeleteNote&#34;</span>, {})
       .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
         <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
       });
@@ -2506,7 +4266,7 @@
 </table>
 <h3 id="heading-1"></h3>
 <!-- raw HTML omitted -->
-<h2 id="noteslist">Notes.List</h2>
+<h2 id="noteslistnotes">Notes.ListNotes</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 <span style="color:#f92672">import</span> (
   <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
@@ -2516,7 +4276,7 @@
   <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
   <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">ListNotesRequest</span>{}
   <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">ListNotesResponse</span>{}
-  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.List&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.ListNotes&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
     <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
     <span style="color:#66d9ef">return</span>
   }
@@ -2534,7 +4294,7 @@
   <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
   <span style="color:#a6e22e">ngOnInit</span>() {
     <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
-      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.List&#34;</span>, {})
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.ListNotes&#34;</span>, {})
       .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
         <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
       });
@@ -2601,7 +4361,7 @@
 </table>
 <h3 id="heading-2"></h3>
 <!-- raw HTML omitted -->
-<h2 id="notesupdate">Notes.Update</h2>
+<h2 id="notesupdatenote">Notes.UpdateNote</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 <span style="color:#f92672">import</span> (
   <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
@@ -2611,7 +4371,7 @@
   <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
   <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">UpdateNoteRequest</span>{}
   <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">UpdateNoteResponse</span>{}
-  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.Update&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.UpdateNote&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
     <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
     <span style="color:#66d9ef">return</span>
   }
@@ -2629,7 +4389,7 @@
   <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
   <span style="color:#a6e22e">ngOnInit</span>() {
     <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
-      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.Update&#34;</span>, {})
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.UpdateNote&#34;</span>, {})
       .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
         <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
       });
@@ -2696,17 +4456,20 @@
 </table>
 <h3 id="heading-3"></h3>
 <!-- raw HTML omitted -->
-<h2 id="notesupdatestream">Notes.UpdateStream</h2>
+
+    
+        <h1 id="payments">payments</h1>
+<h2 id="providercreatepaymentmethod">Provider.CreatePaymentMethod</h2>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 <span style="color:#f92672">import</span> (
   <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
-  <span style="color:#a6e22e">notes_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/notes/proto&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
 )
 <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
   <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
-  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">UpdateNoteRequest</span>{}
-  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">notes_proto</span>.<span style="color:#a6e22e">UpdateNoteResponse</span>{}
-  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.UpdateStream&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreatePaymentMethodRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreatePaymentMethodResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreatePaymentMethod&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
     <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
     <span style="color:#66d9ef">return</span>
   }
@@ -2724,13 +4487,13 @@
   <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
   <span style="color:#a6e22e">ngOnInit</span>() {
     <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
-      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.notes&#34;</span>, <span style="color:#e6db74">&#34;Notes.UpdateStream&#34;</span>, {})
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreatePaymentMethod&#34;</span>, {})
       .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
         <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
       });
   }
 }
-</code></pre></div><h3 id="request-parameters-4">Request Parameters</h3>
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -2741,13 +4504,18 @@
 </thead>
 <tbody>
 <tr>
-<td>note</td>
-<td>Note</td>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
 <td></td>
 </tr>
 </tbody>
 </table>
-<h3 id="response-parameters-4">Response Parameters</h3>
+<h3 id="response-parameters">Response Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -2756,8 +4524,15 @@
 <th>Description</th>
 </tr>
 </thead>
+<tbody>
+<tr>
+<td>payment_method</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+</tbody>
 </table>
-<h3 id="message-note-4">Message Note</h3>
+<h3 id="message-paymentmethod">Message PaymentMethod</h3>
 <table>
 <thead>
 <tr>
@@ -2778,18 +4553,569 @@
 <td></td>
 </tr>
 <tr>
-<td>title</td>
+<td>user_id</td>
 <td>string</td>
 <td></td>
 </tr>
 <tr>
-<td>text</td>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+<h2 id="providercreateplan">Provider.CreatePlan</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreatePlanRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreatePlanResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreatePlan&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreatePlan&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-1">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plan</td>
+<td>Plan</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-1">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-plan">Message Plan</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>amount</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>currency</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>interval</td>
+<td>PlanInterval</td>
+<td></td>
+</tr>
+<tr>
+<td>product_id</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-planinterval">Message PlanInterval</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-1"></h3>
+<!-- raw HTML omitted -->
+<h2 id="providercreateproduct">Provider.CreateProduct</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreateProductRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreateProductResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreateProduct&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreateProduct&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-2">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>product</td>
+<td>Product</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-2">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-product">Message Product</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>active</td>
+<td>bool</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-2"></h3>
+<!-- raw HTML omitted -->
+<h2 id="providercreatesubscription">Provider.CreateSubscription</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreateSubscriptionRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreateSubscriptionResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreateSubscription&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreateSubscription&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-3">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-3">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-3"></h3>
+<!-- raw HTML omitted -->
+<h2 id="providercreateuser">Provider.CreateUser</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreateUserRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">CreateUserResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreateUser&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.CreateUser&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-4">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User</td>
+<td>User</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-4">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-user">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
 <td>string</td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="heading-4"></h3>
+<!-- raw HTML omitted -->
+<h2 id="providerdeletepaymentmethod">Provider.DeletePaymentMethod</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">DeletePaymentMethodRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">DeletePaymentMethodResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.DeletePaymentMethod&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.DeletePaymentMethod&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-5">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-5">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="heading-5"></h3>
+<!-- raw HTML omitted -->
+<h2 id="providerlistpaymentmethods">Provider.ListPaymentMethods</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">payments_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/payments/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">ListPaymentMethodsRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">payments_proto</span>.<span style="color:#a6e22e">ListPaymentMethodsResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.ListPaymentMethods&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.payments&#34;</span>, <span style="color:#e6db74">&#34;Provider.ListPaymentMethods&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-6">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-6">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>payment_methods</td>
+<td>PaymentMethod</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-paymentmethod-1">Message PaymentMethod</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td>int64</td>
+<td></td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_brand</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_month</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_exp_year</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>card_last_4</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-6"></h3>
 <!-- raw HTML omitted -->
 
     
@@ -2856,6 +5182,601 @@
 </tbody>
 </table>
 <h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+
+    
+        <h1 id="platform">platform</h1>
+<h2 id="platformcreateservice">Platform.CreateService</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">platform_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/platform/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">CreateServiceRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">CreateServiceResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.CreateService&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.CreateService&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>service</td>
+<td>Service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-service">Message Service</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+<h2 id="platformdeleteservice">Platform.DeleteService</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">platform_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/platform/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">DeleteServiceRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">DeleteServiceResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.DeleteService&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.DeleteService&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-1">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>service</td>
+<td>Service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-1">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-service-1">Message Service</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-1"></h3>
+<!-- raw HTML omitted -->
+<h2 id="platformlistservices">Platform.ListServices</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">platform_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/platform/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">ListServicesRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">ListServicesResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.ListServices&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.ListServices&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-2">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-2">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>services</td>
+<td>Service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-service-2">Message Service</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-2"></h3>
+<!-- raw HTML omitted -->
+<h2 id="platformreadservice">Platform.ReadService</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">platform_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/platform/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">ReadServiceRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">ReadServiceResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.ReadService&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.ReadService&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-3">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>service</td>
+<td>Service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-3">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>services</td>
+<td>Service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-service-3">Message Service</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-3"></h3>
+<!-- raw HTML omitted -->
+<h2 id="platformreaduser">Platform.ReadUser</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">platform_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/platform/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">ReadUserRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">ReadUserResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.ReadUser&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.ReadUser&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-4">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-4">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>User</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-user">Message User</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>login</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>avatar_url</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>team_name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>team_url</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>organization_avatar_url</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-4"></h3>
+<!-- raw HTML omitted -->
+<h2 id="platformupdateservice">Platform.UpdateService</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">platform_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/platform/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">UpdateServiceRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">platform_proto</span>.<span style="color:#a6e22e">UpdateServiceResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.UpdateService&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.platform&#34;</span>, <span style="color:#e6db74">&#34;Platform.UpdateService&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-5">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>service</td>
+<td>Service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-5">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-service-4">Message Service</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-5"></h3>
 <!-- raw HTML omitted -->
 
     
@@ -3233,6 +6154,324 @@
 <td>count</td>
 <td>int64</td>
 <td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-2"></h3>
+<!-- raw HTML omitted -->
+
+    
+        <h1 id="serverless">serverless</h1>
+<h2 id="appscreate">Apps.Create</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">serverless_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/serverless/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">serverless_proto</span>.<span style="color:#a6e22e">CreateRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">serverless_proto</span>.<span style="color:#a6e22e">CreateResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.serverless&#34;</span>, <span style="color:#e6db74">&#34;Apps.Create&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.serverless&#34;</span>, <span style="color:#e6db74">&#34;Apps.Create&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>app</td>
+<td>App</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-app">Message App</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>eg. &ldquo;my-app-1&rdquo;</td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td>Optional commit hash to deploy a certain version</td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td>URL of the GitHub repo</td>
+</tr>
+<tr>
+<td>language</td>
+<td>string</td>
+<td>One of the predefined image tags from here <a href="https://github.com/micro/cells">https://github.com/micro/cells</a></td>
+</tr>
+<tr>
+<td>See top level folders</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>folder</td>
+<td>string</td>
+<td>Optional folder to cd into while building the app.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading"></h3>
+<!-- raw HTML omitted -->
+<h2 id="appsdelete">Apps.Delete</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">serverless_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/serverless/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">serverless_proto</span>.<span style="color:#a6e22e">DeleteRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">serverless_proto</span>.<span style="color:#a6e22e">DeleteResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.serverless&#34;</span>, <span style="color:#e6db74">&#34;Apps.Delete&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.serverless&#34;</span>, <span style="color:#e6db74">&#34;Apps.Delete&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-1">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>app</td>
+<td>App</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-parameters-1">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="message-app-1">Message App</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>eg. &ldquo;my-app-1&rdquo;</td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td>Optional commit hash to deploy a certain version</td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td>URL of the GitHub repo</td>
+</tr>
+<tr>
+<td>language</td>
+<td>string</td>
+<td>One of the predefined image tags from here <a href="https://github.com/micro/cells">https://github.com/micro/cells</a></td>
+</tr>
+<tr>
+<td>See top level folders</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>folder</td>
+<td>string</td>
+<td>Optional folder to cd into while building the app.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading-1"></h3>
+<!-- raw HTML omitted -->
+<h2 id="appslist">Apps.List</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;github.com/micro/clients/go/client&#34;</span>
+  <span style="color:#a6e22e">serverless_proto</span> <span style="color:#e6db74">&#34;github.com/micro/services/serverless/proto&#34;</span>
+)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewClient</span>(<span style="color:#66d9ef">nil</span>)
+  <span style="color:#a6e22e">req</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">serverless_proto</span>.<span style="color:#a6e22e">ListRequest</span>{}
+  <span style="color:#a6e22e">rsp</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">serverless_proto</span>.<span style="color:#a6e22e">ListResponse</span>{}
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Call</span>(<span style="color:#e6db74">&#34;go.micro.srv.serverless&#34;</span>, <span style="color:#e6db74">&#34;Apps.List&#34;</span>, <span style="color:#a6e22e">req</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">rsp</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">return</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">rsp</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// To install &#34;npm install --save @microhq/ng-client&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Component</span>, <span style="color:#a6e22e">OnInit</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@angular/core&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ClientService</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;@microhq/ng-client&#34;</span>;
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">Component</span>({
+  <span style="color:#a6e22e">selector</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;app-example&#34;</span>,
+  <span style="color:#a6e22e">templateUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;./example.component.html&#34;</span>,
+  <span style="color:#a6e22e">styleUrls</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;./example.component.css&#34;</span>]
+})
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleComponent</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">OnInit</span> {
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">mc</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">ClientService</span>) {}
+  <span style="color:#a6e22e">ngOnInit</span>() {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">mc</span>
+      .<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;go.micro.srv.serverless&#34;</span>, <span style="color:#e6db74">&#34;Apps.List&#34;</span>, {})
+      .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">response</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">any</span>) =&gt; {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">response</span>)
+      });
+  }
+}
+</code></pre></div><h3 id="request-parameters-2">Request Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h3 id="response-parameters-2">Response Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>apps</td>
+<td>App</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-app-2">Message App</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>eg. &ldquo;my-app-1&rdquo;</td>
+</tr>
+<tr>
+<td>version</td>
+<td>string</td>
+<td>Optional commit hash to deploy a certain version</td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td>URL of the GitHub repo</td>
+</tr>
+<tr>
+<td>language</td>
+<td>string</td>
+<td>One of the predefined image tags from here <a href="https://github.com/micro/cells">https://github.com/micro/cells</a></td>
+</tr>
+<tr>
+<td>See top level folders</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>folder</td>
+<td>string</td>
+<td>Optional folder to cd into while building the app.</td>
 </tr>
 </tbody>
 </table>

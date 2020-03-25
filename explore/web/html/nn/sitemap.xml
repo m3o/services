@@ -3,16 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://crufter.com/docuapi/nn/</loc>
+    <loc>https://explore.micro.mu/nn/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://crufter.com/docuapi/"
+                href="https://explore.micro.mu/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="nn"
-                href="http://crufter.com/docuapi/nn/"
+                href="https://explore.micro.mu/nn/"
                 />
   </url>
   
