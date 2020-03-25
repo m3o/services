@@ -1,6 +1,4 @@
 import axios from 'axios';
-
-
 // const BaseURL = 'http://dev.micro.mu:8080/account/'
 
 export const Domain = 'micro.mu';
@@ -47,5 +45,15 @@ export class PaymentMethod {
     this.cardExpMonth = args.cardExpMonth;
     this.cardExpYear = args.cardExpYear;
     this.cardLast4 = args.cardLast4;
+  }
+}
+
+export class Token {
+  token: string;
+  expires: number;
+
+  constructor(args: any) {
+    this.token = args.token;
+    this.expires = parseInt(args.expires);
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import Cookies from 'universal-cookie';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
-import Call, { User, Domain } from '../../api';
+import Call, { User, Domain, Token } from '../../api';
 import { setUser } from '../../store/User';
 import GoogleLogo from '../../assets/images/google-logo.png';
 import GitHubLogo from '../../assets/images/github-logo.png';
@@ -41,10 +41,13 @@ class Login extends React.Component<Props, State> {
 
     Call(path, { email, password })
       .then((res) => {
+        const user = new User(res.data.user);
+        const token = new Token(res.data.token);
+
         const cookies = new Cookies();
-        cookies.set('micro-token', res.data.token, { path: '/', domain: Domain });        
-        console.log(res.data.token);
-        this.props.setUser(res.data.user);
+        cookies.set('micro-token', token.token, { path: '/', domain: Domain });        
+
+        this.props.setUser(user);
       })
       .catch((err: any) => {
         const error = err.response ? err.response.data.detail : err.message;
