@@ -25,6 +25,9 @@ const (
 	// how many commits to load at service startup
 	// when we have no "latest" commit cached in memory
 	commitsToInit = 1
+
+	// The base image for our builds
+	image = "docker.pkg.github.com/micro/services"
 )
 
 type serviceStatus string
@@ -54,10 +57,10 @@ type fileToStatus struct {
 type manager struct {
 	// workflow file name
 	workflow string
-	// latest commit
-	latest string
-	// last updated
-	updated time.Time
+	// latest commit hash
+	latestCommit string
+	// last updated value of the latest processed workflow run
+	lastUpdated time.Time
 
 	// the github client
 	// TODO: pluggable source
@@ -134,20 +137,26 @@ func topFolders(path string) []string {
 	return ret
 }
 
-func (m *manager) updateService(folderPath, commit string, status serviceStatus) error {
+func (m *manager) updateService(folderPath, commit, build string, status serviceStatus) error {
 	service := &runtime.Service{
 		Name:    folderPath,
+		Source:  folderPath,
 		Version: commit,
+		Metadata: map[string]string{
+			"commit": commit,
+			"build":  build,
+		},
 	}
 	typ := typeFromFolder(folderPath)
-	image := "micro/services"
+	formattedName := strings.ReplaceAll(service.Name, "/", "-")
+	img := fmt.Sprintf("%v/%v", image, formattedName)
 
 	switch status {
 	case serviceStatusCreated:
 		opts := []runtime.CreateOption{
 			// create a specific service type
 			runtime.CreateType(typ),
-			runtime.CreateImage(image),
+			runtime.CreateImage(img),
 		}
 
 		if err := runtime.DefaultRuntime.Create(service, opts...); err != nil {
@@ -184,7 +193,7 @@ func (m *manager) Run() {
 		select {
 		case <-t.C:
 			log.Info("Listing workflows")
-			allWorkflows, _, err := m.client.Actions.ListWorkflowRunsByFileName(
+			workflows, _, err := m.client.Actions.ListWorkflowRunsByFileName(
 				context.Background(),
 				owner,
 				repo,
@@ -198,46 +207,57 @@ func (m *manager) Run() {
 				log.Errorf("Error listing workflows: %v", err)
 				continue
 			}
-
-			workflows := successfulWorkflows(allWorkflows)
-			for _, workflow := range workflows {
-
-			}
-
-			// same as last time
-			if latest == m.latest {
+			if len(workflows.WorkflowRuns) == 0 {
+				log.Error("No workflows returned")
 				continue
 			}
 
-			folderStatuses, err := m.getChangedFolders(commit)
-			if err != nil {
-				log.Errorf("Can't get services from commit", err)
+			var processList []*github.WorkflowRun
+			// If there is nothing in memory, just process the last
+			// workflow.
+			if m.latestCommit == "" {
+				processList = workflows.WorkflowRuns[0:1]
+			} else {
+				processList = workflows.WorkflowRuns
+				reverse(processList)
 			}
 
-			// perform an update
-			for folder, status := range folderStatuses {
-				if err := m.updateService(folder, latest, status); err != nil {
-					log.Errorf("Error updating service '%v': %v", folder, err)
+			for _, workflow := range processList {
+				if m.lastUpdated.After(workflow.GetUpdatedAt().Time) {
 					continue
 				}
+				if workflow.GetConclusion() != "success" {
+					continue
+				}
+				commit := workflow.GetHeadSHA()
+				log.Infof("Processing workflow run for commit %v", commit)
+
+				folderStatuses, err := m.getChangedFolders(commit)
+				if err != nil {
+					log.Errorf("Can't get services from commit", err)
+				}
+
+				// perform an update
+				for folder, status := range folderStatuses {
+					if err := m.updateService(folder, commit, fmt.Sprintf("%v", workflow.GetID()), status); err != nil {
+						log.Errorf("Error updating service '%v': %v", folder, err)
+						continue
+					}
+				}
+
+				// save the latest
+				m.latestCommit = commit
+				m.lastUpdated = workflow.GetUpdatedAt().Time
 			}
 
-			// save the latest
-			m.latest = latest
-			m.updated = time.Now()
 		}
 	}
 }
 
-func successfulWorkflows(workflows *github.WorkflowRuns) []*github.WorkflowRun {
-	ret := []*github.WorkflowRun{}
-	for _, wf := range workflows.WorkflowRuns {
-		if wf.GetConclusion() != "success" {
-			continue
-		}
-		ret = append(ret, wf)
+func reverse(s []*github.WorkflowRun) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
 	}
-	return ret
 }
 
 // Start the scheduler
