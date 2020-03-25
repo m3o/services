@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	owner = "micro"
-	repo  = "services"
+	owner   = "micro"
+	repo    = "services"
+	repoURL = "github.com/micro/services"
 	// DefaultVersion is the default version of the service
 	// the assume if none is specified
 	DefaultVersion = "latest"
@@ -140,10 +141,11 @@ func topFolders(path string) []string {
 func (m *manager) updateService(folderPath, commit, build string, status serviceStatus) error {
 	service := &runtime.Service{
 		Name:    folderPath,
-		Source:  folderPath,
+		Source:  path.Join(repoURL, folderPath),
 		Version: commit,
 		Metadata: map[string]string{
 			"commit": commit,
+			"repo":   repoURL,
 			"build":  build,
 		},
 	}
