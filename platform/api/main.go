@@ -128,7 +128,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 		acc.Metadata = make(map[string]string)
 	}
 
-	uRsp, err := h.Users.Read(ctx, &users.ReadRequest{Id: acc.Id})
+	uRsp, err := h.Users.Read(ctx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
