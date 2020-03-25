@@ -21,8 +21,14 @@ func (h *Handler) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest,
 
 // Login looks up an account using an email and password
 func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.LoginResponse) error {
+	// Generate a context with elevated privelages
+	privCtx, err := auth.ContextWithAccount(ctx, h.account)
+	if err != nil {
+		return err
+	}
+
 	// Verify the login credentials
-	lRsp, err := h.login.VerifyLogin(ctx, &login.VerifyLoginRequest{
+	lRsp, err := h.login.VerifyLogin(privCtx, &login.VerifyLoginRequest{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -31,7 +37,7 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 	}
 
 	// Lookup the user
-	uRsp, err := h.users.Read(ctx, &users.ReadRequest{Id: lRsp.Id})
+	uRsp, err := h.users.Read(privCtx, &users.ReadRequest{Id: lRsp.Id})
 	if err != nil {
 		return err
 	}
@@ -55,8 +61,14 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 
 // Signup creates an account using an email and password
 func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.SignupResponse) error {
+	// Generate a context with elevated privelages
+	privCtx, err := auth.ContextWithAccount(ctx, h.account)
+	if err != nil {
+		return err
+	}
+
 	// Validate the user can be created
-	_, err := h.users.Create(ctx, &users.CreateRequest{
+	_, err = h.users.Create(privCtx, &users.CreateRequest{
 		User:         &users.User{Email: req.Email},
 		ValidateOnly: true,
 	})
@@ -65,7 +77,7 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	}
 
 	// Verify the login credentials
-	_, err = h.login.CreateLogin(ctx, &login.CreateLoginRequest{
+	_, err = h.login.CreateLogin(privCtx, &login.CreateLoginRequest{
 		Email:        req.Email,
 		Password:     req.Password,
 		ValidateOnly: true,
@@ -75,7 +87,7 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	}
 
 	// Create the user
-	uRsp, err := h.users.Create(ctx, &users.CreateRequest{
+	uRsp, err := h.users.Create(privCtx, &users.CreateRequest{
 		User: &users.User{Email: req.Email},
 	})
 	if err != nil {
@@ -83,13 +95,13 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	}
 
 	// Create the login credentials
-	_, err = h.login.CreateLogin(ctx, &login.CreateLoginRequest{
+	_, err = h.login.CreateLogin(privCtx, &login.CreateLoginRequest{
 		Email:    req.Email,
 		Password: req.Password,
 		Id:       uRsp.User.Id,
 	})
 	if err != nil {
-		h.users.Delete(ctx, &users.DeleteRequest{Id: uRsp.User.Id})
+		h.users.Delete(privCtx, &users.DeleteRequest{Id: uRsp.User.Id})
 		return err
 	}
 

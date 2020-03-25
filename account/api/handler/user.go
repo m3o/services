@@ -16,6 +16,12 @@ import (
 
 // ReadUser retrieves a user from the users service
 func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb.ReadUserResponse) error {
+	// Generate a context with elevated privelages
+	privCtx, err := auth.ContextWithAccount(ctx, h.account)
+	if err != nil {
+		return err
+	}
+
 	// Identify the user
 	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
@@ -26,7 +32,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	// Lookup the user
-	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
+	resp, err := h.users.Read(privCtx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
@@ -39,7 +45,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	// Fetch the payment methods
-	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
+	pRsp, err := h.payment.ListPaymentMethods(privCtx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
 	if err != nil {
 		log.Infof("Error listing payment methods: %v", err)
 		return nil
@@ -56,6 +62,12 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 // UpdateUser modifies a user in the users service
 func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp *pb.UpdateUserResponse) error {
+	// Generate a context with elevated privelages
+	privCtx, err := auth.ContextWithAccount(ctx, h.account)
+	if err != nil {
+		return err
+	}
+
 	// Identify the user
 	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
@@ -72,13 +84,13 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	req.User.Id = acc.ID
 
 	// Get the user
-	rRsp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
+	rRsp, err := h.users.Read(privCtx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
 
 	// Update the user
-	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
+	uRsp, err := h.users.Update(privCtx, &users.UpdateRequest{User: deserializeUser(req.User)})
 	if err != nil {
 		return err
 	}
