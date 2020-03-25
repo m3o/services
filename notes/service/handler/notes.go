@@ -58,7 +58,7 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateNoteRequest, rsp *pb
 	}
 
 	// write to the store
-	s := scope.NewScope(h.store, user.Id)
+	s := scope.NewScope(h.store, user.ID)
 	err = s.Write(&store.Record{Key: note.Id, Value: bytes})
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateNoteRequest, rsp *pb
 	}
 
 	// Lookup the note from the store
-	s := scope.NewScope(h.store, user.Id)
+	s := scope.NewScope(h.store, user.ID)
 	recs, err := s.Read(req.Note.Id)
 	if err == store.ErrNotFound {
 		return errors.NotFound(h.name, "Note not found")
@@ -127,7 +127,7 @@ func (h *Handler) UpdateStream(ctx context.Context, stream pb.Notes_UpdateStream
 	if err != nil {
 		return err
 	}
-	s := scope.NewScope(h.store, user.Id)
+	s := scope.NewScope(h.store, user.ID)
 
 	for {
 		// Get a request from the stream
@@ -193,7 +193,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteNoteRequest, rsp *pb
 	}
 
 	// Delete the note using ID and return the error
-	s := scope.NewScope(h.store, user.Id)
+	s := scope.NewScope(h.store, user.ID)
 	return s.Delete(req.Note.Id)
 }
 
@@ -204,7 +204,7 @@ func (h *Handler) List(ctx context.Context, req *pb.ListNotesRequest, rsp *pb.Li
 	if err != nil {
 		return err
 	}
-	s := scope.NewScope(h.store, user.Id)
+	s := scope.NewScope(h.store, user.ID)
 
 	// Retrieve all of the records in the store
 	recs, err := s.Read("")
