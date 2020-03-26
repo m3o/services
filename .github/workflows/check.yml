@@ -20,4 +20,5 @@ jobs:
         ./test.sh
         cd explore/web
         export GOBIN=$(go env GOPATH)/bin
+        export PATH=$PATH:$GOBIN
         go generate
