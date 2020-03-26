@@ -2,6 +2,8 @@
 set -e
 set -x
 
+go env
+
 go get --tags extended github.com/gohugoio/hugo
 go get github.com/micro/platform
 
