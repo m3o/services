@@ -1,0 +1,1 @@
+//go:generate ./hugo_build.sh
