@@ -2,6 +2,9 @@ name: Build
 
 on: 
   push:
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -35,13 +38,15 @@ jobs:
           make build
           cd ..
       - name: Build and push docker images
-        run: |          
-          # Login to docker
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+        run: |
+          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+            # Login to docker
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+          fi
 
           # Build the binaries in the directories which have changed
-          ./build.sh "${{ steps.services_changed.outputs.services_added }}"
-          ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+          ./build.sh "${{ steps.services_changed.outputs.services_added }}" "${{ secrets.GITHUB_TOKEN }}"
+          ./build.sh "${{ steps.services_changed.outputs.services_modified }}" "${{ secrets.GITHUB_TOKEN }}"
       - name: Build Finished Webhook
         run: |
           ./event.sh "build.finished" "${GITHUB_RUN_ID}"

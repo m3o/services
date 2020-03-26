@@ -25,9 +25,11 @@ function build {
     tag=docker.pkg.github.com/micro/services/$(echo $dir | tr / -)
     docker build . -t $tag -f $rootDir/.github/workflows/Dockerfile
 
-    # push the docker image
-    echo Pushing $tag
-    docker push $tag
+    if [ -z "$2" ]; then
+        # push the docker image
+        echo Pushing $tag
+        docker push $tag
+    fi
 
     # remove the binaries
     rm service
