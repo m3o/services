@@ -8,7 +8,9 @@ export GOARCH=amd64
 SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
 rootDir=$(pwd)
-for dir in "${SERVICES[@]}"; do
+
+function build {
+    dir=$1
     echo Building $dir
     cd $dir
 
@@ -37,4 +39,11 @@ for dir in "${SERVICES[@]}"; do
 
     # go back to the top level dir
     cd $rootDir
+}
+
+# This must always be deployed even if it has not changed
+build "explore/web"
+
+for dir in "${SERVICES[@]}"; do
+    build $dir
 done
