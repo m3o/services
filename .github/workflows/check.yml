@@ -18,5 +18,3 @@ jobs:
     - name: Sanity check the repo
       run: |
         ./test.sh
-        cd explore/web
-        go generate
