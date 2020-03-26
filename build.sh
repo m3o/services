@@ -6,10 +6,10 @@ export GOOS=linux
 export GOARCH=amd64 
 
 if [ -z "$1" ]; then
-    echo "No service change list"
+    SERVICES=($(find . -name main.go | cut -c 3- | rev | cut -c 9- | rev))
+else
+    SERVICES=($1) # e.g. "foobar barfoo helloworld"
 fi
-
-SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
 rootDir=$(pwd)
 
