@@ -1,0 +1,38 @@
+// This is the recommended place for user overrides.
+// See _variables.scss for available tweaks.
+// Also see exampleSite/assets/scss/slate/docuapi_overrides.scss for some example tweaks.
+
+// taken from https://github.com/micro/services/commit/08ac09397107160289b612db1f25a152ed919d17#diff-d8c07671afbab18ff85f3cb38a1de246
+// BACKGROUND COLORS
+////////////////////
+$nav-bg: white !default;
+$examples-bg: white !default;
+$code-bg: white !default;
+$code-annotation-bg: #191D1F !default;
+$nav-subitem-bg: white !default;
+$nav-active-bg: #0F75D4 !default;
+$nav-active-parent-bg: white !default; // parent links of the current section
+$lang-select-border: #000 !default;
+$lang-select-bg: white !default;
+$lang-select-active-bg: $examples-bg !default; // feel free to change this to blue or something
+$lang-select-pressed-bg: #111 !default; // color of language tab bg when mouse is pressed
+$main-bg: white !default;
+$aside-notice-bg: #8fbcd4 !default;
+$aside-warning-bg: #c97a7e !default;
+$aside-success-bg: #6ac174 !default;
+$search-notice-bg: #c97a7e !default;
+
+.logo {
+  width: 70%;
+  margin: 2em auto 2em auto !important;
+}
+
+// TEXT COLORS
+////////////////////
+$main-text: #333 !default; // main content text color
+$nav-text: #444 !default;
+$nav-active-text: #444 !default;
+$nav-active-parent-text: #444 !default; // parent links of the current section
+$lang-select-text: #444 !default; // color of unselected language tab text
+$lang-select-active-text: #444 !default; // color of selected language tab text
+$lang-select-pressed-text: #444 !default; // color of language tab text when mouse is pressed
