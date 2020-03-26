@@ -15,8 +15,8 @@ jobs:
       - name: Detect which services changed
         id: services_changed
         uses: micro/actions@1.1.1
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+        #with:
+        #  githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Started Webhook
         run: |
           ./event.sh "build.started" "${GITHUB_RUN_ID}"
