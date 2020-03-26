@@ -2,6 +2,9 @@
 set -e
 set -x
 
+export GOBIN=$(go env GOPATH)/bin
+export PATH=$PATH:$GOBIN
+
 go env
 
 go get --tags extended github.com/gohugoio/hugo
@@ -11,8 +14,8 @@ mkdir html
 
 cd docuapi/microApi/content;
 platform doc-gen --path=../
-ls
 cd ..
 
 hugo -D 
 mv public/* ../../html/
+ls ../../html/
