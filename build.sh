@@ -18,7 +18,7 @@ function build {
     #find . -name "*.proto" | xargs --no-run-if-empty protoc --proto_path=. --micro_out=. --go_out=.  
 
     if [ "$dir" == "explore/web" ]; then
-        go generate
+        # go generate
     fi
 
     # build the binaries
