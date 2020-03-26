@@ -5,12 +5,8 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
-echo $GITHUB_REPOSITORY
-echo $PR_NUMBER
 URL="https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files"
-FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
-echo $FILES
-exit 1
+FILES=($(curl -s -X GET -G $URL | jq -r '.[] | .filename'))
 
 if [ -z "$1" ]; then
     SERVICES=($(find . -name main.go | cut -c 3- | rev | cut -c 9- | rev))
@@ -20,9 +16,22 @@ fi
 
 rootDir=$(pwd)
 
+function containsElement () {
+  local e match="$1"
+  shift
+  for e; do echo $e && echo $match && [[ "$e" =~ "$match" ]] && return 0; done
+  return 1
+}
+
 function build {
     dir=$1
-    echo Building $dir
+    containsElement $dir "${FILES[@]}"
+    if [ $? -eq 0 ]; then
+        echo Building $dir
+    else
+        echo Skipping $dir
+    fi
+    
     cd $dir
 
     # build the proto buffers
