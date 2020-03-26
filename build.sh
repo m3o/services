@@ -33,6 +33,8 @@ function build {
         # push the docker image
         echo Pushing $tag
         docker push $tag
+    then
+        echo "Skipping pushing docker images due to lack of credentials"
     fi
 
     # remove the binaries

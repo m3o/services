@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"serverless/web/handler/auth"
-
 	"github.com/micro/go-micro/v2/web"
 )
 
@@ -18,8 +16,6 @@ func main() {
 	if err := service.Init(); err != nil {
 		log.Fatal(err)
 	}
-
-	auth.RegisterHandlers(service)
 
 	service.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		// Count is an ugly fix to serve urls containing micro service names ie. "go.micro.something"

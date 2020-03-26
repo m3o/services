@@ -7,14 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	"github.com/micro/go-micro/v2/web"
 )
-
-func IsLoggedIn(service web.Service, token string) error {
-	_, err := service.Options().Service.Options().Auth.Verify(token)
-	return err
-}
 
 // These functions serve no other purpose than to help
 // with unmarshaling/marshaling JSON inputs and outputs for handlers.
