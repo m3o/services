@@ -5,6 +5,11 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
+URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+echo $FILES
+exit 1
+
 if [ -z "$1" ]; then
     SERVICES=($(find . -name main.go | cut -c 3- | rev | cut -c 9- | rev))
 else
