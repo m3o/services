@@ -12,7 +12,7 @@ go get github.com/micro/platform
 
 mkdir html
 
-cd docuapi/microApi/content;
+cd docuapi/microApi/content
 platform doc-gen --path=../
 cd ..
 
