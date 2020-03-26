@@ -55,11 +55,13 @@ jobs:
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
             # Login to docker
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
+            
+            # Build the binaries in the directories which have changed
+            ./build.sh "${{ steps.services_changed.outputs.services_added }}"
+            ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+          else 
+            ./build.sh
           fi
-
-          # Build the binaries in the directories which have changed
-          ./build.sh "${{ steps.services_changed.outputs.services_added }}"
-          ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
       - name: Build Finished Webhook
         run: |
           ./event.sh "build.finished" "${GITHUB_RUN_ID}"
