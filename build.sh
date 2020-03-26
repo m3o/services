@@ -5,6 +5,10 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
+if [ -z "$1" ]; then
+    echo "No service change list"
+fi
+
 SERVICES=($1) # e.g. "foobar barfoo helloworld"
 
 rootDir=$(pwd)
@@ -25,7 +29,7 @@ function build {
     tag=docker.pkg.github.com/micro/services/$(echo $dir | tr / -)
     docker build . -t $tag -f $rootDir/.github/workflows/Dockerfile
 
-    if [ -z "$2" ]; then
+    if [ -z "$1" ]; then
         # push the docker image
         echo Pushing $tag
         docker push $tag
