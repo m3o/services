@@ -7,6 +7,7 @@ go get github.com/micro/platform
 
 cd docuapi/microApi/content;
 platform doc-gen --path=../
+ls
 cd ..
 
 hugo -D 
