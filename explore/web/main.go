@@ -6,6 +6,8 @@ import (
 	"github.com/micro/go-micro/v2/web"
 )
 
+//go:generate ./hugo_build.sh
+
 func main() {
 	service := web.NewService(
 		web.Name("go.micro.web.explore"),
