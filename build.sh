@@ -42,7 +42,7 @@ function build {
 }
 
 # This must always be deployed even if it has not changed
-build "explore/web"
+# build "explore/web"
 
 for dir in "${SERVICES[@]}"; do
     build $dir
