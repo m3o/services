@@ -28,6 +28,7 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Started Webhook
+        if: github.ref == 'master'
         run: |
           ./event.sh "build.started" "${GITHUB_RUN_ID}"
       - name: Install Go
@@ -51,6 +52,7 @@ jobs:
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          BRANCH: ${{ github.ref }}
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
             # Login to docker
@@ -63,9 +65,10 @@ jobs:
             ./build.sh
           fi
       - name: Build Finished Webhook
+        if: github.ref == 'master'
         run: |
           ./event.sh "build.finished" "${GITHUB_RUN_ID}"
       - name: Build Failed Webhook
-        if: failure()
+        if: failure() && github.ref == 'master'
         run: |
           ./event.sh "build.failed" "${GITHUB_RUN_ID}"
