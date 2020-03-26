@@ -19,14 +19,16 @@ rootDir=$(pwd)
 function containsElement () {
   local e match="$1"
   shift
-  for e; do echo $e && echo $match && [[ "$e" =~ "$match" ]] && return 0; done
+  for e; do [[ "$e" =~ "$match" ]] && return 0; done
   return 1
 }
 
 function build {
     dir=$1
-    containsElement $dir "${FILES[@]}"
-    if [ $? -eq 0 ]; then
+    EXIT_CODE=0
+    # We don't want to fail the whole script if contains fails
+    containsElement $dir "${FILES[@]}" || EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 0 ]; then
         echo Building $dir
     else
         echo Skipping $dir
