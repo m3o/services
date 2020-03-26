@@ -5,7 +5,9 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
-URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+echo $GITHUB_REPOSITORY
+echo $PR_NUMBER
+URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ PR_NUMBER }}/files"
 FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
 echo $FILES
 exit 1

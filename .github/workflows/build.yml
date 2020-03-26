@@ -48,6 +48,9 @@ jobs:
           make build
           cd ..
       - name: Build and push docker images
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
             # Login to docker
