@@ -8,6 +8,8 @@ export GOARCH=amd64
 URL="https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files"
 FILES=($(curl -s -X GET -G $URL | jq -r '.[] | .filename'))
 
+# Might not always have services passed down -
+# Github Actions needs GITHUB_TOKEN and for PR forks we don't have that.
 if [ -z "$1" ]; then
     SERVICES=($(find . -name main.go | cut -c 3- | rev | cut -c 9- | rev))
 else
@@ -32,6 +34,7 @@ function build {
         echo Building $dir
     else
         echo Skipping $dir
+        return 0
     fi
     
     cd $dir
