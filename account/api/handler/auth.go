@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/services/account/api/proto/account"
@@ -11,7 +12,7 @@ import (
 
 // RefreshToken generates a new JWT using a secret token
 func (h *Handler) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest, rsp *pb.RefreshTokenResponse) error {
-	tok, err := h.auth.Refresh(req.Secret)
+	tok, err := h.auth.Refresh(req.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}
@@ -44,7 +45,7 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 	if err != nil {
 		return err
 	}
-	tok, err := h.auth.Refresh(acc.Secret.Token)
+	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	if err != nil {
 		return err
 	}
-	tok, err := h.auth.Refresh(acc.Secret.Token)
+	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
@@ -30,7 +31,8 @@ func NewHandler(srv micro.Service) *Handler {
 	if err != nil {
 		log.Fatalf("Unable to generate service auth account: %v", err)
 	}
-	token, err := srv.Options().Auth.Refresh(account.Secret.Token)
+	// todo: renew token automatically
+	token, err := srv.Options().Auth.Refresh(account.Secret.Token, auth.WithTokenExpiry(time.Hour*24*30))
 	if err != nil {
 		log.Fatalf("Unable to generate service auth token: %v", err)
 	}
