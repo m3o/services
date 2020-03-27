@@ -12,23 +12,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
-      - name: Set up conditional variables
-        id: vars
-        # This is a hack to support the conditional if in the next step
-        # see https://github.community/t5/GitHub-Actions/If-expression-with-context-variable/td-p/34556
-        run: |
-          unset HAS_SECRET
-          if [ -n $SECRET ]; then HAS_SECRET='true' ; fi
-        env:
-          SECRET: "${{ secrets.GITHUB_TOKEN }}"
       - name: Detect which services changed
         id: services_changed
         uses: micro/actions@1.1.1
-        if: ${{ steps.vars.outputs.HAS_SECRET }}
+        continue-on-error: true
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Started Webhook
-        if: github.ref == 'master'
+        if: github.ref == 'refs/heads/master'
         run: |
           ./event.sh "build.started" "${GITHUB_RUN_ID}"
       - name: Install Go
@@ -54,21 +45,25 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           BRANCH: ${{ github.ref }}
         run: |
-          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+          if [ -z "${{ steps.services_changed.outputs.services_added }}" ] && [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
+            ./build.sh
+          else 
             # Login to docker
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
             
             # Build the binaries in the directories which have changed
-            ./build.sh "${{ steps.services_changed.outputs.services_added }}"
-            ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
-          else 
-            ./build.sh
+            if [ -n "${{ steps.services_changed.outputs.services_added }}" ]; then
+              ./build.sh "${{ steps.services_changed.outputs.services_added }}"
+            fi
+            if [ -n "${{ steps.services_changed.outputs.services_modified }}" ]; then
+              ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+            fi
           fi
       - name: Build Finished Webhook
-        if: github.ref == 'master'
+        if: github.ref == 'refs/heads/master'
         run: |
           ./event.sh "build.finished" "${GITHUB_RUN_ID}"
       - name: Build Failed Webhook
-        if: failure() && github.ref == 'master'
+        if: failure() && github.ref == 'refs/heads/master'
         run: |
           ./event.sh "build.failed" "${GITHUB_RUN_ID}"

@@ -113,7 +113,6 @@ func (e *Apps) Delete(ctx context.Context, req *serverless.DeleteRequest, rsp *s
 	}
 
 	// TODO: delete app reference
-
 	return nil
 }
 
