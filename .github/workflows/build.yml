@@ -45,7 +45,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           BRANCH: ${{ github.ref }}
         run: |
-          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+          if [ -z "${{ steps.services_changed.outputs.services_added }}" ]; then
             ./build.sh
           else 
             # Login to docker
