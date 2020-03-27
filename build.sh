@@ -5,13 +5,12 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
-URL="https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files"
-FILES=($(curl -s -X GET -G $URL | jq -r '.[] | .filename'))
-
 # Might not always have services passed down -
 # Github Actions needs GITHUB_TOKEN and for PR forks we don't have that.
 if [ -z "$1" ]; then
     SERVICES=($(find . -name main.go | cut -c 3- | rev | cut -c 9- | rev))
+    URL="https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files"
+    FILES=($(curl -s -X GET -G $URL | jq -r '.[] | .filename'))
 else
     SERVICES=($1) # e.g. "foobar barfoo helloworld"
 fi
@@ -19,6 +18,10 @@ fi
 rootDir=$(pwd)
 
 function containsElement () {
+  # If file change was passed down, this function always returns true
+  if [ -n "$1" ]; then
+    return 0;
+  fi
   local e match="$1"
   shift
   for e; do [[ "$e" =~ ^$match ]] && return 0; done
