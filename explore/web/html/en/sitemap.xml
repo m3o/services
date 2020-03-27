@@ -3,6 +3,114 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://explore.micro.mu/account/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/apps/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/asim/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/auth/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/ben/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/client/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/distributed/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/explore/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/graphql/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/helloworld/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/home/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/location/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/login/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/notes/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/payments/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/ping/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/platform/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/platform-test/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/pong/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/rex/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/serverless/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/sokolovstas/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/subscribe/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/sumo/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/users/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/vtolstov/</loc>
+  </url>
+  
+  <url>
+    <loc>https://explore.micro.mu/xian/</loc>
+  </url>
+  
+  <url>
     <loc>https://explore.micro.mu/</loc>
     <xhtml:link
                 rel="alternate"
