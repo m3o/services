@@ -26,7 +26,9 @@ export function removePaymentMethod(pm: PaymentMethod): Action {
   return { type: REMOVE_PAYMENT_METHOD, paymentMethod: pm };
 }
 
-const defaultState: State = {};
+const defaultState: State = {
+  // user: new User({ id: "aeecc8a8-eb28-4b17-bb19-7d103f125e66", email: "ben@micro.mu" }),
+};
 export default function(state = defaultState, action: Action): State {
   switch (action.type) {
     case SET_USER: 

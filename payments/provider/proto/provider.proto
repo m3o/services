@@ -7,6 +7,7 @@ service Provider {
   rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse);
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
   rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
 	rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse);
 	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
@@ -59,8 +60,25 @@ message CreateUserRequest {
 
 message CreateUserResponse {}
 
-message CreateSubscriptionRequest {}
+message CreateSubscriptionRequest {
+  string user_id = 1;
+  string plan_id = 2;
+}
+
 message CreateSubscriptionResponse {}
+
+message ListSubscriptionsRequest {
+  string user_id = 1;
+  string plan_id = 2;
+}
+
+message Subscription {
+  
+}
+
+message ListSubscriptionsResponse {
+  repeated Subscription subscriptions = 1;
+}
 
 message PaymentMethod {
   string id = 1;

@@ -14,6 +14,8 @@ export class User {
   email: string;
   username: string;
   paymentMethods: PaymentMethod[];
+  subscriptions: Subscription[];
+  roles: string[];
 
   constructor(args: any) {
     this.id = args.id;
@@ -22,7 +24,23 @@ export class User {
     this.email = args.email;
     this.username = args.username;
     this.paymentMethods = (args.paymentMethods || []).map(p => new PaymentMethod(p));
+    this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
+    this.roles = args.roles || [];
   }
+
+  requiresOnboarding():boolean {
+    // testing
+    return this.email === 'ben@micro.mu';
+
+    if(this.roles.includes('admin')) return false;
+    if(this.paymentMethods.length === 0) return true;
+    if(this.subscriptions.length === 0) return true;
+    return false
+  }
+}
+
+export class Subscription {
+  constructor(args: any) {}
 }
 
 export class PaymentMethod {
@@ -49,10 +67,10 @@ export class PaymentMethod {
 
 export class Token {
   token: string;
-  expires: number;
+  expires: Date;
 
   constructor(args: any) {
     this.token = args.token;
-    this.expires = parseInt(args.expires);
+    this.expires = new Date(args.expires * 1000)
   }
 }

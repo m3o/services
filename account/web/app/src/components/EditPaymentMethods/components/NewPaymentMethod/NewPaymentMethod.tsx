@@ -39,7 +39,7 @@ export default ({ onSuccess, onError, onSubmit, saving }: Props) => {
     // Submit to the API
     Call("CreatePaymentMethod", { id: paymentMethod!.id })
     .then(res => onSuccess(res.data.paymentMethod))
-    .catch(onError);
+    .catch(err => onError(err.message));
   }
 
   return(

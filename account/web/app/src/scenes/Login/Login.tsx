@@ -2,6 +2,7 @@ import React from 'react';
 import Cookies from 'universal-cookie';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
+import { withRouter } from "react-router-dom";
 import Call, { User, Domain, Token } from '../../api';
 import { setUser } from '../../store/User';
 import GoogleLogo from '../../assets/images/google-logo.png';
@@ -9,6 +10,7 @@ import GitHubLogo from '../../assets/images/github-logo.png';
 import './Login.scss';
 
 interface Props {
+  history: any;
   redirect?: string;
   setUser: (user: User) => void;
 }
@@ -44,11 +46,13 @@ class Login extends React.Component<Props, State> {
       .then((res) => {
         const user = new User(res.data.user);
         const token = new Token(res.data.token);
-
-        const cookies = new Cookies();
-        cookies.set('micro-token', token.token, { path: '/', domain: Domain });        
-
         this.props.setUser(user);
+        
+        const cookies = new Cookies();
+        cookies.set('micro-token', token.token, { path: '/', domain: Domain, expires: token.expires });                
+
+        // check to see if the user needs onboarding
+        if(user.requiresOnboarding()) this.props.history.push('/account/onboarding');
       })
       .catch((err: any) => {
         const error = err.response ? err.response.data.detail : err.message;
@@ -165,4 +169,4 @@ function mapDispatchToProps(dispatch: Function):any {
   });
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Login));

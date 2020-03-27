@@ -8,3 +8,5 @@ require (
 	github.com/micro/services/users/service v0.0.0-20200313083714-e72c0c76aa9a
 	github.com/stripe/stripe-go v70.2.0+incompatible
 )
+
+replace github.com/micro/services/payments/provider => ../

@@ -38,6 +38,7 @@ type ProviderService interface {
 	CreatePlan(ctx context.Context, in *CreatePlanRequest, opts ...client.CallOption) (*CreatePlanResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...client.CallOption) (*CreateUserResponse, error)
 	CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...client.CallOption) (*CreateSubscriptionResponse, error)
+	ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...client.CallOption) (*ListSubscriptionsResponse, error)
 	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
 	ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, opts ...client.CallOption) (*ListPaymentMethodsResponse, error)
 	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
@@ -95,6 +96,16 @@ func (c *providerService) CreateSubscription(ctx context.Context, in *CreateSubs
 	return out, nil
 }
 
+func (c *providerService) ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...client.CallOption) (*ListSubscriptionsResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.ListSubscriptions", in)
+	out := new(ListSubscriptionsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *providerService) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error) {
 	req := c.c.NewRequest(c.name, "Provider.CreatePaymentMethod", in)
 	out := new(CreatePaymentMethodResponse)
@@ -132,6 +143,7 @@ type ProviderHandler interface {
 	CreatePlan(context.Context, *CreatePlanRequest, *CreatePlanResponse) error
 	CreateUser(context.Context, *CreateUserRequest, *CreateUserResponse) error
 	CreateSubscription(context.Context, *CreateSubscriptionRequest, *CreateSubscriptionResponse) error
+	ListSubscriptions(context.Context, *ListSubscriptionsRequest, *ListSubscriptionsResponse) error
 	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
 	ListPaymentMethods(context.Context, *ListPaymentMethodsRequest, *ListPaymentMethodsResponse) error
 	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
@@ -143,6 +155,7 @@ func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...serv
 		CreatePlan(ctx context.Context, in *CreatePlanRequest, out *CreatePlanResponse) error
 		CreateUser(ctx context.Context, in *CreateUserRequest, out *CreateUserResponse) error
 		CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, out *CreateSubscriptionResponse) error
+		ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, out *ListSubscriptionsResponse) error
 		CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error
 		ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, out *ListPaymentMethodsResponse) error
 		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
@@ -172,6 +185,10 @@ func (h *providerHandler) CreateUser(ctx context.Context, in *CreateUserRequest,
 
 func (h *providerHandler) CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, out *CreateSubscriptionResponse) error {
 	return h.ProviderHandler.CreateSubscription(ctx, in, out)
+}
+
+func (h *providerHandler) ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, out *ListSubscriptionsResponse) error {
+	return h.ProviderHandler.ListSubscriptions(ctx, in, out)
 }
 
 func (h *providerHandler) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error {

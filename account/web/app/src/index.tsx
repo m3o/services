@@ -4,6 +4,7 @@ import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { createStore, combineReducers } from 'redux';
 import UserReducer from './store/User';
 import RedirectReducer from './store/Redirect';
@@ -32,7 +33,9 @@ const WrappedApp = ():JSX.Element => {
   return(
     <Provider store={window.store} >
       <Elements stripe={stripePromise}>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </Elements>
     </Provider>
   );
