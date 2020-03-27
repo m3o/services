@@ -140,9 +140,9 @@ func topFolders(path string) []string {
 
 func (m *manager) updateService(folderPath, commit, build string, status serviceStatus) error {
 	service := &runtime.Service{
-		Name:    folderPath,
-		Source:  path.Join(repoURL, folderPath),
-		Version: "latest",
+		Name:   folderPath,
+		Source: path.Join(repoURL, folderPath),
+		Version: "latest	",
 		Metadata: map[string]string{
 			"commit": commit,
 			"repo":   repoURL,
@@ -187,7 +187,7 @@ func typeFromFolder(folder string) string {
 }
 
 func (m *manager) Run() {
-	t := time.NewTicker(time.Minute)
+	t := time.NewTicker(90 * time.Second)
 	defer t.Stop()
 
 	// every minute we look for changes and apply any updates
