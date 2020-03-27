@@ -140,13 +140,14 @@ func topFolders(path string) []string {
 
 func (m *manager) updateService(folderPath, commit, build string, status serviceStatus) error {
 	service := &runtime.Service{
-		Name:   folderPath,
-		Source: path.Join(repoURL, folderPath),
-		Version: "latest	",
+		Name:    folderPath,
+		Source:  path.Join(repoURL, folderPath),
+		Version: "latest",
 		Metadata: map[string]string{
 			"commit": commit,
 			"repo":   repoURL,
 			"build":  build,
+			"deployed_by": "go.micro.platform.scheduler"
 		},
 	}
 	typ := typeFromFolder(folderPath)
