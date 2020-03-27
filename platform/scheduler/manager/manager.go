@@ -165,14 +165,17 @@ func (m *manager) updateService(folderPath, commit, build string, status service
 		if err := runtime.DefaultRuntime.Create(service, opts...); err != nil {
 			return err
 		}
+		return nil
 	case serviceStatusUpdated:
 		if err := runtime.DefaultRuntime.Update(service); err != nil {
 			return err
 		}
+		return nil
 	case serviceStatusDeleted:
 		if err := runtime.DefaultRuntime.Delete(service); err != nil {
 			return err
 		}
+		return nil
 	}
 	return fmt.Errorf("Unrecognized service status: '%v'", status)
 }
