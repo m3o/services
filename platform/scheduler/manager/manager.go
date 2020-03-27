@@ -234,7 +234,8 @@ func (m *manager) Run() {
 			}
 
 			for _, workflow := range processList {
-				if m.lastUpdated.After(workflow.GetUpdatedAt().Time) {
+				if m.lastUpdated.After(workflow.GetUpdatedAt().Time) ||
+					m.lastUpdated.Equal(workflow.GetUpdatedAt().Time) {
 					continue
 				}
 				if workflow.GetConclusion() != "success" {
