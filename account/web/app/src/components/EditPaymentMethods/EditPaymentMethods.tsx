@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { PaymentMethod } from '../../api';
 import NewPaymentMethod from './components/NewPaymentMethod';
 import PaymentMethodComponent from './components/PaymentMethod';
-import { removePaymentMethod, addPaymentMethod } from '../../store/User';
+import { removePaymentMethod, addPaymentMethod, setDefaultPaymentMethod } from '../../store/User';
 import './EditPaymentMethods.scss';
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
   elements?: any;
 
   paymentMethods: PaymentMethod[];
+  setDefault: (pm: PaymentMethod) => void;
   addPaymentMethod: (pm: PaymentMethod) => void;
   removePaymentMethod: (pm: PaymentMethod) => void;
 }
@@ -27,6 +28,11 @@ class EditPaymentMethods extends React.Component<Props, State> {
     this.setState({ error, saving: false })
   }
 
+  addPaymentMethod(pm: PaymentMethod) {
+    this.props.addPaymentMethod(pm);
+    this.setState({ error: undefined, saving: false })
+  }
+
   render():JSX.Element {
     const { paymentMethods } = this.props;
     const { error, saving } = this.state;
@@ -41,7 +47,7 @@ class EditPaymentMethods extends React.Component<Props, State> {
           saving={saving}
           key={paymentMethods.length}
           onError={this.setError.bind(this)}
-          onSuccess={this.props.addPaymentMethod}
+          onSuccess={this.addPaymentMethod.bind(this)}
           onSubmit={() => this.setState({ saving: true })}  />
       </div>
     );
@@ -58,6 +64,7 @@ class EditPaymentMethods extends React.Component<Props, State> {
                     key={pm.id}
                     paymentMethod={pm}
                     onError={this.setError.bind(this)} 
+                    setDefault={this.props.setDefault}
                     onDelete={this.props.removePaymentMethod} />
         })}
       </div>
@@ -73,6 +80,7 @@ function mapStateToProps(state: any): any {
 
 function mapDispatchToProps(dispatch: Function): any {
   return({
+    setDefault: (pm: PaymentMethod) => dispatch(setDefaultPaymentMethod(pm)),
     addPaymentMethod: (pm: PaymentMethod) => dispatch(addPaymentMethod(pm)),
     removePaymentMethod: (pm: PaymentMethod) => dispatch(removePaymentMethod(pm)),
   });

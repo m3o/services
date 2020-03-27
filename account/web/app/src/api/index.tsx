@@ -19,23 +19,30 @@ export class User {
 
   constructor(args: any) {
     this.id = args.id;
-    this.firstName = args.firstName;
-    this.lastName = args.lastName;
-    this.email = args.email;
-    this.username = args.username;
+    this.firstName = args.firstName || '';
+    this.lastName = args.lastName || '';
+    this.email = args.email || '';
+    this.username = args.username || '';
     this.paymentMethods = (args.paymentMethods || []).map(p => new PaymentMethod(p));
     this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
     this.roles = args.roles || [];
   }
 
   requiresOnboarding():boolean {
-    // testing
-    return this.email === 'ben@micro.mu';
+    return true
 
     if(this.roles.includes('admin')) return false;
     if(this.paymentMethods.length === 0) return true;
     if(this.subscriptions.length === 0) return true;
     return false
+  }
+
+  profileCompleted():boolean {
+    if(this.firstName.length === 0) return false;
+    if(this.lastName.length === 0) return false;
+    if(this.email.length === 0) return false;
+    if(this.username.length === 0) return false;
+    return true
   }
 }
 
@@ -52,6 +59,7 @@ export class PaymentMethod {
   cardExpMonth: string;
   cardExpYear: string;
   cardLast4: string;
+  default: boolean;
 
   constructor(args: any) {
     this.id = args.id;
@@ -62,6 +70,7 @@ export class PaymentMethod {
     this.cardExpMonth = args.cardExpMonth;
     this.cardExpYear = args.cardExpYear;
     this.cardLast4 = args.cardLast4;
+    this.default = args.default;
   }
 }
 

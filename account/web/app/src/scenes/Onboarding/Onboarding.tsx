@@ -13,11 +13,37 @@ interface State {
   stage: number;
 }
 
-class Onboarding extends React.Component<Props> {
+class Onboarding extends React.Component<Props, State> {
   readonly state: State = { stage: 0 };
 
   incrementStage() {
     this.setState({ stage: this.state.stage + 1 });
+  }
+
+  componentDidMount() {
+    this.autoIncrement();
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if(!prevState || prevState.stage == this.state.stage) return;
+    this.autoIncrement();
+  }
+
+  autoIncrement() {
+    switch(this.state.stage) {
+      case 0:
+        // setup profile
+        if(this.props.user.profileCompleted()) {
+          this.incrementStage();
+          return
+        }
+      case 1:
+        // setup payment methods
+        if(this.props.user.paymentMethods.length > 0) {
+          this.incrementStage();
+        }
+    }
+
   }
 
   render(): JSX.Element {

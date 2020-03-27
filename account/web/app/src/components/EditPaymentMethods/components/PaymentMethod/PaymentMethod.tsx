@@ -7,6 +7,7 @@ interface Props {
   paymentMethod: PaymentMethod;
   onDelete: (pm: PaymentMethod) => void;
   onError: (msg: string) => void;
+  setDefault: (pm: PaymentMethod) => void;
 }
 
 interface State {
@@ -31,6 +32,17 @@ export default class PaymentMethodComponent extends React.Component<Props, State
       });
   }
 
+  async onMakeDefault() {
+    const pm = this.props.paymentMethod;
+
+    // eslint-disable-next-line no-restricted-globals
+    if(!confirm(`Are you sure you want to make ${pm.cardBrand} ending in ${pm.cardLast4} your default payment method?`)) return;
+
+    Call("DefaultPaymentMethod", { id: pm.id })
+      .then(() => this.props.setDefault(pm))
+      .catch(console.warn);
+  }
+
   render():JSX.Element {
     const pm = this.props.paymentMethod;
 
@@ -41,8 +53,9 @@ export default class PaymentMethodComponent extends React.Component<Props, State
           <p>Exp: {pm.cardExpMonth}/{pm.cardExpYear}</p>
         </div>
 
-        <div className='pm-right' onClick={this.onDelete.bind(this)}>
-          <img src={DeleteIcon} alt='Delete Payment Method' />
+        <div className='pm-right'>
+          { this.props.paymentMethod.default ? <p>Default</p> : <p className='make-default' onClick={this.onMakeDefault.bind(this)}>Make Default</p> }
+          <img src={DeleteIcon} alt='Delete Payment Method' onClick={this.onDelete.bind(this)} />
         </div>
       </div>
     );

@@ -46,7 +46,7 @@ export default ({ onSuccess, onError, onSubmit, saving }: Props) => {
     <form className='NewPaymentMethod' onSubmit={onFormSubmit}>
       <label>New Payment Method</label>
       <CardElement />
-      <input type='submit' disabled={saving} value={saving ? 'Creating' : 'Create Payment Method'} />
+      <input type='submit' disabled={saving} value={saving ? 'Setting up Payment Method' : 'Add Payment Method'} />
     </form>
   );
 }

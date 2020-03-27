@@ -3,6 +3,7 @@ import { User, PaymentMethod } from "../api";
 const SET_USER = 'SET_USET';
 const ADD_PAYMENT_METHOD = 'ADD_PAYMENT_METHOD';
 const REMOVE_PAYMENT_METHOD = 'REMOVE_PAYMENT_METHOD';
+const SET_DEFAULT_PAYMENT_METHOD = 'SET_DEFAULT_PAYMENT_METHOD';
 
 interface Action {
   type: string;
@@ -26,9 +27,11 @@ export function removePaymentMethod(pm: PaymentMethod): Action {
   return { type: REMOVE_PAYMENT_METHOD, paymentMethod: pm };
 }
 
-const defaultState: State = {
-  // user: new User({ id: "aeecc8a8-eb28-4b17-bb19-7d103f125e66", email: "ben@micro.mu" }),
-};
+export function setDefaultPaymentMethod(pm: PaymentMethod): Action {
+  return { type: SET_DEFAULT_PAYMENT_METHOD, paymentMethod: pm };
+}
+
+const defaultState: State = {};
 export default function(state = defaultState, action: Action): State {
   switch (action.type) {
     case SET_USER: 
@@ -46,6 +49,16 @@ export default function(state = defaultState, action: Action): State {
       user = new User({
         ...state.user, paymentMethods: [
           ...state.user!.paymentMethods.filter(p => p.id !== action.paymentMethod!.id),
+        ],
+      });
+
+      return { ...state, user };
+    case SET_DEFAULT_PAYMENT_METHOD:
+      user = new User({
+        ...state.user, paymentMethods: [
+          ...state.user!.paymentMethods.map(p => new PaymentMethod({
+            ...p, default: p.id === action.paymentMethod.id,
+          })),
         ],
       });
 

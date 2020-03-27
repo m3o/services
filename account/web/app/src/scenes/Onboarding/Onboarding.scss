@@ -4,11 +4,11 @@
 
   .inner {
     padding: 20px;
-    min-height: 500px;
+    min-height: 600px;
   }
 
   h1 {
-    margin-top: 20px;
+    margin-bottom: 30px;
     text-align: center;
   }
 
@@ -21,7 +21,7 @@
 @media (min-width: 500px) {
   .inner {
     width: inherit;
-    max-width: 400px;
+    max-width: 500px;
     position: absolute;
     left: 50%;
     top: 50%;

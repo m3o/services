@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Call, { User } from '../../api';
-import PageLayout from '../../components/PageLayout';
 import { setUser } from '../../store/User';
 import './EditProfile.scss';
 
