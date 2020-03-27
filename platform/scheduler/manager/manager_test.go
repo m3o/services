@@ -47,6 +47,10 @@ func TestFilesToServiceStatus(t *testing.T) {
 		{
 			files: []fileToStatus{
 				{
+					fileName: "build.sh",
+					status:   githubFileChangeStatusChanged,
+				},
+				{
 					fileName: "asim/scheduler/something.go",
 					status:   githubFileChangeStatusChanged,
 				},

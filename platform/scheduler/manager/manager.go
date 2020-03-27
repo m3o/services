@@ -115,6 +115,11 @@ func folderStatuses(statuses []fileToStatus) map[string]serviceStatus {
 	// continue with normal file changes for service updates
 	for _, status := range statuses {
 		fname := status.fileName
+		// All service files are inside folders,
+		// so any file in the top folder can be safely ignored.
+		if !strings.Contains(fname, "/") {
+			continue
+		}
 		folds := topFolders(fname)
 		for _, fold := range folds {
 			_, exists := folders[fold]
