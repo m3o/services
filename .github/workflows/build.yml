@@ -25,7 +25,7 @@ jobs:
       - name: Detect which services changed
         id: services_changed
         uses: micro/actions@1.1.1
-        if: ${{ steps.vars.outputs.HAS_SECRET_TOKEN }}
+        if: steps.vars.outputs.HAS_SECRET_TOKEN != ''
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Started Webhook
