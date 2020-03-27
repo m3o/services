@@ -33,7 +33,7 @@ class PageLayout extends React.Component<Props> {
       );
     } else {
       redirectUI = (
-        <a href='/home' className='page-return-link'>
+        <a href='/' className='page-return-link'>
           <img src={BackArrow} alt='Go Home' />
           <p>Home</p>
         </a>

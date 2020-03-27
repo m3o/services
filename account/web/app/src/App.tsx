@@ -1,5 +1,6 @@
 import React from 'react';
-import Call, { User } from './api';
+import Cookies from 'universal-cookie';
+import Call, { User, Domain } from './api';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
 import { BrowserRouter , Route } from 'react-router-dom';
@@ -18,6 +19,7 @@ import { setRedirect } from './store/Redirect';
 
 interface Props {
   user?: User;
+  redirect?: string;
   setUser: (user: User) => void;
   setRedirect: (path: string) => void;
 }
@@ -45,12 +47,28 @@ class App extends React.Component<Props, State> {
 
   componentDidMount() {
     const params: Params = queryString.parse(window.location.search);
-    if(params.redirect_to) this.props.setRedirect(params.redirect_to);
+    
+    if(params.redirect_to) {
+      this.props.setRedirect(params.redirect_to);
+    } else {
+      const cookies = new Cookies();
+      this.props.setRedirect(cookies.get('micro-account-redirect'));
+      cookies.remove('micro-account-redirect', { path: '/', domain: Domain });
+    }
     
     Call("ReadUser")
-      .then(res => this.props.setUser(new User(res.data.user)))
+      .then(this.setUser.bind(this))
       .catch(console.warn)
       .finally(() => this.setState({ loading: false }));
+  }
+
+  setUser(res: any) {
+    // redirect the user upon login
+    if(this.props.redirect) {
+      window.location.href = this.props.redirect;
+    }
+
+    this.props.setUser(new User(res.data.user));
   }
 
   render(): JSX.Element {
@@ -77,6 +95,7 @@ class App extends React.Component<Props, State> {
 function mapStateToProps(state: any): any {
   return({
     user: state.user.user,
+    redirect: state.redirect.path,
   });
 }
 

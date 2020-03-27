@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -76,20 +75,12 @@ type Handler struct {
 
 func getConfigString(srv micro.Service, keys ...string) string {
 	path := append([]string{"micro", "oauth"}, keys...)
-	val := srv.Options().Config.Get(path...).String("")
-	if len(val) == 0 {
-		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
-	}
-	return val
+	return srv.Options().Config.Get(path...).String("")
 }
 
 func getConfigInt(srv micro.Service, keys ...string) int {
 	path := append([]string{"micro", "oauth"}, keys...)
-	val := srv.Options().Config.Get(path...).Int(0)
-	if val == 0 {
-		log.Fatalf("Missing required config: %v", strings.Join(path, "."))
-	}
-	return val
+	return srv.Options().Config.Get(path...).Int(0)
 }
 
 func (h *Handler) handleError(w http.ResponseWriter, req *http.Request, format string, args ...interface{}) {
