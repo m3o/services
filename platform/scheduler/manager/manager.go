@@ -144,10 +144,10 @@ func (m *manager) updateService(folderPath, commit, build string, status service
 		Source:  path.Join(repoURL, folderPath),
 		Version: "latest",
 		Metadata: map[string]string{
-			"commit": commit,
-			"repo":   repoURL,
-			"build":  build,
-			"deployed_by": "go.micro.platform.scheduler"
+			"commit":      commit,
+			"repo":        repoURL,
+			"build":       build,
+			"deployed_by": "go.micro.platform.scheduler",
 		},
 	}
 	typ := typeFromFolder(folderPath)
