@@ -69,10 +69,14 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 		return errors.BadRequest(h.name, "User ID doesn't exist")
 	}
 
-	// Get the customer
+	// Get the customer (need the default payment method ID)
 	c, err := h.client.Customers.Get(stripeID, &stripe.CustomerParams{})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+	var defaultPaymentID string
+	if c.InvoiceSettings != nil && c.InvoiceSettings.DefaultPaymentMethod != nil {
+		defaultPaymentID = c.InvoiceSettings.DefaultPaymentMethod.ID
 	}
 
 	// List the payment methods
@@ -92,10 +96,9 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 		}
 
 		pm := serializePaymentMethod(iter.PaymentMethod(), req.UserId)
-		if c.DefaultSource != nil && c.DefaultSource.ID == pm.Id {
+		if pm.Id == defaultPaymentID {
 			pm.Default = true
 		}
-
 		rsp.PaymentMethods = append(rsp.PaymentMethods, pm)
 	}
 
