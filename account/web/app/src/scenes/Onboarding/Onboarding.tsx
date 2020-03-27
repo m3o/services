@@ -25,7 +25,7 @@ class Onboarding extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if(!prevState || prevState.stage == this.state.stage) return;
+    if(!prevState || prevState.stage === this.state.stage) return;
     this.autoIncrement();
   }
 

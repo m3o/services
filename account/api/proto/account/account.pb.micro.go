@@ -37,6 +37,8 @@ type AccountService interface {
 	ReadUser(ctx context.Context, in *ReadUserRequest, opts ...client.CallOption) (*ReadUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...client.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...client.CallOption) (*DeleteUserResponse, error)
+	ListPlans(ctx context.Context, in *ListPlansRequest, opts ...client.CallOption) (*ListPlansResponse, error)
+	CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...client.CallOption) (*CreateSubscriptionResponse, error)
 	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
 	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
 	DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, opts ...client.CallOption) (*DefaultPaymentMethodResponse, error)
@@ -80,6 +82,26 @@ func (c *accountService) UpdateUser(ctx context.Context, in *UpdateUserRequest, 
 func (c *accountService) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...client.CallOption) (*DeleteUserResponse, error) {
 	req := c.c.NewRequest(c.name, "Account.DeleteUser", in)
 	out := new(DeleteUserResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountService) ListPlans(ctx context.Context, in *ListPlansRequest, opts ...client.CallOption) (*ListPlansResponse, error) {
+	req := c.c.NewRequest(c.name, "Account.ListPlans", in)
+	out := new(ListPlansResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountService) CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...client.CallOption) (*CreateSubscriptionResponse, error) {
+	req := c.c.NewRequest(c.name, "Account.CreateSubscription", in)
+	out := new(CreateSubscriptionResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -153,6 +175,8 @@ type AccountHandler interface {
 	ReadUser(context.Context, *ReadUserRequest, *ReadUserResponse) error
 	UpdateUser(context.Context, *UpdateUserRequest, *UpdateUserResponse) error
 	DeleteUser(context.Context, *DeleteUserRequest, *DeleteUserResponse) error
+	ListPlans(context.Context, *ListPlansRequest, *ListPlansResponse) error
+	CreateSubscription(context.Context, *CreateSubscriptionRequest, *CreateSubscriptionResponse) error
 	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
 	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
 	DefaultPaymentMethod(context.Context, *DefaultPaymentMethodRequest, *DefaultPaymentMethodResponse) error
@@ -166,6 +190,8 @@ func RegisterAccountHandler(s server.Server, hdlr AccountHandler, opts ...server
 		ReadUser(ctx context.Context, in *ReadUserRequest, out *ReadUserResponse) error
 		UpdateUser(ctx context.Context, in *UpdateUserRequest, out *UpdateUserResponse) error
 		DeleteUser(ctx context.Context, in *DeleteUserRequest, out *DeleteUserResponse) error
+		ListPlans(ctx context.Context, in *ListPlansRequest, out *ListPlansResponse) error
+		CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, out *CreateSubscriptionResponse) error
 		CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error
 		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
 		DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, out *DefaultPaymentMethodResponse) error
@@ -194,6 +220,14 @@ func (h *accountHandler) UpdateUser(ctx context.Context, in *UpdateUserRequest, 
 
 func (h *accountHandler) DeleteUser(ctx context.Context, in *DeleteUserRequest, out *DeleteUserResponse) error {
 	return h.AccountHandler.DeleteUser(ctx, in, out)
+}
+
+func (h *accountHandler) ListPlans(ctx context.Context, in *ListPlansRequest, out *ListPlansResponse) error {
+	return h.AccountHandler.ListPlans(ctx, in, out)
+}
+
+func (h *accountHandler) CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, out *CreateSubscriptionResponse) error {
+	return h.AccountHandler.CreateSubscription(ctx, in, out)
 }
 
 func (h *accountHandler) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error {

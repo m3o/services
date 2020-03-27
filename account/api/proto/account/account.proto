@@ -3,13 +3,15 @@ syntax = "proto3";
 package go.micro.api.account;
 
 service Account {
-	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {}
-	rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
-	rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {};
+	rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {};
+	rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {};
 
-	rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
-	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
-	rpc DefaultPaymentMethod(DefaultPaymentMethodRequest) returns (DefaultPaymentMethodResponse);
+	rpc ListPlans(ListPlansRequest) returns (ListPlansResponse) {};
+	rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse) {};
+	rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse) {};
+	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse) {};
+	rpc DefaultPaymentMethod(DefaultPaymentMethodRequest) returns (DefaultPaymentMethodResponse) {};
 
 	rpc Signup(SignupRequest) returns (SignupResponse);
 	rpc Login(LoginRequest) returns (LoginResponse);
@@ -38,7 +40,16 @@ message LoginResponse {
 	Token secret = 3;
 }
 
-message Subscription {}
+message Plan {
+	string id = 1;
+	int64 amount = 2;
+	string interval = 3;
+}
+
+message Subscription {
+	string id = 1;
+	Plan plan = 2;
+}
 
 message Token {
 	string token = 1;
@@ -114,3 +125,15 @@ message DefaultPaymentMethodRequest {
 }
 
 message DefaultPaymentMethodResponse {}
+
+message CreateSubscriptionRequest {
+	string plan_id = 1;
+}
+
+message CreateSubscriptionResponse {}
+
+message ListPlansRequest {}
+
+message ListPlansResponse {
+	repeated Plan plans = 1;
+}

@@ -5,6 +5,7 @@ package go.micro.srv.provider;
 service Provider {
   rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
   rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse);
+  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
   rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
@@ -124,4 +125,12 @@ message SetDefaultPaymentMethodRequest {
 }
 
 message SetDefaultPaymentMethodResponse {
+}
+
+message ListPlansRequest {
+  string product_id = 1;
+}
+
+message ListPlansResponse {
+  repeated Plan plans = 1;
 }

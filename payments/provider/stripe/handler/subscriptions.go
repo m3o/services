@@ -44,7 +44,7 @@ func (h *Handler) ListSubscriptions(ctx context.Context, req *pb.ListSubscriptio
 
 	iter := h.client.Subscriptions.List(&stripe.SubscriptionListParams{Customer: id, Plan: req.PlanId})
 	if iter.Err() != nil {
-		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", iter.Err())
 	}
 
 	// Loop through and serialize

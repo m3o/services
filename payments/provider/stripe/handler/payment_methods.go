@@ -85,7 +85,7 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 		Type:     stripe.String("card"),
 	})
 	if iter.Err() != nil {
-		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", iter.Err())
 	}
 
 	// Loop through and serialize

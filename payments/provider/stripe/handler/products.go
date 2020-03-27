@@ -77,3 +77,24 @@ func (h *Handler) CreatePlan(ctx context.Context, req *pb.CreatePlanRequest, rsp
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
 	}
 }
+
+// ListPlans returns all the plans for a product
+func (h *Handler) ListPlans(ctx context.Context, req *pb.ListPlansRequest, rsp *pb.ListPlansResponse) error {
+	iter := h.client.Plans.List(&stripe.PlanListParams{Product: stripe.String(req.ProductId)})
+	if iter.Err() != nil {
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", iter.Err())
+	}
+
+	// Loop through and serialize
+	rsp.Plans = make([]*pb.Plan, 0)
+	for {
+		if !iter.Next() {
+			break
+		}
+
+		pm := serializePlan(iter.Plan())
+		rsp.Plans = append(rsp.Plans, pm)
+	}
+
+	return nil
+}
