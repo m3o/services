@@ -5,6 +5,8 @@ export CGO_ENABLED=0
 export GOOS=linux
 export GOARCH=amd64 
 
+
+
 # Might not always have services passed down -
 # Github Actions needs GITHUB_TOKEN and for PR forks we don't have that.
 if [ -z "$1" ]; then
@@ -17,9 +19,10 @@ fi
 
 rootDir=$(pwd)
 
+PARAMS=$1
 function containsElement () {
   # If file change was passed down, this function always returns true
-  if [ -n "$1" ]; then
+  if [ -n "$PARAMS" ]; then
     return 0;
   fi
   local e match="$1"
