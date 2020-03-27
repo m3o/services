@@ -19,12 +19,13 @@ jobs:
         run: |
           unset HAS_SECRET
           if [ -n $SECRET ]; then HAS_SECRET='true' ; fi
+          echo ::set-output name=HAS_SECRET_TOKEN::${HAS_SECRET}
         env:
           SECRET: "${{ secrets.GITHUB_TOKEN }}"
       - name: Detect which services changed
         id: services_changed
         uses: micro/actions@1.1.1
-        if: ${{ steps.vars.outputs.HAS_SECRET }}
+        if: ${{ steps.vars.outputs.HAS_SECRET_TOKEN }}
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Started Webhook
@@ -55,14 +56,14 @@ jobs:
           BRANCH: ${{ github.ref }}
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+            ./build.sh
+          else 
             # Login to docker
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
             
             # Build the binaries in the directories which have changed
             ./build.sh "${{ steps.services_changed.outputs.services_added }}"
             ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
-          else 
-            ./build.sh
           fi
       - name: Build Finished Webhook
         if: github.ref == 'refs/heads/master'
