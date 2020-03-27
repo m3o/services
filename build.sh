@@ -53,7 +53,7 @@ function build {
     tag=docker.pkg.github.com/micro/services/$(echo $dir | tr / -)
     docker build . -t $tag -f $rootDir/.github/workflows/Dockerfile
 
-    if [ -z "$1" &&  ] && [ "$BRANCH" = "master" ]; then
+    if [ -z "$1" ] && [ "$BRANCH" = "refs/heads/master" ]; then
         # push the docker image
         echo Pushing $tag
         docker push $tag
