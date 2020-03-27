@@ -52,10 +52,10 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
             
             # Build the binaries in the directories which have changed
-            if [ -z "${{ steps.services_changed.outputs.services_added }}" ]; then
+            if [ -n "${{ steps.services_changed.outputs.services_added }}" ]; then
               ./build.sh "${{ steps.services_changed.outputs.services_added }}"
             fi
-            if [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
+            if [ -n "${{ steps.services_changed.outputs.services_modified }}" ]; then
               ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
             fi
           fi
