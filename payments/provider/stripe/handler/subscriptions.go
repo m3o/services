@@ -37,5 +37,62 @@ func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscrip
 }
 
 func (h *Handler) ListSubscriptions(ctx context.Context, req *pb.ListSubscriptionsRequest, rsp *pb.ListSubscriptionsResponse) error {
+	id, err := h.getStripeIDForUser(req.UserId)
+	if err != nil {
+		return err
+	}
+
+	iter := h.client.Subscriptions.List(&stripe.SubscriptionListParams{Customer: id, Plan: req.PlanId})
+	if iter.Err() != nil {
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+
+	// Loop through and serialize
+	rsp.Subscriptions = make([]*pb.Subscription, 0)
+	for {
+		if !iter.Next() {
+			break
+		}
+
+		pm := serializeSubscription(iter.Subscription())
+		rsp.Subscriptions = append(rsp.Subscriptions, pm)
+	}
+
 	return nil
+}
+
+func serializeSubscription(pm *stripe.Subscription) *pb.Subscription {
+	rsp := &pb.Subscription{
+		Id: pm.ID,
+	}
+
+	if pm.Items == nil || len(pm.Items.Data) == 0 {
+		return rsp
+	}
+
+	plan := pm.Items.Data[0].Plan
+	if plan != nil {
+		rsp.Plan = serializePlan(plan)
+	}
+	if plan != nil && plan.Product != nil {
+		rsp.Product = serializeProduct(plan.Product)
+	}
+
+	return rsp
+}
+
+func serializePlan(pm *stripe.Plan) *pb.Plan {
+	return &pb.Plan{
+		Id:       pm.ID,
+		Name:     pm.Nickname,
+		Amount:   pm.Amount,
+		Currency: string(pm.Currency),
+	}
+}
+
+func serializeProduct(prod *stripe.Product) *pb.Product {
+	return &pb.Product{
+		Id:   prod.ID,
+		Name: prod.Name,
+	}
 }
