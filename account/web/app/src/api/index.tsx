@@ -29,8 +29,6 @@ export class User {
   }
 
   requiresOnboarding():boolean {
-    return true
-
     if(this.roles.includes('admin')) return false;
     if(this.paymentMethods.length === 0) return true;
     if(this.subscriptions.length === 0) return true;
@@ -47,7 +45,13 @@ export class User {
 }
 
 export class Subscription {
-  constructor(args: any) {}
+  id: string;
+  plan: Plan;
+
+  constructor(args: any) {
+    this.id = args.id;
+    this.plan = new Plan(args.plan);
+  }
 }
 
 export class PaymentMethod {
@@ -81,5 +85,17 @@ export class Token {
   constructor(args: any) {
     this.token = args.token;
     this.expires = new Date(args.expires * 1000)
+  }
+}
+
+export class Plan {
+  id: string;
+  amount: number;
+  interval: string;
+
+  constructor(args: any) {
+    this.id = args.id;
+    this.amount = parseInt(args.amount);
+    this.interval = args.interval;
   }
 }

@@ -1,0 +1,38 @@
+.Subscribe {
+  .row {
+    display: flex;
+    background-color: #FAFAFA;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    border: solid 2px #F2F2F2;
+    cursor: pointer;
+
+    input {
+      margin-right: 20px;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    label {
+      margin: 0px;
+      
+      p {
+        margin: 5px 0px;
+
+        &.name {
+          text-transform: capitalize;
+          font-size: 11pt;
+        }
+
+        &.price {
+          text-transform: lowercase;
+          font-weight: normal;
+          font-size: 10pt;
+        }
+      }
+    }
+  }
+}

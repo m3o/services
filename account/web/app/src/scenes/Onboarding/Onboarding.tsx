@@ -1,20 +1,25 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { User } from '../../api';
+import { withRouter } from 'react-router-dom';
+import Call, { User, Plan } from '../../api';
 import EditProfile from '../../components/EditProfile';
-import './Onboarding.scss';
 import EditPaymentMethods from '../../components/EditPaymentMethods';
+import Subscribe from './Subscribe';
+import './Onboarding.scss';
 
 interface Props {
   user: User;
+  history: any;
 }
 
 interface State {
   stage: number;
+  plans?: Plan[];
+  loadedPlans: boolean;
 }
 
 class Onboarding extends React.Component<Props, State> {
-  readonly state: State = { stage: 0 };
+  readonly state: State = { stage: 0, loadedPlans: false };
 
   incrementStage() {
     this.setState({ stage: this.state.stage + 1 });
@@ -22,10 +27,19 @@ class Onboarding extends React.Component<Props, State> {
 
   componentDidMount() {
     this.autoIncrement();
+
+    Call("ListPlans")
+      .then(res => {
+        const plans = (res.data.plans || []).map(p => new Plan(p));
+        this.setState({ plans: plans.sort((a,b) => a.amount - b.amount) });
+      })
+      .finally(() => this.setState({ loadedPlans: true }))
+      .catch(console.warn);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if(!prevState || prevState.stage === this.state.stage) return;
+    if(this.state.stage === 3) this.props.history.push('/account');
     this.autoIncrement();
   }
 
@@ -35,18 +49,27 @@ class Onboarding extends React.Component<Props, State> {
         // setup profile
         if(this.props.user.profileCompleted()) {
           this.incrementStage();
-          return
         }
+        break
       case 1:
         // setup payment methods
         if(this.props.user.paymentMethods.length > 0) {
           this.incrementStage();
         }
+        break
+      case 2:
+        // setup subscription
+        if(this.props.user.subscriptions.length > 0) {
+          this.incrementStage();
+        }
+        break
     }
 
   }
 
   render(): JSX.Element {
+    if(!this.state.loadedPlans && this.state.stage === 2) return null;
+
     return(
       <div className='Onboarding'>
         <div className='inner'>
@@ -63,7 +86,7 @@ class Onboarding extends React.Component<Props, State> {
       return(
         <div className='profile'>
           <p>Let's get started by completing your Micro profile</p>
-          <EditProfile onSave={this.incrementStage.bind(this)} />
+          <EditProfile buttonText='Continue →' onSave={this.incrementStage.bind(this)} />
         </div>
       );
     case 1:
@@ -71,10 +94,16 @@ class Onboarding extends React.Component<Props, State> {
         <div className='payment-methods'>
           <p>Please enter a payment method</p>
           <EditPaymentMethods />
+          { this.props.user.paymentMethods.length > 0 ? <button onClick={this.incrementStage.bind(this)} className='continue'>Continue →</button> : null }
         </div>
       )
     default:
-      return <div />
+      return(
+        <div className='subscription'>
+          <p>Please select a subscription</p>
+          <Subscribe onComplete={this.incrementStage.bind(this)} plans={this.state.plans!} />
+        </div>
+      );
     }
   }
 }
@@ -85,4 +114,4 @@ function mapStateToProps(state: any):any {
   });
 }
 
-export default connect(mapStateToProps)(Onboarding);
+export default withRouter(connect(mapStateToProps)(Onboarding));

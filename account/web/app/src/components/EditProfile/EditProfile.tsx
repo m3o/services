@@ -8,6 +8,7 @@ interface Props {
   user: User;
   updateUser: (user: User) => void;
   onSave?: () => void;
+  buttonText?: string;
 }
 
 interface State {
@@ -85,7 +86,7 @@ class EditProfile extends React.Component<Props, State> {
           disabled={this.state.saving}
           onChange={this.onChange.bind(this)} />
           
-        <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : 'Save Changes' } />
+        <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : (this.props.buttonText || 'Save Changes') } />
       </form>
     );
   }
