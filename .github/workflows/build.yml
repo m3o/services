@@ -18,7 +18,7 @@ jobs:
         # see https://github.community/t5/GitHub-Actions/If-expression-with-context-variable/td-p/34556
         run: |
           unset HAS_SECRET
-          if [ -n "$SECRET1" ]; then HAS_SECRET='true' && echo "hi" ; fi
+          if [ ! -z "$SECRET" ]; then HAS_SECRET='true' && echo "hi" ; fi
           echo ::set-output name=HAS_SECRET_TOKEN::${HAS_SECRET}
         env:
           SECRET: ${{ secrets.GITHUB_TOKEN }}
