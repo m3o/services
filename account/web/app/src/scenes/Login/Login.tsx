@@ -155,7 +155,7 @@ class Login extends React.Component<Props, State> {
 
 function mapStateToProps(state: any): any {
   return ({
-    redirect: state.redirect.props,
+    redirect: state.redirect.path,
   });
 }
 
