@@ -45,15 +45,19 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           BRANCH: ${{ github.ref }}
         run: |
-          if [ -z "${{ steps.services_changed.outputs.services_added }}" ]; then
+          if [ -z "${{ steps.services_changed.outputs.services_added }}" ] && [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
             ./build.sh
           else 
             # Login to docker
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
             
             # Build the binaries in the directories which have changed
-            ./build.sh "${{ steps.services_changed.outputs.services_added }}"
-            ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+            if [ -z "${{ steps.services_changed.outputs.services_added }}" ]; then
+              ./build.sh "${{ steps.services_changed.outputs.services_added }}"
+            fi
+            if [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
+              ./build.sh "${{ steps.services_changed.outputs.services_modified }}"
+            fi
           fi
       - name: Build Finished Webhook
         if: github.ref == 'refs/heads/master'
