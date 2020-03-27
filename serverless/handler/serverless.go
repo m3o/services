@@ -82,7 +82,6 @@ func (e *Apps) Create(ctx context.Context, req *serverless.CreateRequest, rsp *s
 	}
 
 	// TODO: save app reference
-
 	return nil
 }
 
