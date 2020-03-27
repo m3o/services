@@ -9,6 +9,7 @@ service Account {
 
 	rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
 	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
+	rpc DefaultPaymentMethod(DefaultPaymentMethodRequest) returns (DefaultPaymentMethodResponse);
 
 	rpc Signup(SignupRequest) returns (SignupResponse);
 	rpc Login(LoginRequest) returns (LoginResponse);
@@ -83,7 +84,8 @@ message PaymentMethod {
   string card_brand = 5;
   string card_exp_month = 6;
   string card_exp_year = 7;
-  string card_last_4 = 8;
+	string card_last_4 = 8;
+	bool default = 9;
 }
 
 message CreatePaymentMethodRequest {
@@ -106,3 +108,9 @@ message RefreshTokenRequest {
 message RefreshTokenResponse {
 	Token token = 1;
 }
+
+message DefaultPaymentMethodRequest {
+	string id = 1;
+}
+
+message DefaultPaymentMethodResponse {}

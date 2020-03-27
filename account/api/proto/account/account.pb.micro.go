@@ -39,6 +39,7 @@ type AccountService interface {
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...client.CallOption) (*DeleteUserResponse, error)
 	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
 	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
+	DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, opts ...client.CallOption) (*DefaultPaymentMethodResponse, error)
 	Signup(ctx context.Context, in *SignupRequest, opts ...client.CallOption) (*SignupResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...client.CallOption) (*LoginResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...client.CallOption) (*RefreshTokenResponse, error)
@@ -106,6 +107,16 @@ func (c *accountService) DeletePaymentMethod(ctx context.Context, in *DeletePaym
 	return out, nil
 }
 
+func (c *accountService) DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, opts ...client.CallOption) (*DefaultPaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Account.DefaultPaymentMethod", in)
+	out := new(DefaultPaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *accountService) Signup(ctx context.Context, in *SignupRequest, opts ...client.CallOption) (*SignupResponse, error) {
 	req := c.c.NewRequest(c.name, "Account.Signup", in)
 	out := new(SignupResponse)
@@ -144,6 +155,7 @@ type AccountHandler interface {
 	DeleteUser(context.Context, *DeleteUserRequest, *DeleteUserResponse) error
 	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
 	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
+	DefaultPaymentMethod(context.Context, *DefaultPaymentMethodRequest, *DefaultPaymentMethodResponse) error
 	Signup(context.Context, *SignupRequest, *SignupResponse) error
 	Login(context.Context, *LoginRequest, *LoginResponse) error
 	RefreshToken(context.Context, *RefreshTokenRequest, *RefreshTokenResponse) error
@@ -156,6 +168,7 @@ func RegisterAccountHandler(s server.Server, hdlr AccountHandler, opts ...server
 		DeleteUser(ctx context.Context, in *DeleteUserRequest, out *DeleteUserResponse) error
 		CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error
 		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
+		DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, out *DefaultPaymentMethodResponse) error
 		Signup(ctx context.Context, in *SignupRequest, out *SignupResponse) error
 		Login(ctx context.Context, in *LoginRequest, out *LoginResponse) error
 		RefreshToken(ctx context.Context, in *RefreshTokenRequest, out *RefreshTokenResponse) error
@@ -189,6 +202,10 @@ func (h *accountHandler) CreatePaymentMethod(ctx context.Context, in *CreatePaym
 
 func (h *accountHandler) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error {
 	return h.AccountHandler.DeletePaymentMethod(ctx, in, out)
+}
+
+func (h *accountHandler) DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, out *DefaultPaymentMethodResponse) error {
+	return h.AccountHandler.DefaultPaymentMethod(ctx, in, out)
 }
 
 func (h *accountHandler) Signup(ctx context.Context, in *SignupRequest, out *SignupResponse) error {

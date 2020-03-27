@@ -69,6 +69,12 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 		return errors.BadRequest(h.name, "User ID doesn't exist")
 	}
 
+	// Get the customer
+	c, err := h.client.Customers.Get(stripeID, &stripe.CustomerParams{})
+	if err != nil {
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+
 	// List the payment methods
 	iter := h.client.PaymentMethods.List(&stripe.PaymentMethodListParams{
 		Customer: stripe.String(stripeID),
@@ -86,7 +92,31 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 		}
 
 		pm := serializePaymentMethod(iter.PaymentMethod(), req.UserId)
+		if c.DefaultSource != nil && c.DefaultSource.ID == pm.Id {
+			pm.Default = true
+		}
+
 		rsp.PaymentMethods = append(rsp.PaymentMethods, pm)
+	}
+
+	return nil
+}
+
+// SetDefaultPaymentMethod sets the users default payment method
+func (h *Handler) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefaultPaymentMethodRequest, rsp *pb.SetDefaultPaymentMethodResponse) error {
+	// Check to see if the user has already been created
+	stripeID, err := h.getStripeIDForUser(req.UserId)
+	if err != nil {
+		return err
+	}
+
+	// Construct the params
+	var params stripe.CustomerParams
+	params.DefaultSource = stripe.String(req.PaymentMethodId)
+
+	// Update the payment method
+	if _, err := h.client.Customers.Update(stripeID, &params); err != nil {
+		return errors.InternalServerError(h.name, "Unexepcted stripe update error: %v", err)
 	}
 
 	return nil

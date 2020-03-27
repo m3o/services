@@ -41,6 +41,7 @@ type ProviderService interface {
 	ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...client.CallOption) (*ListSubscriptionsResponse, error)
 	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
 	ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, opts ...client.CallOption) (*ListPaymentMethodsResponse, error)
+	SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, opts ...client.CallOption) (*SetDefaultPaymentMethodResponse, error)
 	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
 }
 
@@ -126,6 +127,16 @@ func (c *providerService) ListPaymentMethods(ctx context.Context, in *ListPaymen
 	return out, nil
 }
 
+func (c *providerService) SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, opts ...client.CallOption) (*SetDefaultPaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.SetDefaultPaymentMethod", in)
+	out := new(SetDefaultPaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *providerService) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error) {
 	req := c.c.NewRequest(c.name, "Provider.DeletePaymentMethod", in)
 	out := new(DeletePaymentMethodResponse)
@@ -146,6 +157,7 @@ type ProviderHandler interface {
 	ListSubscriptions(context.Context, *ListSubscriptionsRequest, *ListSubscriptionsResponse) error
 	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
 	ListPaymentMethods(context.Context, *ListPaymentMethodsRequest, *ListPaymentMethodsResponse) error
+	SetDefaultPaymentMethod(context.Context, *SetDefaultPaymentMethodRequest, *SetDefaultPaymentMethodResponse) error
 	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
 }
 
@@ -158,6 +170,7 @@ func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...serv
 		ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, out *ListSubscriptionsResponse) error
 		CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error
 		ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, out *ListPaymentMethodsResponse) error
+		SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, out *SetDefaultPaymentMethodResponse) error
 		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
 	}
 	type Provider struct {
@@ -197,6 +210,10 @@ func (h *providerHandler) CreatePaymentMethod(ctx context.Context, in *CreatePay
 
 func (h *providerHandler) ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, out *ListPaymentMethodsResponse) error {
 	return h.ProviderHandler.ListPaymentMethods(ctx, in, out)
+}
+
+func (h *providerHandler) SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, out *SetDefaultPaymentMethodResponse) error {
+	return h.ProviderHandler.SetDefaultPaymentMethod(ctx, in, out)
 }
 
 func (h *providerHandler) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error {

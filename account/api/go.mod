@@ -9,3 +9,5 @@ require (
 	github.com/micro/services/payments/provider v0.0.0-20200313083714-e72c0c76aa9a
 	github.com/micro/services/users/service v0.0.0-20200313083714-e72c0c76aa9a
 )
+
+replace github.com/micro/services/payments/provider => ../../payments/provider

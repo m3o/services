@@ -9,7 +9,8 @@ service Provider {
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
   rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
   rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
-	rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse);
+  rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse);
+  rpc SetDefaultPaymentMethod(SetDefaultPaymentMethodRequest) returns (SetDefaultPaymentMethodResponse);
 	rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
 }
 
@@ -89,6 +90,7 @@ message PaymentMethod {
   string card_exp_month = 6;
   string card_exp_year = 7;
   string card_last_4 = 8;
+  bool default = 9;
 }
 
 message CreatePaymentMethodRequest {
@@ -113,3 +115,11 @@ message ListPaymentMethodsResponse {
 }
 
 message DeletePaymentMethodResponse {}
+
+message SetDefaultPaymentMethodRequest {
+  string user_id = 1;
+  string payment_method_id = 2;
+}
+
+message SetDefaultPaymentMethodResponse {
+}
