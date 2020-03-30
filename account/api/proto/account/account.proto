@@ -42,8 +42,10 @@ message LoginResponse {
 
 message Plan {
 	string id = 1;
-	int64 amount = 2;
-	string interval = 3;
+	string name = 2;
+	int64 amount = 3;
+	string interval = 4;
+	bool available = 5;
 }
 
 message Subscription {

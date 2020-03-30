@@ -47,8 +47,10 @@ func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscrip
 
 func serializePlan(p *payment.Plan) *pb.Plan {
 	return &pb.Plan{
-		Id:       p.Id,
-		Amount:   p.Amount,
-		Interval: p.Interval.String(),
+		Id:        p.Id,
+		Name:      p.Name,
+		Amount:    p.Amount,
+		Interval:  p.Interval.String(),
+		Available: p.Id != "team",
 	}
 }
