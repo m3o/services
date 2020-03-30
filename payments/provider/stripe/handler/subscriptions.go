@@ -82,11 +82,24 @@ func serializeSubscription(pm *stripe.Subscription) *pb.Subscription {
 }
 
 func serializePlan(pm *stripe.Plan) *pb.Plan {
+	var interval pb.PlanInterval
+	switch pm.Interval {
+	case stripe.PlanIntervalDay:
+		interval = pb.PlanInterval_DAY
+	case stripe.PlanIntervalWeek:
+		interval = pb.PlanInterval_WEEK
+	case stripe.PlanIntervalMonth:
+		interval = pb.PlanInterval_MONTH
+	case stripe.PlanIntervalYear:
+		interval = pb.PlanInterval_YEAR
+	}
+
 	return &pb.Plan{
 		Id:       pm.ID,
 		Name:     pm.Nickname,
 		Amount:   pm.Amount,
 		Currency: string(pm.Currency),
+		Interval: interval,
 	}
 }
 
