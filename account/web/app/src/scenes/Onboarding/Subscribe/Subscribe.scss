@@ -23,14 +23,20 @@
         margin: 5px 0px;
 
         &.name {
-          text-transform: capitalize;
           font-size: 11pt;
+
+          i {
+            margin-left: 4px;
+          }
         }
 
         &.price {
-          text-transform: lowercase;
           font-weight: normal;
           font-size: 10pt;
+
+          span {
+            text-transform: lowercase;
+          }
         }
       }
     }

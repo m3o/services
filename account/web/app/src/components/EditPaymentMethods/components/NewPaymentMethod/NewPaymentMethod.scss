@@ -1,11 +1,47 @@
+@import "../../../../assets/styles/variables.scss";
+
 .NewPaymentMethod {
-  margin-top: 20px;
+  margin-top: 30px;
+  margin-bottom: 25px;
 
   .StripeElement {
     border-radius: 4px;
-    margin-bottom: 25px;
     padding: 15px 10px;
-    margin-top: 10px;
     border: solid 1px #00000020;
+    flex-grow: 1;
+  }
+
+  .payment-method {
+    display: flex;
+
+    button {
+      border: none;
+      background-color: $green;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 15px;
+      margin-top: auto;
+      margin-bottom: auto;
+      cursor: pointer;
+      position: relative;
+      outline: none;
+
+      &:disabled {
+        background-color: lightgray;
+      }
+
+      &:hover {
+        transform: scale(1.01);
+      }
+
+      img {
+        height: 12px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
   }
 }

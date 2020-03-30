@@ -90,12 +90,16 @@ export class Token {
 
 export class Plan {
   id: string;
+  name: string;
   amount: number;
   interval: string;
+  available: boolean;
 
   constructor(args: any) {
     this.id = args.id;
-    this.amount = parseInt(args.amount);
+    this.name = args.name;
+    this.amount = parseInt(args.amount) || 0;
     this.interval = args.interval;
+    this.available = args.available;
   }
 }

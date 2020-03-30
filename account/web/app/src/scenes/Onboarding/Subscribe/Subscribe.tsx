@@ -21,7 +21,14 @@ export default class Subscribe extends React.Component<Props, State> {
 
   setPlan(id: string) {
     if(this.state.saving) return;
-    this.setState({ selectedPlanID: id });
+
+    const plan = this.props.plans.find(p => p.id === id);
+    if(!plan.available) {
+      this.setState({ error: `${plan.name} is not yet available... coming soon!` });
+      return;
+    }
+    
+    this.setState({ selectedPlanID: id, error: undefined });
   }
 
   onSubmit(e: any) {
@@ -46,8 +53,8 @@ export default class Subscribe extends React.Component<Props, State> {
             onChange={(e: any) => this.setPlan(e.target.value) } />
 
           <label htmlFor={p.id}>
-            <p className='name'>{p.id}</p>
-            <p className='price'>${p.amount / 100.0} per {p.interval}</p>
+            <p className='name'>{p.name}{p.available ? null : <i>(Coming Soon)</i>}</p>
+            {p.amount === 0 ? <p className='price'>Free</p> : <p className='price'>${p.amount / 100.0} per <span>{p.interval}</span></p> }
           </label>
         </div>
       )

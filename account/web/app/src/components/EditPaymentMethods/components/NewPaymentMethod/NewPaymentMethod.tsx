@@ -1,6 +1,7 @@
 import React from 'react';
 import Call, { PaymentMethod } from '../../../../api';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import PlusIcon from './plus.png';
 import './NewPaymentMethod.scss';
 
 interface Props {
@@ -45,8 +46,14 @@ export default ({ onSuccess, onError, onSubmit, saving }: Props) => {
   return(
     <form className='NewPaymentMethod' onSubmit={onFormSubmit}>
       <label>New Payment Method</label>
-      <CardElement />
-      <input type='submit' disabled={saving} value={saving ? 'Setting up Payment Method' : 'Add Payment Method'} />
+
+      <div className='payment-method'>
+        <CardElement />
+        
+        <button disabled={saving} onClick={onFormSubmit}>
+          <img src={PlusIcon} alt='Add payment method' />
+        </button>
+      </div>
     </form>
   );
 }
