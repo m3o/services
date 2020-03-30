@@ -36,16 +36,14 @@ interface Params {
 }
 
 const Routes = [
-  <Route key='profile' exact path='/account/' component={Profile}/>,
-  <Route key='billing' exact path='/account/billing' component={Billing}/>,
-  <Route key='settings' exact path='/account/settings' component={Settings}/>,
-  <Route key='onboarding' exact path='/account/onboarding' component={Onboarding}/>,
+  <Route key='profile' exact path='/' component={Profile}/>,
+  <Route key='billing' exact path='/billing' component={Billing}/>,
+  <Route key='settings' exact path='/settings' component={Settings}/>,
+  <Route key='onboarding' exact path='/onboarding' component={Onboarding}/>,
 ];
 
 const UnauthenticatedRoutes = [
-  <Route key='login' exact path='/account/' component={Login}/>,
-  <Route key='onboarding' exact path='/account/onboarding' component={Onboarding}/>,
-
+  <Route key='login' exact path='/' component={Login}/>,
 ]
 
 class App extends React.Component<Props, State> {
@@ -81,7 +79,7 @@ class App extends React.Component<Props, State> {
     this.props.setUser(user);
 
     // check to see if the user requires onboarding
-    if(user.requiresOnboarding()) this.props.history.push('/account/onboarding');
+    if(user.requiresOnboarding()) this.props.history.push('/onboarding');
   }
 
   render(): JSX.Element {

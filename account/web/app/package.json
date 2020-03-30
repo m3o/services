@@ -2,7 +2,7 @@
   "name": "account",
   "version": "0.1.0",
   "private": true,
-  "homepage": "account",
+  "homepage": "",
   "dependencies": {
     "@stripe/react-stripe-js": "^1.0.3",
     "@stripe/stripe-js": "^1.0.3",

@@ -26,13 +26,15 @@
       cursor: pointer;
       position: relative;
       outline: none;
+      padding: 0px;
 
       &:disabled {
         background-color: lightgray;
       }
 
       &:hover {
-        transform: scale(1.01);
+        background-color: $green;
+        transform: scale(1.02);
       }
 
       img {

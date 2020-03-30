@@ -66,7 +66,7 @@ export default class Settings extends React.Component {
     cookies.remove("micro-token", {path: "/", domain: "micro.mu"});
 
     // reload so micro web will redirect to login
-    window.location.href = '/account';
+    window.location.href = '/';
   }
 
   deleteAccount() {
@@ -79,7 +79,7 @@ export default class Settings extends React.Component {
       cookies.remove("micro-token", {path: "/", domain: "micro.mu"});
 
       // reload so micro web will redirect to login
-      window.location.href = '/account';
+      window.location.href = '/';
     }).catch(err => {
       // eslint-disable-next-line no-restricted-globals
       alert("There was a problem ddeleting your account: " + err)

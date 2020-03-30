@@ -6,8 +6,8 @@ import ProfileActive from '../../assets/images/nav/profile-active.png';
 import ProfileInctive from '../../assets/images/nav/profile-inactive.png';
 import BillingActive from '../../assets/images/nav/billing-active.png';
 import BillingInctive from '../../assets/images/nav/billing-inactive.png';
-import SubscriptionsActive from '../../assets/images/nav/subscriptions-active.png';
-import SubscriptionsInctive from '../../assets/images/nav/subscriptions-inactive.png';
+// import SubscriptionsActive from '../../assets/images/nav/subscriptions-active.png';
+// import SubscriptionsInctive from '../../assets/images/nav/subscriptions-inactive.png';
 import SettingsActive from '../../assets/images/nav/settings-active.png';
 import SettingsInctive from '../../assets/images/nav/settings-inactive.png';
 import './PageLayout.scss';
@@ -47,23 +47,23 @@ class PageLayout extends React.Component<Props> {
 
         <div className='page-container'>
           <nav>
-            <NavLink exact to='/account'>
-              <img src={ path === '/account/' ? ProfileActive : ProfileInctive } alt='Profile' />
+            <NavLink exact to=''>
+              <img src={ path === '/' ? ProfileActive : ProfileInctive } alt='Profile' />
               <p>Profile</p>
             </NavLink>
 
-            <NavLink exact to='/account/billing'>
-              <img src={ path === '/account/billing' ? BillingActive : BillingInctive } alt='Billing' />
+            <NavLink exact to='/billing'>
+              <img src={ path === '/billing' ? BillingActive : BillingInctive } alt='Billing' />
               <p>Payment Methods</p>
             </NavLink>
 
-            <NavLink exact to='/account/subscriptions'>
-              <img src={ path === '/account/subscriptions' ? SubscriptionsActive : SubscriptionsInctive } alt='Subscriptions' />
+            {/* <NavLink exact to='/subscriptions'>
+              <img src={ path === '/subscriptions' ? SubscriptionsActive : SubscriptionsInctive } alt='Subscriptions' />
               <p>Subscriptions</p>
-            </NavLink>
+            </NavLink> */}
 
-            <NavLink exact to='/account/settings'>
-              <img src={ path === '/account/settings' ? SettingsActive : SettingsInctive } alt='Settings' />
+            <NavLink exact to='/settings'>
+              <img src={ path === '/settings' ? SettingsActive : SettingsInctive } alt='Settings' />
               <p>Settings</p>
             </NavLink>
           </nav>

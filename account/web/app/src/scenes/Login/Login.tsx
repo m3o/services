@@ -52,7 +52,7 @@ class Login extends React.Component<Props, State> {
         cookies.set('micro-token', token.token, { path: '/', domain: Domain, expires: token.expires });                
 
         // check to see if the user needs onboarding
-        if(user.requiresOnboarding()) this.props.history.push('/account/onboarding');
+        if(user.requiresOnboarding()) this.props.history.push('/onboarding');
       })
       .catch((err: any) => {
         const error = err.response ? err.response.data.detail : err.message;
@@ -93,7 +93,7 @@ class Login extends React.Component<Props, State> {
       cookies.set('micro-account-redirect', this.props.redirect, { path: '/', domain: Domain, expires }); 
     }
 
-    window.location.href = `/account/oauth/${name}/login`;
+    window.location.href = `/oauth/${name}/login`;
   }
 
   renderLogin(): JSX.Element {

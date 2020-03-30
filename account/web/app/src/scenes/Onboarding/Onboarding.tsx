@@ -39,7 +39,7 @@ class Onboarding extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if(!prevState || prevState.stage === this.state.stage) return;
-    if(this.state.stage === 3) this.props.history.push('/account');
+    if(this.state.stage === 3) this.props.history.push('/');
     this.autoIncrement();
   }
 
