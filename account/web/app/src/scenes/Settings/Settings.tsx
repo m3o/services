@@ -13,7 +13,7 @@ export default class Settings extends React.Component {
 
   render(): JSX.Element {
     const cookies = new Cookies();
-    const command = `micro login --platform ${cookies.get("micro-token")}`;
+    const command = `micro login --platform --token=${cookies.get("micro-token")}`;
 
     return(
       <PageLayout className='Settings' {...this.props}>
