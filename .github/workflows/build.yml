@@ -47,8 +47,10 @@ jobs:
         run: |
           # Login to docker
           echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin docker.pkg.github.com
-            
-          if [ -z "${{ steps.services_changed.outputs.services_added }}" ] && [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
+          
+          # Only invoke the build script when there are no services added or changed
+          # when we are in a PR.
+          if [ -n "{{ $PR_NUMBER }}"] && [ -z "${{ steps.services_changed.outputs.services_added }}" ] && [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
             ./build.sh
           else 
             # Build the binaries in the directories which have changed
