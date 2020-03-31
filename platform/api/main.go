@@ -135,7 +135,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 	rsp.User = &pb.User{
 		Email:                 uRsp.User.Email,
-		Login:                 uRsp.User.Username,
+		Login:                 uRsp.User.FirstName,
 		AvatarUrl:             uRsp.User.ProfilePictureUrl,
 		Name:                  fmt.Sprintf("%v %v", uRsp.User.FirstName, uRsp.User.LastName),
 		TeamName:              "Community",

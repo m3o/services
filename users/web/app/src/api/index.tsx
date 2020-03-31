@@ -13,13 +13,11 @@ export class User {
   firstName: string;
   lastName: string;
   email: string;
-  username: string;
 
   constructor(args: any) {
     this.id = args.id;
     this.firstName = args.firstName;
     this.lastName = args.lastName;
     this.email = args.email;
-    this.username = args.username;
   }
 }

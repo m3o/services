@@ -82,14 +82,6 @@ export default class App extends React.Component<Props, State> {
             disabled={this.state.saving}
             onChange={this.onChange.bind(this)} />
           
-          <label>Username</label>
-          <input
-            name='username'
-            type='text'
-            value={user!.username}
-            disabled={this.state.saving}
-            onChange={this.onChange.bind(this)} />
-
           <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : 'Save Changes' } />
         </form>
       </div>

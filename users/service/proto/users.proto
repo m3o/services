@@ -30,7 +30,6 @@ message User {
 	string first_name = 4;
 	string last_name = 5;
 	string email = 6;
-	string username = 7;		// alphanumeric user or org
 	map<string, string> metadata = 8;
 	string profile_picture_url = 9;
 }
@@ -68,7 +67,7 @@ message UpdateResponse {
 }
 
 message SearchRequest {
-	string username = 1; 
+	string query = 1; 
 }
 
 message SearchResponse {

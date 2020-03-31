@@ -12,7 +12,6 @@ export class User {
   firstName: string;
   lastName: string;
   email: string;
-  username: string;
   paymentMethods: PaymentMethod[];
   subscriptions: Subscription[];
   roles: string[];
@@ -22,7 +21,6 @@ export class User {
     this.firstName = args.firstName || '';
     this.lastName = args.lastName || '';
     this.email = args.email || '';
-    this.username = args.username || '';
     this.paymentMethods = (args.paymentMethods || []).map(p => new PaymentMethod(p));
     this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
     this.roles = args.roles || [];
@@ -38,8 +36,6 @@ export class User {
   profileCompleted():boolean {
     if(this.firstName.length === 0) return false;
     if(this.lastName.length === 0) return false;
-    if(this.email.length === 0) return false;
-    if(this.username.length === 0) return false;
     return true
   }
 }

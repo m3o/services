@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -46,11 +47,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	if user, err := h.findUser(req.User.Id); err == nil {
 		rsp.User = user
 		return nil
-	}
-
-	// Validate the user
-	if err := h.validateUser(req.User); err != nil {
-		return err
 	}
 
 	// If validating only, return here
@@ -119,8 +115,6 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	// of unsetting attributes.
 	user.FirstName = req.User.FirstName
 	user.LastName = req.User.LastName
-	user.Username = req.User.Username
-	user.Email = req.User.Email
 	user.Metadata = req.User.Metadata
 	user.Updated = time.Now().Unix()
 	user.ProfilePictureUrl = req.User.ProfilePictureUrl
@@ -174,7 +168,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	return nil
 }
 
-// Search the users in th store, using username
+// Search the users in th store, using full name
 func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.SearchResponse) error {
 	// List all the records
 	recs, err := h.store.Read("", store.ReadPrefix())
@@ -193,7 +187,8 @@ func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.Sea
 	// Filter and return the users
 	rsp.Users = make([]*pb.User, 0)
 	for _, u := range users {
-		if strings.Contains(u.Username, req.Username) {
+		fullname := fmt.Sprintf("%v %v", u.FirstName, u.LastName)
+		if strings.Contains(fullname, req.Query) {
 			rsp.Users = append(rsp.Users, u)
 		}
 	}
@@ -228,33 +223,4 @@ func (h *Handler) findUser(id string) (*pb.User, error) {
 	}
 
 	return user, nil
-}
-
-// usernameExists returns a bool if a user exists with this record,
-// an error is also returned indicating there was an error reading
-// from the store.
-func (h *Handler) usernameExists(username string) (bool, error) {
-	recs, err := h.store.Read(username, store.ReadSuffix())
-	return len(recs) > 0, err
-}
-
-// validateUser performs some checks to ensure the validity of
-// the data being written to the store. If the data is invalid
-// a go-micro error is returned
-func (h *Handler) validateUser(u *pb.User) error {
-	if len(u.Username) == 0 {
-		return nil
-	}
-
-	// Validate the username is url safe
-	if safe := URLSafeRegex(u.Username); !safe {
-		return errors.BadRequest("go.micro.service.users", "Username is invalid, only a-Z, 0-9, dashes and underscores allowed")
-	}
-
-	// Ensure no other users with this username exist
-	if exists, err := h.usernameExists(u.Username); err == nil && exists {
-		return errors.BadRequest("go.micro.service.users", "Username is taken")
-	}
-
-	return nil
 }

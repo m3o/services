@@ -96,7 +96,6 @@ func (h *Handler) serializeUser(u *users.User) *pb.User {
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		Email:     u.Email,
-		Username:  u.Username,
 	}
 }
 
@@ -108,6 +107,5 @@ func (h *Handler) deserializeUser(u *pb.User) *users.User {
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		Email:     u.Email,
-		Username:  u.Username,
 	}
 }

@@ -74,18 +74,8 @@ class EditProfile extends React.Component<Props, State> {
           name='email'
           type='email'
           value={user!.email}
-          disabled={this.state.saving}
-          onChange={this.onChange.bind(this)} />
+          disabled={true} />
         
-        <label>Username *</label>
-        <input
-          required
-          name='username'
-          type='text'
-          value={user!.username}
-          disabled={this.state.saving}
-          onChange={this.onChange.bind(this)} />
-          
         <input disabled={this.state.saving} type='submit' value={ saving ? 'Saving' : (this.props.buttonText || 'Save Changes') } />
       </form>
     );

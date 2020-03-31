@@ -65,7 +65,6 @@ message User {
 	string first_name = 4;
 	string last_name = 5;
 	string email = 6;
-	string username = 7;		// alphanumeric user or org
 	repeated PaymentMethod payment_methods = 8;
 	repeated Subscription subscriptions = 9;
 	repeated string roles = 10;
