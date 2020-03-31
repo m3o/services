@@ -36,7 +36,7 @@ export default class PaymentMethodComponent extends React.Component<Props, State
     const pm = this.props.paymentMethod;
 
     // eslint-disable-next-line no-restricted-globals
-    if(!confirm(`Are you sure you want to make ${pm.cardBrand} ending in ${pm.cardLast4} your default payment method?`)) return;
+    if(!confirm(`Are you sure you want to make ${pm.card_brand} ending in ${pm.card_last_4} your default payment method?`)) return;
 
     Call("DefaultPaymentMethod", { id: pm.id })
       .then(() => this.props.setDefault(pm))
@@ -49,8 +49,8 @@ export default class PaymentMethodComponent extends React.Component<Props, State
     return(
       <div className='PaymentMethod'>
         <div className='pm-left'>
-          <p><span>{pm.cardBrand}</span> ending in {pm.cardLast4}</p>
-          <p>Exp: {pm.cardExpMonth}/{pm.cardExpYear}</p>
+          <p><span>{pm.card_brand}</span> ending in {pm.card_last_4}</p>
+          <p>Exp: {pm.card_exp_month}/{pm.card_exp_year}</p>
         </div>
 
         <div className='pm-right'>
