@@ -9,6 +9,7 @@ export GOARCH=amd64
 
 # Might not always have services passed down -
 # Github Actions needs GITHUB_TOKEN and for PR forks we don't have that.
+# Check for PR number as the pull api call fails if not in a PR obviously.
 if [ -n "$PR_NUMBER" ] && [ -z "$1" ]; then
     echo "Getting files from github api to detect files changed "
     SERVICES=($(find . -name main.go | cut -c 3- | rev | cut -c 9- | rev))
