@@ -9,33 +9,34 @@ export default async function Call(path: string, params?: any): Promise<any> {
 
 export class User {
   id: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  paymentMethods: PaymentMethod[];
+  payment_methods: PaymentMethod[];
   subscriptions: Subscription[];
   roles: string[];
 
   constructor(args: any) {
+    debugger
     this.id = args.id;
-    this.firstName = args.firstName || '';
-    this.lastName = args.lastName || '';
+    this.first_name = args.first_name || '';
+    this.last_name = args.last_name || '';
     this.email = args.email || '';
-    this.paymentMethods = (args.paymentMethods || []).map(p => new PaymentMethod(p));
+    this.payment_methods = (args.payment_methods || []).map(p => new PaymentMethod(p));
     this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
     this.roles = args.roles || [];
   }
 
   requiresOnboarding():boolean {
     if(this.roles.includes('admin')) return false;
-    if(this.paymentMethods.length === 0) return true;
+    if(this.payment_methods.length === 0) return true;
     if(this.subscriptions.length === 0) return true;
     return false
   }
 
   profileCompleted():boolean {
-    if(this.firstName.length === 0) return false;
-    if(this.lastName.length === 0) return false;
+    if(this.first_name.length === 0) return false;
+    if(this.last_name.length === 0) return false;
     return true
   }
 }
@@ -53,23 +54,23 @@ export class Subscription {
 export class PaymentMethod {
   id: string;
   created: string;
-  userId: string;
+  user_id: string;
   type: string;
-  cardBrand: string;
-  cardExpMonth: string;
-  cardExpYear: string;
-  cardLast4: string;
+  card_brand: string;
+  card_exp_month: string;
+  card_exp_year: string;
+  card_last_4: string;
   default: boolean;
 
   constructor(args: any) {
     this.id = args.id;
     this.created = args.created;
-    this.userId = args.userId;
+    this.user_id = args.user_id;
     this.type = args.type;
-    this.cardBrand = args.cardBrand;
-    this.cardExpMonth = args.cardExpMonth;
-    this.cardExpYear = args.cardExpYear;
-    this.cardLast4 = args.cardLast4;
+    this.card_brand = args.card_brand;
+    this.card_exp_month = args.card_exp_month;
+    this.card_exp_year = args.card_exp_year;
+    this.card_last_4 = args.card_last_4;
     this.default = args.default;
   }
 }

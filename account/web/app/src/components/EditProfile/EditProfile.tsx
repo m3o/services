@@ -54,8 +54,8 @@ class EditProfile extends React.Component<Props, State> {
         <input
           required
           type='text'
-          name='firstName'
-          value={user!.firstName} 
+          name='first_name'
+          value={user!.first_name} 
           disabled={this.state.saving}
           onChange={this.onChange.bind(this)} />
         
@@ -63,8 +63,8 @@ class EditProfile extends React.Component<Props, State> {
         <input
           required
           type='text'
-          name='lastName'
-          value={user!.lastName} 
+          name='last_name'
+          value={user!.last_name} 
           disabled={this.state.saving}
           onChange={this.onChange.bind(this)} />
         

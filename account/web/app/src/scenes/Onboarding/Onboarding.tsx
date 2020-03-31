@@ -53,7 +53,7 @@ class Onboarding extends React.Component<Props, State> {
         break
       case 1:
         // setup payment methods
-        if(this.props.user.paymentMethods.length > 0) {
+        if(this.props.user.payment_methods.length > 0) {
           this.incrementStage();
         }
         break
@@ -94,7 +94,7 @@ class Onboarding extends React.Component<Props, State> {
         <div className='payment-methods'>
           <p>Please enter a payment method</p>
           <EditPaymentMethods />
-          { this.props.user.paymentMethods.length > 0 ? <button onClick={this.incrementStage.bind(this)} className='continue'>Continue →</button> : null }
+          { this.props.user.payment_methods.length > 0 ? <button onClick={this.incrementStage.bind(this)} className='continue'>Continue →</button> : null }
         </div>
       )
     default:

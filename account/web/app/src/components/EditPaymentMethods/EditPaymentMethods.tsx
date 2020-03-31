@@ -74,7 +74,7 @@ class EditPaymentMethods extends React.Component<Props, State> {
 
 function mapStateToProps(state: any): any {
   return({
-    paymentMethods: state.user.user.paymentMethods,
+    paymentMethods: state.user.user.payment_methods,
   });
 }
 

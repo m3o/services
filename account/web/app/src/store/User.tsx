@@ -38,8 +38,8 @@ export default function(state = defaultState, action: Action): State {
       return { ...state, user: action.user! };
     case ADD_PAYMENT_METHOD:
       var user = new User({
-        ...state.user, paymentMethods: [
-          ...state.user!.paymentMethods,
+        ...state.user, payment_methods: [
+          ...state.user!.payment_methods,
           action.paymentMethod,
         ],
       });
@@ -47,16 +47,16 @@ export default function(state = defaultState, action: Action): State {
       return { ...state, user };
     case REMOVE_PAYMENT_METHOD:
       user = new User({
-        ...state.user, paymentMethods: [
-          ...state.user!.paymentMethods.filter(p => p.id !== action.paymentMethod!.id),
+        ...state.user, payment_methods: [
+          ...state.user!.payment_methods.filter(p => p.id !== action.paymentMethod!.id),
         ],
       });
 
       return { ...state, user };
     case SET_DEFAULT_PAYMENT_METHOD:
       user = new User({
-        ...state.user, paymentMethods: [
-          ...state.user!.paymentMethods.map(p => new PaymentMethod({
+        ...state.user, payment_methods: [
+          ...state.user!.payment_methods.map(p => new PaymentMethod({
             ...p, default: p.id === action.paymentMethod.id,
           })),
         ],
