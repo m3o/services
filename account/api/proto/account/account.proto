@@ -15,7 +15,7 @@ service Account {
 
 	rpc Signup(SignupRequest) returns (SignupResponse);
 	rpc Login(LoginRequest) returns (LoginResponse);
-	rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+	rpc Token(TokenRequest) returns (TokenResponse);
 }
 
 message SignupRequest {
@@ -25,8 +25,8 @@ message SignupRequest {
 
 message SignupResponse {
 	User user = 1;
-	Token token = 2;
-	Token secret = 3;
+	string secret = 2;
+	Token token = 3;
 }
 
 message LoginRequest {
@@ -36,8 +36,8 @@ message LoginRequest {
 
 message LoginResponse {
 	User user = 1;
-	Token token = 2;
-	Token secret = 3;
+	string secret = 2;
+	Token token = 3;
 }
 
 message Plan {
@@ -114,11 +114,12 @@ message CreatePaymentMethodResponse {
 
 message DeletePaymentMethodResponse {}
 
-message RefreshTokenRequest {
-	string secret = 1;
+message TokenRequest {
+	string id = 1;
+	string secret = 2;
 }
 
-message RefreshTokenResponse {
+message TokenResponse {
 	Token token = 1;
 }
 

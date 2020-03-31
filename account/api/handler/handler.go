@@ -32,7 +32,7 @@ func NewHandler(srv micro.Service) *Handler {
 		log.Fatalf("Unable to generate service auth account: %v", err)
 	}
 	// todo: renew token automatically
-	token, err := srv.Options().Auth.Refresh(account.Secret.Token, auth.WithTokenExpiry(time.Hour*24*30))
+	token, err := srv.Options().Auth.Token(account.ID, account.Secret, auth.WithTokenExpiry(time.Hour*24*30))
 	if err != nil {
 		log.Fatalf("Unable to generate service auth token: %v", err)
 	}

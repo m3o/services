@@ -44,7 +44,7 @@ type AccountService interface {
 	DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, opts ...client.CallOption) (*DefaultPaymentMethodResponse, error)
 	Signup(ctx context.Context, in *SignupRequest, opts ...client.CallOption) (*SignupResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...client.CallOption) (*LoginResponse, error)
-	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...client.CallOption) (*RefreshTokenResponse, error)
+	Token(ctx context.Context, in *TokenRequest, opts ...client.CallOption) (*TokenResponse, error)
 }
 
 type accountService struct {
@@ -159,9 +159,9 @@ func (c *accountService) Login(ctx context.Context, in *LoginRequest, opts ...cl
 	return out, nil
 }
 
-func (c *accountService) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...client.CallOption) (*RefreshTokenResponse, error) {
-	req := c.c.NewRequest(c.name, "Account.RefreshToken", in)
-	out := new(RefreshTokenResponse)
+func (c *accountService) Token(ctx context.Context, in *TokenRequest, opts ...client.CallOption) (*TokenResponse, error) {
+	req := c.c.NewRequest(c.name, "Account.Token", in)
+	out := new(TokenResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -182,7 +182,7 @@ type AccountHandler interface {
 	DefaultPaymentMethod(context.Context, *DefaultPaymentMethodRequest, *DefaultPaymentMethodResponse) error
 	Signup(context.Context, *SignupRequest, *SignupResponse) error
 	Login(context.Context, *LoginRequest, *LoginResponse) error
-	RefreshToken(context.Context, *RefreshTokenRequest, *RefreshTokenResponse) error
+	Token(context.Context, *TokenRequest, *TokenResponse) error
 }
 
 func RegisterAccountHandler(s server.Server, hdlr AccountHandler, opts ...server.HandlerOption) error {
@@ -197,7 +197,7 @@ func RegisterAccountHandler(s server.Server, hdlr AccountHandler, opts ...server
 		DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, out *DefaultPaymentMethodResponse) error
 		Signup(ctx context.Context, in *SignupRequest, out *SignupResponse) error
 		Login(ctx context.Context, in *LoginRequest, out *LoginResponse) error
-		RefreshToken(ctx context.Context, in *RefreshTokenRequest, out *RefreshTokenResponse) error
+		Token(ctx context.Context, in *TokenRequest, out *TokenResponse) error
 	}
 	type Account struct {
 		account
@@ -250,6 +250,6 @@ func (h *accountHandler) Login(ctx context.Context, in *LoginRequest, out *Login
 	return h.AccountHandler.Login(ctx, in, out)
 }
 
-func (h *accountHandler) RefreshToken(ctx context.Context, in *RefreshTokenRequest, out *RefreshTokenResponse) error {
-	return h.AccountHandler.RefreshToken(ctx, in, out)
+func (h *accountHandler) Token(ctx context.Context, in *TokenRequest, out *TokenResponse) error {
+	return h.AccountHandler.Token(ctx, in, out)
 }

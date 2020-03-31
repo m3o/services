@@ -3,7 +3,7 @@ module github.com/micro/services/platform/web
 go 1.13
 
 require (
-	github.com/micro/go-micro/v2 v2.3.1-0.20200326163031-00e7804f965a
+	github.com/micro/go-micro/v2 v2.3.1-0.20200331090613-76ade7efd9b8
 	github.com/micro/micro/v2 v2.2.1-0.20200314171200-6192587db534
 	github.com/micro/services/platform/service v0.0.0-20200313185528-4a795857eb73
 )

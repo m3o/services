@@ -44,7 +44,7 @@ func NewHandler(srv micro.Service) *Handler {
 	if err != nil {
 		log.Fatalf("Unable to generate service auth account: %v", err)
 	}
-	token, err := srv.Options().Auth.Refresh(account.Secret.Token)
+	token, err := srv.Options().Auth.Token(account.ID, account.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		log.Fatalf("Unable to generate service auth token: %v", err)
 	}
@@ -97,7 +97,7 @@ func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *user
 	}
 
 	// Create an auth token
-	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
+	tok, err := h.auth.Token(acc.ID, acc.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		h.handleError(w, req, "Error creating auth token: %v", err)
 		return

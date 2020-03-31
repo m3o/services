@@ -10,9 +10,9 @@ import (
 	users "github.com/micro/services/users/service/proto"
 )
 
-// RefreshToken generates a new JWT using a secret token
-func (h *Handler) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest, rsp *pb.RefreshTokenResponse) error {
-	tok, err := h.auth.Refresh(req.Secret, auth.WithTokenExpiry(time.Hour*24))
+// Token generates a new JWT using a secret token
+func (h *Handler) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenResponse) error {
+	tok, err := h.auth.Token(req.Id, req.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}
@@ -45,15 +45,15 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 	if err != nil {
 		return err
 	}
-	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
+	tok, err := h.auth.Token(acc.ID, acc.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}
 
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
-	rsp.Secret = serializeToken(acc.Secret)
 	rsp.Token = serializeToken(tok)
+	rsp.Secret = acc.Secret
 	return nil
 }
 
@@ -105,14 +105,14 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	if err != nil {
 		return err
 	}
-	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
+	tok, err := h.auth.Token(acc.ID, acc.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}
 
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
-	rsp.Secret = serializeToken(acc.Secret)
 	rsp.Token = serializeToken(tok)
+	rsp.Secret = acc.Secret
 	return nil
 }
