@@ -50,7 +50,7 @@ jobs:
           
           # Only invoke the build script when there are no services added or changed
           # when we are in a PR.
-          if [ -n "{{ $PR_NUMBER }}"] && [ -z "${{ steps.services_changed.outputs.services_added }}" ] && [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
+          if [ -n "${{ PR_NUMBER }}" ] && [ -z "${{ steps.services_changed.outputs.services_added }}" ] && [ -z "${{ steps.services_changed.outputs.services_modified }}" ]; then
             ./build.sh
           else 
             # Build the binaries in the directories which have changed
