@@ -4,9 +4,15 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/broker"
+	"github.com/micro/go-micro/v2/config"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/runtime"
 	runtimepb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/go-micro/v2/server"
@@ -23,19 +29,44 @@ var (
 	Image = "docker.pkg.github.com/micro/services"
 )
 
+type status struct {
+	*pb.Status
+}
+
+func (s *status) Ok() bool {
+	if len(s.Status.Error) > 0 {
+		return false
+	}
+	return true
+}
+
 // Handler implements the platform service interface
 type Handler struct {
-	Store   store.Store
-	Event   micro.Event
-	Runtime runtime.Runtime
+	// current status of the platform
+	sync.RWMutex
+	status map[string]*status
+
+	// all the things
+	Auth     auth.Auth
+	Broker   broker.Broker
+	Config   config.Config
+	Registry registry.Registry
+	Store    store.Store
+	Runtime  runtime.Runtime
+	Event    micro.Event
 }
 
 // NewHandler returns an initialized Handler
 func NewHandler(srv micro.Service) *Handler {
 	h := &Handler{
-		Store:   store.DefaultStore,
-		Runtime: runtime.DefaultRuntime,
-		Event:   micro.NewEvent(Topic, srv.Client()),
+		status:   make(map[string]*status),
+		Auth:     srv.Options().Auth,
+		Broker:   srv.Options().Broker,
+		Config:   srv.Options().Config,
+		Event:    micro.NewEvent(Topic, srv.Client()),
+		Registry: srv.Options().Registry,
+		Runtime:  runtime.DefaultRuntime,
+		Store:    store.DefaultStore,
 	}
 
 	err := micro.RegisterSubscriber(
@@ -44,9 +75,23 @@ func NewHandler(srv micro.Service) *Handler {
 		h.HandleEvent,
 		server.SubscriberQueue("queue.platform"),
 	)
+
 	if err != nil {
 		log.Errorf("Error subscribing to registry: %v", err)
 	}
+
+	// Check the status of the platform every 30 seconds
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+
+		// check the status once
+		h.checkStatus()
+
+		for _ = range ticker.C {
+			h.checkStatus()
+		}
+	}()
 
 	return h
 }

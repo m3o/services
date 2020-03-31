@@ -3,15 +3,32 @@ syntax = "proto3";
 package go.micro.service.platform;
 
 service Platform {
-    rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
-    rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {}
-    rpc GetEvent(GetEventRequest) returns (GetEventResponse) {}
-    
-    rpc CreateService(CreateServiceRequest) returns (CreateServiceResponse) {};
-    rpc ReadService(ReadServiceRequest) returns (ReadServiceResponse) {};
-    rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {};
-    rpc DeleteService(DeleteServiceRequest) returns (DeleteServiceResponse) {};
-    rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {};
+	// Status returns the status of the platform
+	rpc Status(StatusRequest) returns (StatusResponse) {};
+	rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+	rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {}
+	rpc GetEvent(GetEventRequest) returns (GetEventResponse) {}   
+	rpc CreateService(CreateServiceRequest) returns (CreateServiceResponse) {};
+	rpc ReadService(ReadServiceRequest) returns (ReadServiceResponse) {};
+	rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {};
+	rpc DeleteService(DeleteServiceRequest) returns (DeleteServiceResponse) {};
+	rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {};
+}
+
+message Status {
+	string code = 1; // ok, error
+	string info = 2; // informational message
+	string error = 3; // related error
+}
+
+message StatusRequest {
+	// TODO: accept which service to get status for
+}
+
+message StatusResponse {
+	Status status = 1;
+	// The status of each service
+	map<string,Status> runtime = 2;
 }
 
 message CreateEventRequest {
