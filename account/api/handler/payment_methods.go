@@ -13,22 +13,19 @@ import (
 
 // CreatePaymentMethod via the provider
 func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePaymentMethodRequest, rsp *pb.CreatePaymentMethodResponse) error {
+	// Get the user
+	user, err := h.userFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
 	// Validate the request
 	if len(req.Id) == 0 {
 		return errors.BadRequest(h.name, "Missing payment method ID")
 	}
 
-	// Identify the user
-	acc, err := auth.AccountFromContext(ctx)
-	if err != nil {
-		return err
-	}
-	if len(acc.ID) == 0 {
-		return errors.Unauthorized(h.name, "A valid auth token is required")
-	}
-
 	// Create a payment method
-	pRsp, err := h.payment.CreatePaymentMethod(ctx, &payment.CreatePaymentMethodRequest{UserId: acc.ID, Id: req.Id})
+	pRsp, err := h.payment.CreatePaymentMethod(ctx, &payment.CreatePaymentMethodRequest{UserId: user.Id, Id: req.Id})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Error creating payment method: %v", err)
 	}
@@ -37,7 +34,7 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	rsp.PaymentMethod = serializePaymentMethod(pRsp.PaymentMethod)
 
 	// Check to see if this is the users only payment method
-	lRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
+	lRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: user.Id})
 	if err != nil {
 		log.Infof("Error listing payment methods: %v", err)
 		return nil
@@ -47,7 +44,7 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	}
 
 	// Set the default
-	_, err = h.payment.SetDefaultPaymentMethod(ctx, &payment.SetDefaultPaymentMethodRequest{UserId: acc.ID, PaymentMethodId: pRsp.PaymentMethod.Id})
+	_, err = h.payment.SetDefaultPaymentMethod(ctx, &payment.SetDefaultPaymentMethodRequest{UserId: user.Id, PaymentMethodId: pRsp.PaymentMethod.Id})
 	if err != nil {
 		log.Infof("Error setting default payment method: %v", err)
 		return nil
@@ -64,17 +61,14 @@ func (h *Handler) DefaultPaymentMethod(ctx context.Context, req *pb.DefaultPayme
 		return errors.BadRequest(h.name, "Missing payment method ID")
 	}
 
-	// Identify the user
-	acc, err := auth.AccountFromContext(ctx)
+	// Get the user
+	user, err := h.userFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	if len(acc.ID) == 0 {
-		return errors.Unauthorized(h.name, "A valid auth token is required")
-	}
 
 	// Set the default payment method
-	_, err = h.payment.SetDefaultPaymentMethod(ctx, &payment.SetDefaultPaymentMethodRequest{UserId: acc.ID, PaymentMethodId: req.Id})
+	_, err = h.payment.SetDefaultPaymentMethod(ctx, &payment.SetDefaultPaymentMethodRequest{UserId: user.Id, PaymentMethodId: req.Id})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Error setting default payment method: %v", err)
 	}

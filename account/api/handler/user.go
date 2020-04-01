@@ -14,27 +14,24 @@ import (
 
 // ReadUser retrieves a user from the users service
 func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb.ReadUserResponse) error {
-	// Identify the user
-	acc, err := auth.AccountFromContext(ctx)
+	// Get the user
+	user, err := h.userFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	if len(acc.ID) == 0 {
-		return errors.Unauthorized(h.name, "A valid auth token is required")
-	}
 
-	// Lookup the user
-	resp, err := h.users.Read(ctx, &users.ReadRequest{Email: acc.ID})
+	// Get the account
+	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	// Serialize the User
-	rsp.User = serializeUser(resp.User)
+	rsp.User = serializeUser(user)
 	rsp.User.Roles = acc.Roles
 
 	// Fetch the payment methods
-	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
+	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: user.Id})
 	if err != nil {
 		log.Infof("Error listing payment methods: %v", err)
 		return nil
@@ -47,7 +44,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	// Fetch the subscriptions
-	sRsp, err := h.payment.ListSubscriptions(ctx, &payment.ListSubscriptionsRequest{UserId: acc.ID})
+	sRsp, err := h.payment.ListSubscriptions(ctx, &payment.ListSubscriptionsRequest{UserId: user.Id})
 	if err != nil {
 		log.Infof("Error listing subscriptions: %v", err)
 		return nil
@@ -64,26 +61,17 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 // UpdateUser modifies a user in the users service
 func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp *pb.UpdateUserResponse) error {
-	// Identify the user
-	acc, err := auth.AccountFromContext(ctx)
-	if err != nil {
-		return err
-	}
-	if len(acc.ID) == 0 {
-		return errors.Unauthorized(h.name, "A valid auth token is required")
-	}
-
 	// Validate the Userequest
 	if req.User == nil {
 		return errors.BadRequest(h.name, "User is missing")
 	}
 
-	// Get the user id (acc id is the email)
-	rRsp, err := h.users.Read(ctx, &users.ReadRequest{Email: acc.ID})
+	// Get the user
+	user, err := h.userFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	req.User.Id = rRsp.User.Id
+	req.User.Id = user.Id
 
 	// Update the user
 	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
@@ -98,17 +86,14 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 
 // DeleteUser the user service
 func (h *Handler) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest, rsp *pb.DeleteUserResponse) error {
-	// Identify the user
-	acc, err := auth.AccountFromContext(ctx)
+	// Get the user
+	user, err := h.userFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	if len(acc.ID) == 0 {
-		return errors.Unauthorized(h.name, "A valid auth token is required")
-	}
 
 	// Delete the user
-	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: acc.ID})
+	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: user.Id})
 	return err
 }
 

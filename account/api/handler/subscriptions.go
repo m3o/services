@@ -3,8 +3,6 @@ package handler
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
 	pb "github.com/micro/services/account/api/proto/account"
 	payment "github.com/micro/services/payments/provider/proto"
 )
@@ -31,17 +29,14 @@ func (h *Handler) ListPlans(ctx context.Context, req *pb.ListPlansRequest, rsp *
 
 // CreateSubscription for the user
 func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscriptionRequest, rsp *pb.CreateSubscriptionResponse) error {
-	// Identify the user
-	acc, err := auth.AccountFromContext(ctx)
+	// Get the user
+	user, err := h.userFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	if len(acc.ID) == 0 {
-		return errors.Unauthorized(h.name, "A valid auth token is required")
-	}
 
 	// Create the subscription
-	_, err = h.payment.CreateSubscription(ctx, &payment.CreateSubscriptionRequest{UserId: acc.ID, PlanId: req.PlanId})
+	_, err = h.payment.CreateSubscription(ctx, &payment.CreateSubscriptionRequest{UserId: user.Id, PlanId: req.PlanId})
 	return err
 }
 
