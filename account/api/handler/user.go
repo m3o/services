@@ -24,7 +24,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	// Lookup the user
-	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
+	resp, err := h.users.Read(ctx, &users.ReadRequest{Email: acc.ID})
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,13 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	if req.User == nil {
 		return errors.BadRequest(h.name, "User is missing")
 	}
-	req.User.Id = acc.ID
+
+	// Get the user id (acc id is the email)
+	rRsp, err := h.users.Read(ctx, &users.ReadRequest{Email: acc.ID})
+	if err != nil {
+		return err
+	}
+	req.User.Id = rRsp.User.Id
 
 	// Update the user
 	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
