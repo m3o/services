@@ -87,7 +87,15 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 // Read retirves a user from the store
 func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	user, err := h.findUser(req.Id)
+	var user *pb.User
+	var err error
+
+	if len(req.Email) > 0 {
+		user, err = h.findUserByEmail(req.Email)
+	} else {
+		user, err = h.findUser(req.Id)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -218,4 +226,34 @@ func (h *Handler) findUser(id string) (*pb.User, error) {
 	}
 
 	return user, nil
+}
+
+// findUserByEmail retrieves a user given an email
+func (h *Handler) findUserByEmail(email string) (*pb.User, error) {
+	// Validate the request
+	if len(email) == 0 {
+		return nil, errors.BadRequest("go.micro.service.users", "Missing Email")
+	}
+
+	// Get the records
+	recs, err := h.store.Read("", store.ReadPrefix())
+	if err != nil {
+		return nil, errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
+	}
+	if len(recs) == 0 {
+		return nil, errors.NotFound("go.micro.service.users", "User not found")
+	}
+
+	// Decode the users
+	for _, r := range recs {
+		var user *pb.User
+		if err := json.Unmarshal(r.Value, &user); err != nil {
+			return nil, errors.InternalServerError("go.micro.service.users", "Could not unmarshal user: %v", err)
+		}
+		if user.Email == email {
+			return user, nil
+		}
+	}
+
+	return nil, errors.NotFound("go.micro.service.users", "User not found")
 }

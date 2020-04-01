@@ -2,15 +2,17 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/auth/provider"
 	"github.com/micro/go-micro/v2/auth/provider/oauth"
+	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/store"
 
 	login "github.com/micro/services/login/service/proto/login"
 	users "github.com/micro/services/users/service/proto"
@@ -38,24 +40,13 @@ func NewHandler(srv micro.Service) *Handler {
 		provider.Scope(getConfigString(srv, "github", "scope")),
 	)
 
-	account, err := srv.Options().Auth.Generate(srv.Name(),
-		auth.WithRoles("service", fmt.Sprintf("service.%v", srv.Name())),
-	)
-	if err != nil {
-		log.Fatalf("Unable to generate service auth account: %v", err)
-	}
-	token, err := srv.Options().Auth.Token(account.ID, account.Secret, auth.WithTokenExpiry(time.Hour*24))
-	if err != nil {
-		log.Fatalf("Unable to generate service auth token: %v", err)
-	}
-
 	return &Handler{
 		google:       googleProv,
 		github:       githubProv,
-		authToken:    token.Token,
 		githubOrgID:  getConfigInt(srv, "github", "org_id"),
 		githubTeamID: getConfigInt(srv, "github", "team_id"),
 		auth:         srv.Options().Auth,
+		store:        store.DefaultStore,
 		users:        users.NewUsersService("go.micro.service.users", srv.Client()),
 		login:        login.NewLoginService("go.micro.service.login", srv.Client()),
 	}
@@ -65,13 +56,54 @@ func NewHandler(srv micro.Service) *Handler {
 type Handler struct {
 	githubOrgID  int
 	githubTeamID int
-	authToken    string
 	auth         auth.Auth
 	users        users.UsersService
 	login        login.LoginService
 	google       provider.Provider
 	github       provider.Provider
+	store        store.Store
 }
+
+//
+// Helper methods for ensuring oauth state is valid
+//
+
+const storePrefixOauthCode = "code/"
+
+func (h *Handler) generateOauthState() string {
+	code := uuid.New().String()
+	h.store.Write(&store.Record{Key: storePrefixOauthCode + code, Expiry: time.Minute * 5})
+	return code
+}
+
+func (h *Handler) validateOauthState(code string) bool {
+	_, err := h.store.Read(storePrefixOauthCode + code)
+	return err == nil
+}
+
+//
+// Helper methods for recording account secrets
+//
+
+const storePrefixAccountSecrets = "secrets/"
+
+func (h *Handler) setAccountSecret(id, secret string) error {
+	key := storePrefixAccountSecrets + id
+	return h.store.Write(&store.Record{Key: key, Value: []byte(secret)})
+}
+
+func (h *Handler) getAccountSecret(id string) (string, error) {
+	key := storePrefixAccountSecrets + id
+	recs, err := h.store.Read(key)
+	if err != nil {
+		return "", err
+	}
+	return string(recs[0].Value), nil
+}
+
+//
+// Helper methods for getting config
+//
 
 func getConfigString(srv micro.Service, keys ...string) string {
 	path := append([]string{"micro", "oauth"}, keys...)
@@ -83,30 +115,20 @@ func getConfigInt(srv micro.Service, keys ...string) int {
 	return srv.Options().Config.Get(path...).Int(0)
 }
 
+//
+// Helper methods handling errors and setting cookies
+//
+
 func (h *Handler) handleError(w http.ResponseWriter, req *http.Request, format string, args ...interface{}) {
+	logger.Errorf(format, args...)
 	params := url.Values{"error": {fmt.Sprintf(format, args...)}}
 	http.Redirect(w, req, "/?"+params.Encode(), http.StatusFound)
 }
 
-func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, user *users.User, roles ...string) {
-	// Create an auth account
-	acc, err := h.auth.Generate(user.Id, auth.WithRoles(roles...))
-	if err != nil {
-		h.handleError(w, req, "Error creating auth account: %v", err)
-		return
-	}
-
-	// Create an auth token
-	tok, err := h.auth.Token(acc.ID, acc.Secret, auth.WithTokenExpiry(time.Hour*24))
-	if err != nil {
-		h.handleError(w, req, "Error creating auth token: %v", err)
-		return
-	}
-
-	// Set cookie and redirect
+func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, tok *auth.Token) {
 	http.SetCookie(w, &http.Cookie{
 		Name:   auth.TokenCookieName,
-		Value:  tok.Token,
+		Value:  tok.AccessToken,
 		Domain: "micro.mu",
 		Path:   "/",
 	})

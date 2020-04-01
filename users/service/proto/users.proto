@@ -52,6 +52,7 @@ message DeleteResponse {
 
 message ReadRequest {
 	string id = 1;
+	string email = 2;
 }
 
 message ReadResponse {

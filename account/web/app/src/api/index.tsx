@@ -76,12 +76,16 @@ export class PaymentMethod {
 }
 
 export class Token {
-  token: string;
-  expires: Date;
+  access_token: string;
+  refresh_token: string;
+  expiry: Date;
+  created: Date;
 
   constructor(args: any) {
-    this.token = args.token;
-    this.expires = new Date(args.expires * 1000)
+    this.access_token = args.access_token;
+    this.refresh_token = args.refresh_token;
+    this.created = new Date(args.created * 1000)
+    this.expiry = new Date(args.expiry * 1000)
   }
 }
 

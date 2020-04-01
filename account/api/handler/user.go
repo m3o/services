@@ -8,16 +8,12 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 
 	pb "github.com/micro/services/account/api/proto/account"
-	login "github.com/micro/services/login/service/proto/login"
 	payment "github.com/micro/services/payments/provider/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
 // ReadUser retrieves a user from the users service
 func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb.ReadUserResponse) error {
-	// Generate a context with elevated privelages
-	privCtx := auth.ContextWithToken(ctx, h.authToken)
-
 	// Identify the user
 	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
@@ -28,7 +24,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	// Lookup the user
-	resp, err := h.users.Read(privCtx, &users.ReadRequest{Id: acc.ID})
+	resp, err := h.users.Read(ctx, &users.ReadRequest{Id: acc.ID})
 	if err != nil {
 		return err
 	}
@@ -38,7 +34,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	rsp.User.Roles = acc.Roles
 
 	// Fetch the payment methods
-	pRsp, err := h.payment.ListPaymentMethods(privCtx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
+	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: acc.ID})
 	if err != nil {
 		log.Infof("Error listing payment methods: %v", err)
 		return nil
@@ -51,7 +47,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	}
 
 	// Fetch the subscriptions
-	sRsp, err := h.payment.ListSubscriptions(privCtx, &payment.ListSubscriptionsRequest{UserId: acc.ID})
+	sRsp, err := h.payment.ListSubscriptions(ctx, &payment.ListSubscriptionsRequest{UserId: acc.ID})
 	if err != nil {
 		log.Infof("Error listing subscriptions: %v", err)
 		return nil
@@ -68,9 +64,6 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 // UpdateUser modifies a user in the users service
 func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp *pb.UpdateUserResponse) error {
-	// Generate a context with elevated privelages
-	privCtx := auth.ContextWithToken(ctx, h.authToken)
-
 	// Identify the user
 	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
@@ -86,25 +79,10 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	}
 	req.User.Id = acc.ID
 
-	// Get the user
-	rRsp, err := h.users.Read(privCtx, &users.ReadRequest{Id: acc.ID})
-	if err != nil {
-		return err
-	}
-
 	// Update the user
-	uRsp, err := h.users.Update(privCtx, &users.UpdateRequest{User: deserializeUser(req.User)})
+	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
 	if err != nil {
 		return err
-	}
-
-	// If the users email changed, notify the login service
-	// TODO: Remove this once it's handled by event consumption
-	if rRsp.User.Email != uRsp.User.Email {
-		h.login.UpdateEmail(ctx, &login.UpdateEmailRequest{
-			OldEmail: rRsp.User.Email,
-			NewEmail: uRsp.User.Email,
-		})
 	}
 
 	// Serialize the response

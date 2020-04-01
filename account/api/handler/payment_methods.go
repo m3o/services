@@ -100,8 +100,10 @@ func (h *Handler) DeletePaymentMethod(ctx context.Context, req *pb.DeletePayment
 
 func serializeToken(t *auth.Token) *pb.Token {
 	return &pb.Token{
-		Token:   t.Token,
-		Expires: t.Expiry.Unix(),
+		AccessToken:  t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		Created:      t.Created.Unix(),
+		Expiry:       t.Expiry.Unix(),
 	}
 }
 
