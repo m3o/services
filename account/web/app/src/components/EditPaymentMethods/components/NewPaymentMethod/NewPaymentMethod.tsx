@@ -59,7 +59,7 @@ export default ({ onSuccess, onError, onSubmit, saving, submitRef, hideButton }:
 
   // this is a hack to allow us to trigger the callback in a parent
   // component, this is used in onboarding.
-  submitRef.current = onFormSubmit;
+  if(submitRef) submitRef.current = onFormSubmit;
 
   return(
     <form className='NewPaymentMethod' onSubmit={onFormSubmit}>
