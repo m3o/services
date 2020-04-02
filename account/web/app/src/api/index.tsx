@@ -17,7 +17,6 @@ export class User {
   roles: string[];
 
   constructor(args: any) {
-    debugger
     this.id = args.id;
     this.first_name = args.first_name || '';
     this.last_name = args.last_name || '';

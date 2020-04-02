@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import Call, { User, Plan } from '../../api';
@@ -20,6 +20,12 @@ interface State {
 
 class Onboarding extends React.Component<Props, State> {
   readonly state: State = { stage: 0, loadedPlans: false };
+  submitNewPaymentMethod: React.RefObject<() => Promise<any>>;
+
+  constructor(props: Props) {
+    super(props);
+    this.submitNewPaymentMethod = createRef();
+  }
 
   incrementStage() {
     this.setState({ stage: this.state.stage + 1 });
@@ -93,8 +99,8 @@ class Onboarding extends React.Component<Props, State> {
       return(
         <div className='payment-methods'>
           <p>Please enter a payment method</p>
-          <EditPaymentMethods />
-          { this.props.user.payment_methods.length > 0 ? <button onClick={this.incrementStage.bind(this)} className='continue'>Continue →</button> : null }
+          <EditPaymentMethods singleCardMode={true} submitNewPaymentMethod={this.submitNewPaymentMethod} />
+          <button onClick={() => this.submitNewPaymentMethod.current().then(this.incrementStage.bind(this))} className='continue'>Continue →</button>
         </div>
       )
     default:

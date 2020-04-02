@@ -18,6 +18,7 @@ interface Props {
 interface State {
   email: string;
   password: string;
+  passwordConfirmation: string;
   loading: boolean;
   signup: boolean;
   error?: string;
@@ -28,7 +29,7 @@ interface Params {
 }
 
 class Login extends React.Component<Props, State> {
-  readonly state: State = { email: '', password: '', loading: false, signup: false };
+  readonly state: State = { email: '', password: '', passwordConfirmation: '', loading: false, signup: false };
 
   componentDidMount() {
     const params: Params = queryString.parse(window.location.search);
@@ -37,12 +38,19 @@ class Login extends React.Component<Props, State> {
 
   async onSubmit(event) {
     event.preventDefault();
+    
+    const { signup, email, password, passwordConfirmation } = this.state;
+    if(signup && password !== passwordConfirmation) {
+      this.setState({ error: 'Passwords must match' });
+      return;
+    } else if(password.length < 6) {
+      this.setState({ error: 'Passwords must contain at least 6 characters' });
+      return
+    }
+    
     this.setState({ loading: true, error: undefined });
 
-    const { email, password, signup } = this.state;
-    const path = signup ? 'Signup' : 'Login';
-
-    Call(path, { email, password })
+    Call(signup ? 'Signup' : 'Login', { email, password })
       .then((res) => {
         const user = new User(res.data.user);
         const token = new Token(res.data.token);
@@ -67,6 +75,9 @@ class Login extends React.Component<Props, State> {
         return 
       case 'password':
         this.setState({ password: e.target.value })
+        return
+      case 'passwordConfirmation':
+        this.setState({ passwordConfirmation: e.target.value })
         return
     }
   }
@@ -97,7 +108,7 @@ class Login extends React.Component<Props, State> {
   }
 
   renderLogin(): JSX.Element {
-    const { email, password, loading, error } = this.state;
+    const { email, password, loading, error, signup } = this.state;
 
     return(
       <div className='inner'>
@@ -122,7 +133,7 @@ class Login extends React.Component<Props, State> {
 
           <label>Password *</label>
           <input type='password' name='password' value={password} disabled={loading} onChange={this.onChange.bind(this)} />
-
+        
           <input type='submit' value={loading ? 'Logging In' : 'Log in to your account'} disabled={loading} />
         </form>
 
@@ -132,7 +143,7 @@ class Login extends React.Component<Props, State> {
   }
 
   renderSignup(): JSX.Element {
-    const { email, password, loading, error } = this.state;
+    const { email, password, passwordConfirmation, loading, error } = this.state;
 
     return(
       <div className='inner'>
@@ -147,6 +158,9 @@ class Login extends React.Component<Props, State> {
 
           <label>Password *</label>
           <input type='password' name='password' value={password} disabled={loading} onChange={this.onChange.bind(this)} />
+
+          <label>Password Confirmation *</label>
+          <input type='password' name='passwordConfirmation' value={passwordConfirmation} disabled={loading} onChange={this.onChange.bind(this)} />
 
           <input type='submit' value={loading ? 'Creating your account' : 'Create an account'} disabled={loading} />
         </form>

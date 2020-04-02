@@ -9,6 +9,8 @@ import './EditPaymentMethods.scss';
 interface Props {
   stripe?: any;
   elements?: any;
+  singleCardMode?: boolean;
+  submitNewPaymentMethod: React.RefObject<() => Promise<any>>;
 
   paymentMethods: PaymentMethod[];
   setDefault: (pm: PaymentMethod) => void;
@@ -23,7 +25,7 @@ interface State {
 
 class EditPaymentMethods extends React.Component<Props, State> {
   readonly state: State = { saving: false };
-  
+
   setError(error?: string) {
     this.setState({ error, saving: false })
   }
@@ -34,21 +36,23 @@ class EditPaymentMethods extends React.Component<Props, State> {
   }
 
   render():JSX.Element {
-    const { paymentMethods } = this.props;
+    const { paymentMethods, singleCardMode } = this.props;
     const { error, saving } = this.state;
 
     return(
       <div className='EditPaymentMethods'>
         { this.state.error ? <p className='error'>{error}</p> : null }
 
-        { this.renderPaymentMethods() }
+        { singleCardMode ? null : this.renderPaymentMethods() }
 
         <NewPaymentMethod
           saving={saving}
           key={paymentMethods.length}
+          hideButton={singleCardMode}
           onError={this.setError.bind(this)}
           onSuccess={this.addPaymentMethod.bind(this)}
-          onSubmit={() => this.setState({ saving: true })}  />
+          submitRef={this.props.submitNewPaymentMethod}
+          onSubmit={() => this.setState({ saving: true })} />
       </div>
     );
   }
