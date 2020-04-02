@@ -22,7 +22,7 @@ export class ServiceService {
   list(): Promise<types.Service[]> {
     return new Promise<types.Service[]>((resolve, reject) => {
       return this.http
-        .get<types.Service[]>(environment.backendUrl + "/v1/services", {
+        .get<types.Service[]>(environment.apiUrl + "/v1/services", {
           withCredentials: true
         })
         .toPromise()
@@ -41,7 +41,7 @@ export class ServiceService {
         .get<types.LogRecord[]>(
           environment.backendUrl + "/v1/service/logs?service=" + service,
           {
-            withCredentials: true
+            withCredentials: false
           }
         )
         .toPromise()
@@ -80,7 +80,7 @@ export class ServiceService {
         .get<types.Span[]>(
           environment.backendUrl + "/v1/service/trace?" + qs + "limit=1000",
           {
-            withCredentials: true
+            withCredentials: false
           }
         )
         .toPromise()

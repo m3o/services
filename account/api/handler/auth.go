@@ -24,7 +24,7 @@ func (h *Handler) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.Token
 // Login looks up an account using an email and password
 func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.LoginResponse) error {
 	// Generate a token
-	tok, err := h.auth.Token(auth.WithCredentials(req.Email, req.Password))
+	tok, err := h.auth.Token(auth.WithCredentials(req.Email, req.Password), auth.WithExpiry(time.Hour*24))
 	if err != nil {
 		return err
 	}

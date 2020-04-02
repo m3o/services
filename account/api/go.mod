@@ -8,3 +8,5 @@ require (
 	github.com/micro/services/payments/provider v0.0.0-20200331171103-a3eba43a815a
 	github.com/micro/services/users/service v0.0.0-20200401191043-bafc59c2e760
 )
+
+replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
