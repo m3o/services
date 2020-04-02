@@ -94,7 +94,7 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Generate a token
-	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, "TEMPPASSWORD"))
+	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, acc.Secret))
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return

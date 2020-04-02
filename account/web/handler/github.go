@@ -104,7 +104,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Generate a token
-	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, "TEMPPASSWORD"))
+	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, acc.Secret))
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return
@@ -153,11 +153,10 @@ type githubProfile struct {
 }
 
 func (h *Handler) getGithubProfile(token string) (*githubProfile, error) {
-	fmt.Println(token)
 	// Use the token to get the users profile
+	client := &http.Client{}
 	r, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
 	r.Header.Add("Authorization", "Bearer "+token)
-	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
 		return nil, fmt.Errorf("Error getting user from GitHub: %v", err)
@@ -170,6 +169,36 @@ func (h *Handler) getGithubProfile(token string) (*githubProfile, error) {
 	// Decode the users profile
 	var profile *githubProfile
 	json.NewDecoder(resp.Body).Decode(&profile)
+
+	// Get the emails
+	r, _ = http.NewRequest("GET", "https://api.github.com/user/emails", nil)
+	r.Header.Add("Authorization", "Bearer "+token)
+	resp, err = client.Do(r)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting user from GitHub: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		bytes, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("Error getting user emails from GitHub. Status: %v. Error: %v", resp.Status, string(bytes))
+	}
+
+	// Decode the response
+	var emailsRsp []struct {
+		Email   string `json:"email"`
+		Primary bool   `json:"primary"`
+	}
+	json.NewDecoder(resp.Body).Decode(&emailsRsp)
+	for _, r := range emailsRsp {
+		if r.Primary == true {
+			profile.Email = r.Email
+		}
+	}
+
+	// Ensure an email was found
+	if len(profile.Email) == 0 {
+		return nil, fmt.Errorf("No primary email was found: %v", emailsRsp)
+	}
+
 	return profile, err
 }
 

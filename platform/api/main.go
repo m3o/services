@@ -119,18 +119,23 @@ func (h *Handler) ListServices(ctx context.Context, req *pb.ListServicesRequest,
 
 // ReadUser gets the current user
 func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb.ReadUserResponse) error {
+	// Identify the user
 	acc, err := auth.AccountFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	if len(acc.ID) == 0 {
+		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+	}
+
+	// Lookup the user
+	uRsp, err := h.Users.Read(ctx, &users.ReadRequest{Email: acc.ID})
 	if err != nil {
 		return err
 	}
 
 	if acc.Metadata == nil {
 		acc.Metadata = make(map[string]string)
-	}
-
-	uRsp, err := h.Users.Read(ctx, &users.ReadRequest{Id: acc.ID})
-	if err != nil {
-		return err
 	}
 
 	rsp.User = &pb.User{
