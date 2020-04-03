@@ -207,6 +207,13 @@ func (h *Handler) Logs(ctx context.Context, req *pb.LogsRequest, rsp *pb.LogsRes
 	if err := client.Call(ctx, request, resp); err != nil {
 		return err
 	}
+	rsp.Records = make([]*pb.Record, 0, len(resp.GetRecords()))
+	for _, v := range resp.GetRecords() {
+		rsp.Records = append(rsp.Records, &pb.Record{
+			Timestamp: v.GetTimestamp(),
+			Metadata:  v.GetMetadata(),
+		})
+	}
 	return nil
 }
 
@@ -230,6 +237,23 @@ func (h *Handler) Stats(ctx context.Context, req *pb.StatsRequest, rsp *pb.Stats
 	if err := client.Call(ctx, request, resp); err != nil {
 		return err
 	}
+	rsp.Stats = make([]*pb.StatSnapshot, 0, len(resp.Stats))
+	for _, v := range resp.GetStats() {
+		rsp.Stats = append(rsp.Stats, &pb.StatSnapshot{
+			Service: &pb.Service{
+				Name:    v.GetService().GetName(),
+				Version: v.GetService().GetVersion(),
+			},
+			Started:   v.GetStarted(),
+			Uptime:    v.GetUptime(),
+			Memory:    v.GetMemory(),
+			Threads:   v.GetThreads(),
+			Gc:        v.GetGc(),
+			Requests:  v.GetRequests(),
+			Errors:    v.GetErrors(),
+			Timestamp: v.GetTimestamp(),
+		})
+	}
 	return nil
 }
 
@@ -252,6 +276,19 @@ func (h *Handler) Traces(ctx context.Context, req *pb.TracesRequest, rsp *pb.Tra
 	resp := &traceproto.ReadResponse{}
 	if err := client.Call(ctx, request, resp); err != nil {
 		return err
+	}
+	rsp.Spans = make([]*pb.Span, 0, len(resp.GetSpans()))
+	for _, v := range resp.GetSpans() {
+		rsp.Spans = append(rsp.Spans, &pb.Span{
+			Trace:    v.GetTrace(),
+			Id:       v.GetId(),
+			Parent:   v.GetParent(),
+			Name:     v.GetName(),
+			Started:  v.GetStarted(),
+			Duration: v.GetDuration(),
+			Metadata: v.GetMetadata(),
+			Type:     pb.SpanType(v.GetType()),
+		})
 	}
 	return nil
 }
