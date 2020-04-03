@@ -318,10 +318,14 @@ github.com/micro/platform v0.0.0-20200401125201-c5da9d0a54a5 h1:5DGKodeYk3JOWtq5
 github.com/micro/platform/web v0.0.0-20200318142749-3092b66fc96e h1:JIfg+U2C6gEgUufpF3GlD1GdxW87U1y7RoRjoGmdcqg=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/micro/services v0.0.0-20200402133306-d48030b70eb5 h1:0WIJgVdYwtmJz+VzOcu40fYlt9+M51h/EwgfZKRJnH0=
+github.com/micro/services/platform/service v0.0.0-20200402133306-d48030b70eb5 h1:ZLyDf9W9wmfkkDnuthG3c9J7J0frBFxWgS1YwE4Lf2c=
+github.com/micro/services/platform/service v0.0.0-20200402133306-d48030b70eb5/go.mod h1:pGZY3/vXeLYTUr08ctH9505/VLfB1vWlkNKVbu0CMpM=
 github.com/micro/services/users/service v0.0.0-20200319144224-0f47a73e0f07 h1:yPUWbyZu3jlF/CC1M7VYvMpoYg7ntLoGO/+/ePI9mKY=
 github.com/micro/services/users/service v0.0.0-20200319144224-0f47a73e0f07/go.mod h1:vHam99KMOXWOD+Rt8IfWMSpqzrPZ8gdZtDSTwgot5EU=
 github.com/micro/services/users/service v0.0.0-20200402122209-bbd3453477a3 h1:Kflr46ScjVHWKTfxC+XWa9zraFvyOyoi/TO68kgEln8=
 github.com/micro/services/users/service v0.0.0-20200402122209-bbd3453477a3/go.mod h1:WwubkqttnvGW1Q+fy5RAOXk80D8HFR8/xY5OqIHTw1E=
+github.com/micro/services/users/service v0.0.0-20200402133306-d48030b70eb5 h1:y0WLOARjDBctr52RqsGPbOCmAQPC+ELx3sOqIqKtOHY=
+github.com/micro/services/users/service v0.0.0-20200402133306-d48030b70eb5/go.mod h1:WwubkqttnvGW1Q+fy5RAOXk80D8HFR8/xY5OqIHTw1E=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.22/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=

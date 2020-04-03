@@ -22,7 +22,7 @@ export class ServiceService {
   list(): Promise<types.Service[]> {
     return new Promise<types.Service[]>((resolve, reject) => {
       return this.http
-        .get<types.Service[]>(environment.apiUrl + "/v1/services", {
+        .get<types.Service[]>(environment.apiUrl + "/ListServices", {
           withCredentials: true
         })
         .toPromise()
@@ -38,10 +38,11 @@ export class ServiceService {
   logs(service: string): Promise<types.LogRecord[]> {
     return new Promise<types.LogRecord[]>((resolve, reject) => {
       return this.http
-        .get<types.LogRecord[]>(
-          environment.backendUrl + "/v1/service/logs?service=" + service,
+        .post<types.LogRecord[]>(
+          environment.backendUrl + "/Logs",
+          {},
           {
-            withCredentials: false
+            withCredentials: true
           }
         )
         .toPromise()
@@ -55,14 +56,15 @@ export class ServiceService {
   }
 
   stats(service: string, version?: string): Promise<types.DebugSnapshot[]> {
+    let body = {};
+    if (service) {
+      body["service"] = service;
+    }
     return new Promise<types.DebugSnapshot[]>((resolve, reject) => {
       return this.http
-        .get<types.DebugSnapshot[]>(
-          environment.backendUrl + "/v1/service/stats?service=" + service,
-          {
-            withCredentials: true
-          }
-        )
+        .post<types.DebugSnapshot[]>(environment.backendUrl + "/Stats", body, {
+          withCredentials: true
+        })
         .toPromise()
         .then(servs => {
           resolve(servs as types.DebugSnapshot[]);
@@ -74,13 +76,21 @@ export class ServiceService {
   }
 
   trace(service?: string): Promise<types.Span[]> {
-    const qs = service ? "service=" + service + "&" : "";
+    let body = {
+      limit: 1000
+    };
+    if (service) {
+      body["service"] = service;
+    }
     return new Promise<types.Span[]>((resolve, reject) => {
       return this.http
-        .get<types.Span[]>(
-          environment.backendUrl + "/v1/service/trace?" + qs + "limit=1000",
+        .post<types.Span[]>(
+          environment.apiUrl + "/Traces",
           {
-            withCredentials: false
+            body: 1000
+          },
+          {
+            withCredentials: true
           }
         )
         .toPromise()
@@ -110,15 +120,15 @@ export class ServiceService {
   }
 
   events(service?: string): Promise<types.Event[]> {
-    const serviceQuery = service ? "?service=" + service : "";
+    let body = {};
+    if (service) {
+      body["service"] = service;
+    }
     return new Promise<types.Event[]>((resolve, reject) => {
       return this.http
-        .get<types.Event[]>(
-          environment.backendUrl + "/v1/events" + serviceQuery,
-          {
-            withCredentials: true
-          }
-        )
+        .get<types.Event[]>(environment.apiUrl + "/Events", {
+          withCredentials: true
+        })
         .toPromise()
         .then(events => {
           resolve(_.orderBy(events, e => e.timestamp, ["desc"]));
