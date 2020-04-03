@@ -3,18 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 
+	"github.com/micro/go-micro/service"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/platform/web/utils"
 
-	pb "github.com/micro/services/platform/api/proto"
-	platform "github.com/micro/services/platform/service/proto"
-	users "github.com/micro/services/users/service/proto"
 	logproto "github.com/micro/micro/v2/debug/log/proto"
 	statsproto "github.com/micro/micro/v2/debug/stats/proto"
 	traceproto "github.com/micro/micro/v2/debug/trace/proto"
+	pb "github.com/micro/services/platform/api/proto"
+	platform "github.com/micro/services/platform/service/proto"
+	users "github.com/micro/services/users/service/proto"
 )
 
 func main() {
@@ -189,7 +192,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	return nil
 }
 
-func (h *Handler) Logs(ctx, context.Context, req *pb.LogsRequest, rsp *pb.LogsResponse) error {
+func (h *Handler) Logs(ctx context.Context, req *pb.LogsRequest, rsp *pb.LogsResponse) error {
 	serviceName := req.URL.Query().Get("service")
 	if len(serviceName) == 0 {
 		utils.Write400(w, errors.New("Service missing"))
@@ -206,7 +209,7 @@ func (h *Handler) Logs(ctx, context.Context, req *pb.LogsRequest, rsp *pb.LogsRe
 	}
 }
 
-func (h *Handler) Stats(ctx, context.Context, req *pb.StatsRequest, rsp *pb.StatsResponse) error {
+func (h *Handler) Stats(ctx context.Context, req *pb.StatsRequest, rsp *pb.StatsResponse) error {
 	serviceName := req.URL.Query().Get("service")
 	if len(serviceName) == 0 {
 		utils.Write400(w, errors.New("Service missing"))
@@ -232,7 +235,7 @@ func (h *Handler) Stats(ctx, context.Context, req *pb.StatsRequest, rsp *pb.Stat
 	utils.WriteJSON(w, rsp.GetStats())
 }
 
-func (h *Handler) Traces(ctx, context.Context, req *pb.StatsRequest, rsp *pb.StatsResponse) error {
+func (h *Handler) Traces(ctx context.Context, req *pb.StatsRequest, rsp *pb.StatsResponse) error {
 	serviceName := req.URL.Query().Get("service")
 	reqProto := &traceproto.ReadRequest{
 		Past: true,

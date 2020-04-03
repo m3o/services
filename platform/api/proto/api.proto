@@ -1,3 +1,7 @@
+// This file contains a lot of copied proto definitions from
+// other proto files (see comments above message types).
+// This might later change and we will use proper imports once
+// tooling is battle tested around it.
 syntax = "proto3";
 
 package go.micro.api.platform;
@@ -10,6 +14,10 @@ service Platform {
     rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {};
     rpc DeleteService(DeleteServiceRequest) returns (DeleteServiceResponse) {};
     rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {};
+
+    rpc Logs(LogsRequest) returns (LogsResponse) {};
+    rpc Traces(TracesRequest) returns (TracesResponse) {};
+    rpc Stats(StatsRequest) returns (StatsResponse) {};
 }
 
 message ReadUserRequest {}
@@ -56,6 +64,8 @@ message Service {
     string source = 3;
     string type = 4;
     map<string,string> metadata = 5;
+    // Addition to support stats endpoint
+    Node node = 6;
 }
 
 message User {
@@ -66,4 +76,111 @@ message User {
     string team_name = 5;
     string team_url = 6;
     string organization_avatar_url = 7;
+}
+
+//
+// Types below are taken from this file: https://github.com/micro/micro/blob/master/debug/stats/proto/debug.proto
+//
+
+// Node describes a single instance of a service.
+message Node {
+	string id = 1;
+	string address = 2;
+}
+
+// Snapshot is a snapshot of Debug.Stats from a particular service when called.
+message StatSnapshot {
+	Service service = 1;
+	// Unix timestamp, e.g. 1575561487
+	int64 started = 2;
+	// Uptime in seconds
+	uint64 uptime = 3;
+	// Heap allocated in bytes (TODO: change to resident set size)
+	uint64 memory = 4;
+	// Number of Goroutines
+	uint64 threads = 5;
+	// GC Pause total in ns
+	uint64 gc = 6;
+	// Total number of request
+	uint64 requests = 7;
+	// Total number of errors
+	uint64 errors = 8;
+	// Timestamp at the time of the taking of the snapshot, seconds since unix epoch
+	uint64 timestamp = 9;
+}
+
+message StatsRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// If false, only the current snapshots will be returned.
+	// If true, all historical snapshots in memory will be returned.
+	bool past = 2;
+}
+
+message StatsResponse {
+	repeated StatSnapshot stats = 1;
+}
+
+
+//
+// Types below are taken from this file:
+//
+
+message Record {
+    // timestamp of log record
+    int64 timestamp = 1;
+    // record metadata
+    map<string,string> metadata = 2;
+    // record value
+        string message = 3;
+}
+
+message LogsRequest {
+	string service = 1;
+	string version = 2;
+}
+
+message LogsResponse {
+	repeated Record records = 1;
+}
+
+//
+// Types below are taken from this file: https://github.com/micro/micro/blob/master/debug/trace/proto/trace.proto
+//
+
+enum SpanType {
+    INBOUND = 0;
+    OUTBOUND = 1;
+}
+
+message Span {
+	// the trace id
+	string trace = 1;
+	// id of the span
+	string id = 2;
+	// parent span
+	string parent = 3;
+	// name of the resource
+	string name = 4;
+	// time of start in nanoseconds
+	uint64 started = 5;
+	// duration of the execution in nanoseconds
+	uint64 duration = 6;
+	// associated metadata
+	map<string,string> metadata = 7;
+	SpanType type = 8;
+}
+
+message TracesRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// If false, only the current snapshots will be returned.
+	// If true, all historical snapshots in memory will be returned.
+	bool past = 2;
+	// Number of traces to return
+	int64 limit = 3;
+}
+
+message TracesResponse {
+	repeated Span spans = 1;
 }
