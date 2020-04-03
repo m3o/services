@@ -46,7 +46,7 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		// user already exists, get the secret for their account
 		secret, err := h.getAccountSecret(profile.Email)
 		if err != nil {
-			h.handleError(w, req, "Error storing auth secret: %v", err)
+			h.handleError(w, req, "Error getting auth secret: %v", err)
 			return
 		}
 

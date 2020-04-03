@@ -8,10 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/auth/provider"
-	"github.com/micro/go-micro/v2/store"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -47,14 +45,8 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	if _, err := h.users.Read(req.Context(), &users.ReadRequest{Email: profile.Email}); err == nil {
 		// user already exists, get the secret for their account
 		secret, err := h.getAccountSecret(profile.Email)
-		if err == store.ErrNotFound {
-			// this is a temp fix for accounts created
-			// before the new auth was implemented
-			secret = uuid.New().String()
-			err = h.setAccountSecret(profile.Email, secret)
-		}
 		if err != nil {
-			h.handleError(w, req, "Error storing auth secret: %v", err)
+			h.handleError(w, req, "Error getting auth secret: %v", err)
 			return
 		}
 
