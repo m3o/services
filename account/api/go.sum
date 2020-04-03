@@ -131,6 +131,9 @@ github.com/go-playground/locales v0.13.0/go.mod h1:taPMhCMXrRLJO55olJkUXHZBHCxTM
 github.com/go-playground/universal-translator v0.17.0/go.mod h1:UkSxE5sNxxRwHyU+Scu5vgOQjsIJAF8j9muTVoKLVtA=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
+github.com/gobwas/httphead v0.0.0-20180130184737-2c6c146eadee/go.mod h1:L0fX3K22YWvt/FAX9NnzrNzcI4wNYi9Yku4O0LKYflo=
+github.com/gobwas/pool v0.2.0/go.mod h1:q8bcK0KcYlCgd9e7WYLm9LpyS+YeLd8JVDW6WezmKEw=
+github.com/gobwas/ws v1.0.3/go.mod h1:szmBTxLgaFppYjEmNtny/v3w89xOydFnnZMcgRRu/EM=
 github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e/go.mod h1:bBOAhwG1umN6/6ZUMtDFBMQR8jRg9O75tm9K00oMsK4=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
@@ -253,8 +256,8 @@ github.com/micro/go-micro/v2 v2.4.1-0.20200331151804-26747906947f h1:CUXc4r2MWcZ
 github.com/micro/go-micro/v2 v2.4.1-0.20200331151804-26747906947f/go.mod h1:lYuHYFPjY3QE9fdiy3F2awXcsXTdB68AwoY3RQ3dPN4=
 github.com/micro/go-micro/v2 v2.4.1-0.20200401165638-cd3d704aa5cd h1:PE5LGwVFIbRngExcFmkDJbse18lIfRgvChaJPCmKAZg=
 github.com/micro/go-micro/v2 v2.4.1-0.20200401165638-cd3d704aa5cd/go.mod h1:U+EJM7sW4qGm7bnpyGuz5ZYtuzAz0ld5qXxYUC26muE=
-github.com/micro/go-micro/v2 v2.4.1-0.20200401222715-0a15ae9b9dfa h1:2u2BWMVfGxJLJaz7QPNR9Gw5+KRNVqSwWv7zMZELHvU=
-github.com/micro/go-micro/v2 v2.4.1-0.20200401222715-0a15ae9b9dfa/go.mod h1:U+EJM7sW4qGm7bnpyGuz5ZYtuzAz0ld5qXxYUC26muE=
+github.com/micro/go-micro/v2 v2.4.1-0.20200403120726-ed6fe67880a4 h1:JZEXApwtY+FE9Uc5XJE7oDQAhyj3ZbR+TLgvOgoIw8w=
+github.com/micro/go-micro/v2 v2.4.1-0.20200403120726-ed6fe67880a4/go.mod h1:YY0HeiFvbJcP7kgPMRTTfBo2t4cYtLI120hJD8owZH4=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/services/payments/provider v0.0.0-20200331171103-a3eba43a815a h1:SJDm+n6EKriMZevZ0Lq2vACywMbGyAdjncY+OYln9y4=
