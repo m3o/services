@@ -3,14 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"strconv"
 
-	"github.com/micro/go-micro/service"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/platform/web/utils"
 
 	logproto "github.com/micro/micro/v2/debug/log/proto"
 	statsproto "github.com/micro/micro/v2/debug/stats/proto"
@@ -20,9 +17,13 @@ import (
 	users "github.com/micro/services/users/service/proto"
 )
 
+const (
+	name = "go.micro.api.platform"
+)
+
 func main() {
 	service := micro.NewService(
-		micro.Name("go.micro.api.platform"),
+		micro.Name(name),
 	)
 	service.Init()
 
@@ -38,11 +39,13 @@ func main() {
 type Handler struct {
 	Platform platform.PlatformService
 	Users    users.UsersService
+	service  micro.Service
 }
 
 // NewHandler returns an initialized Handler
 func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
+		service:  srv,
 		Users:    users.NewUsersService("go.micro.service.users", srv.Client()),
 		Platform: platform.NewPlatformService("go.micro.service.platform", srv.Client()),
 	}
@@ -55,13 +58,13 @@ func (h *Handler) CreateService(ctx context.Context, req *pb.CreateServiceReques
 		return err
 	}
 	if len(acc.ID) == 0 {
-		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+		return errors.Unauthorized(name, "A valid auth token is required")
 	}
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.api.platform", "service required")
+		return errors.BadRequest(name, "service required")
 	}
 
-	_, err := h.Platform.CreateService(ctx, &platform.CreateServiceRequest{
+	_, err = h.Platform.CreateService(ctx, &platform.CreateServiceRequest{
 		Service: deserializeService(req.Service),
 	})
 
@@ -75,10 +78,10 @@ func (h *Handler) ReadService(ctx context.Context, req *pb.ReadServiceRequest, r
 		return err
 	}
 	if len(acc.ID) == 0 {
-		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+		return errors.Unauthorized(name, "A valid auth token is required")
 	}
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.api.platform", "service required")
+		return errors.BadRequest(name, "service required")
 	}
 
 	resp, err := h.Platform.ReadService(ctx, &platform.ReadServiceRequest{
@@ -103,13 +106,13 @@ func (h *Handler) UpdateService(ctx context.Context, req *pb.UpdateServiceReques
 		return err
 	}
 	if len(acc.ID) == 0 {
-		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+		return errors.Unauthorized(name, "A valid auth token is required")
 	}
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.api.platform", "service required")
+		return errors.BadRequest(name, "service required")
 	}
 
-	_, err := h.Platform.UpdateService(ctx, &platform.UpdateServiceRequest{
+	_, err = h.Platform.UpdateService(ctx, &platform.UpdateServiceRequest{
 		Service: deserializeService(req.Service),
 	})
 
@@ -123,13 +126,13 @@ func (h *Handler) DeleteService(ctx context.Context, req *pb.DeleteServiceReques
 		return err
 	}
 	if len(acc.ID) == 0 {
-		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+		return errors.Unauthorized(name, "A valid auth token is required")
 	}
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.api.platform", "service required")
+		return errors.BadRequest(name, "service required")
 	}
 
-	_, err := h.Platform.DeleteService(ctx, &platform.DeleteServiceRequest{
+	_, err = h.Platform.DeleteService(ctx, &platform.DeleteServiceRequest{
 		Service: deserializeService(req.Service),
 	})
 
@@ -143,7 +146,7 @@ func (h *Handler) ListServices(ctx context.Context, req *pb.ListServicesRequest,
 		return err
 	}
 	if len(acc.ID) == 0 {
-		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+		return errors.Unauthorized(name, "A valid auth token is required")
 	}
 	resp, err := h.Platform.ListServices(ctx, &platform.ListServicesRequest{})
 	if err != nil {
@@ -166,7 +169,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 		return err
 	}
 	if len(acc.ID) == 0 {
-		return errors.Unauthorized("go.micro.api.platform", "A valid auth token is required")
+		return errors.Unauthorized(name, "A valid auth token is required")
 	}
 
 	// Lookup the user
@@ -193,75 +196,64 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 }
 
 func (h *Handler) Logs(ctx context.Context, req *pb.LogsRequest, rsp *pb.LogsResponse) error {
-	serviceName := req.URL.Query().Get("service")
-	if len(serviceName) == 0 {
-		utils.Write400(w, errors.New("Service missing"))
-		return
+	if len(req.GetService()) == 0 {
+		return errors.BadRequest(name, "Service missing")
 	}
-	client := service.Options().Service.Client()
+	client := h.service.Client()
 	request := client.NewRequest("go.micro.debug", "Log.Read", &logproto.ReadRequest{
-		Service: serviceName,
+		Service: req.GetService(),
 	})
-	rsp := &logproto.ReadResponse{}
-	if err := client.Call(req.Context(), request, rsp); err != nil {
-		utils.Write500(w, err)
-		return
+	resp := &logproto.ReadResponse{}
+	if err := client.Call(ctx, request, resp); err != nil {
+		return err
 	}
+	return nil
 }
 
 func (h *Handler) Stats(ctx context.Context, req *pb.StatsRequest, rsp *pb.StatsResponse) error {
-	serviceName := req.URL.Query().Get("service")
-	if len(serviceName) == 0 {
-		utils.Write400(w, errors.New("Service missing"))
-		return
+	if len(req.GetService().GetName()) == 0 {
+		return errors.BadRequest(name, "Service missing")
 	}
-	client := service.Options().Service.Client()
+	client := h.service.Client()
 	preq := &statsproto.ReadRequest{
 		Service: &statsproto.Service{
-			Name: serviceName,
+			Name: req.GetService().GetName(),
 		},
 		Past: true,
 	}
-	version := req.URL.Query().Get("version")
+	version := req.GetService().GetVersion()
 	if len(version) > 0 {
 		preq.Service.Version = version
 	}
 	request := client.NewRequest("go.micro.debug", "Stats.Read", preq)
-	rsp := &statsproto.ReadResponse{}
-	if err := client.Call(req.Context(), request, rsp); err != nil {
-		utils.Write500(w, err)
-		return
+	resp := &statsproto.ReadResponse{}
+	if err := client.Call(ctx, request, resp); err != nil {
+		return err
 	}
-	utils.WriteJSON(w, rsp.GetStats())
+	return nil
 }
 
-func (h *Handler) Traces(ctx context.Context, req *pb.StatsRequest, rsp *pb.StatsResponse) error {
-	serviceName := req.URL.Query().Get("service")
+func (h *Handler) Traces(ctx context.Context, req *pb.TracesRequest, rsp *pb.TracesResponse) error {
 	reqProto := &traceproto.ReadRequest{
 		Past: true,
 	}
 	var limit int64 = 1000
-	if len(req.URL.Query().Get("limit")) > 0 {
-		var err error
-		limit, err = strconv.ParseInt(req.URL.Query().Get("limit"), 10, 64)
-		if err != nil {
-			utils.Write400(w, err)
-		}
+	if req.GetLimit() > 0 {
+		limit = req.GetLimit()
 	}
-	if len(serviceName) > 0 {
+	if len(req.GetService().GetName()) > 0 {
 		reqProto.Service = &traceproto.Service{
-			Name: serviceName,
+			Name: req.GetService().GetName(),
 		}
 		reqProto.Limit = limit
 	}
-	client := service.Options().Service.Client()
+	client := h.service.Client()
 	request := client.NewRequest("go.micro.debug", "Trace.Read", reqProto)
-	rsp := &traceproto.ReadResponse{}
-	if err := client.Call(req.Context(), request, rsp); err != nil {
-		utils.Write500(w, err)
-		return
+	resp := &traceproto.ReadResponse{}
+	if err := client.Call(ctx, request, resp); err != nil {
+		return err
 	}
-	utils.WriteJSON(w, rsp.GetSpans())
+	return nil
 }
 
 func serializeService(service *platform.Service) *pb.Service {
