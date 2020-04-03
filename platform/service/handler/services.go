@@ -94,6 +94,7 @@ func (h *Handler) DeleteService(ctx context.Context, req *pb.DeleteServiceReques
 // ListServices returns all the services running on the platform
 func (h *Handler) ListServices(ctx context.Context, req *pb.ListServicesRequest, rsp *pb.ListServicesResponse) error {
 	resp, err := h.Runtime.List()
+	fmt.Println("whaatt", resp, err)
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"google.golang.org/appengine/log"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
@@ -213,6 +214,7 @@ func (h *Handler) findUser(id string) (*pb.User, error) {
 		return nil, errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}
 	if len(recs) == 0 {
+		log.Infof(context.Background(), "id %v recs %v", id, recs)
 		return nil, errors.NotFound("go.micro.service.users", "User not found")
 	}
 	if len(recs) > 1 {
@@ -241,6 +243,7 @@ func (h *Handler) findUserByEmail(email string) (*pb.User, error) {
 		return nil, errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}
 	if len(recs) == 0 {
+		log.Infof(context.Background(), "email %v recs %v", email, recs)
 		return nil, errors.NotFound("go.micro.service.users", "User not found")
 	}
 
