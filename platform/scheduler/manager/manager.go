@@ -29,6 +29,9 @@ const (
 
 	// The base image for our builds
 	image = "docker.pkg.github.com/micro/services"
+
+	// self is a reference to self
+	self = "platform/scheduler"
 )
 
 type serviceStatus string
@@ -238,6 +241,11 @@ func (m *manager) Run() {
 				reverse(processList)
 			}
 
+			// references to self
+			var updateSelf *serviceStatus
+			var workflowID int64
+			var commitSha string
+
 			for _, workflow := range processList {
 				if m.lastUpdated.After(workflow.GetUpdatedAt().Time) ||
 					m.lastUpdated.Equal(workflow.GetUpdatedAt().Time) {
@@ -256,6 +264,15 @@ func (m *manager) Run() {
 
 				// perform an update
 				for folder, status := range folderStatuses {
+					if folder == self {
+						// save the reference to self
+						updateSelf = &status
+						workflowID = workflow.GetID()
+						commitSha = commit
+						// continue now
+						continue
+					}
+
 					if err := m.updateService(folder, commit, fmt.Sprintf("%v", workflow.GetID()), status); err != nil {
 						log.Errorf("Error updating service '%v': %v", folder, err)
 						continue
@@ -267,6 +284,13 @@ func (m *manager) Run() {
 				m.lastUpdated = workflow.GetUpdatedAt().Time
 			}
 
+			// if found reference to self then update
+			if updateSelf != nil {
+				if err := m.updateService(self, commitSha, fmt.Sprintf("%v", workflowID), *updateSelf); err != nil {
+					log.Errorf("Error updating self '%v': %v", self, err)
+					continue
+				}
+			}
 		}
 	}
 }
