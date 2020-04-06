@@ -12,7 +12,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
-	github.com/micro/go-micro/v2 v2.4.1-0.20200401222715-0a15ae9b9dfa
+	github.com/micro/go-micro/v2 v2.4.1-0.20200406124040-c4442a753323
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/vektah/gqlparser/v2 v2.0.1
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
