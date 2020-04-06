@@ -12,7 +12,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
 	github.com/jonboulle/clockwork v0.1.0 // indirect
-	github.com/micro/go-micro/v2 v2.4.1-0.20200406115547-bea7c3f7e720
+	github.com/micro/go-micro/v2 v2.4.1-0.20200406124040-c4442a753323
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
