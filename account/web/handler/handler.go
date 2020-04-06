@@ -70,15 +70,20 @@ type Handler struct {
 
 const storePrefixOauthCode = "code/"
 
-func (h *Handler) generateOauthState() string {
+func (h *Handler) generateOauthState() (string, error) {
 	code := uuid.New().String()
-	h.store.Write(&store.Record{Key: storePrefixOauthCode + code, Expiry: time.Minute * 5})
-	return code
+	record := &store.Record{Key: storePrefixOauthCode + code, Expiry: time.Minute * 5}
+	return code, h.store.Write(record)
 }
 
-func (h *Handler) validateOauthState(code string) bool {
+func (h *Handler) validateOauthState(code string) (bool, error) {
 	_, err := h.store.Read(storePrefixOauthCode + code)
-	return err == nil
+	if err == nil {
+		return true, nil
+	} else if err == store.ErrNotFound {
+		return false, nil
+	}
+	return false, err
 }
 
 //

@@ -15,14 +15,22 @@ import (
 
 // HandleGithubOauthLogin redirects the user to begin the oauth flow
 func (h *Handler) HandleGithubOauthLogin(w http.ResponseWriter, req *http.Request) {
-	code := h.generateOauthState()
+	code, err := h.generateOauthState()
+	if err != nil {
+		h.handleError(w, req, err.Error())
+		return
+	}
 	http.Redirect(w, req, h.github.Endpoint(provider.WithState(code)), http.StatusFound)
 }
 
 // HandleGithubOauthVerify redirects the user to begin the oauth flow
 func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Request) {
 	// validate the oauth state
-	if valid := h.validateOauthState(req.FormValue("state")); !valid {
+	valid, err := h.validateOauthState(req.FormValue("state"))
+	if err != nil {
+		h.handleError(w, req, err.Error())
+		return
+	} else if !valid {
 		h.handleError(w, req, "Invalid Oauth State")
 		return
 	}
