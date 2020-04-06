@@ -152,7 +152,7 @@ func (h *Handler) ListServices(ctx context.Context, req *pb.ListServicesRequest,
 	if err != nil {
 		return err
 	}
-	log.Info("ahaa", resp.GetServices())
+
 	rsp.Services = make([]*pb.Service, len(resp.Services))
 	for i, s := range resp.Services {
 		rsp.Services[i] = serializeService(s)
