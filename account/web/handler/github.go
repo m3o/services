@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/auth/provider"
@@ -59,7 +60,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		}
 
 		// create a token
-		tok, err := h.auth.Token(auth.WithCredentials(profile.Email, secret))
+		tok, err := h.auth.Token(auth.WithCredentials(profile.Email, secret), auth.WithExpiry(time.Hour*24))
 		if err != nil {
 			h.handleError(w, req, err.Error())
 			return
@@ -104,7 +105,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Generate a token
-	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, acc.Secret))
+	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, acc.Secret), auth.WithExpiry(time.Hour*24))
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return
