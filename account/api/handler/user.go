@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
@@ -31,29 +32,31 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	rsp.User.Roles = acc.Roles
 
 	// Fetch the payment methods
-	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: user.Id})
-	if err != nil {
-		log.Infof("Error listing payment methods: %v", err)
-		return nil
-	}
-
-	// Serialize the payment methods
-	rsp.User.PaymentMethods = make([]*pb.PaymentMethod, len(pRsp.PaymentMethods))
-	for i, p := range pRsp.PaymentMethods {
-		rsp.User.PaymentMethods[i] = serializePaymentMethod(p)
+	pCtx, pCancel := context.WithTimeout(ctx, time.Millisecond*500)
+	pRsp, err := h.payment.ListPaymentMethods(pCtx, &payment.ListPaymentMethodsRequest{UserId: user.Id})
+	defer pCancel()
+	if err == nil {
+		// Serialize the payment methods
+		rsp.User.PaymentMethods = make([]*pb.PaymentMethod, len(pRsp.PaymentMethods))
+		for i, p := range pRsp.PaymentMethods {
+			rsp.User.PaymentMethods[i] = serializePaymentMethod(p)
+		}
+	} else {
+		log.Warnf("Error getting payment methods for user %v: %v", user.Id, err)
 	}
 
 	// Fetch the subscriptions
-	sRsp, err := h.payment.ListSubscriptions(ctx, &payment.ListSubscriptionsRequest{UserId: user.Id})
-	if err != nil {
-		log.Infof("Error listing subscriptions: %v", err)
-		return nil
-	}
-
-	// Serialize the subscriptions
-	rsp.User.Subscriptions = make([]*pb.Subscription, len(sRsp.Subscriptions))
-	for i, s := range sRsp.Subscriptions {
-		rsp.User.Subscriptions[i] = serializeSubscription(s)
+	sCtx, sCancel := context.WithTimeout(ctx, time.Millisecond*500)
+	sRsp, err := h.payment.ListSubscriptions(sCtx, &payment.ListSubscriptionsRequest{UserId: user.Id})
+	defer sCancel()
+	if err == nil {
+		// Serialize the subscriptions
+		rsp.User.Subscriptions = make([]*pb.Subscription, len(sRsp.Subscriptions))
+		for i, s := range sRsp.Subscriptions {
+			rsp.User.Subscriptions[i] = serializeSubscription(s)
+		}
+	} else {
+		log.Warnf("Error getting payment methods for user %v: %v", user.Id, err)
 	}
 
 	return nil
