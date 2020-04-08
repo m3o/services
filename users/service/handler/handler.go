@@ -126,6 +126,7 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	user.Metadata = req.User.Metadata
 	user.Updated = time.Now().Unix()
 	user.ProfilePictureUrl = req.User.ProfilePictureUrl
+	user.InviteVerified = req.User.InviteVerified
 
 	// Encode the updated user
 	bytes, err := json.Marshal(user)
