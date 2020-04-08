@@ -11,7 +11,7 @@ import (
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
-	users "github.com/micro/services/users/service/proto"s
+	users "github.com/micro/services/users/service/proto"
 )
 
 // ReadUser retrieves a user from the users service
@@ -83,11 +83,11 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	// Verify the users invite token
 	if err := h.verifyInviteToken(ctx, user, req.User.InviteCode); err != nil {
 		return err
-	} 
+	}
 	updateParams.InviteVerified = true
 
 	// Update the user
-	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: })
+	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: updateParams})
 	if err != nil {
 		return err
 	}
