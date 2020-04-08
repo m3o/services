@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package go.micro.service.account.invite;
+
+service Invite {
+  rpc Create(CreateRequest) returns (CreateResponse) {};
+  rpc Validate(ValidateRequest) returns (ValidateResponse) {};
+}
+
+message CreateRequest {}
+
+message CreateResponse {
+  string code = 1;
+}
+
+message ValidateRequest {
+  string code = 1;
+}
+
+message ValidateResponse {}
