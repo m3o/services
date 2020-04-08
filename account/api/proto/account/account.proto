@@ -70,6 +70,8 @@ message User {
 	repeated PaymentMethod payment_methods = 8;
 	repeated Subscription subscriptions = 9;
 	repeated string roles = 10;
+	string invite_code = 11;
+	bool invite_verified = 12;
 }
 
 message ReadUserRequest {}

@@ -117,12 +117,13 @@ func serializePaymentMethod(p *payment.PaymentMethod) *pb.PaymentMethod {
 
 func serializeUser(u *users.User) *pb.User {
 	return &pb.User{
-		Id:        u.Id,
-		Created:   u.Created,
-		Updated:   u.Updated,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
+		Id:             u.Id,
+		Created:        u.Created,
+		Updated:        u.Updated,
+		FirstName:      u.FirstName,
+		LastName:       u.LastName,
+		Email:          u.Email,
+		InviteVerified: u.InviteVerified,
 	}
 }
 

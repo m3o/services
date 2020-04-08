@@ -7,6 +7,7 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 
+	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
 	users "github.com/micro/services/users/service/proto"
 )
@@ -16,6 +17,7 @@ type Handler struct {
 	name    string
 	auth    auth.Auth
 	users   users.UsersService
+	invite  invite.InviteService
 	payment payment.ProviderService
 }
 
@@ -25,6 +27,7 @@ func NewHandler(srv micro.Service) *Handler {
 		name:    srv.Name(),
 		auth:    srv.Options().Auth,
 		users:   users.NewUsersService("go.micro.service.users", srv.Client()),
+		invite:  invite.NewInviteService("go.micro.service.account.invite", srv.Client()),
 		payment: payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
 	}
 }

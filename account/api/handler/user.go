@@ -9,8 +9,9 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 
 	pb "github.com/micro/services/account/api/proto/account"
+	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
-	users "github.com/micro/services/users/service/proto"
+	users "github.com/micro/services/users/service/proto"s
 )
 
 // ReadUser retrieves a user from the users service
@@ -74,10 +75,19 @@ func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, rsp
 	if err != nil {
 		return err
 	}
-	req.User.Id = user.Id
+
+	// Construct the update params
+	updateParams := deserializeUser(req.User)
+	updateParams.Id = user.Id
+
+	// Verify the users invite token
+	if err := h.verifyInviteToken(ctx, user, req.User.InviteCode); err != nil {
+		return err
+	} 
+	updateParams.InviteVerified = true
 
 	// Update the user
-	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: deserializeUser(req.User)})
+	uRsp, err := h.users.Update(ctx, &users.UpdateRequest{User: })
 	if err != nil {
 		return err
 	}
@@ -97,6 +107,14 @@ func (h *Handler) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest, rsp
 
 	// Delete the user
 	_, err = h.users.Delete(ctx, &users.DeleteRequest{Id: user.Id})
+	return err
+}
+
+func (h *Handler) verifyInviteToken(ctx context.Context, user *users.User, token string) error {
+	if user.InviteVerified {
+		return nil
+	}
+	_, err := h.invite.Validate(ctx, &invite.ValidateRequest{Code: token})
 	return err
 }
 
