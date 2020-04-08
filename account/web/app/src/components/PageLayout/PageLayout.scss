@@ -57,6 +57,7 @@
       cursor: pointer;
       font-size: 8.5pt;
       outline: none;
+      background-color: transparent;
       
       &:hover {
         background-color: $blue;
@@ -114,6 +115,50 @@
           color: #454545;
           font-size: 11pt;
         }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .PageLayout {
+    padding: 50px 25px;
+
+    h1 {
+      font-size: 18pt;
+      margin: 0px !important;
+    }
+
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      margin: 0px;
+
+      nav {
+        flex-direction: row;
+        margin: 15px -10px;
+
+        a {
+          flex-grow: 1;
+          margin-right: 10px;  
+          margin-left: 10px;  
+          display: inline;
+          text-align: center;
+          background-color: #00000007;
+
+          p {
+            font-size: 9pt;
+            line-height: 44px;
+          }
+
+          img {
+            display: none;
+          }
+        }
+      }
+
+      .page-content {
+        flex-grow: 1;
       }
     }
   }

@@ -76,3 +76,16 @@
     }
   }
 }
+
+@media only screen and (max-width: 600px) {
+  .PaymentMethod {
+    padding: 8px 15px;
+    .pm-left {
+      p {
+        &:first-of-type {
+          font-size: 10pt;
+        }
+      }
+    }
+  }
+}
