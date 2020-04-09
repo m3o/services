@@ -15,6 +15,8 @@ export class User {
   payment_methods: PaymentMethod[];
   subscriptions: Subscription[];
   roles: string[];
+  invite_token: string;
+  invite_verified: boolean;
 
   constructor(args: any) {
     this.id = args.id;
@@ -24,6 +26,7 @@ export class User {
     this.payment_methods = (args.payment_methods || []).map(p => new PaymentMethod(p));
     this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
     this.roles = args.roles || [];
+    this.invite_verified = args.invite_verified;
   }
 
   requiresOnboarding():boolean {
@@ -36,6 +39,7 @@ export class User {
   profileCompleted():boolean {
     if(this.first_name.length === 0) return false;
     if(this.last_name.length === 0) return false;
+    if(!this.invite_verified) return false;
     return true
   }
 }

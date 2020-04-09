@@ -50,6 +50,15 @@ class EditProfile extends React.Component<Props, State> {
 
     return(
       <form className='EditProfile' onSubmit={this.onSubmit.bind(this)}>
+        { user.invite_verified ? null : <label>Invite Verified</label> }
+        { user.invite_verified ? null : <input
+          required
+          type='text'
+          name='invite_token'
+          value={user!.invite_token} 
+          disabled={this.state.saving}
+          onChange={this.onChange.bind(this)} /> }
+
         <label>First Name *</label>
         <input
           required
