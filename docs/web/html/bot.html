@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="">
+<meta name="keywords" content="bot,  bot">
+
+
+<title>Bot | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li class="active highlight"><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">Bot</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+
+  <h1 id="micro-bot">micro bot</h1>
+
+<p>The <strong>micro bot</strong> is a bot that sits inside your microservices environment which you can interact with via Slack, HipChat, XMPP, etc. 
+It mimics the functions of the CLI via messaging.</p>
+
+<p align="center">
+  <img src="images/bot.png" />
+</p>
+
+<h2 id="supported-inputs">Supported Inputs</h2>
+
+<ul>
+  <li>Discord</li>
+  <li>Slack</li>
+  <li>Telegram</li>
+</ul>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<h3 id="use-slack">Use Slack</h3>
+
+<p>Run with the slack input</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro bot <span class="nt">--inputs</span><span class="o">=</span>slack <span class="nt">--slack_token</span><span class="o">=</span>SLACK_TOKEN
+</code></pre></div></div>
+
+<p><img src="images/slack.png" /></p>
+
+<h3 id="multiple-inputs">Multiple Inputs</h3>
+
+<p>Use multiple inputs by specifying a comma separated list</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro bot <span class="nt">--inputs</span><span class="o">=</span>discord,slack <span class="nt">--slack_token</span><span class="o">=</span>SLACK_TOKEN <span class="nt">--discord_token</span><span class="o">=</span>DISCORD_TOKEN
+</code></pre></div></div>
+
+<h3 id="help">Help</h3>
+
+<p>In slack</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro <span class="nb">help
+
+</span>deregister service <span class="o">[</span>definition] - Deregisters a service
+<span class="nb">echo</span> <span class="o">[</span>text] - Returns the <span class="o">[</span>text]
+get service <span class="o">[</span>name] - Returns a registered service
+health <span class="o">[</span>service] - Returns health of a service
+hello - Returns a greeting
+list services - Returns a list of registered services
+ping - Returns pong
+query <span class="o">[</span>service] <span class="o">[</span>method] <span class="o">[</span>request] - Returns the response <span class="k">for </span>a service query
+register service <span class="o">[</span>definition] - Registers a service
+the three laws - Returns the three laws of robotics
+<span class="nb">time</span> - Returns the server <span class="nb">time</span>
+</code></pre></div></div>
+
+<h2 id="adding-new-commands">Adding new Commands</h2>
+
+<p>Commands are functions executed by the bot based on text based pattern matching.</p>
+
+<h3 id="write-a-command">Write a Command</h3>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="s">"github.com/micro/go-micro/v2/agent/command"</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">Ping</span><span class="p">()</span><span class="x"> </span><span class="n">command</span><span class="o">.</span><span class="n">Command</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">usage</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="s">"ping"</span><span class="x">
+	</span><span class="n">description</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="s">"Returns pong"</span><span class="x">
+
+	</span><span class="k">return</span><span class="x"> </span><span class="n">command</span><span class="o">.</span><span class="n">NewCommand</span><span class="p">(</span><span class="s">"ping"</span><span class="p">,</span><span class="x"> </span><span class="n">usage</span><span class="p">,</span><span class="x"> </span><span class="n">desc</span><span class="p">,</span><span class="x"> </span><span class="k">func</span><span class="p">(</span><span class="n">args</span><span class="x"> </span><span class="o">...</span><span class="kt">string</span><span class="p">)</span><span class="x"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="x"> </span><span class="kt">error</span><span class="p">)</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="k">return</span><span class="x"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">(</span><span class="s">"pong"</span><span class="p">),</span><span class="x"> </span><span class="no">nil</span><span class="x">
+	</span><span class="p">})</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="register-the-command">Register the command</h3>
+
+<p>Add the command to the Commands map with a pattern key that can be matched by golang/regexp.Match</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="s">"github.com/micro/go-micro/v2/agent/command"</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">init</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">command</span><span class="o">.</span><span class="n">Commands</span><span class="p">[</span><span class="s">"^ping$"</span><span class="p">]</span><span class="x"> </span><span class="o">=</span><span class="x"> </span><span class="n">Ping</span><span class="p">()</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="rebuild-micro">Rebuild Micro</h3>
+
+<p>Build binary</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>github.com/micro/micro
+
+// For <span class="nb">local </span>use
+go build <span class="nt">-i</span> <span class="nt">-o</span> micro ./main.go
+
+// For docker image
+<span class="nv">CGO_ENABLED</span><span class="o">=</span>0 <span class="nv">GOOS</span><span class="o">=</span>linux go build <span class="nt">-a</span> <span class="nt">-installsuffix</span> cgo <span class="nt">-ldflags</span> <span class="s1">'-w'</span> <span class="nt">-i</span> <span class="nt">-o</span> micro ./main.go
+</code></pre></div></div>
+
+<h2 id="adding-new-inputs">Adding new Inputs</h2>
+
+<p>Inputs are plugins for communication e.g Slack, HipChat, XMPP, IRC, SMTP, etc, etc.</p>
+
+<p>New inputs can be added in the following way.</p>
+
+<h3 id="write-an-input">Write an Input</h3>
+
+<p>Write an input that satisfies the Input interface.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">Input</span><span class="x"> </span><span class="k">interface</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// Provide cli flags</span><span class="x">
+	</span><span class="n">Flags</span><span class="p">()</span><span class="x"> </span><span class="p">[]</span><span class="n">cli</span><span class="o">.</span><span class="n">Flag</span><span class="x">
+	</span><span class="c">// Initialise input using cli context</span><span class="x">
+	</span><span class="n">Init</span><span class="p">(</span><span class="o">*</span><span class="n">cli</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="c">// Stream events from the input</span><span class="x">
+	</span><span class="n">Stream</span><span class="p">()</span><span class="x"> </span><span class="p">(</span><span class="n">Conn</span><span class="p">,</span><span class="x"> </span><span class="kt">error</span><span class="p">)</span><span class="x">
+	</span><span class="c">// Start the input</span><span class="x">
+	</span><span class="n">Start</span><span class="p">()</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="c">// Stop the input</span><span class="x">
+	</span><span class="n">Stop</span><span class="p">()</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="c">// name of the input</span><span class="x">
+	</span><span class="n">String</span><span class="p">()</span><span class="x"> </span><span class="kt">string</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="register-the-input">Register the input</h3>
+
+<p>Add the input to the Inputs map.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="s">"github.com/micro/go-micro/v2/agent/input"</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">init</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">input</span><span class="o">.</span><span class="n">Inputs</span><span class="p">[</span><span class="s">"name"</span><span class="p">]</span><span class="x"> </span><span class="o">=</span><span class="x"> </span><span class="n">MyInput</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="rebuild-micro-1">Rebuild Micro</h3>
+
+<p>Build binary</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>github.com/micro/micro
+
+// For <span class="nb">local </span>use
+go build <span class="nt">-i</span> <span class="nt">-o</span> micro ./main.go
+
+// For docker image
+<span class="nv">CGO_ENABLED</span><span class="o">=</span>0 <span class="nv">GOOS</span><span class="o">=</span>linux go build <span class="nt">-a</span> <span class="nt">-installsuffix</span> cgo <span class="nt">-ldflags</span> <span class="s1">'-w'</span> <span class="nt">-i</span> <span class="nt">-o</span> micro ./main.go
+</code></pre></div></div>
+
+<h2 id="commands-as-services">Commands as Services</h2>
+
+<p>The micro bot supports the ability to create commands as microservices.</p>
+
+<h3 id="how-does-it-work">How does it work?</h3>
+
+<p>The bot watches the service registry for services with it’s namespace. The default namespace is <code class="highlighter-rouge">go.micro.bot</code>. 
+Any service within this namespace will automatically be added to the list of available commands. When a command 
+is executed, the bot will call the service with method <code class="highlighter-rouge">Command.Exec</code>. It also expects the method <code class="highlighter-rouge">Command.Help</code> 
+to exist for usage info.</p>
+
+<p>The service interface is as follows and can be found at <a href="https://github.com/micro/go-micro/agent/blob/master/proto/bot.proto">go-bot/proto</a></p>
+
+<div class="language-proto highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">syntax</span> <span class="o">=</span> <span class="s">"proto3"</span><span class="p">;</span>
+
+<span class="kn">package</span> <span class="nn">go</span><span class="o">.</span><span class="n">micro.bot</span><span class="p">;</span>
+
+<span class="kd">service</span> <span class="n">Command</span> <span class="p">{</span>
+	<span class="k">rpc</span> <span class="n">Help</span><span class="p">(</span><span class="n">HelpRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">HelpResponse</span><span class="p">)</span> <span class="p">{};</span>
+	<span class="k">rpc</span> <span class="n">Exec</span><span class="p">(</span><span class="n">ExecRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">ExecResponse</span><span class="p">)</span> <span class="p">{};</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">HelpRequest</span> <span class="p">{</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">HelpResponse</span> <span class="p">{</span>
+	<span class="kt">string</span> <span class="na">usage</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="kt">string</span> <span class="na">description</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">ExecRequest</span> <span class="p">{</span>
+	<span class="k">repeated</span> <span class="kt">string</span> <span class="na">args</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">ExecResponse</span> <span class="p">{</span>
+	<span class="kt">bytes</span> <span class="na">result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="kt">string</span> <span class="na">error</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="example">Example</h3>
+
+<p>Here’s an example echo command as a microservice</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"fmt"</span><span class="x">
+	</span><span class="s">"strings"</span><span class="x">
+
+	</span><span class="s">"github.com/micro/go-micro/v2"</span><span class="x">
+	</span><span class="s">"golang.org/x/net/context"</span><span class="x">
+
+	</span><span class="n">proto</span><span class="x"> </span><span class="s">"github.com/micro/go-micro/v2/agent/proto"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">type</span><span class="x"> </span><span class="n">Command</span><span class="x"> </span><span class="k">struct</span><span class="p">{}</span><span class="x">
+
+</span><span class="c">// Help returns the command usage</span><span class="x">
+</span><span class="k">func</span><span class="x"> </span><span class="p">(</span><span class="n">c</span><span class="x"> </span><span class="o">*</span><span class="n">Command</span><span class="p">)</span><span class="x"> </span><span class="n">Help</span><span class="p">(</span><span class="n">ctx</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span><span class="x"> </span><span class="n">req</span><span class="x"> </span><span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">HelpRequest</span><span class="p">,</span><span class="x"> </span><span class="n">rsp</span><span class="x"> </span><span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">HelpResponse</span><span class="p">)</span><span class="x"> </span><span class="kt">error</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// Usage should include the name of the command</span><span class="x">
+	</span><span class="n">rsp</span><span class="o">.</span><span class="n">Usage</span><span class="x"> </span><span class="o">=</span><span class="x"> </span><span class="s">"echo"</span><span class="x">
+	</span><span class="n">rsp</span><span class="o">.</span><span class="n">Description</span><span class="x"> </span><span class="o">=</span><span class="x"> </span><span class="s">"This is an example bot command as a micro service which echos the message"</span><span class="x">
+	</span><span class="k">return</span><span class="x"> </span><span class="no">nil</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="c">// Exec executes the command</span><span class="x">
+</span><span class="k">func</span><span class="x"> </span><span class="p">(</span><span class="n">c</span><span class="x"> </span><span class="o">*</span><span class="n">Command</span><span class="p">)</span><span class="x"> </span><span class="n">Exec</span><span class="p">(</span><span class="n">ctx</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span><span class="x"> </span><span class="n">req</span><span class="x"> </span><span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">ExecRequest</span><span class="p">,</span><span class="x"> </span><span class="n">rsp</span><span class="x"> </span><span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">ExecResponse</span><span class="p">)</span><span class="x"> </span><span class="kt">error</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">rsp</span><span class="o">.</span><span class="n">Result</span><span class="x"> </span><span class="o">=</span><span class="x"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">(</span><span class="n">strings</span><span class="o">.</span><span class="n">Join</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">Args</span><span class="p">,</span><span class="x"> </span><span class="s">" "</span><span class="p">))</span><span class="x">
+	</span><span class="c">// rsp.Error could be set to return an error instead</span><span class="x">
+	</span><span class="c">// the function error would only be used for service level issues</span><span class="x">
+	</span><span class="k">return</span><span class="x"> </span><span class="no">nil</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">service</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span><span class="x">
+		</span><span class="n">micro</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s">"go.micro.bot.echo"</span><span class="p">),</span><span class="x">
+	</span><span class="p">)</span><span class="x">
+
+	</span><span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">()</span><span class="x">
+
+	</span><span class="n">proto</span><span class="o">.</span><span class="n">RegisterCommandHandler</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">Server</span><span class="p">(),</span><span class="x"> </span><span class="nb">new</span><span class="p">(</span><span class="n">Command</span><span class="p">))</span><span class="x">
+
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">service</span><span class="o">.</span><span class="n">Run</span><span class="p">();</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

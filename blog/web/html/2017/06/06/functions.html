@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>Micro - The simplest way to build, share and collaborate on microservices</title>
+    <meta name="description" content="The micro blog is a resource for microservices and distributed systems" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <!-- Customisation  -->
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/main.css?1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body class="home-template">
+
+    <header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        <a class="back-button icon-arrow-left" href="/blog/">Home</a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header">
+            <h1 class="post-title">Functions with Micro</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2017-06-06">06 Jun 2017</time>
+                
+            </section>
+        </header>
+
+<!--         <header class="post-header">
+            <a id="blog-logo" href="/blog">
+                
+                    <span class="blog-title">Micro</span>
+                
+            </a>
+        </header> -->
+
+        <!-- <span class="post-meta">
+            <time datetime="2017-06-06">06 Jun 2017</time>
+            
+        </span> -->
+
+        <!-- <h1 class="post-title">Functions with Micro</h1> -->
+
+        <section class="post-content">
+            <p><br />
+As technology evolves so do our programming models. We’ve gone from monoliths to microservices 
+and more recently started to push this separation even further towards functions.</p>
+
+<p>Micro looks to simplify distributed systems development, with <a href="https://github.com/micro/go-micro">go-micro</a> 
+providing a pluggable framework for microservices. Go-micro has historically included a high level <a href="https://godoc.org/github.com/micro/go-micro#Service">Service</a> 
+interface, encapsulating the lower level requirements for microservices.</p>
+
+<p>Today we’re introducing the <a href="https://godoc.org/github.com/micro/go-micro#Function">Function</a> 
+interface, a one time executing Service.</p>
+
+<script src="https://gist.github.com/asim/bfbaf036c90761879dbf6e939e5172e4.js"></script>
+
+<h3 id="the-inspiration">The Inspiration</h3>
+
+<p>Ben Firshman open sourced a project last year called <a href="https://github.com/bfirsh/funker">Funker</a>, functions as docker containers. The concept is very 
+simple but also extremely clever.</p>
+
+<p>Functions could quite simply be programs with one method, listening on the network for a request and exiting after 
+executing once, leveraging docker swarm services for lifecycle management, discovery, etc.</p>
+
+<p>This sparked the inspiration for including functions as part of go-micro.</p>
+
+<h3 id="why-functions">Why Functions?</h3>
+
+<p>The function programming model is the evolution of microservices. As our scale requirements increase both technically and organisationally 
+there’s a need to decouple systems and teams so they can operate independently.</p>
+
+<p>In the past 5 years we’ve seen the emergence of microservices as a way of dealing with those scaling requirements. The microservices 
+architecture pattern is of course nothing new but we’ve now started to define best practices which help us build better software.</p>
+
+<p>Functions push us into a new realm of possibility in terms of simplifying distributed systems development and solving software problems. 
+Going back to the unix philosophy, “do one thing and do it well”, functions truly embody that philosophy even more so than microservices.</p>
+
+<p>While infrastructure helps us build scalable systems, remember that microservices and functions are software architecture patterns 
+and programming models, so with that we need tools which help us to write software using those patterns.</p>
+
+<h3 id="example-function">Example Function</h3>
+
+<p>Here’s a straight forward example of writing a function with go-micro.</p>
+
+<p>As you can tell it looks almost identical to a service definition. That’s because underneath the covers they are exactly the 
+same except for one small detail, functions exit after one execution of a handler or subscriber.</p>
+
+<p>Functions give you the same functionality as services, letting you leverage all the existing micro ecosystem tooling.</p>
+
+<script src="https://gist.github.com/asim/7d70cf1160ad1279597f12985fe3fbd5.js"></script>
+
+<h3 id="running-functions">Running Functions</h3>
+
+<p>As previously stated, functions in micro are one time executing services, the function will exit after completing a request. This then 
+poses the question, how do we keep functions running?</p>
+
+<p>There is an abundance of existing tooling out there for process lifecycle management, so feel free to use any of your favourite 
+process managers.</p>
+
+<p>However the micro toolkit now includes a convenience tool called <a href="https://micro.mu/docs/run.html"><strong>micro run</strong></a>.</p>
+
+<p>Here’s how to run a function:</p>
+
+<pre><code>micro run -r github.com/micro/examples/function
+</code></pre>
+
+<p>The <strong>micro run</strong> command fetches, builds and executes from source. The <code>-r</code> flag tells it restart the function on exit. 
+It’s currently a simple and experimental tool for running micro based microservices and functions. From source to running in one command.</p>
+
+<p>There will be a separate post for the run command once it’s more stable.</p>
+
+<h3 id="summary">Summary</h3>
+
+<p>Functions are a natural extension of microservices as the next programming model to help simplify distributed systems development. 
+Micro treats functions as a first class citizen.</p>
+
+<p>While functions have been added to go-micro, it does not mean 100% of your software needs to be written with them. It’s important 
+to understand when monoliths, microservices or functions are appropriate.</p>
+
+<p>Look to see more on integrating micro functions with existing systems and serverless tooling in the near future.</p>
+
+<center><p>...</p></center>
+<p>If you want to learn more about the services we offer or microservices, checkout the <a href="https://micro.mu">website</a> or 
+visit <a href="https://github.com/micro/micro">GitHub</a>.</p>
+
+<p>Follow us on <a href="https://twitter.com/microhq">Twitter</a> or join the <a href="http://slack.micro.mu">Slack</a> community.</p>
+
+
+        </section>
+
+        
+
+        <footer class="post-footer">
+            <!-- If we want to display author's name and bio -->
+            
+                <figure class="author-image">
+                    <a class="img" href="https://twitter.com/chuhnk" style="background-image: url(/blog/assets/images/profile.jpg)">
+                    <span class="hidden">Asim Aslam's Picture</span></a>
+                </figure>
+                <section class="author">
+                    <!-- Author Name -->
+                    <h4> <a href="https://twitter.com/chuhnk">Asim Aslam</a> </h4>
+                    <!-- Author Bio -->
+                    <p>
+			The founder of Micro. Former SWE at Hailo and SRE at Google.
+                    </p>
+                </section>
+            
+
+            <!-- Share links section -->
+            <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?text=Functions with Micro&amp;url=https://micro.mu//blog/2017/06/06/functions.html"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://micro.mu//blog/2017/06/06/functions.html"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=https://micro.mu//blog/2017/06/06/functions.html"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+            <!-- Disqus comments -->
+            
+
+        </footer>
+
+    </article>
+
+</main>
+
+    <footer class="site-footer clearfix">
+        <div class="footer">
+            <center>
+                <ul class="list-inline">
+                    <li class="list-inline-item">&copy; 2019 Micro Services Inc.</li>
+                    <li class="list-inline-item"><a href="https://micro-services.slack.com"><i class="fa fa-slack"></i></a></li>
+                    <li class="list-inline-item"><a href="https://github.com/micro"><i class="fa fa-github"></i></a></li>
+                    <li class="list-inline-item"><a href="https://twitter.com/microhq"><i class="fa fa-twitter"></i></a></li>
+                    <li class="list-inline-item"><a href="mailto:hello@micro.mu"><i class="fa fa-envelope-o"></i></a></li>
+                </ul>
+            </center>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="/blog/assets/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/index.js"></script>
+
+    <!-- Google Analytics Tracking code -->
+    <script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-70478210-1', 'auto');
+	  ga('send', 'pageview');
+
+    </script>
+</body>
+</html>

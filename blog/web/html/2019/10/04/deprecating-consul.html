@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>Micro - The simplest way to build, share and collaborate on microservices</title>
+    <meta name="description" content="The micro blog is a resource for microservices and distributed systems" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <!-- Customisation  -->
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/main.css?1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body class="home-template">
+
+    <header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        <a class="back-button icon-arrow-left" href="/blog/">Home</a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header">
+            <h1 class="post-title">Deprecating Consul in favour of Etcd</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2019-10-04">04 Oct 2019</time>
+                
+            </section>
+        </header>
+
+<!--         <header class="post-header">
+            <a id="blog-logo" href="/blog">
+                
+                    <span class="blog-title">Micro</span>
+                
+            </a>
+        </header> -->
+
+        <!-- <span class="post-meta">
+            <time datetime="2019-10-04">04 Oct 2019</time>
+            
+        </span> -->
+
+        <!-- <h1 class="post-title">Deprecating Consul in favour of Etcd</h1> -->
+
+        <section class="post-content">
+            <p><br />
+For over 4 years Consul has served us well as one of the default service discovery systems in Micro. It was 
+in fact in the very beginning the default mechanism used for the registry and the only underlying 
+dependency required to get started.</p>
+
+<p>Since then the world has moved on and cloud-native technologies have evolved. We’ve found a number of issues 
+at scale related to the way in which we use Consul. This is not a knock on Consul but a reflection on our 
+use cases and the need to move on to something different.</p>
+
+<p>For example we binary encode, compress and base64 encode our metadata and service endpoint information 
+before storing them as Consul tags because there just wasn’t any other way to do so. We were also very 
+heavily abusing the distributed properties of Consul which caused a number of issues with raft consensus.</p>
+
+<p>Unfortunately we’ve found that its now time to move on.</p>
+
+<p>Since 2014 kubernetes has really become a reckoning force in the landscape of container orchestration and the 
+base level platform for services. With that etcd became their key-value storage of choice, a distributed key-value 
+store built with raft consensus. It has evolve to cater to the scale requirements of kubernetes and has since 
+been battle tested in a way few other open source projects have.</p>
+
+<p>Etcd also being a very standard Get/Put/Delete store for binary data means we’re easily able to encode and store 
+our service metadata with zero issues. It has no opinions about the format of the data being stored.</p>
+
+<p>We’ve in the past week moved etcd to become one of the default service discovery mechanisms in Micro and will be 
+looking to deprecate Consul in the coming weeks. What does this mean? Well we’ll be moving consul to our 
+community maintained <a href="https://github.com/micro/go-plugins">go-plugins</a> repository and focusing on supporting 
+etcd.</p>
+
+<p>We know a number of users are using Consul and this may cause disruption. This to us is a breaking change on our 
+path to v2 and so our next release will be tagged as v2. You can be assured that your v1 releases will continue 
+to operate as is but expect that the next release we do is micro v2.0.0.</p>
+
+<center>...</center>
+<p><br />
+To learn more check out the <a href="https://micro.mu">website</a>, follow us on <a href="https://twitter.com/microhq">twitter</a> or 
+join the <a href="https://micro-services.slack.com">slack</a> community.</p>
+
+<h6><a href="https://github.com/micro/micro"><i class="fa fa-github fa-2x"></i> Micro</a></h6>
+
+        </section>
+
+        
+
+        <footer class="post-footer">
+            <!-- If we want to display author's name and bio -->
+            
+                <figure class="author-image">
+                    <a class="img" href="https://twitter.com/chuhnk" style="background-image: url(/blog/assets/images/profile.jpg)">
+                    <span class="hidden">Asim Aslam's Picture</span></a>
+                </figure>
+                <section class="author">
+                    <!-- Author Name -->
+                    <h4> <a href="https://twitter.com/chuhnk">Asim Aslam</a> </h4>
+                    <!-- Author Bio -->
+                    <p>
+			The founder of Micro. Former SWE at Hailo and SRE at Google.
+                    </p>
+                </section>
+            
+
+            <!-- Share links section -->
+            <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?text=Deprecating Consul in favour of Etcd&amp;url=https://micro.mu//blog/2019/10/04/deprecating-consul.html"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://micro.mu//blog/2019/10/04/deprecating-consul.html"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=https://micro.mu//blog/2019/10/04/deprecating-consul.html"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+            <!-- Disqus comments -->
+            
+
+        </footer>
+
+    </article>
+
+</main>
+
+    <footer class="site-footer clearfix">
+        <div class="footer">
+            <center>
+                <ul class="list-inline">
+                    <li class="list-inline-item">&copy; 2019 Micro Services Inc.</li>
+                    <li class="list-inline-item"><a href="https://micro-services.slack.com"><i class="fa fa-slack"></i></a></li>
+                    <li class="list-inline-item"><a href="https://github.com/micro"><i class="fa fa-github"></i></a></li>
+                    <li class="list-inline-item"><a href="https://twitter.com/microhq"><i class="fa fa-twitter"></i></a></li>
+                    <li class="list-inline-item"><a href="mailto:hello@micro.mu"><i class="fa fa-envelope-o"></i></a></li>
+                </ul>
+            </center>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="/blog/assets/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/index.js"></script>
+
+    <!-- Google Analytics Tracking code -->
+    <script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-70478210-1', 'auto');
+	  ga('send', 'pageview');
+
+    </script>
+</body>
+</html>

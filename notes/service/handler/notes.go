@@ -6,10 +6,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/micro/go-micro/v2/store/scope"
-
+	"github.com/micro/go-micro/v2/util/scope"
 	"github.com/micro/go-micro/v2/auth"
-
 	pb "github.com/micro/services/notes/service/proto"
 
 	"github.com/google/uuid"

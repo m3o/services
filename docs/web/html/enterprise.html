@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="">
+<meta name="keywords" content="microenterprise,  enterprise">
+
+
+<title>Enterprise Toolkit | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">Enterprise Toolkit</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+
+  <p>Micro Enterprise is a turn-key solution for building production ready cloud-native applications.</p>
+
+<h1 id="overview">Overview</h1>
+
+<p>Micro Enterprise is an enterprise version of the micro toolkit. It includes additional features which are absolutely critical for a 
+stable and performant production grade microservice solution. This version of Micro requires a 
+<a href="https://github.com/micro/enterprise/blob/master/LICENSE">Micro Enterprise License Agreement</a> commercial subscription.</p>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<ul>
+  <li><a href="#create-subscription">Create Subscription</a></li>
+  <li><a href="#manage-subscription">Manage Subscription</a></li>
+  <li><a href="#generate-token">Generate Token</a></li>
+  <li><a href="#manage-tokens">Manage Tokens</a></li>
+  <li><a href="generate-license">Generate License</a></li>
+  <li><a href="manage-licenses">Manage Licenses</a></li>
+  <li><a href="use-license">Use License</a></li>
+</ul>
+
+<h2 id="create-subscription">Create Subscription</h2>
+
+<p>Micro Enterprise is distributed under a commercial license. While the source is available on GitHub you’ll need to purchase a 
+subscription to use it. Head to the <a href="https://micro.mu/pricing/">pricing</a> to subscribe using a credit card.</p>
+
+<h3 id="pricing">Pricing</h3>
+
+<p>Micro Enterprise is priced on a per service basis. Each service registered under service discovery is billed as a unique service. 
+Instances of a service count under a single service so you may run as many instances as you like.</p>
+
+<h3 id="example">Example</h3>
+
+<p>Services “user”, “order”, “customer”, “account”, “login” are each unique services, billed at $25/service/month. This means a 
+monthly total of $125/month. Each service can have unlimited instances.</p>
+
+<h2 id="manage-subscription">Manage Subscription</h2>
+
+<p>Browse to <a href="https://micro.chargebeeportal.com/">https://micro.chargebeeportal.com/</a> to manage your billing and subscription.</p>
+
+<h2 id="generate-token">Generate Token</h2>
+
+<p>An API token is required to manage license and subscriptions. The API token should be used with any request.</p>
+
+<p>Generate the token using your subscription email address</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro token generate --email=user@example.com
+</code></pre></div></div>
+
+<p>You will be sent an OTP pass to enter on the prompt</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro token generate --email=user@example.com
+Enter OTP: 632968
+Your token (set as MICRO_TOKEN_KEY env var or X-Micro-Token http header):
+1Qs2t4ueli9xVQz4HM0wfL3WXcPKNKMJYvB3SCOYAIsyuUBUsXIq2Yf55eFMyViBjnczXotTJ57Jb8tNqghg66b8ITZVVxVrR286F9HCaA8JcppTUjpi2UbHsAPaPFd37NiRe6hyZ6TvmujxxW82Lj9ZFZ59bIHwqJ7Z4atOxlT3P2NqvdXbNM7mvoYuxhPA32RzZ
+</code></pre></div></div>
+
+<p>Export the token. It will be required for any <code class="highlighter-rouge">micro license</code> command.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export MICRO_TOKEN_KEY=1Qs2t4ueli9xVQz4HM0wfL3WXcPKNKMJYvB3SCOYAIsyuUBUsXIq2Yf55eFMyViBjnczXotTJ57Jb8tNqghg66b8ITZVVxVrR286F9HCaA8JcppTUjpi2UbHsAPaPFd37NiRe6hyZ6TvmujxxW82Lj9ZFZ59bIHwqJ7Z4atOxlT3P2NqvdXbNM7mvoYuxhPA32RzZ
+</code></pre></div></div>
+
+<h2 id="manage-tokens">Manage Tokens</h2>
+
+<p>List your tokens</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro token list
+
+[
+	{
+		"id": "a586f641-be91-11e8-8287-1079ddac194b",
+		"expires": 1538244139,
+		"claims": {
+			"email": "user@example.com"
+		},
+		"key": "1Qs2t4ueli9xVQz4HM0wfL3WXcPKNKMJYvB3SCOYAIsyuUBUsXIq2Yf55eFMyViBjnczXotTJ57Jb8tNqghg66b8ITZVVxVrR286F9HCaA8JcppTUjpi2UbHsAPaPFd37NiRe6hyZ6TvmujxxW82Lj9ZFZ59bIHwqJ7Z4atOxlT3P2NqvdXbNM7mvoYuxhPA32RzZ"
+	}
+]
+</code></pre></div></div>
+
+<p>Revoke your tokens</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro token revoke --token=1Qs2t4ueli9xVQz4HM0wfL3WXcPKNKMJYvB3SCOYAIsyuUBUsXIq2Yf55eFMyViBjnczXotTJ57Jb8tNqghg66b8ITZVVxVrR286F9HCaA8JcppTUjpi2UbHsAPaPFd37NiRe6hyZ6TvmujxxW82Lj9ZFZ59bIHwqJ7Z4atOxlT3P2NqvdXbNM7mvoYuxhPA32RzZ
+</code></pre></div></div>
+
+<h2 id="generate-license">Generate License</h2>
+
+<p>Every micro enterprise app needs to use a license. You can generate as many licenses as you need or just use one.</p>
+
+<p>Before doing so you need to get your subscription id to generate the license for.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro license subscriptions
+[
+	{
+		"id": "1mkVvwvQunJ6KT1uG",
+		"email": "user@example.com",
+		"type": "service",
+		"status": "active",
+		"created": 1528838195,
+		"quantity": 5
+	}
+]
+</code></pre></div></div>
+
+<p>Now generate the license</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro license generate --subscription=1mkVvwvQunJ6KT1uG
+Your license (set as MICRO_LICENSE_KEY env var or X-Micro-License http header):
+FLMQn8cQJgXfSNMFgGxYKUyxjSOyZ5t6IREePHYczRuKTUN22qmPVXOmVYD7vZPX8bNwfuJHT95Mw2wtdNbBatIKDrlWn9YFKTwDi8k6BG22Rnvp6edZGSsjfBJFj79LvVDbl93LUPQqwmMs7UdSY8VNOdf61zU6yxK9La7GPSeXNsRMTIQCJNygsE5fm7GeiJTd3s4rfskambmBJARrHeS70T73Jl4mB3hSbra1J5Ww51itrtomoq8mC5TX1yRDL4Us6sKMd4aRDiTQzDTPdSMEVlVrYtbtUQN8CHKjhHfQxKsVOE8BUUDggugmrpJzYH8mmzlH31VppV1CqjWlXtbTtZ1cm8kljjeCmAs
+</code></pre></div></div>
+
+<h2 id="manage-licenses">Manage Licenses</h2>
+
+<p>List your licenses</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro license list
+[
+	{
+		"id": "5afa98c9-bf09-11e8-b8bd-b54ebe697adf",
+		"version": "20180905",
+		"created": 1537690753,
+		"key": "FLMQn8cQJgXfSNMFgGxYKUyxjSOyZ5t6IREePHYczRuKTUN22qmPVXOmVYD7vZPX8bNwfuJHT95Mw2wtdNbBatIKDrlWn9YFKTwDi8k6BG22Rnvp6edZGSsjfBJFj79LvVDbl93LUPQqwmMs7UdSY8VNOdf61zU6yxK9La7GPSeXNsRMTIQCJNygsE5fm7GeiJTd3s4rfskambmBJARrHeS70T73Jl4mB3hSbra1J5Ww51itrtomoq8mC5TX1yRDL4Us6sKMd4aRDiTQzDTPdSMEVlVrYtbtUQN8CHKjhHfQxKsVOE8BUUDggugmrpJzYH8mmzlH31VppV1CqjWlXtbTtZ1cm8kljjeCmAs",
+		"subscription": {
+			"id": "1mkVvwvQunJ6KT1uG",
+			"email": "user@example.com",
+			"type": "service",
+			"status": "active",
+			"created": 1528838195,
+			"quantity": 5
+		}
+	}
+]
+</code></pre></div></div>
+
+<p>Revoke your license</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro license revoke --license=FLMQn8cQJgXfSNMFgGxYKUyxjSOyZ5t6IREePHYczRuKTUN22qmPVXOmVYD7vZPX8bNwfuJHT95Mw2wtdNbBatIKDrlWn9YFKTwDi8k6BG22Rnvp6edZGSsjfBJFj79LvVDbl93LUPQqwmMs7UdSY8VNOdf61zU6yxK9La7GPSeXNsRMTIQCJNygsE5fm7GeiJTd3s4rfskambmBJARrHeS70T73Jl4mB3hSbra1J5Ww51itrtomoq8mC5TX1yRDL4Us6sKMd4aRDiTQzDTPdSMEVlVrYtbtUQN8CHKjhHfQxKsVOE8BUUDggugmrpJzYH8mmzlH31VppV1CqjWlXtbTtZ1cm8kljjeCmAs
+Licence revoked
+</code></pre></div></div>
+
+<h2 id="use-license">Use License</h2>
+
+<p>An enterprise license should be used with any service using Micro Enterprise.</p>
+
+<p>You can either specify it as the environment variable <code class="highlighter-rouge">MICRO_LICENSE_KEY</code> or as an option to the service like so</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="n">import</span> <span class="p">(</span>
+	<span class="s2">"github.com/micro/go-micro/v2"</span>
+	<span class="n">emicro</span> <span class="s2">"github.com/micro/enterprise/go/micro"</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">service</span> <span class="p">:=</span> <span class="n">emicro</span><span class="p">.</span><span class="n">NewService</span><span class="p">(</span>
+		<span class="n">micro</span><span class="p">.</span><span class="n">Name</span><span class="p">(</span><span class="s2">"foo"</span><span class="p">),</span>
+		<span class="n">emicro</span><span class="p">.</span><span class="n">License</span><span class="p">(</span><span class="s2">"the key"</span><span class="p">),</span>
+	<span class="p">)</span>
+	<span class="n">service</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The service will periodically ping the micro license api to track usage and update the subscription quantity.</p>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

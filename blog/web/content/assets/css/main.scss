@@ -1,0 +1,39 @@
+---
+# Let's add a comment to make this file sass-y.
+# Change this file for any custom CSS.
+---
+
+/* We need to add display:inline in order to align the '>>' of the 'read more' link */
+.post-excerpt p {
+	display:inline;
+}
+
+// Import partials from `sass_dir` (defaults to `_sass`)
+@import
+	"syntax"
+;
+
+.site-footer {
+  font-size: 15px;
+  font-weight: bold;
+  padding: 50px;
+  color: #0c2e47;
+}
+
+.site-footer a {
+  color: #0c2e47;
+}
+
+.list-inline {
+  margin: 0;
+}
+
+.list-inline li {
+  margin: 0;
+  padding-right: 10px;
+  display: inline-block;
+}
+
+.post-title {
+  color: #0c2e47;
+}

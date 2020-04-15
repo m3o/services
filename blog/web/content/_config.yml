@@ -1,0 +1,18 @@
+name: Micro
+description: The simplest way to build, share and collaborate on microservices
+meta_description: "The micro blog is a resource for microservices and distributed systems"
+
+markdown: kramdown
+highlighter: pygments
+logo: false
+paginate: 15
+baseurl: /blog
+google_analytics: 'UA-XXXXXXXX-X'
+gems: [jekyll-paginate, redcarpet, jekyll-gist, pygments.rb]
+future: true
+plugins: [jekyll-paginate, redcarpet, jekyll-gist, pygments.rb]
+# Details for the RSS feed generator
+url:            'https://micro.mu/'
+author:         'Asim Aslam'
+author_url:	'https://twitter.com/chuhnk'
+

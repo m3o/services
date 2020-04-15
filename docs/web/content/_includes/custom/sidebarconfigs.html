@@ -1,0 +1,17 @@
+{% if page.sidebar == "home_sidebar" %}
+{% assign sidebar = site.data.sidebars.home_sidebar.entries %}
+
+{% else if page.sidebar == "home_sidebar_cn" %}
+{% assign sidebar = site.data.sidebars.home_sidebar_cn.entries %}
+{% else %}
+{% assign sidebar = site.data.sidebars.home_sidebar.entries %}
+{% endif %}
+
+{% comment %}
+sidebar configuration for print files
+{% endcomment %}
+
+{% if site.product == "mydoc" %}
+{% assign sidebar_pdf = site.data.sidebars.home_sidebar.entries %}
+{% endif %}
+

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="">
+<meta name="keywords" content="grpcgrpc-gateway,  grpc, grpc-gateway">
+
+
+<title>GRPC Gateway | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">GRPC Gateway</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+
+  <p>This guide helps with using the grpc gateway with go-micro services.</p>
+
+<p>The <a href="https://github.com/grpc-ecosystem/grpc-gateway">grpc-gateway</a> is a plugin of <a href="http://github.com/google/protobuf">protoc</a>.
+It reads <a href="http://github.com/grpc/grpc-common">gRPC</a> service definition, and generates a reverse-proxy server which translates 
+a RESTful JSON API into gRPC.</p>
+
+<p>We use <a href="https://github.com/micro/go-grpc">go-grpc</a> to write the backend service. Go-GRPC is a simple wrapper around go-micro and 
+the grpc plugins for the client and server. When calling <a href="https://godoc.org/github.com/micro/go-grpc#NewService">grpc.NewService</a> 
+it returns a <a href="https://pkg.go.dev/github.com/micro/go-micro/v2#Service">micro.Service</a>.</p>
+
+<h2 id="code">Code</h2>
+
+<p>Find the example code at <a href="https://github.com/micro/examples/tree/master/grpc">examples/grpc</a>.</p>
+
+<h2 id="prereqs">Prereqs</h2>
+
+<p>These are some prerequisites</p>
+
+<h3 id="install-protobuf">Install protobuf</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir tmp
+cd tmp
+git clone https://github.com/google/protobuf
+cd protobuf
+./autogen.sh
+./configure
+make
+make check
+sudo make install
+</code></pre></div></div>
+
+<h3 id="install-plugins">Install plugins</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+go get -u github.com/micro/protobuf/protoc-gen-go
+</code></pre></div></div>
+
+<h2 id="greeter-service">Greeter Service</h2>
+
+<p>In the example we’ve created a greeter microservice using the gRPC service. The service is very simple.</p>
+
+<p>The proto is as follows:</p>
+
+<div class="language-proto highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">syntax</span> <span class="o">=</span> <span class="s">"proto3"</span><span class="p">;</span>
+
+<span class="kn">package</span> <span class="nn">go</span><span class="o">.</span><span class="n">micro.srv.greeter</span><span class="p">;</span>
+
+<span class="kd">service</span> <span class="n">Say</span> <span class="p">{</span>
+	<span class="k">rpc</span> <span class="n">Hello</span><span class="p">(</span><span class="n">Request</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">Response</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">Request</span> <span class="p">{</span>
+	<span class="kt">string</span> <span class="na">name</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">Response</span> <span class="p">{</span>
+	<span class="kt">string</span> <span class="na">msg</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The service is as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="n">import</span> <span class="p">(</span>
+	<span class="s2">"log"</span>
+	<span class="s2">"time"</span>
+
+	<span class="n">hello</span> <span class="s2">"github.com/micro/examples/greeter/srv/proto/hello"</span>
+	<span class="s2">"github.com/micro/go-micro/v2"</span>
+	<span class="s2">"github.com/micro/go-micro/v2/service/grpc"</span>
+
+	<span class="s2">"golang.org/x/net/context"</span>
+<span class="p">)</span>
+
+<span class="n">type</span> <span class="n">Say</span> <span class="n">struct</span><span class="p">{}</span>
+
+<span class="n">func</span> <span class="p">(</span><span class="n">s</span> <span class="p">*</span><span class="n">Say</span><span class="p">)</span> <span class="n">Hello</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="p">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">req</span> <span class="p">*</span><span class="n">hello</span><span class="p">.</span><span class="n">Request</span><span class="p">,</span> <span class="n">rsp</span> <span class="p">*</span><span class="n">hello</span><span class="p">.</span><span class="n">Response</span><span class="p">)</span> <span class="n">error</span> <span class="p">{</span>
+	<span class="nb">log</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"Received Say.Hello request"</span><span class="p">)</span>
+	<span class="n">rsp</span><span class="p">.</span><span class="n">Msg</span> <span class="p">=</span> <span class="s2">"Hello "</span> <span class="p">+</span> <span class="n">req</span><span class="p">.</span><span class="n">Name</span>
+	<span class="n">return</span> <span class="n">nil</span>
+<span class="p">}</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">service</span> <span class="p">:=</span> <span class="n">grpc</span><span class="p">.</span><span class="n">NewService</span><span class="p">(</span>
+		<span class="n">micro</span><span class="p">.</span><span class="n">Name</span><span class="p">(</span><span class="s2">"go.micro.srv.greeter"</span><span class="p">),</span>
+		<span class="n">micro</span><span class="p">.</span><span class="n">RegisterTTL</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">Second</span><span class="p">*</span><span class="m">30</span><span class="p">),</span>
+		<span class="n">micro</span><span class="p">.</span><span class="n">RegisterInterval</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">Second</span><span class="p">*</span><span class="m">10</span><span class="p">),</span>
+	<span class="p">)</span>
+
+	<span class="p">//</span> <span class="n">optionally</span> <span class="n">setup</span> <span class="nf">command</span> <span class="n">line</span> <span class="n">usage</span>
+	<span class="n">service</span><span class="p">.</span><span class="n">Init</span><span class="p">()</span>
+
+	<span class="p">//</span> <span class="n">Register</span> <span class="n">Handlers</span>
+	<span class="n">hello</span><span class="p">.</span><span class="n">RegisterSayHandler</span><span class="p">(</span><span class="n">service</span><span class="p">.</span><span class="n">Server</span><span class="p">(),</span> <span class="n">new</span><span class="p">(</span><span class="n">Say</span><span class="p">))</span>
+
+	<span class="p">//</span> <span class="nf">Run</span> <span class="n">server</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="p">:=</span> <span class="n">service</span><span class="p">.</span><span class="nf">Run</span><span class="p">();</span> <span class="n">err</span> <span class="c1">!= nil {
+</span>		<span class="nb">log</span><span class="p">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="grpc-gateway">GRPC Gateway</h2>
+
+<p>The grpc gateway uses the same proto as the service with the addition of a http option</p>
+
+<div class="language-proto highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">syntax</span> <span class="o">=</span> <span class="s">"proto3"</span><span class="p">;</span>
+
+<span class="kn">package</span> <span class="nn">greeter</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="s">"google/api/annotations.proto"</span><span class="p">;</span>
+
+<span class="kd">service</span> <span class="n">Say</span> <span class="p">{</span>
+	<span class="k">rpc</span> <span class="n">Hello</span><span class="p">(</span><span class="n">Request</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">Response</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">option</span> <span class="p">(</span><span class="n">google.api.http</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="n">post</span><span class="o">:</span> <span class="s">"/greeter/hello"</span>
+			<span class="n">body</span><span class="o">:</span> <span class="s">"*"</span>
+		<span class="p">};</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">Request</span> <span class="p">{</span>
+	<span class="kt">string</span> <span class="na">name</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">message</span> <span class="nc">Response</span> <span class="p">{</span>
+	<span class="kt">string</span> <span class="na">msg</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The proto generates a grpc stub and reverse proxy with the following commands</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>protoc -I/usr/local/include -I. \
+  -I$GOPATH/src \
+  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --go_out=plugins=grpc:. \
+  path/to/your_service.proto
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>protoc -I/usr/local/include -I. \
+  -I$GOPATH/src \
+  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --grpc-gateway_out=logtostderr=true:. \
+  path/to/your_service.proto
+</code></pre></div></div>
+
+<p>We’ve created a sample api for the greeter service with the following code. Similar code would be written 
+to register other endpoints. Note the gateway requires the endpoint address of the greeter service.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">package</span> <span class="n">main</span>
+
+<span class="n">import</span> <span class="p">(</span>
+	<span class="s2">"flag"</span>
+	<span class="s2">"net/http"</span>
+
+	<span class="s2">"github.com/golang/glog"</span>
+	<span class="s2">"github.com/grpc-ecosystem/grpc-gateway/runtime"</span>
+	<span class="s2">"golang.org/x/net/context"</span>
+	<span class="s2">"google.golang.org/grpc"</span>
+
+	<span class="n">hello</span> <span class="s2">"github.com/micro/examples/grpc/gateway/proto/hello"</span>
+<span class="p">)</span>
+
+<span class="n">var</span> <span class="p">(</span>
+	<span class="p">//</span> <span class="n">the</span> <span class="n">go</span><span class="p">.</span><span class="n">micro</span><span class="p">.</span><span class="n">srv</span><span class="p">.</span><span class="n">greeter</span> <span class="n">address</span>
+	<span class="n">endpoint</span> <span class="p">=</span> <span class="n">flag</span><span class="p">.</span><span class="k">String</span><span class="p">(</span><span class="s2">"endpoint"</span><span class="p">,</span> <span class="s2">"localhost:9090"</span><span class="p">,</span> <span class="s2">"go.micro.srv.greeter address"</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="nf">run</span><span class="p">()</span> <span class="n">error</span> <span class="p">{</span>
+	<span class="n">ctx</span> <span class="p">:=</span> <span class="n">context</span><span class="p">.</span><span class="n">Background</span><span class="p">()</span>
+	<span class="n">ctx</span><span class="p">,</span> <span class="n">cancel</span> <span class="p">:=</span> <span class="n">context</span><span class="p">.</span><span class="n">WithCancel</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+	<span class="n">defer</span> <span class="n">cancel</span><span class="p">()</span>
+
+	<span class="n">mux</span> <span class="p">:=</span> <span class="n">runtime</span><span class="p">.</span><span class="n">NewServeMux</span><span class="p">()</span>
+	<span class="n">opts</span> <span class="p">:=</span> <span class="p">[]</span><span class="n">grpc</span><span class="p">.</span><span class="n">DialOption</span><span class="p">{</span><span class="n">grpc</span><span class="p">.</span><span class="n">WithInsecure</span><span class="p">()}</span>
+
+	<span class="n">err</span> <span class="p">:=</span> <span class="n">hello</span><span class="p">.</span><span class="n">RegisterSayHandlerFromEndpoint</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mux</span><span class="p">,</span> <span class="p">*</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="c1">!= nil {
+</span>		<span class="n">return</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="n">return</span> <span class="n">http</span><span class="p">.</span><span class="n">ListenAndServe</span><span class="p">(</span><span class="s2">":8080"</span><span class="p">,</span> <span class="n">mux</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">flag</span><span class="p">.</span><span class="n">Parse</span><span class="p">()</span>
+
+	<span class="n">defer</span> <span class="n">glog</span><span class="p">.</span><span class="n">Flush</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">err</span> <span class="p">:=</span> <span class="nf">run</span><span class="p">();</span> <span class="n">err</span> <span class="c1">!= nil {
+</span>		<span class="n">glog</span><span class="p">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="running-the-example">Running the example</h2>
+
+<p>Run the greeter service. Specify mdns since we don’t need discovery</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go run examples/grpc/greeter/srv/main.go --registry=mdns --server_address=localhost:9090
+</code></pre></div></div>
+
+<p>Run the gateway. It will default to the endpoint localhost:9090 for the greeter service</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go run examples/grpc/gateway/main.go
+</code></pre></div></div>
+
+<p>Curl your request at the gateway (localhost:8080)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl -d '{"name": "john"}' http://localhost:8080/greeter/hello
+</code></pre></div></div>
+
+<h2 id="limitations">Limitations</h2>
+
+<p>The example grpc gateway requires a service address to be provided whereas our own micro api uses service discovery, dynamic routing 
+and load balancing. This makes integration of the grpc gateway a little less versatile.</p>
+
+<p>Visit <a href="https://github.com/micro/micro">github.com/micro/micro</a> to learn more</p>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

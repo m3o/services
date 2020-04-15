@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>Micro - The simplest way to build, share and collaborate on microservices</title>
+    <meta name="description" content="The micro blog is a resource for microservices and distributed systems" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <!-- Customisation  -->
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/main.css?1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body class="home-template">
+
+    <header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        <a class="back-button icon-arrow-left" href="/blog/">Home</a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header">
+            <h1 class="post-title">Micro - The great consolidation of 2019</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2019-06-10">10 Jun 2019</time>
+                
+            </section>
+        </header>
+
+<!--         <header class="post-header">
+            <a id="blog-logo" href="/blog">
+                
+                    <span class="blog-title">Micro</span>
+                
+            </a>
+        </header> -->
+
+        <!-- <span class="post-meta">
+            <time datetime="2019-06-10">10 Jun 2019</time>
+            
+        </span> -->
+
+        <!-- <h1 class="post-title">Micro - The great consolidation of 2019</h1> -->
+
+        <section class="post-content">
+            <p><br />
+Micro started it’s journey as <a href="https://github.com/micro/go-micro"><strong>go-micro</strong></a> - a microservices framework - focused 
+on providing the core requirements for microservice development. It creates a simpler experience for building microservices 
+by abstracting away the complexity of distributed systems.</p>
+
+<p>Over time we’ve expanded beyond go-micro into additional tools, libraries and plugins. This has led to fragmentation 
+in the way we solve problems and how developers are expected to use micro tools. We’re now undergoing a consolidation 
+of all these tools to simplify the developer experience.</p>
+
+<p>Micro essentially moves to being a standalone development framework and runtime for microservices development.</p>
+
+<p>Before we talk about the consolidation, let’s revisit the journey thus far.</p>
+
+<h2 id="the-primary-focus">The Primary Focus</h2>
+
+<p>Go-micro started out as primarily being focused on the communication aspects of microservices and we’ve tried to remain true to that. 
+This opinionated approach and focus is what’s really driven the success of the framework thus far. Over the years 
+we’ve had numerous requests to solve the next day problems for building production ready software in go-micro itself. 
+Much of this has been related to scalability, security, synchronisation and configuration.</p>
+
+<center>
+<img src="https://micro.mu/docs/images/go-micro.svg" style="width: 80%; height: auto;" />
+</center>
+
+<p>While there would have been merit to add the additional features requested we really wanted to stay very focused 
+on solving one problem really well at first. So we took a different approach to promoting the community to do this.</p>
+
+<h2 id="ecosystem--plugins">Ecosystem &amp; Plugins</h2>
+
+<p>Going to production involves much more than vanilla service discovery, message encoding and request-response. 
+We really understood this but wanted to enable users to choose the wider platform requirements via pluggable and 
+extensible interfaces. Promoting an ecosystem through an <a href="https://micro.mu/explore/">explorer</a> which aggregates 
+micro based open source projects on GitHub along with extensible plugins via the <a href="https://github.com/micro/go-plugins">go-plugins</a> repo.</p>
+
+<center>
+<img src="https://micro.mu/explorer.png" style="width: 80%; height: auto;" />
+</center>
+
+<p>Go Plugins has generally been a great success by allowing developers to offload significant complexity to systems built 
+for those requirements e.g prometheus for metrics, zipkin for distributed tracing and kafka for durable messaging.</p>
+
+<h2 id="points-of-interaction">Points of Interaction</h2>
+
+<p>Go Micro was really at the heart of microservice development but as services were written the next questions moved on to; 
+how do I query these, how do I interact with them, how do I serve them by traditional means…</p>
+
+<p>Given go-micro used an rpc/protobuf based protocol that was both pluggable and runtime agnostic, we needed some way to address 
+this in a way that was true to go-micro itself. This led to the creation of <a href="https://github.com/micro/micro"><strong>micro</strong></a>, 
+the microservice toolkit. Micro provides an api gateway, web dashboard, cli, slack bot, service proxy and much more.</p>
+
+<center>
+<img src="https://micro.mu/runtime3.svg" style="width: 80%; height: auto;" />
+</center>
+
+<p>The micro toolkit acted as interaction points via http api, browser, slack commands and command line interface. These 
+are common ways in which we query and build on applications and it was important for us to provide a runtime that 
+really enabled this. Yet still it really focused on communication above all else.</p>
+
+<h2 id="additional-tools">Additional Tools</h2>
+
+<p>While the plugins and the toolkit helped users of micro significantly, it still lacked in key areas. It was clear that our community 
+wanted us to solve further problems around platform tooling for product development rather than having to do it individually at 
+their various companies. We needed the same types of abstractions go-micro provided for things like dynamic configuration, 
+distributed synchronization and broader solutions for systems like Kubernetes.</p>
+
+<p>For these we created:</p>
+
+<ul>
+  <li><a href="https://github.com/micro/go-config">micro/go-config</a> - a dynamic configuration library</li>
+  <li><a href="https://github.com/asim/go-sync">micro/go-sync</a> - a distributed synchronisation library</li>
+  <li><a href="https://github.com/micro/kubernetes">micro/kubernetes</a> - micro on kubernetes initialisation</li>
+  <li><a href="https://github.com/micro/examples">examples</a> - example usage code for micro</li>
+  <li><a href="https://github.com/microhq">microhq</a> - a place for prebuilt microservices</li>
+</ul>
+
+<p>These were a few of the repos, libraries and tools used to attempt to solve the wider requirements of our community. Over the 
+4 years the number of repos grew and the getting started experience for new users became much more difficult. The barrier to 
+entry increased dramatically and with that we knew something needed to change.</p>
+
+<h2 id="consolidation">Consolidation</h2>
+
+<p>In the past few weeks we’ve realised <a href="https://github.com/micro/go-micro"><strong>go-micro</strong></a> was really the focal point for most of our users 
+developing microservices. It’s become clear they want additional functionality as part of this library and as a self described 
+framework we really need to embrace this by solving those next day concerns without asking a developer to go anywhere else.</p>
+
+<p>Essentially <strong>go-micro</strong> will be the all encompassing and standalone framework for microservice development.</p>
+
+<p>We’ve started the consolidation process by moving all our libraries into go-micro and we’ll continue to refactor over the 
+coming weeks to provide a simpler default getting started experience while also adding further features for logging, tracing, metrics, 
+authentication, etc.</p>
+
+<center>
+<img src="/blog/assets/images/go-micro-repo.png" style="width: 80%; height: auto;" />
+</center>
+
+<p>We’re not forgetting about <a href="https://github.com/micro/micro"><strong>micro</strong></a> either though. In our minds after you’ve built your microservices 
+there’s still a need for a way to query, run and manage them. <strong>Micro</strong> is by all accounts going to be the runtime for micro 
+service development. We’re working on providing a simpler way to manage the end to end flow of microservice development and 
+should have more to announce soon.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>Micro is the simplest way to build microservices and slowly becoming the defacto standard for Go based microservice development in 
+the cloud. We’re making that process even simpler by consolidating our efforts into a single development framework and runtime.</p>
+
+<center>...</center>
+<p><br />
+To learn more check out the <a href="https://micro.mu">website</a>, follow us on <a href="https://twitter.com/microhq">twitter</a> or 
+join the <a href="https://micro-services.slack.com">slack</a> community.</p>
+
+<h6><a href="https://github.com/micro/micro"><i class="fa fa-github fa-2x"></i> Micro</a></h6>
+
+        </section>
+
+        
+
+        <footer class="post-footer">
+            <!-- If we want to display author's name and bio -->
+            
+                <figure class="author-image">
+                    <a class="img" href="https://twitter.com/chuhnk" style="background-image: url(/blog/assets/images/profile.jpg)">
+                    <span class="hidden">Asim Aslam's Picture</span></a>
+                </figure>
+                <section class="author">
+                    <!-- Author Name -->
+                    <h4> <a href="https://twitter.com/chuhnk">Asim Aslam</a> </h4>
+                    <!-- Author Bio -->
+                    <p>
+			The founder of Micro. Former SWE at Hailo and SRE at Google.
+                    </p>
+                </section>
+            
+
+            <!-- Share links section -->
+            <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?text=Micro - The great consolidation of 2019&amp;url=https://micro.mu//blog/2019/06/10/the-great-consolidation.html"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://micro.mu//blog/2019/06/10/the-great-consolidation.html"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=https://micro.mu//blog/2019/06/10/the-great-consolidation.html"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+            <!-- Disqus comments -->
+            
+
+        </footer>
+
+    </article>
+
+</main>
+
+    <footer class="site-footer clearfix">
+        <div class="footer">
+            <center>
+                <ul class="list-inline">
+                    <li class="list-inline-item">&copy; 2019 Micro Services Inc.</li>
+                    <li class="list-inline-item"><a href="https://micro-services.slack.com"><i class="fa fa-slack"></i></a></li>
+                    <li class="list-inline-item"><a href="https://github.com/micro"><i class="fa fa-github"></i></a></li>
+                    <li class="list-inline-item"><a href="https://twitter.com/microhq"><i class="fa fa-twitter"></i></a></li>
+                    <li class="list-inline-item"><a href="mailto:hello@micro.mu"><i class="fa fa-envelope-o"></i></a></li>
+                </ul>
+            </center>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="/blog/assets/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/index.js"></script>
+
+    <!-- Google Analytics Tracking code -->
+    <script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-70478210-1', 'auto');
+	  ga('send', 'pageview');
+
+    </script>
+</body>
+</html>

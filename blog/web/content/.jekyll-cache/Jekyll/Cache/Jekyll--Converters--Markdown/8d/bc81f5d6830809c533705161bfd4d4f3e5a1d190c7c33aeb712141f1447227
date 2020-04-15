@@ -1,0 +1,351 @@
+I"�;<p><br />
+Today I want to talk to you about bots.</p>
+
+<h6 id="bots-really">Bots? Really…</h6>
+
+<p>Now I know what you’re thinking. There’s a lot of hype around bots at the moment. If you’re familiary with 
+chatterbots you’ll know it’s not a new concept and in fact goes way back to the days of <a href="https://en.wikipedia.org/wiki/ELIZA">Eliza</a>. 
+The renewed fascination with bots has really emerged because we’ve found more useful functions for them now beyond sheer amusement. They’ve also 
+shined a light on what may become the next dominant interface for interaction beyond apps, the conversational UI.</p>
+
+<p>In the engineering world though, bots are not just for conversational purposes, they can be incredibily useful for operational tasks. 
+So much so that most of us techies have become familiar with the term ChatOps. GitHub have been credited with the origins of this term 
+since publicising the creation and use of <a href="https://hubot.github.com/">Hubot</a>, a chatbot for managing technical and business 
+operation tasks.</p>
+
+<p>Check out this presentation by Jesse Newland on <a href="https://www.youtube.com/watch?v=NST3u-GjjFw">ChatOpts at GitHub</a> to learn more about it.</p>
+
+<p>Hubot and bots like it have proven to be incredibly useful in technical organisations and become a staple in the world of ops and automation. 
+The ability to instruct a bot to perform task through HipChat or Slack which you would otherwise perform manually or cron a script for is 
+rather powerful. There’s immediate value in the visibility it offers to the entire team. Everyone can see what you’re doing and 
+what the effects are.</p>
+
+<h6 id="what-does-this-have-to-do-with-micro-services">What does this have to do with micro services?</h6>
+
+<p><a href="https://github.com/micro/micro"><strong>Micro</strong></a>, the microservice toolkit, includes a number of services which provide entry points into your 
+running systems. The API, Web Dashboard, CLI, etc. These are all fixed points of entry to interact and observe your microservices environment. 
+Over the past few months it became clear that the Bot is another form of entry point to interact and observe and that it should be a first 
+class citizen in the Micro world.</p>
+
+<p>So with that…</p>
+
+<h6 id="introducing-the-micro-bot"><center>Introducing The Micro Bot<center></center></center></h6>
+<p align="center">
+  <img src="/blog/assets/images/micro_bot.png" />
+</p>
+
+<p>Let me start by saying, The Micro Bot is a VERY early stage prototype and is currently focused on providing feature parity with the CLI. 
+We’re not boasting AI based ChatOps here… but maybe someday…</p>
+
+<p>The Micro Bot includes hubot like semantics for scripting as <a href="#commands">Commands</a> and a way of implementing new <a href="#inputs">Inputs</a> like Slack and 
+Hipchat. It’s a rough version 1 but I’m a big believer in shipping as soon as something works and think that by doing so it will open us up to a more rapid 
+paced effort to improve the bot. Hopefully with community contributions!</p>
+
+<p>The Bot includes all the CLI commands and Inputs for Slack and HipChat. Our community Bot currently runs in the <a href="http://web.micro.pm">demo</a> 
+environment and is in the Micro Slack right now! Join us <a href="http://slack.micro.mu">here</a> if you want to check it out.</p>
+
+<p>In the near term we’ll look to add more Input plugins like IRC, XMPP and Commands that simplify managing micro services in a running 
+environment. If you have ideas for other Inputs or Commands or would like to submit a PR for something please do, contributions are 
+more than welcome.
+Additional plugins can be found in <a href="https://github.com/micro/go-plugins/tree/master/bot">github.com/micro/go-plugins/bot</a>.</p>
+
+<p>This is really the foundational framework for a programmable bot for the Micro ecosystem. Given the pluggable nature of the entire toolkit it 
+only makes sense to provide something similar in bot form.</p>
+
+<p>Let’s move on to discussing how Inputs and Commands work.</p>
+
+<h6 id="inputs">Inputs</h6>
+
+<p>Inputs are how the micro bot connects to hipchat, slack, irc, xmpp, etc. We’ve currently got implementations for 
+HipChat and Slack as mentioned above, which seem to cover a significant number of users.</p>
+
+<p>Here’s the Input interface.</p>
+
+<pre><code>type Input interface {
+	// Provide cli flags
+	Flags() []cli.Flag
+	// Initialise input using cli context
+	Init(*cli.Context) error
+	// Stream events from the input
+	Stream() (Conn, error)
+	// Start the input
+	Start() error
+	// Stop the input
+	Stop() error
+	// name of the input
+	String() string
+}
+</code></pre>
+
+<p>The input provides a convenient feature for adding your own command line flags and processing the arguments. 
+The Flags() method is used before initialisation and any flags specified will be added to the global flags list.</p>
+
+<p>After the flags have been parsed, Init() will be called next so that any context for the Input can be initialised. 
+Once everything is setup, the Bot will call Start() and then Stream() method to create a connection to the Input.</p>
+
+<p>Here’s Conn interface returned by Stream method.</p>
+
+<pre><code>type Conn interface {
+	Close() error
+	Recv(*Event) error
+	Send(*Event) error
+}
+</code></pre>
+
+<p>The bot will continuosly call Recv() waiting for events. Recv() should essentially be a blocking call otherwise 
+we’ll end up in a spin loop that will chew up the CPU. Once the Bot has processed the event it will return 
+some resulting event using the Send() method.</p>
+
+<p>An Event is the common type sent back and forth between the bot and inputs. It allows us to translate various message types 
+of the inputs into a common format. There’s currently only a TextEvent type but in the future we have more.</p>
+
+<p>The bot knows nothing about whether something is from Slack, HipChat or anywhere else. It just knows it’s received an event and 
+has to do something with it. It’s a great way of separating responsibility of the bot from the input.</p>
+
+<p>Here’s the Event type.</p>
+
+<pre><code>type Event struct {
+	Type EventType
+	From string
+	To   string
+	Data []byte
+	Meta map[string]interface{}
+}
+</code></pre>
+
+<h6 id="commands">Commands</h6>
+
+<p>Commands are functions that can be executed by the bot. It’s that simple. They’re stored in a map, keyed by regex, that will be matched 
+against text events received from the inputs. If a regex matches the event, the associated function will be executed. The command response 
+is then sent back to the input from which the Event originated. If the From field of the originating Event is not blank it will be sent 
+as the To field for the response. You can see how this would then allow the bot to directly communicate with someone or something.</p>
+
+<p>The current interface for the Command is fairly straight forward but could potentially change in the future if more complex use cases 
+arise.</p>
+
+<p>The command interface</p>
+
+<pre><code>type Command interface {
+	// Executes the command with args passed in
+	Exec(args ...string) ([]byte, error)
+	// Usage of the command
+	Usage() string
+	// Description of the command
+	Description() string
+	// Name of the command
+	String() string
+}
+</code></pre>
+
+<p>Here’s an example Echo command</p>
+
+<pre><code>// Echo returns the same message
+func Echo(ctx *cli.Context) Command {
+	usage := "echo [text]"
+	desc := "Returns the [text]"
+
+	return NewCommand("echo", usage, desc, func(args ...string) ([]byte, error) {
+		if len(args) &lt; 2 {
+			return []byte("echo what?"), nil
+		}
+		return []byte(strings.Join(args[1:], " ")), nil
+	})
+}
+</code></pre>
+
+<p>And that’s the initial building blocks of the bot required to create a conversational interface for Micro services.</p>
+
+<h6 id="what-else">What else?</h6>
+
+<p>It’s not enough to just have Inputs and Commands. What if we want to defer some process to a later date? What if 
+we want to persist some state in the bots memory? What about real two way dialog rather than just canned responses?</p>
+
+<p>It must be built!</p>
+
+<p>We’re still in the early phases of developing the bot framework and it’s an opportunity to contribute to what the 
+foundational interface should look like.</p>
+
+<p>The next step is to provide an interface for <i>streams of consciousness</i>. Sounds…abstract. Being a little more serious, 
+we need a <code>Stream</code> interface or something similar, which overlays <code>Input.Conn</code> so that we can write plugins for processing 
+all input event streams.</p>
+
+<p>This should potentially allow the ability to use multiple input streams at the same time. So that we may take events from 
+one stream, process, and then respond elsewhere.</p>
+
+<p>An example would be receiving a message on Slack, querying a micro service in the platform and sending a summary email.</p>
+
+<h6 id="where-does-it-run">Where does it run?</h6>
+
+<p>The micro bot runs in your environment alongside other services. In a way it’s just like any other service. It will register 
+with service discovery and leverage it to see everything that’s running.</p>
+
+<p align="center">
+  <img src="/blog/assets/images/bot.png" style="width: 100%; height: auto;" />
+</p>
+
+<h6 id="how-do-i-run-it">How do I run it?</h6>
+
+<p>Because the bot behaves like any other service you’ll need to be running a service discovery mechanism. The default is consul.</p>
+
+<p>Using it with Slack is as simple as</p>
+
+<pre><code>micro bot --inputs=slack --slack_token=SLACK_TOKEN
+</code></pre>
+
+<p>And with HipChat</p>
+
+<pre><code>micro bot --inputs=hipchat --hipchat_username=XMPP_USERNAME --hipchat_password=XMPP_PASSWORD
+</code></pre>
+
+<h6 id="the-bot-in-action">The bot in action</h6>
+
+<p>Here’s some screengrabs to give you an idea of what it looks like in action. As you can see, it replicates the features of the 
+micro CLI. We’ve got some extra commands like animate and geocode in the Micro Slack just for kicks. They’re 
+in <a href="https://github.com/micro/go-plugins">github.com/micro/go-plugins</a> if you want to add them yourself.</p>
+
+<p align="center">
+<img src="/blog/assets/images/slack.png" style="width: 90%; height: auto;" />
+</p>
+
+<p align="center">
+<img src="/blog/assets/images/hipchat.png" style="width: 90%; height: auto;" />
+</p>
+
+<h6 id="adding-new-commands">Adding new Commands</h6>
+
+<p>Commands are functions executed by the bot using text based pattern matching, similar to Hubot or any other ChatOps bot.</p>
+
+<p>Here’s how to write a simple ping command.</p>
+
+<h6 id="1-write-a-command">1. Write a Command</h6>
+
+<p>Firstly create a command using the NewCommand helper. It’s basically a quick start for creating commands. 
+You can implement the Command interface yourself too if you like.</p>
+
+<pre><code class="language-go">import "github.com/micro/micro/bot/command"
+
+func Ping() command.Command {
+	usage := "ping"
+	description := "Returns pong"
+
+	return command.NewCommand("ping", usage, desc, func(args ...string) ([]byte, error) {
+		return []byte("pong"), nil
+	})
+}
+</code></pre>
+
+<h6 id="2-register-the-command">2. Register the command</h6>
+
+<p>Add the command to the Commands map with a pattern key that can be matched by <a href="https://golang.org/pkg/regexp/#Match">golang/regexp.Match</a>.</p>
+
+<p>Here we’re saying that we’ll only respond to the word “ping”.</p>
+
+<pre><code class="language-go">import "github.com/micro/micro/bot/command"
+
+func init() {
+	command.Commands["^ping$"] = Ping()
+}
+</code></pre>
+
+<h6 id="3-link-the-command">3. Link the Command</h6>
+
+<p>Create a link with an import for your command.</p>
+
+<p>link_command.go:</p>
+
+<pre><code class="language-go">import _ "path/to/import"
+</code></pre>
+
+<p>Build micro with your command</p>
+
+<pre><code class="language-go">cd github.com/micro/micro
+go build -o micro main.go link_command.go
+</code></pre>
+
+<p>And that’s all there is to creating a command.</p>
+
+<h6 id="adding-new-inputs">Adding new Inputs</h6>
+
+<p>Inputs are plugins for communication e.g Slack, HipChat, XMPP, IRC, SMTP, etc, etc.</p>
+
+<p>New inputs can be added in the following way.</p>
+
+<h6 id="1-write-an-input">1. Write an Input</h6>
+
+<p>Write an input that satisfies the Input interface.</p>
+
+<pre><code class="language-go">type Input interface {
+	// Provide cli flags
+	Flags() []cli.Flag
+	// Initialise input using cli context
+	Init(*cli.Context) error
+	// Stream events from the input
+	Stream() (Conn, error)
+	// Start the input
+	Start() error
+	// Stop the input
+	Stop() error
+	// name of the input
+	String() string
+}
+</code></pre>
+
+<h6 id="2-register-the-input">2. Register the input</h6>
+
+<p>Add the input to the Inputs map.</p>
+
+<pre><code class="language-go">import "github.com/micro/micro/bot/input"
+
+func init() {
+	input.Inputs["name"] = MyInput
+}
+</code></pre>
+
+<h6 id="3-link-the-input">3. Link the input</h6>
+
+<p>Create a link with an import for your input plugin.</p>
+
+<p>link_input.go:</p>
+
+<pre><code class="language-go">import _ "path/to/import"
+</code></pre>
+
+<p>Build micro with your input</p>
+
+<pre><code class="language-go">cd github.com/micro/micro
+go build -o micro main.go link_input.go
+</code></pre>
+
+<p>Inputs are a little tricker to implement than Commands but that’s the gist of it.</p>
+
+<h6 id="what-next">What next?</h6>
+
+<p>Making sense of a microservices world isn’t easy. It requires a different set of tools and a focus on observability. 
+Monitoring, distributed tracing, structured logging and metrics all play a role but even then it can be difficult.</p>
+
+<p>Imagine a world in which bots are capable of making sense of distributed systems. Providing 
+feedback when we really need it rather than having to stare at dashboards and deal with false alerts. 
+You’ve heard of NoOps right? Well what if it was BotOps? What if you never had to be on-call ever again? 
+What if they could be used as 1st point of call or run through a set of procedures to rule out common issues during 
+outages. Just some food for thought.</p>
+
+<p>Some outlandish ideas and definitely some ways off. At the very least, look for future integrations into Kubernetes, 
+Mesos, etc for managing your services directly from HipChat or Slack and automation of other common tasks.</p>
+
+<h6 id="summary">Summary</h6>
+
+<p>The bot revolution is upon is. The landscape of infrastructure and automation is changing. We believe bots can play a 
+vital role, initially in a classic ChatOps form but longer term achieving much more.</p>
+
+<p>Bots should be treated as first class citizens along side configuration management, command line interfaces and APIs. 
+We’re doing just that in the Micro ecosystem by including a bot as part of the <a href="https://github.com/micro/micro">Micro toolkit</a>.</p>
+
+<p>It’s still early days but looking very promising thus far.</p>
+
+<p>If you want to learn more about the services we offer or microservices, check out the <a href="/">blog</a>, the  website 
+<a href="https://micro.mu">micro.mu</a> or the github <a href="https://github.com/micro/micro">repo</a>.</p>
+
+<p>Follow us on Twitter at <a href="https://twitter.com/microhq">@MicroHQ</a> or join the <a href="https://micro-services.slack.com">Slack</a> 
+community <a href="http://slack.micro.mu">here</a>.</p>
+
+:ET

@@ -169,19 +169,19 @@ func (m *manager) updateService(folderPath, commit, build string, status service
 			runtime.CreateType(typ),
 			runtime.CreateImage(img),
 		}
-		log.Infof("Creating service %v: ", folderPath)
+		log.Infof("Creating service %v", folderPath)
 		if err := runtime.DefaultRuntime.Create(service, opts...); err != nil {
 			return err
 		}
 		return nil
 	case serviceStatusUpdated:
-		log.Infof("Updating service %v: ", folderPath)
+		log.Infof("Updating service %v", folderPath)
 		if err := runtime.DefaultRuntime.Update(service); err != nil {
 			return err
 		}
 		return nil
 	case serviceStatusDeleted:
-		log.Infof("Deleting service %v: ", folderPath)
+		log.Infof("Deleting service %v", folderPath)
 		if err := runtime.DefaultRuntime.Delete(service); err != nil {
 			return err
 		}

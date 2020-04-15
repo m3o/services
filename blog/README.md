@@ -1,3 +1,7 @@
 # Blog
 
-Just a redirect for blog.micro.mu to micro.mu/blog
+Just the Micro blog
+
+## Usage
+
+Modify pages in web/content then rebuild with build.sh

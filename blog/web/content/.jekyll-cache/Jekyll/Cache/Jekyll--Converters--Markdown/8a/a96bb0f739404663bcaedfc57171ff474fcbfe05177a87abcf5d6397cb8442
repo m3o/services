@@ -1,0 +1,4 @@
+I"<p><br />
+Application configuration has remained largely static for most of our lifetime, using flags, environment variables and files. 
+Any change has usually required restarting the application or significant complexity in code to signal and reload the config.</p>
+:ET

@@ -1,0 +1,157 @@
+# This is your sidebar TOC. The sidebar code loops through sections here and provides the appropriate formatting.
+
+entries:
+- title: sidebar_cn
+  product: 
+  version: 
+  folders:
+
+  - title:
+    output: pdf
+    type: frontmatter
+    folderitems:
+    - title:
+      url: /cn/titlepage
+      output: pdf
+      type: frontmatter
+    - title:
+      url: /cn/tocpage
+      output: pdf
+      type: frontmatter
+
+  - title: 概览
+    output: web, pdf
+    folderitems:
+
+    - title: 简介
+      url: /cn/index.html
+      output: web, pdf
+      type: homepage
+  
+    - title: 常见问题
+      url: /cn/faq.html
+      output: web, pdf
+
+    - title: 特性
+      url: /cn/features.html
+      output: web, pdf
+
+    - title: Mission
+      url: /cn/mission.html
+      output: web, pdf
+
+    - title: 相关资源
+      url: /cn/resources.html
+      output: web, pdf
+
+    - title: 相关用户
+      url: /cn/users.html
+      output: web, pdf
+
+  - title: 整体框架
+    output: web, pdf
+    folderitems:
+
+    - title: 概览
+      url: /cn/go-micro.html
+      output: web, pdf 
+       
+    - title: 内部设计
+      url: /cn/go-micro-internals.html
+      output: web, pdf
+    
+    - title: API
+      url: /cn/go-api.html
+      output: web, pdf
+
+    - title: Config
+      url: /cn/go-config.html
+      output: web, pdf
+  
+    - title: GRPC
+      url: /cn/go-grpc.html
+      output: web, pdf
+
+  - title: 运行时工具
+    output: web, pdf
+    folderitems:
+  
+    - title: 概览
+      url: /cn/runtime.html
+      output: web, pdf
+
+    - title: 架构
+      url: /cn/architecture.html
+      output: web, pdf
+    
+    - title: API Gateway
+      url: /cn/api.html
+      output: web, pdf
+
+    - title: Web 管理控制台
+      url: /cn/web.html
+      output: web, pdf
+
+    - title: 服务Proxy代理
+      url: /cn/proxy.html
+      output: web, pdf
+
+    - title: 命令行接口
+      url: /cn/cli.html
+      output: web, pdf
+
+    - title: Slack小机器人
+      url: /cn/bot.html
+      output: web, pdf
+
+    - title: 服务模板
+      url: /cn/new.html
+      output: web, pdf
+
+  - title: 部署
+    output: web, pdf
+    folderitems:
+
+    - title: Docker
+      url: /cn/deploy-docker.html
+      output: web, pdf
+
+    - title: Kubernetes
+      url: /cn/deploy-kubernetes.html
+      output: web, pdf
+
+  - title: 指导
+    output: web, pdf
+    folderitems:
+
+    - title: 安装
+      url: /cn/install-guide.html
+      output: web, pdf
+
+    - title: GRPC 网关
+      url: /cn/grpc-gateway.html
+      output: web, pdf
+
+    - title: 编写服务
+      url: /cn/writing-a-go-service.html
+      output: web, pdf
+
+    - title: 容错
+      url: /cn/fault-tolerance.html
+      output: web, pdf
+
+  - title: 插件
+    output: web, pdf
+    folderitems:
+
+    - title: 概览
+      url: /cn/plugins.html
+      output: web, pdf
+
+    - title: Go Micro
+      url: /cn/plugins-go-micro.html
+      output: web, pdf
+
+    - title: Micro
+      url: /cn/runtime-plugins.html
+      output: web, pdf

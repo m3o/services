@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="Go Web provides an interface for micro web apps">
+<meta name="keywords" content="go-web,  go-web">
+
+
+<title>Go Web | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li class="active highlight"><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">Go Web</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+    <div class="summary">Go Web provides an interface for micro web apps</div>
+   
+
+    
+
+  <h1 id="overview">Overview</h1>
+
+<p>Go Web provides a tiny HTTP web server library which leverages <a href="https://github.com/micro/go-micro">go-micro</a> to create 
+micro web services as first class citizens in a microservice world. It wraps go-micro to give you service discovery, 
+heartbeating and the ability to create web apps as microservices.</p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+  <li>
+    <p><strong>Service Discovery</strong> - Services are automatically registered in service discovery on startup. Go Web includes 
+a http.Client with pre-initialised roundtripper which makes use of service discovery so you can use service names.</p>
+  </li>
+  <li>
+    <p><strong>Heartbeating</strong> - Go Web apps will periodically heartbeat with service discovery to provide liveness updates. 
+In the event a service fails it will be removed from the registry after a pre-defined expiry time.</p>
+  </li>
+  <li>
+    <p><strong>Custom Handlers</strong> - Specify your own http router for handling requests. This allows you to maintain full 
+control over how you want to route to internal handlers.</p>
+  </li>
+  <li>
+    <p><strong>Static Serving</strong> - Go Web automatically detects a local static <code class="highlighter-rouge">html</code> dir and serves files if no route handler 
+is specified. A quick solution for those who want to write JS web apps as microservices.</p>
+  </li>
+</ul>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<ul>
+  <li><a href="#dependencies">Dependencies</a></li>
+  <li><a href="#usage">Usage</a></li>
+  <li><a href="#set-handler">Set Handler</a></li>
+  <li><a href="#call-service">Call Service</a></li>
+  <li><a href="#static-files">Static Files</a></li>
+</ul>
+
+<h2 id="dependencies">Dependencies</h2>
+
+<p>Go Web makes use of Go Micro which means it needs service discovery</p>
+
+<p>See the <a href="https://github.com/micro/go-micro#service-discovery">go-micro</a> for install instructions</p>
+
+<h2 id="usage">Usage</h2>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">service</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">web</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span><span class="x">
+	</span><span class="n">web</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s">"example.com"</span><span class="p">),</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="n">service</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/foo"</span><span class="p">,</span><span class="x"> </span><span class="n">fooHandler</span><span class="p">)</span><span class="x">
+
+</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">();</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">log</span><span class="o">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">service</span><span class="o">.</span><span class="n">Run</span><span class="p">();</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">log</span><span class="o">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h2 id="set-handler">Set Handler</h2>
+
+<p>You might have a preference for a HTTP handler, so use something else. This loses the ability to register endpoints in discovery 
+but we’ll fix that soon.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="s">"github.com/gorilla/mux"</span><span class="x">
+
+</span><span class="n">r</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">mux</span><span class="o">.</span><span class="n">NewRouter</span><span class="p">()</span><span class="x">
+</span><span class="n">r</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/"</span><span class="p">,</span><span class="x"> </span><span class="n">indexHandler</span><span class="p">)</span><span class="x">
+</span><span class="n">r</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/objects/{object}"</span><span class="p">,</span><span class="x"> </span><span class="n">objectHandler</span><span class="p">)</span><span class="x">
+
+</span><span class="n">service</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">web</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span><span class="x">
+	</span><span class="n">web</span><span class="o">.</span><span class="n">Handler</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="x">
+</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h2 id="call-service">Call Service</h2>
+
+<p>Go-web includes a http.Client with a custom http.RoundTripper that uses service discovery</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">c</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">service</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span><span class="x">
+
+</span><span class="n">rsp</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">c</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"http://example.com/foo"</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<p>This will lookup service discovery for the service <code class="highlighter-rouge">example.com</code> and route to one of the available nodes.</p>
+
+<h2 id="static-files">Static Files</h2>
+
+<p>Go web was always meant as a way to register web apps where the majority of the code would be written in JS. To enable that by default, if no handler is registered on “/” and we find a local “html” directory then static files will be served.</p>
+
+<p>You will see a log output like so.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2019/05/12 14:55:47 Enabling static file serving from /tmp/foo/html
+</code></pre></div></div>
+
+<p>If you want to set this path manually use the StaticDir option. If a relative path is specified we will use os.Getwd() and prefix this.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>service := web.NewService(
+	web.Name("example.com"),
+	web.StaticDir("/tmp/example.com/html"),
+)
+
+</code></pre></div></div>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

@@ -1,0 +1,92 @@
+---
+layout: default
+title: Home
+cover: false
+pagination:
+  enabled: true
+---
+
+<!--
+<header class="main-header {% if page.cover %}" style="background-image: url({{ page.cover }}) {%else%}no-cover{% endif %}">
+    <nav class="main-nav overlay clearfix">
+            {% if page.logo %}
+                <a class="blog-logo" href="{{ site.baseurl }}">
+                    <img src="{{ page.logo }}" alt="Blog Logo" />
+                </a>
+            {% endif %}
+    </nav>
+    <div class="vertical">
+        <div class="main-header-content inner">
+            <h4 class="page-title">{{ site.name }}</h4>
+            <h5 class="page-description">
+                {% if site.description %} {{ site.description }} {% endif %}
+            </h5>
+        </div>
+    </div>
+    <a class="scroll-down icon-arrow-left" href="#content" data-offset="-45"><span class="hidden">Scroll Down</span></a>
+</header>
+-->
+<style>
+  .title {
+    padding-left: 15px; 
+    color: #0c2e47; 
+    font-weight: 1000; 
+    font-size: 2.2em; 
+    font-family: medium-content-sans-serif-font,'Lucida Grande','Lucida Sans Unicode','Lucida Sans',Geneva,Arial,sans-serif;
+  }
+  .desc {
+    font-weight: 400;
+    color: #9EABB3;
+  }
+  @media (min-width: 501px) {
+    .title {
+        padding-left: 10%;
+    }
+  }
+</style>
+<header style="margin-top: 35px; margin-bottom: 100px;">
+  <span class="title">
+    <a href="/" style="text-decoration: none;">
+      <img src="https://micro.mu/logo.png" height="50px" width="auto" style="vertical-align: bottom;"> {{ site.name }}
+    </a>
+  </span>
+</header>
+
+<main id="content" class="content" role="main">
+    <div class="post">
+      <h1 class="post-header">Blog</h1>
+      <h5 class="post-header desc">{% if site.description %} {{ site.description }} {% endif %}</h2>
+    </div>
+
+    <div class="extra-pagination inner">
+        {% include pagination.html %}
+    </div>
+
+    {% for post in paginator.posts %}
+
+    <article class="post">
+        <header class="post-header">
+            <h2 class="post-title"><a href="{{ post.url | prepend:site.baseurl }}">{{ post.title }}</a></h2>
+        </header>
+        <section class="post-excerpt">
+            {{ post.excerpt }} <a class="read-more" href="{{ post.url | prepend:site.baseurl }}">&raquo;</a>
+        </section>
+        <footer class="post-meta">
+            {% if site.author %}
+                <img class="author-thumb" src="{{ site.baseurl }}/assets/images/profile.jpg" alt="Author's profile picture" nopin="nopin" />
+                <a href="{{ site.author_url }}">{{ site.author }}</a>
+            {% endif %}
+            {% if post.categories.size > 0 %} 
+                {{ post.categories | array_to_sentence_string | prepend: 'on ' }} 
+            {% endif %}
+            <time class="post-date" datetime="{{ post.date | date:"%Y-%m-%d" }}">
+                {{ post.date | date_to_string }}
+            </time> 
+        </footer>
+    </article>
+
+    {% endfor %}
+
+    {% include pagination.html %}
+
+</main>

@@ -25,7 +25,7 @@ func main() {
 		appName := paths[2]
 		proxyURL := strings.Join(paths[3:], "/")
 
-		srv, err := runtime.DefaultRuntime.List()
+		srv, err := runtime.DefaultRuntime.Read()
 		if err != nil {
 			write500(w, err)
 			return

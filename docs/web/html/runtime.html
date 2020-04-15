@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="Micro is a runtime for microservices development">
+<meta name="keywords" content="microruntime,  runtime">
+
+
+<title>Runtime | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li class="active highlight"><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">Runtime</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+    <div class="summary">Micro is a runtime for microservices development</div>
+   
+
+    
+
+  <h1 id="overview">Overview</h1>
+
+<p>Micro addresses the key requirements for building scalable systems. It takes the microservice architecture pattern and transforms it into 
+a set of tools which act as the building blocks of a platform. Micro deals with the complexity of distributed systems and provides 
+simple abstractions already understood by developers.</p>
+
+<p>Technology is constantly evolving. The infrastructure stack is always changing. Micro is a pluggable toolkit which addresses these issues. 
+Plug in any stack or underlying technology. Build future-proof systems using micro.</p>
+
+<h2 id="features">Features</h2>
+
+<p>The runtime is composed of the following features:</p>
+
+<ul>
+  <li>
+    <p><strong>API Gateway:</strong> A single http entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
+microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing 
+via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.</p>
+  </li>
+  <li>
+    <p><strong>Interactive CLI:</strong> A CLI to describe, query and interact directly with your platform and services from the terminal. The CLI 
+gives you all the commands you expect to understand what’s happening with your micro services. It also includes an interactive mode.</p>
+  </li>
+  <li>
+    <p><strong>Service Proxy:</strong> A transparent proxy built on <a href="https://github.com/micro/go-micro">Go Micro</a> and the <a href="https://github.com/micro/protocol">MUCP</a> 
+protocol. Offload service discovery, load balancing, message encoding, middleware, transport and broker plugins to a single a location. 
+Run it standalone or alongside your service.</p>
+  </li>
+  <li>
+    <p><strong>Service Templates:</strong> Generate new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
+Always start in the same way, build identical services to be more productive.</p>
+  </li>
+  <li>
+    <p><strong>SlackOps Bot:</strong> A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
+and gives you the ability to do everything with your team via messaging. It also includes ability to create slack commmands as services which 
+are discovered dynamically.</p>
+  </li>
+  <li>
+    <p><strong>Web Dashboard:</strong> The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even 
+query them directly. The dashboard is also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.</p>
+  </li>
+</ul>
+
+<h2 id="install-micro">Install Micro</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go get github.com/micro/micro/v2
+</code></pre></div></div>
+
+<p>Or via Docker</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker pull micro/micro
+</code></pre></div></div>
+
+<p>Latest release binaries</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># MacOS
+curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
+
+# Linux
+wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
+
+# Windows
+powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
+</code></pre></div></div>
+
+<h2 id="dependencies">Dependencies</h2>
+
+<p>The micro runtime has two dependencies:</p>
+
+<ul>
+  <li><a href="#service-discovery">Service Discovery</a> - used for name resolution</li>
+  <li><a href="#protobuf">Protobuf</a> - used for code generation</li>
+</ul>
+
+<h2 id="service-discovery">Service Discovery</h2>
+
+<p>Service discovery is used for name resolution, routing and centralising metadata. All services are register themselves in 
+discovery so they can be found by other services.</p>
+
+<p>Micro uses the <a href="https://github.com/micro/go-micro">go-micro</a> registry interface for service discovery. Multicast DNS is the default 
+implementation. This enables a zeroconf setup so you don’t have to change anything for local development. In case you’re using docker, 
+kubernetes or need something more resilient we recommend etcd.</p>
+
+<h3 id="etcd">Etcd</h3>
+
+<p>Etcd is an alternative highly available service discovery mechanism</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># install</span>
+brew install etcd
+
+<span class="c"># run</span>
+etcd
+</code></pre></div></div>
+
+<p>Pass <code class="highlighter-rouge">--registry=etcd</code> or set the env var <code class="highlighter-rouge">MICRO_REGISTRY=consul</code> for any command</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Use flag</span>
+micro <span class="nt">--registry</span><span class="o">=</span>etcd list services
+
+<span class="c"># Use env var</span>
+<span class="nv">MICRO_REGISTRY</span><span class="o">=</span>etcd micro list services<span class="sb">`</span>
+</code></pre></div></div>
+
+<p>Specify the address of etcd where it’s not on the same host.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MICRO_REGISTRY_ADDRESS=10.0.0.1:2379
+</code></pre></div></div>
+
+<p>See <a href="https://github.com/micro/go-plugins">go-plugins</a> for more service discovery plugins.</p>
+
+<h2 id="protobuf">Protobuf</h2>
+
+<p>Protobuf is used for code generation. It reduces the amount of boilerplate code needed to be written.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># install protobuf
+brew install protobuf
+
+# install protoc-gen-go
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+
+# install protoc-gen-micro
+go get -u github.com/micro/protoc-gen-micro/v2
+</code></pre></div></div>
+
+<p>See <a href="https://github.com/micro/protoc-gen-micro">protoc-gen-micro</a> for more details.</p>
+
+<h2 id="writing-a-service">Writing a service</h2>
+
+<p>Micro includes new template generation to speed up writing applications</p>
+
+<p>For full details on writing services see <a href="https://github.com/micro/go-micro"><strong>go-micro</strong></a>.</p>
+
+<h3 id="generate-template">Generate template</h3>
+
+<p>Here we’ll quickly generate an example template using <code class="highlighter-rouge">micro new</code></p>
+
+<p>Specify a path relative to $GOPATH</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro new github.com/micro/example
+</code></pre></div></div>
+
+<p>The command will output</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>example/
+	Dockerfile	# A template docker file
+	README.md	# A readme with command used
+	handler/	# Example rpc handler
+	main.go		# The main Go program
+	proto/		# Protobuf directory
+	subscriber/	# Example pubsub Subscriber
+</code></pre></div></div>
+
+<p>Compile the protobuf code using <code class="highlighter-rouge">protoc</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>protoc --proto_path=. --micro_out=. --go_out=. proto/example/example.proto
+</code></pre></div></div>
+
+<p>Now run it like any other go application</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Run the micro service
+micro server
+
+# cd into your service directory
+cd github.com/micro/example
+
+# run the server
+micro run --server .
+</code></pre></div></div>
+
+<h2 id="example">Example</h2>
+
+<p>Now we have a running application using <code class="highlighter-rouge">micro new</code> template generation, let’s test it out.</p>
+
+<ul>
+  <li><a href="#list-services">List services</a></li>
+  <li><a href="#get-service">Get service</a></li>
+  <li><a href="#call-service">Call service</a></li>
+  <li><a href="#run-api">Run API</a></li>
+  <li><a href="#call-api">Call API</a></li>
+</ul>
+
+<h3 id="list-services">List services</h3>
+
+<p>Each service registers with discovery so we should be able to find it.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro list services
+</code></pre></div></div>
+
+<p>Output</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>etcd
+go.micro.srv.example
+topic:topic.go.micro.srv.example
+</code></pre></div></div>
+
+<p>The example app has registered with the fully qualified domain name <code class="highlighter-rouge">go.micro.srv.example</code></p>
+
+<h3 id="get-service">Get Service</h3>
+
+<p>Each service registers with a unique id, address and metadata.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro get service go.micro.srv.example
+</code></pre></div></div>
+
+<p>Output</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>service  go.micro.srv.example
+
+version latest
+
+ID	Address	Port	Metadata
+go.micro.srv.example-437d1277-303b-11e8-9be9-f40f242f6897	192.168.1.65	53545	transport=http,broker=http,server=rpc,registry=etcd
+
+Endpoint: Example.Call
+Metadata: stream=false
+
+Request: {
+	name string
+}
+
+Response: {
+	msg string
+}
+
+
+Endpoint: Example.PingPong
+Metadata: stream=true
+
+Request: {}
+
+Response: {}
+
+
+Endpoint: Example.Stream
+Metadata: stream=true
+
+Request: {}
+
+Response: {}
+
+
+Endpoint: Func
+Metadata: subscriber=true,topic=topic.go.micro.srv.example
+
+Request: {
+	say string
+}
+
+Response: {}
+
+
+Endpoint: Example.Handle
+Metadata: subscriber=true,topic=topic.go.micro.srv.example
+
+Request: {
+	say string
+}
+
+Response: {}
+</code></pre></div></div>
+
+<h3 id="call-service">Call service</h3>
+
+<p>Make an RPC call via the CLI. The query is sent as json.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro call go.micro.srv.example Example.Call <span class="s1">'{"name": "John"}'</span>
+</code></pre></div></div>
+
+<p>Output</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+	"msg": "Hello John"
+}
+</code></pre></div></div>
+
+<p>Look at the <a href="https://micro.mu/docs/cli.html">cli doc</a> for more info.</p>
+
+<p>Now let’s test call the service via HTTP.</p>
+
+<h3 id="run-api">Run API</h3>
+
+<p>The micro api is a http gateway which dynamically routes to backend services</p>
+
+<p>Let’s run it so we can query the example service.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MICRO_API_HANDLER=rpc \
+MICRO_API_NAMESPACE=go.micro.srv \
+micro api
+</code></pre></div></div>
+
+<p>Some info:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">MICRO_API_HANDLER</code> sets the http handler</li>
+  <li><code class="highlighter-rouge">MICRO_API_NAMESPACE</code> sets the service namespace</li>
+</ul>
+
+<h3 id="call-api">Call API</h3>
+
+<p>Make POST request to the api using json</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl -XPOST -H 'Content-Type: application/json' -d '{"name": "John"}' http://localhost:8080/example/call
+</code></pre></div></div>
+
+<p>Output</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{"msg":"Hello John"}
+</code></pre></div></div>
+
+<p>See the <a href="https://micro.mu/docs/api.html">api doc</a> for more info.</p>
+
+<h2 id="plugins">Plugins</h2>
+
+<p>Micro is built on <a href="https://github.com/micro/go-micro">go-micro</a> making it a pluggable toolkit.</p>
+
+<p>Go-micro provides abstractions for distributed systems infrastructure which can be swapped out.</p>
+
+<h3 id="pluggable-features">Pluggable Features</h3>
+
+<p>The micro features which are pluggable:</p>
+
+<ul>
+  <li>broker - pubsub message broker</li>
+  <li>registry - service discovery</li>
+  <li>selector - client side load balancing</li>
+  <li>transport - request-response or bidirectional streaming</li>
+  <li>client - the client which manages the above features</li>
+  <li>server - the server which manages the above features</li>
+</ul>
+
+<p>Find plugins at <a href="https://github.com/micro/go-plugins">go-plugins</a></p>
+
+<h3 id="using-plugins">Using Plugins</h3>
+
+<p>Integrate go-micro plugins by simply linking them in a separate file</p>
+
+<p>Create a plugins.go file</p>
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="c">// etcd v3 registry</span><span class="x">
+	</span><span class="n">_</span><span class="x"> </span><span class="s">"github.com/micro/go-plugins/registry/etcdv3"</span><span class="x">
+	</span><span class="c">// nats transport</span><span class="x">
+	</span><span class="n">_</span><span class="x"> </span><span class="s">"github.com/micro/go-plugins/transport/nats"</span><span class="x">
+	</span><span class="c">// kafka broker</span><span class="x">
+	</span><span class="n">_</span><span class="x"> </span><span class="s">"github.com/micro/go-plugins/broker/kafka"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="building-binary">Building Binary</h3>
+
+<p>Rebuild the micro binary using the Go toolchain</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># For local use</span>
+go build <span class="nt">-i</span> <span class="nt">-o</span> micro ./main.go ./plugins.go
+
+<span class="c"># For docker image</span>
+<span class="nv">CGO_ENABLED</span><span class="o">=</span>0 <span class="nv">GOOS</span><span class="o">=</span>linux go build <span class="nt">-a</span> <span class="nt">-installsuffix</span> cgo <span class="nt">-ldflags</span> <span class="s1">'-w'</span> <span class="nt">-i</span> <span class="nt">-o</span> micro ./main.go ./plugins.go
+</code></pre></div></div>
+
+<h3 id="enable-plugins">Enable Plugins</h3>
+
+<p>Enable the plugins with command line flags or env vars</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># flags</span>
+micro <span class="nt">--registry</span><span class="o">=</span>etcdv3 <span class="nt">--transport</span><span class="o">=</span>nats <span class="nt">--broker</span><span class="o">=</span>kafka <span class="o">[</span><span class="nb">command</span><span class="o">]</span>
+
+<span class="c"># env vars</span>
+<span class="nv">MICRO_REGISTRY</span><span class="o">=</span>etcdv3 <span class="nv">MICRO_TRANSPORT</span><span class="o">=</span>nats <span class="nv">MICRO_BROKER</span><span class="o">=</span>kafka micro <span class="o">[</span><span class="nb">command</span><span class="o">]</span>
+</code></pre></div></div>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

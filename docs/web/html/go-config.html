@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="Go Config is a pluggable dynamic config library">
+<meta name="keywords" content="config,  config">
+
+
+<title>Go Config | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li class="active highlight"><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">Go Config</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+    <div class="summary">Go Config is a pluggable dynamic config library</div>
+   
+
+    
+
+  <h1 id="overview">Overview</h1>
+
+<p>Most config in applications are statically configured or include complex logic to load from multiple sources. 
+Go-config makes this easy, pluggable and mergeable. You’ll never have to deal with config in the same way again.</p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+  <li>
+    <p><strong>Dynamic Loading</strong> - Load configuration from multiple source as and when needed. Go Config manages watching config sources
+in the background and automatically merges and updates an in memory view.</p>
+  </li>
+  <li>
+    <p><strong>Pluggable Sources</strong> - Choose from any number of sources to load and merge config. The backend source is abstracted away into 
+a standard format consumed internally and decoded via encoders. Sources can be env vars, flags, file, etcd, k8s configmap, etc.</p>
+  </li>
+  <li>
+    <p><strong>Mergeable Config</strong> - If you specify multiple sources of config, regardless of format, they will be merged and presented in 
+a single view. This massively simplifies priority order loading and changes based on environment.</p>
+  </li>
+  <li>
+    <p><strong>Observe Changes</strong> - Optionally watch the config for changes to specific values. Hot reload your app using Go Config’s watcher.
+You don’t have to handle ad-hoc hup reloading or whatever else, just keep reading the config and watch for changes if you need 
+to be notified.</p>
+  </li>
+  <li>
+    <p><strong>Safe Recovery</strong> - In case config loads badly or is completely wiped away for some unknown reason, you can specify fallback 
+values when accessing any config values directly. This ensures you’ll always be reading some sane default in the event of a problem.</p>
+  </li>
+</ul>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<ul>
+  <li><a href="#source">Source</a> - A backend from which config is loaded</li>
+  <li><a href="#encoder">Encoder</a> - Handles encoding/decoding source config</li>
+  <li><a href="#reader">Reader</a> - Merges multiple encoded sources as a single format</li>
+  <li><a href="#config">Config</a> - Config manager which manages multiple sources</li>
+  <li><a href="#usage">Usage</a> - Example usage of go-config</li>
+  <li><a href="#faq">FAQ</a> - General questions and answers</li>
+  <li><a href="#todo">TODO</a> - TODO tasks/features</li>
+</ul>
+
+<h2 id="sources">Sources</h2>
+
+<p>A <code class="highlighter-rouge">Source</code> is a backend from which config is loaded. Multiple sources can be used at the same time.</p>
+
+<p>The following sources are supported:</p>
+
+<ul>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/cli">cli</a> - read from parsed CLI flags</li>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/consul">consul</a> - read from consul</li>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/env">env</a> - read from environment variables</li>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/etcd">etcd</a> - read from etcd v3</li>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/file">file</a> - read from file</li>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/flag">flag</a> - read from flags</li>
+  <li><a href="https://github.com/micro/go-micro/tree/master/config/source/memory">memory</a> - read from memory</li>
+</ul>
+
+<p>There are also community-supported plugins, which support the following sources:</p>
+
+<ul>
+  <li><a href="https://github.com/micro/go-plugins/tree/master/config/source/configmap">configmap</a> - read from k8s configmap</li>
+  <li><a href="https://github.com/micro/go-plugins/tree/master/config/source/grpc">grpc</a> - read from grpc server</li>
+  <li><a href="https://github.com/micro/go-plugins/tree/master/config/source/runtimevar">runtimevar</a> - read from Go Cloud Development Kit runtime variable</li>
+  <li><a href="https://github.com/micro/go-plugins/tree/master/config/source/url">url</a> - read from URL</li>
+  <li><a href="https://github.com/micro/go-plugins/tree/master/config/source/vault">vault</a> - read from Vault server</li>
+</ul>
+
+<p>TODO:</p>
+
+<ul>
+  <li>git url</li>
+</ul>
+
+<h3 id="changeset">ChangeSet</h3>
+
+<p>Sources return config as a ChangeSet. This is a single internal abstraction for multiple backends.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">ChangeSet</span><span class="x"> </span><span class="k">struct</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// Raw encoded config data</span><span class="x">
+	</span><span class="n">Data</span><span class="x">      </span><span class="p">[]</span><span class="kt">byte</span><span class="x">
+	</span><span class="c">// MD5 checksum of the data</span><span class="x">
+	</span><span class="n">Checksum</span><span class="x">  </span><span class="kt">string</span><span class="x">
+	</span><span class="c">// Encoding format e.g json, yaml, toml, xml</span><span class="x">
+	</span><span class="n">Format</span><span class="x">    </span><span class="kt">string</span><span class="x">
+	</span><span class="c">// Source of the config e.g file, consul, etcd</span><span class="x">
+	</span><span class="n">Source</span><span class="x">    </span><span class="kt">string</span><span class="x">
+	</span><span class="c">// Time of loading or update</span><span class="x">
+	</span><span class="n">Timestamp</span><span class="x"> </span><span class="n">time</span><span class="o">.</span><span class="n">Time</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h2 id="encoder">Encoder</h2>
+
+<p>An <code class="highlighter-rouge">Encoder</code> handles source config encoding/decoding. Backend sources may store config in many different 
+formats. Encoders give us the ability to handle any format. If an Encoder is not specified it defaults to json.</p>
+
+<p>The following encoding formats are supported:</p>
+
+<ul>
+  <li>json</li>
+  <li>yaml</li>
+  <li>toml</li>
+  <li>xml</li>
+  <li>hcl</li>
+</ul>
+
+<h2 id="reader">Reader</h2>
+
+<p>A <code class="highlighter-rouge">Reader</code> represents multiple changesets as a single merged and queryable set of values.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">Reader</span><span class="x"> </span><span class="k">interface</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// Merge multiple changeset into a single format</span><span class="x">
+	</span><span class="n">Merge</span><span class="p">(</span><span class="o">...*</span><span class="n">source</span><span class="o">.</span><span class="n">ChangeSet</span><span class="p">)</span><span class="x"> </span><span class="p">(</span><span class="o">*</span><span class="n">source</span><span class="o">.</span><span class="n">ChangeSet</span><span class="p">,</span><span class="x"> </span><span class="kt">error</span><span class="p">)</span><span class="x">
+	</span><span class="c">// Return return Go assertable values</span><span class="x">
+	</span><span class="n">Values</span><span class="p">(</span><span class="o">*</span><span class="n">source</span><span class="o">.</span><span class="n">ChangeSet</span><span class="p">)</span><span class="x"> </span><span class="p">(</span><span class="n">Values</span><span class="p">,</span><span class="x"> </span><span class="kt">error</span><span class="p">)</span><span class="x">
+	</span><span class="c">// Name of the reader e.g a json reader</span><span class="x">
+	</span><span class="n">String</span><span class="p">()</span><span class="x"> </span><span class="kt">string</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<p>The reader makes use of Encoders to decode changesets into <code class="highlighter-rouge">map[string]interface{}</code> then merge them into 
+a single changeset. It looks at the Format field to determine the Encoder. The changeset is then represented 
+as a set of <code class="highlighter-rouge">Values</code> with the ability to retrive Go types and fallback where values cannot be loaded.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="x">
+</span><span class="c">// Values is returned by the reader</span><span class="x">
+</span><span class="k">type</span><span class="x"> </span><span class="n">Values</span><span class="x"> </span><span class="k">interface</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// Return raw data</span><span class="x">
+        </span><span class="n">Bytes</span><span class="p">()</span><span class="x"> </span><span class="p">[]</span><span class="kt">byte</span><span class="x">
+	</span><span class="c">// Retrieve a value</span><span class="x">
+        </span><span class="n">Get</span><span class="p">(</span><span class="n">path</span><span class="x"> </span><span class="o">...</span><span class="kt">string</span><span class="p">)</span><span class="x"> </span><span class="n">Value</span><span class="x">
+	</span><span class="c">// Return values as a map</span><span class="x">
+        </span><span class="n">Map</span><span class="p">()</span><span class="x"> </span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="k">interface</span><span class="p">{}</span><span class="x">
+	</span><span class="c">// Scan config into a Go type</span><span class="x">
+        </span><span class="n">Scan</span><span class="p">(</span><span class="n">v</span><span class="x"> </span><span class="k">interface</span><span class="p">{})</span><span class="x"> </span><span class="kt">error</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">Value</code> interface allows casting/type asserting to go types with fallback defaults.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">Value</span><span class="x"> </span><span class="k">interface</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">Bool</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="kt">bool</span><span class="p">)</span><span class="x"> </span><span class="kt">bool</span><span class="x">
+	</span><span class="n">Int</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="kt">int</span><span class="p">)</span><span class="x"> </span><span class="kt">int</span><span class="x">
+	</span><span class="n">String</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="kt">string</span><span class="p">)</span><span class="x"> </span><span class="kt">string</span><span class="x">
+	</span><span class="n">Float64</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="kt">float64</span><span class="p">)</span><span class="x"> </span><span class="kt">float64</span><span class="x">
+	</span><span class="n">Duration</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="n">time</span><span class="o">.</span><span class="n">Duration</span><span class="p">)</span><span class="x"> </span><span class="n">time</span><span class="o">.</span><span class="n">Duration</span><span class="x">
+	</span><span class="n">StringSlice</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="x"> </span><span class="p">[]</span><span class="kt">string</span><span class="x">
+	</span><span class="n">StringMap</span><span class="p">(</span><span class="n">def</span><span class="x"> </span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span><span class="x"> </span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="x">
+	</span><span class="n">Scan</span><span class="p">(</span><span class="n">val</span><span class="x"> </span><span class="k">interface</span><span class="p">{})</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="n">Bytes</span><span class="p">()</span><span class="x"> </span><span class="p">[]</span><span class="kt">byte</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h2 id="config">Config</h2>
+
+<p><code class="highlighter-rouge">Config</code> manages all config, abstracting away sources, encoders and the reader.</p>
+
+<p>It manages reading, syncing, watching from multiple backend sources and represents them as a single merged and queryable source.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="x">
+</span><span class="c">// Config is an interface abstraction for dynamic configuration</span><span class="x">
+</span><span class="k">type</span><span class="x"> </span><span class="n">Config</span><span class="x"> </span><span class="k">interface</span><span class="x"> </span><span class="p">{</span><span class="x">
+        </span><span class="c">// provide the reader.Values interface</span><span class="x">
+        </span><span class="n">reader</span><span class="o">.</span><span class="n">Values</span><span class="x">
+	</span><span class="c">// Stop the config loader/watcher</span><span class="x">
+	</span><span class="n">Close</span><span class="p">()</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="c">// Load config sources</span><span class="x">
+	</span><span class="n">Load</span><span class="p">(</span><span class="n">source</span><span class="x"> </span><span class="o">...</span><span class="n">source</span><span class="o">.</span><span class="n">Source</span><span class="p">)</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="c">// Force a source changeset sync</span><span class="x">
+	</span><span class="n">Sync</span><span class="p">()</span><span class="x"> </span><span class="kt">error</span><span class="x">
+	</span><span class="c">// Watch a value for changes</span><span class="x">
+	</span><span class="n">Watch</span><span class="p">(</span><span class="n">path</span><span class="x"> </span><span class="o">...</span><span class="kt">string</span><span class="p">)</span><span class="x"> </span><span class="p">(</span><span class="n">Watcher</span><span class="p">,</span><span class="x"> </span><span class="kt">error</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<h2 id="usage">Usage</h2>
+
+<ul>
+  <li><a href="#sample-config">Sample Config</a></li>
+  <li><a href="#new-config">New Config</a></li>
+  <li><a href="#load-file">Load File</a></li>
+  <li><a href="#read-config">Read Config</a></li>
+  <li><a href="#read-values">Read Values</a></li>
+  <li><a href="#watch-path">Watch Path</a></li>
+  <li><a href="#merge-sources">Multiple Sources</a></li>
+  <li><a href="#set-source-encoder">Set Source Encoder</a></li>
+  <li><a href="#add-reader-encoder">Add Reader Encoder</a></li>
+</ul>
+
+<h3 id="sample-config">Sample Config</h3>
+
+<p>A config file can be of any format as long as we have an Encoder to support it.</p>
+
+<p>Example json config:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"hosts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"database"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.0.1"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"port"</span><span class="p">:</span><span class="w"> </span><span class="mi">3306</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"cache"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.0.2"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"port"</span><span class="p">:</span><span class="w"> </span><span class="mi">6379</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="new-config">New Config</h3>
+
+<p>Create a new config (or just make use of the default instance)</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="s">"github.com/micro/go-micro/v2/config"</span><span class="x">
+
+</span><span class="n">conf</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">config</span><span class="o">.</span><span class="n">NewConfig</span><span class="p">()</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="load-file">Load File</h3>
+
+<p>Load config from a file source. It uses the file extension to determine config format.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"github.com/micro/go-micro/v2/config"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="c">// Load json config file</span><span class="x">
+</span><span class="n">config</span><span class="o">.</span><span class="n">LoadFile</span><span class="p">(</span><span class="s">"/tmp/config.json"</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<p>Load a yaml, toml or xml file by specifying a file with the appropriate file extension</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Load yaml config file</span><span class="x">
+</span><span class="n">config</span><span class="o">.</span><span class="n">LoadFile</span><span class="p">(</span><span class="s">"/tmp/config.yaml"</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<p>If an extension does not exist, specify the encoder</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"github.com/micro/go-micro/v2/config"</span><span class="x">
+	</span><span class="s">"github.com/micro/go-micro/v2/config/source/file"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="n">enc</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">toml</span><span class="o">.</span><span class="n">NewEncoder</span><span class="p">()</span><span class="x">
+
+</span><span class="c">// Load toml file with encoder</span><span class="x">
+</span><span class="n">config</span><span class="o">.</span><span class="n">Load</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">NewSource</span><span class="p">(</span><span class="x">
+        </span><span class="n">file</span><span class="o">.</span><span class="n">WithPath</span><span class="p">(</span><span class="s">"/tmp/config"</span><span class="p">),</span><span class="x">
+	</span><span class="n">source</span><span class="o">.</span><span class="n">WithEncoder</span><span class="p">(</span><span class="n">enc</span><span class="p">),</span><span class="x">
+</span><span class="p">))</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="read-config">Read Config</h3>
+
+<p>Read the entire config as a map</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// retrieve map[string]interface{}</span><span class="x">
+</span><span class="n">conf</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">config</span><span class="o">.</span><span class="n">Map</span><span class="p">()</span><span class="x">
+
+</span><span class="c">// map[cache:map[address:10.0.0.2 port:6379] database:map[address:10.0.0.1 port:3306]]</span><span class="x">
+</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s">"hosts"</span><span class="p">])</span><span class="x">
+</span></code></pre></div></div>
+
+<p>Scan the config into a struct</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">Host</span><span class="x"> </span><span class="k">struct</span><span class="x"> </span><span class="p">{</span><span class="x">
+        </span><span class="n">Address</span><span class="x"> </span><span class="kt">string</span><span class="x"> </span><span class="s">`json:"address"`</span><span class="x">
+        </span><span class="n">Port</span><span class="x"> </span><span class="kt">int</span><span class="x"> </span><span class="s">`json:"port"`</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="k">type</span><span class="x"> </span><span class="n">Config</span><span class="x"> </span><span class="k">struct</span><span class="p">{</span><span class="x">
+	</span><span class="n">Hosts</span><span class="x"> </span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="n">Host</span><span class="x"> </span><span class="s">`json:"hosts"`</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="k">var</span><span class="x"> </span><span class="n">conf</span><span class="x"> </span><span class="n">Config</span><span class="x">
+
+</span><span class="n">config</span><span class="o">.</span><span class="n">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="n">conf</span><span class="p">)</span><span class="x">
+
+</span><span class="c">// 10.0.0.1 3306</span><span class="x">
+</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">Hosts</span><span class="p">[</span><span class="s">"database"</span><span class="p">]</span><span class="o">.</span><span class="n">Address</span><span class="p">,</span><span class="x"> </span><span class="n">conf</span><span class="o">.</span><span class="n">Hosts</span><span class="p">[</span><span class="s">"database"</span><span class="p">]</span><span class="o">.</span><span class="n">Port</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="read-values">Read Values</h3>
+
+<p>Scan a value from the config into a struct</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">Host</span><span class="x"> </span><span class="k">struct</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">Address</span><span class="x"> </span><span class="kt">string</span><span class="x"> </span><span class="s">`json:"address"`</span><span class="x">
+	</span><span class="n">Port</span><span class="x"> </span><span class="kt">int</span><span class="x"> </span><span class="s">`json:"port"`</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="k">var</span><span class="x"> </span><span class="n">host</span><span class="x"> </span><span class="n">Host</span><span class="x">
+
+</span><span class="n">config</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"hosts"</span><span class="p">,</span><span class="x"> </span><span class="s">"database"</span><span class="p">)</span><span class="o">.</span><span class="n">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="n">host</span><span class="p">)</span><span class="x">
+
+</span><span class="c">// 10.0.0.1 3306</span><span class="x">
+</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">Address</span><span class="p">,</span><span class="x"> </span><span class="n">host</span><span class="o">.</span><span class="n">Port</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<p>Read individual values as Go types</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Get address. Set default to localhost as fallback</span><span class="x">
+</span><span class="n">address</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">config</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"hosts"</span><span class="p">,</span><span class="x"> </span><span class="s">"database"</span><span class="p">,</span><span class="x"> </span><span class="s">"address"</span><span class="p">)</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">)</span><span class="x">
+
+</span><span class="c">// Get port. Set default to 3000 as fallback</span><span class="x">
+</span><span class="n">port</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">config</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"hosts"</span><span class="p">,</span><span class="x"> </span><span class="s">"database"</span><span class="p">,</span><span class="x"> </span><span class="s">"port"</span><span class="p">)</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="m">3000</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="watch-path">Watch Path</h3>
+
+<p>Watch a path for changes. When the file changes the new value will be made available.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">w</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">config</span><span class="o">.</span><span class="n">Watch</span><span class="p">(</span><span class="s">"hosts"</span><span class="p">,</span><span class="x"> </span><span class="s">"database"</span><span class="p">)</span><span class="x">
+</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// do something</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="c">// wait for next value</span><span class="x">
+</span><span class="n">v</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">w</span><span class="o">.</span><span class="n">Next</span><span class="p">()</span><span class="x">
+</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="c">// do something</span><span class="x">
+</span><span class="p">}</span><span class="x">
+
+</span><span class="k">var</span><span class="x"> </span><span class="n">host</span><span class="x"> </span><span class="n">Host</span><span class="x">
+
+</span><span class="n">v</span><span class="o">.</span><span class="n">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="n">host</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="multiple-sources">Multiple Sources</h3>
+
+<p>Multiple sources can be loaded and merged. Merging priority is in reverse order.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span><span class="o">.</span><span class="n">Load</span><span class="p">(</span><span class="x">
+	</span><span class="c">// base config from env</span><span class="x">
+	</span><span class="n">env</span><span class="o">.</span><span class="n">NewSource</span><span class="p">(),</span><span class="x">
+	</span><span class="c">// override env with flags</span><span class="x">
+	</span><span class="n">flag</span><span class="o">.</span><span class="n">NewSource</span><span class="p">(),</span><span class="x">
+	</span><span class="c">// override flags with file</span><span class="x">
+	</span><span class="n">file</span><span class="o">.</span><span class="n">NewSource</span><span class="p">(</span><span class="x">
+		</span><span class="n">file</span><span class="o">.</span><span class="n">WithPath</span><span class="p">(</span><span class="s">"/tmp/config.json"</span><span class="p">),</span><span class="x">
+	</span><span class="p">),</span><span class="x">
+</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="set-source-encoder">Set Source Encoder</h3>
+
+<p>A source requires an encoder to encode/decode data and specify the changeset format.</p>
+
+<p>The default encoder is json. To change the encoder to yaml, xml, toml specify as an option.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">yaml</span><span class="o">.</span><span class="n">NewEncoder</span><span class="p">()</span><span class="x">
+
+</span><span class="n">s</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">consul</span><span class="o">.</span><span class="n">NewSource</span><span class="p">(</span><span class="x">
+	</span><span class="n">source</span><span class="o">.</span><span class="n">WithEncoder</span><span class="p">(</span><span class="n">e</span><span class="p">),</span><span class="x">
+</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h3 id="add-reader-encoder">Add Reader Encoder</h3>
+
+<p>The reader uses encoders to decode data from sources with different formats.</p>
+
+<p>The default reader supports json, yaml, xml, toml and hcl. It represents the merged config as json.</p>
+
+<p>Add a new encoder by specifying it as an option.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">yaml</span><span class="o">.</span><span class="n">NewEncoder</span><span class="p">()</span><span class="x">
+
+</span><span class="n">r</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">json</span><span class="o">.</span><span class="n">NewReader</span><span class="p">(</span><span class="x">
+	</span><span class="n">reader</span><span class="o">.</span><span class="n">WithEncoder</span><span class="p">(</span><span class="n">e</span><span class="p">),</span><span class="x">
+</span><span class="p">)</span><span class="x">
+</span></code></pre></div></div>
+
+<h2 id="faq">FAQ</h2>
+
+<h3 id="how-is-this-different-from-viper">How is this different from Viper?</h3>
+
+<p><a href="https://github.com/spf13/viper">Viper</a> and go-config are solving the same problem. Go-config provides a different interface 
+and is part of the larger micro ecosystem of tooling.</p>
+
+<h3 id="whats-the-difference-between-encoder-and-reader">What’s the difference between Encoder and Reader?</h3>
+
+<p>The encoder is used by a backend source to encode/decode it’s data. The reader uses encoders to decode data from multiple 
+sources with different formats, it then merges them into a single encoding format.</p>
+
+<p>In the case of a file source , we use the file extension to determine the config format so the encoder is not used.</p>
+
+<p>In the case of consul, etcd or similar key-value source we may load from a prefix containing multiple keys which means 
+the source needs to understand the encoding so it can return a single changeset.</p>
+
+<p>In the case of environment variables and flags we also need a way to encode the values as bytes and specify the format so 
+it can later be merged by the reader.</p>
+
+<h3 id="why-is-changeset-data-not-represented-as-mapstringinterface">Why is changeset data not represented as map[string]interface{}?</h3>
+
+<p>In some cases source data may not actually be key-value so it’s easier to represent it as bytes and defer decoding to 
+the reader.</p>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

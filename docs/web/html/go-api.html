@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description"
+    content="a package for defining api routes and handlers">
+<meta name="keywords" content="go-micro,  go-api">
+
+
+<title>Go API | Micro</title>
+
+
+<link rel="stylesheet" href="/docs/css/syntax.css">
+<link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/docs/css/customstyles.css?v=1">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="/docs/js/jquery.navgoco.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="/docs/js/toc.js"></script>
+<script src="/docs/js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="docs" href="https://micro.mu/docsfeed.xml">
+
+    <script>
+        $(document).ready(function () {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function (e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    
+
+</head>
+
+<body>
+    <!-- Navigation -->
+<div class="container">
+	<nav class="navbar">
+	    
+	    <a class="navbar-brand" href="index.html">
+		<img src="https://micro.mu/logo.png" height="50px" width="auto" /><span class="projectTitle"> Micro</span>
+	    </a>
+	    
+
+	    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	    </button>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- entries without drop-downs appear here -->
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">English<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li><a href="/docs/index.html">English</a></li>
+                        
+                        
+                        
+                        <li><a href="/docs/cn/index.html">中文</a></li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+            </ul>
+        </div>
+    </nav>
+</div>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="col-lg-12">&nbsp;</div>
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-md-3">
+
+                
+
+
+
+
+
+
+
+<ul id="mysidebar" class="nav list-group">
+    
+    
+    
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Overview</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/index.html">Introduction</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/faq.html">FAQ</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/features.html">Features</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/users.html">Users</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/resources.html">Resources</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Getting Started</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/installation.html">Installation</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/writing-a-go-service.html">Writing a Go Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/micro-service.html">Everything as a Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Deployment</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/deploy-local.html">Local</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-docker.html">Docker</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/deploy-kubernetes.html">Kubernetes</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Framework</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/framework.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-helloworld.html">Hello World</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-config.html">Config</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-errors.html">Errors</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-examples.html">Examples</a></li>
+            
+            
+            
+            
+            
+            
+            <li class="active highlight"><a href="/docs/go-api.html">API Handlers</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-grpc.html">gRPC Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-internals.html">Internals</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-plugins.html">Plugins</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-pubsub.html">Pub Sub</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-web.html">Web Service</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/go-wrappers.html">Wrappers</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Platform</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/platform.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/getting-started.html">Get Started</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/platform/services.html">Services</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Runtime</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/runtime.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/architecture.html">Architecture</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/api.html">API Gateway</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/web.html">Web Dashboard</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/debugging.html">Debugging</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/proxy.html">Service Proxy</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/health.html">Service Health</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/service-network.html">Service Network</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/tunnel.html">Service Tunnel</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/cli.html">Command Line</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/bot.html">Slack Bot</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/new.html">New Template</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/run-service.html">Run Service</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Network</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/network.html">Overview</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+    
+    <li class="list-group-item">
+        <a href="#" class="title">Plugins</a>
+        <ul>
+            
+            
+            
+            <li><a href="/docs/plugins.html">Overview</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-framework.html">Framework</a></li>
+            
+            
+            
+            
+            
+            
+            <li><a href="/docs/plugins-runtime.html">Runtime</a></li>
+            
+            
+            
+            
+        </ul>
+        
+        
+        
+        <!-- if you aren't using the accordion, uncomment this block:
+           <p class="external">
+               <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+           </p>
+           -->
+    </li>
+</ul>
+</div>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+                <!-- Content Column -->
+                <div class="col-md-9">
+                    <div class="post-header">
+   <h1 class="post-title-main">Go API</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+    <div class="summary">a package for defining api routes and handlers</div>
+   
+
+    
+
+  <h1 id="overview">Overview</h1>
+
+<p>Go API is a pluggable API framework driven by service discovery to help build powerful public API gateways.</p>
+
+<p>The Go API library provides api gateway routing capabilities. A microservice architecture decouples application logic into 
+separate service. An api gateway provides a single entry point to consolidate these services into a unified api. The 
+Go API uses routes defined in service discovery metadata to generate routing rules and serve http requests.</p>
+
+<p><img src="https://micro.mu/docs/images/go-api.png?v=1" alt="Go API" /></p>
+
+<p>Go API is the basis for the <a href="https://micro.mu/docs/api.html">micro api</a>.</p>
+
+<h2 id="handlers">Handlers</h2>
+
+<p>Handlers are http handlers used for handling requests. It uses the <code class="highlighter-rouge">http.Handler</code> pattern for convenience.</p>
+
+<ul>
+  <li><a href="#api-handler"><code class="highlighter-rouge">api</code></a> - Handles any HTTP request. Gives full control over the http request/response via RPC.</li>
+  <li><a href="#broker-handler"><code class="highlighter-rouge">broker</code></a> - A http handler which implements the go-micro broker interface</li>
+  <li><a href="#cloudevents-handler"><code class="highlighter-rouge">cloudevents</code></a> -  Handles CloudEvents and publishes to a message bus.</li>
+  <li><a href="#event-handler"><code class="highlighter-rouge">event</code></a> -  Handles any HTTP request and publishes to a message bus.</li>
+  <li><a href="#http-handler"><code class="highlighter-rouge">http</code></a> - Handles any HTTP request and forwards as a reverse proxy.</li>
+  <li><a href="#registry-handler"><code class="highlighter-rouge">registry</code></a> - A http handler which implements the go-micro registry interface</li>
+  <li><a href="#rpc-handler"><code class="highlighter-rouge">rpc</code></a> - Handles json and protobuf POST requests. Forwards as RPC.</li>
+  <li><a href="#web-handler"><code class="highlighter-rouge">web</code></a> - The HTTP handler with web socket support included.</li>
+</ul>
+
+<h2 id="api-handler">API Handler</h2>
+
+<p>The API handler is the default handler. It serves any HTTP requests and forwards on as an RPC request with a specific format.</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: Any</li>
+  <li>Forward Format: <a href="https://github.com/micro/go-micro/blob/master/api/proto/api.proto#L11">api.Request</a>/<a href="https://github.com/micro/go-micro/blob/master/api/proto/api.proto#L21">api.Response</a></li>
+  <li>Path: <code class="highlighter-rouge">/[service]/[method]</code></li>
+  <li>Resolver: Path is used to resolve service and method</li>
+</ul>
+
+<h2 id="broker-handler">Broker Handler</h2>
+
+<p>The broker handler is a http handler which serves the go-micro broker interface</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: Any</li>
+  <li>Forward Format: HTTP</li>
+  <li>Path: <code class="highlighter-rouge">/</code></li>
+  <li>Resolver: Topic is specified as a query param</li>
+</ul>
+
+<p>Post the request and it will be published</p>
+
+<h2 id="cloudevents-handler">CloudEvents Handler</h2>
+
+<p>The CloudEvents handler serves HTTP and forwards the request as a CloudEvents message over a message bus using the go-micro/client.Publish method.</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: Any</li>
+  <li>Forward Format: Request is formatted as <a href="https://github.com/cloudevents/spec">CloudEvents</a> message</li>
+  <li>Path: <code class="highlighter-rouge">/[topic]</code></li>
+  <li>Resolver: Path is used to resolve topic</li>
+</ul>
+
+<h2 id="event-handler">Event Handler</h2>
+
+<p>The event handler serves HTTP and forwards the request as a message over a message bus using the go-micro/client.Publish method.</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: Any</li>
+  <li>Forward Format: Request is formatted as <a href="https://github.com/micro/go-api/blob/master/proto/api.proto#L28L39">go-api/proto.Event</a></li>
+  <li>Path: <code class="highlighter-rouge">/[topic]/[event]</code></li>
+  <li>Resolver: Path is used to resolve topic and event name</li>
+</ul>
+
+<h2 id="http-handler">HTTP Handler</h2>
+
+<p>The http handler is a http reverse proxy with built in service discovery.</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: Any</li>
+  <li>Forward Format: HTTP Reverse proxy</li>
+  <li>Path: <code class="highlighter-rouge">/[service]</code></li>
+  <li>Resolver: Path is used to resolve service name</li>
+</ul>
+
+<h2 id="registry-handler">Registry Handler</h2>
+
+<p>The registry handler is a http handler which serves the go-micro registry interface</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: JSON</li>
+  <li>Forward Format: HTTP</li>
+  <li>Path: <code class="highlighter-rouge">/</code></li>
+  <li>Resolver: GET, POST, DELETE used to get service, register or deregister</li>
+</ul>
+
+<h2 id="rpc-handler">RPC Handler</h2>
+
+<p>The RPC handler serves json or protobuf HTTP POST requests and forwards as an RPC request.</p>
+
+<ul>
+  <li>Content-Type: <code class="highlighter-rouge">application/json</code> or <code class="highlighter-rouge">application/protobuf</code></li>
+  <li>Body: JSON or Protobuf</li>
+  <li>Forward Format: json-rpc or proto-rpc based on content</li>
+  <li>Path: <code class="highlighter-rouge">/[service]/[method]</code></li>
+  <li>Resolver: Path is used to resolve service and method</li>
+</ul>
+
+<h2 id="web-handler">Web Handler</h2>
+
+<p>The web handler is a http reverse proxy with built in service discovery and web socket support.</p>
+
+<ul>
+  <li>Content-Type: Any</li>
+  <li>Body: Any</li>
+  <li>Forward Format: HTTP Reverse proxy including web sockets</li>
+  <li>Path: <code class="highlighter-rouge">/[service]</code></li>
+  <li>Resolver: Path is used to resolve service name</li>
+</ul>
+
+
+
+<!--
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+    </div>
+-->
+    
+
+</div>
+
+<hr class="faded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy; 2020 Micro Services, Inc.<br />
+ Last generated: Apr 15, 2020 <br />
+                </div>
+            </div>
+</footer>
+
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container -->
+        </div>
+    </div>
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-70478210-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+</html>

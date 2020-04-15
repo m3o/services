@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>Micro - The simplest way to build, share and collaborate on microservices</title>
+    <meta name="description" content="The micro blog is a resource for microservices and distributed systems" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <!-- Customisation  -->
+    <link rel="stylesheet" type="text/css" href="/blog/assets/css/main.css?1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body class="home-template">
+
+    <header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        <a class="back-button icon-arrow-left" href="/blog/">Home</a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header">
+            <h1 class="post-title">Micro - Past, Present and Future</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2016-12-28">28 Dec 2016</time>
+                
+            </section>
+        </header>
+
+<!--         <header class="post-header">
+            <a id="blog-logo" href="/blog">
+                
+                    <span class="blog-title">Micro</span>
+                
+            </a>
+        </header> -->
+
+        <!-- <span class="post-meta">
+            <time datetime="2016-12-28">28 Dec 2016</time>
+            
+        </span> -->
+
+        <!-- <h1 class="post-title">Micro - Past, Present and Future</h1> -->
+
+        <section class="post-content">
+            <p><br />
+2016 has been a heck of a year for Micro. In this post we’ll recap on the past year and where we’re going but to begin with let’s talk 
+about Micro’s origin.</p>
+
+<h3 id="the-origin-of-micro">The origin of Micro</h3>
+
+<p><a href="https://github.com/micro/micro">Micro</a> or more specifically <a href="https://github.com/micro/go-micro">go-micro</a> began as a much needed platform 
+library for an infrastructure based side project back in late 2014. At the time I was working at Hailo where we had built a microservice platform 
+called H2 for our own needs.</p>
+
+<p>Starting on this new project I knew I wanted to use Go and a microservice architecture, but it became clear 
+very quickly there wasn’t anything quite like the Hailo H2 platform out there. So the painstaking work began to recreate it.</p>
+
+<p>The side project unfortunately never really went anywhere but a few months later I had an early version of go-micro and decided it should 
+at least be open sourced on github. The initial commit to github can be found <a href="https://github.com/micro/go-micro/commit/8e55cde513cbec9f3e3aaf0ed7beb637510fc9b2">here</a>.</p>
+
+<center>
+  <img style="width: 100%;" src="/blog/assets/images/first-commit.png" />
+</center>
+
+<p>Back then go-micro had a fairly simple and straightforward purpose. An RPC framework for microservices. An attempt to address the core 
+requirements of microservices and simplify distributed systems development.</p>
+
+<p>Having helped build and leverage a microservice platform at Hailo I knew how powerful it could be in software development and this really 
+sparked my own desire to try build something similar as an open source project.</p>
+
+<h3 id="the-evolution-of-micro">The evolution of Micro</h3>
+
+<p>Go-micro the pluggable RPC framework evolved into <a href="https://github.com/micro/micro">Micro</a>, a microservice toolkit. The toolkit began life 
+as an idea to develop a microservice protocol or a specification, as can be seen from the initial commits. <a href="https://github.com/micro/micro/commit/6259b301a8f2bc8e143910fd320caf8071426504">[1]</a>, <a href="https://github.com/micro/micro/commit/d0610303bb44561064fb450c19264187d06d82f2">[2]</a>, <a href="https://github.com/micro/micro/commit/6876df2caf028b6dbff7d3a5b672d6a0aa7e6ef2">[3]</a></p>
+
+<p>For whatever reason I lost interest in the idea of a protocol and started to rethink what was actually important. Microservices being a 
+architecture pattern, it became clear that the tooling should really guide that architecture and simplify microservices in general.</p>
+
+<p>So appeared the API Gateway and CLI. The commit can be found <a href="https://github.com/micro/micro/commit/b2ef68df31644442ad2de6398caf661328542a4f">here</a>.</p>
+
+<p>It all progressed rapidly from there and became something more featureful.</p>
+
+<center>
+  <img src="/blog/assets/images/micro-diag.png" />
+  <br />
+</center>
+
+<p>I’ll spare you the details of how things unfolded throughout 2015 but Micro turned into a full fledged toolkit for microservices. The goal, to provide the fundamental requirements for building and managing microservices.</p>
+
+<h3 id="2016">2016</h3>
+
+<p>Near the end of 2015, Micro got noticed by a few companies and even saw production use before the end of the year. That was pretty awesome!</p>
+
+<p>I forgot to mention, a few months prior I had actually quit my job at Hailo to pursue working on Micro full time. Knowing I was burning 
+savings as each month went by, I worked tirelessly to address the core requirements and drive initial adoption.</p>
+
+<h6 id="sponsorship">Sponsorship</h6>
+
+<p>A colleague and friend who helped build the platform at Hailo took notice. He had also moved on and was pursuing the rather 
+ambitious goal of transforming a century old enterprise into a modern technology driven company.</p>
+
+<p>As he began to lay the groundwork for his own project he was also struck by the same issue, a lack of Go based open source tooling for microservices like 
+what we had built at Hailo.</p>
+
+<p>This started the discussion about where Micro was headed and how we could work together to create a sustainable future for the project 
+which included allowing me the opportunity to work on it full time.</p>
+
+<center>
+  <a href="/blog/2016/04/25/announcing-sixt-sponsorship.html">
+    <img style="width: 50%;" src="/blog/assets/images/micro_sixt.png" />
+  </a>
+  <br />
+</center>
+
+<p>In early 2016, <a href="https://en.wikipedia.org/wiki/Sixt">Sixt</a> the German car rental enterprise agreed to sponsor the open source development of Micro. Read the announcement <a href="/blog/2016/04/25/announcing-sixt-sponsorship.html">here</a>.</p>
+
+<p><a href="https://twitter.com/nathariel">Boyan Dimitrov</a>, platform director at Sixt and the friend I mentioned, was really the driving force behind the 
+sponsorship and it’s early adoption in the enterprise.</p>
+
+<p>Sustainable open source development is difficult without sponsorship or other forms of funding. The relationship with Sixt has really been fundamental 
+in the development, adoption and success of Micro.</p>
+
+<h6 id="the-blog">The Blog</h6>
+
+<p>In the world of software, there’s a commonly uttered passive aggressive phrase known as, “read the code”. Author’s of projects intimately knowing 
+their code sometimes believe others should just as easily understand it.</p>
+
+<p>Code on its own though is rarely enough.</p>
+
+<p>Not only knowing this but also having the desire to raise awareness for Micro and touch on higher level ideas I decided it would be important to start a blog.</p>
+
+<center>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">The follow up blog post detailing Micro - a microservice toolkit. <a href="https://t.co/TEt8MSgBtL">https://t.co/TEt8MSgBtL</a> <a href="https://twitter.com/hashtag/microservices?src=hash">#microservices</a> <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a></p>&mdash; Micro (@MicroHQ) <a href="https://twitter.com/MicroHQ/status/711886548527157249">March 21, 2016</a></blockquote>
+<script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+<br />
+</center>
+
+<p>The micro blog has served as a place to explore the toolkit and microservices in depth while also delving into other aspects such as the requirements for company adoption and it’s impact. Much more could be written about the non-technical requirements of microservices in organisations.</p>
+
+<center>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Micro architecture &amp; design patterns for microservices <a href="https://t.co/cqV226ndZi">https://t.co/cqV226ndZi</a> <a href="https://twitter.com/hashtag/microservices?src=hash">#microservices</a> <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a></p>&mdash; Micro (@MicroHQ) <a href="https://twitter.com/MicroHQ/status/722004109495267328">April 18, 2016</a></blockquote>
+<script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">My post on why companies adopt microservices is getting decent reads on Medium. Think I need to move the blog there. <a href="https://t.co/eP2QqrYHhY">https://t.co/eP2QqrYHhY</a></p>&mdash; Asim Aslam (@chuhnk) <a href="https://twitter.com/chuhnk/status/750738451931226112">July 6, 2016</a></blockquote>
+<script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+</center>
+
+<p>The blog has largely been a success, a great way to clarify my own thinking on technical topics and the feedback mostly positive. One of the future 
+goals will be to introduce guest writers or topics of interest beyond microservices.</p>
+
+<p>I also started a publication on <a href="https://medium.com/microhq">Medium</a> which has helped increase readership.</p>
+
+<h6 id="plugins">Plugins</h6>
+
+<p>Go-micro being self-coined a pluggable framework was all good and well but it’s not all that valuable without the plugins. It took me a while to realise this.</p>
+
+<p>Go-micro started out with <a href="https://www.consul.io/">consul</a> for service discovery and point-to-point http for messaging. Over time new plugins 
+were introduced and even a few contributed by the community.</p>
+
+<p>Today there’s ample choice with most having been battle tested in production settings. This allows anyone to confidently architect the stack they 
+want with minimal code changes.</p>
+
+<p>Here are the service discovery plugins so far:</p>
+<center>
+  <img style="width: 100%;" src="/blog/assets/images/registry_plugins.png" />
+  <br />
+</center>
+
+<p>And the message broker plugins:</p>
+<center>
+  <img style="width: 100%;" src="/blog/assets/images/broker_plugins.png" />
+  <br />
+</center>
+
+<p>Every aspect of go-micro is pluggable and the Micro toolkit also boasts pluggability too. Find all the plugins at <a href="https://github.com/micro/go-plugins">github.com/micro/go-plugins</a>.</p>
+
+<h6 id="golang-uk-conf">Golang UK Conf</h6>
+
+<p>In August, I had the awesome opportunity to speak at the <a href="http://golanguk.com/">Golang UK Conf</a> about 
+<a href="https://www.youtube.com/watch?v=xspaDovwk34">Simplifying Microservices with Micro</a>. It was the first time I had personally spoken 
+at a conference and only my third ever speaking engagement.</p>
+
+<p>The talk was an opportunity to raise awareness of the Micro toolkit, explain it’s purpose at a high level and dig into the tooling itself 
+in a bit of detail.</p>
+
+<center>
+  <a href="https://www.youtube.com/watch?v=xspaDovwk34">
+    <img style="width: 70%;" src="/blog/assets/images/talk.png" />
+  </a>
+  <br />
+</center>
+
+<p>It’s safe to say I was pretty nervous but it was good validation for all the hard work that had gone into Micro and a few people approached 
+afterwards with positive comments and questions which I’m grateful for.</p>
+
+<h6 id="community">Community</h6>
+
+<p>A huge aspect of Micro which must be discussed is the community. The Micro community exists on Slack and is now over 500 members strong.</p>
+
+<p>Open source is driven by developers and without their blessing projects rarely thrive. As I mentioned before, code on it’s own is never 
+enough. Building an online community around an open source project is what helps drive growth and adoption. It’s also the place 
+where the most learnings occur and are transferred amongst users of the project.</p>
+
+<p>The Micro Slack has become a place where companies or individual developers discuss their problems, requirements, etc and can receive immediate 
+feedback.</p>
+
+<p>I want to thank the members of the community for believing in the project and taking the time to contribute back.</p>
+
+<p>Join us at <a href="http://slack.micro.mu/">slack.micro.mu</a></p>
+
+<p>With 2016 in the books, let’s look to the future.</p>
+
+<h3 id="2017">2017</h3>
+
+<p>Micro/go-micro have stabilised over the past year and have been proven out in a production setting. They serve a specific function at 
+the core of the overall vision for Micro. The foundational requirements for building microservices.</p>
+
+<p>While the toolkit and framework will continue to evolve, we want to stick with the unix and microservices philosophies by keeping things 
+simple and logically separate out any further features to separate tools.</p>
+
+<h6 id="micro-os">Micro OS</h6>
+
+<p>At a certain scale distributed systems pose a challenge to manage and make sense of. Existing tools built for fewer applications or a different 
+era of software development prove to be less relevant in this new world of microservices.</p>
+
+<p>A single request may fan out to dozens if not hundreds of microservices, in the case of failure it can be difficult to track down where an issue 
+occurred. Multiple copies of each service may be running globally with rescheduling occuring at any time making old host based monitoring 
+tough. And with data being distributed to support the scale, transactions are likely not supported by the database but we still need some 
+form of coordination.</p>
+
+<p>There are a number of tools emerging to solve many of these problems but nothing offered as a cohesive whole. 
+<a href="https://github.com/micro/os">Micro OS</a> is a microservice operating system which attempts to address all these requirements.</p>
+
+<center>
+  <img src="/blog/assets/images/os-diag.png" />
+  <br />
+</center>
+
+<p>Micro OS is currently a work in progress but based on previously well executed models for providing an entire platform runtime for 
+microservices. It will include service discovery, global load balacing, distributed tracing, dynamic configuration, distributed coordination
+and much more.</p>
+
+<h6 id="micro-edge">Micro Edge</h6>
+
+<p>My personal interests in computer networks and distributed systems spans over a decade, going back to my studies at university. There I 
+learned about the internet architecture itself and became fascinated with large scale systems.</p>
+
+<center>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">My technology interest over time:<br />2002-2006 internet<br />2007-2011 c10k<br />2011-2013 google<br />2013-2016 microservices<br />2016-201x edge compute</p>&mdash; Asim Aslam (@chuhnk) <a href="https://twitter.com/chuhnk/status/808669470109683712">December 13, 2016</a></blockquote>
+<script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+</center>
+
+<p>Over time as I saw the evolution of those large scale systems and how most problems had been solved by the likes Google, 
+I became drawn to new problems pushing beyond the datacenter and driving us to even greater scaling requirements.</p>
+
+<p>In the future we’ll find intelligent systems almost everywhere with the need to process large amounts of data and act offline or at a rate 
+which is faster than what’s possible if we sent requests back to a centralised cloud provider.</p>
+
+<p>Edge computing looks to solve this problem by pushing applications, data processing and services closer to the logical extremes of a network. It is not 
+a new concept but something which is becoming more relevant as our needs evolve.</p>
+
+<p>In the second half of 2017 I will begin work on Micro Edge, a set of tools to simplify development of edge computing services. Reach out to learn more.</p>
+
+<h3 id="highlights">Highlights</h3>
+
+<p>It’s been a heck of a ride so far with a lot more to come in 2017. Stay tuned! And with that said, I’ll leave you with a few of the greatest hits from the 2016.</p>
+
+<p>Happy new year!</p>
+
+<ul>
+  <li><a href="https://medium.com/microhq/micro-a-microservices-toolkit-c403145b65c1">Micro - a microservice toolkit</a></li>
+  <li><a href="https://medium.com/microhq/micro-on-nats-microservices-with-messaging-2dcc248fb5b9">Micro on NATS - microservices with messaging</a></li>
+  <li><a href="https://medium.com/microhq/micro-architecture-design-patterns-for-microservices-37f4b9049ad3">Micro architecture &amp; design patterns for microservices</a></li>
+  <li><a href="https://medium.com/microhq/building-resilient-and-fault-tolerant-applications-with-micro-53b454a8e8eb">Building Resilient and Fault Tolerant Applications with Micro</a></li>
+  <li><a href="https://medium.com/@asimaslam/why-companies-adopt-microservices-and-how-they-succeed-2ad32f39c65a">Why Companies Adopt Microservices and How They Succeed</a></li>
+  <li><a href="https://www.youtube.com/watch?v=xspaDovwk34">Simplifying Microservices with Micro</a> [Video]  [Golang UK Conf 2016]</li>
+</ul>
+
+<p>If you want to learn more about the services we offer or microservices, checkout the website <a href="https://micro.mu">micro.mu</a> or 
+the github <a href="https://github.com/micro/micro">repo</a>.</p>
+
+<p>Follow us on Twitter at <a href="https://twitter.com/microhq">@MicroHQ</a> or join the <a href="https://micro-services.slack.com">Slack</a> 
+community <a href="http://slack.micro.mu">here</a>.</p>
+
+
+        </section>
+
+        
+
+        <footer class="post-footer">
+            <!-- If we want to display author's name and bio -->
+            
+                <figure class="author-image">
+                    <a class="img" href="https://twitter.com/chuhnk" style="background-image: url(/blog/assets/images/profile.jpg)">
+                    <span class="hidden">Asim Aslam's Picture</span></a>
+                </figure>
+                <section class="author">
+                    <!-- Author Name -->
+                    <h4> <a href="https://twitter.com/chuhnk">Asim Aslam</a> </h4>
+                    <!-- Author Bio -->
+                    <p>
+			The founder of Micro. Former SWE at Hailo and SRE at Google.
+                    </p>
+                </section>
+            
+
+            <!-- Share links section -->
+            <section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" href="http://twitter.com/share?text=Micro - Past, Present and Future&amp;url=https://micro.mu//blog/2016/12/28/micro-past-present-future.html"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://micro.mu//blog/2016/12/28/micro-past-present-future.html"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" href="https://plus.google.com/share?url=https://micro.mu//blog/2016/12/28/micro-past-present-future.html"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+            <!-- Disqus comments -->
+            
+
+        </footer>
+
+    </article>
+
+</main>
+
+    <footer class="site-footer clearfix">
+        <div class="footer">
+            <center>
+                <ul class="list-inline">
+                    <li class="list-inline-item">&copy; 2019 Micro Services Inc.</li>
+                    <li class="list-inline-item"><a href="https://micro-services.slack.com"><i class="fa fa-slack"></i></a></li>
+                    <li class="list-inline-item"><a href="https://github.com/micro"><i class="fa fa-github"></i></a></li>
+                    <li class="list-inline-item"><a href="https://twitter.com/microhq"><i class="fa fa-twitter"></i></a></li>
+                    <li class="list-inline-item"><a href="mailto:hello@micro.mu"><i class="fa fa-envelope-o"></i></a></li>
+                </ul>
+            </center>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="/blog/assets/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/assets/js/index.js"></script>
+
+    <!-- Google Analytics Tracking code -->
+    <script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-70478210-1', 'auto');
+	  ga('send', 'pageview');
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+I"�<p><br />
+We’re happy to announce the release of Micro and Go Micro v2! This release is a major milestone for 
+us as we adopt gRPC and embedded NATS by default.</p>
+
+<p>See the releases here</p>
+
+<ul>
+  <li><a href="https://github.com/micro/micro/releases/tag/v2.0.0">https://github.com/micro/micro/releases/tag/v2.0.0</a></li>
+  <li><a href="https://github.com/micro/go-micro/releases/tag/v2.0.0">https://github.com/micro/go-micro/releases/tag/v2.0.0</a></li>
+</ul>
+
+<h2 id="evolution">Evolution</h2>
+
+<p><a href="https://micro.mu"><strong>Micro</strong></a> is 5 years in the making now and through that time the tools in our industry have drastically changed. 
+We’re moving towards cloud-native being the defacto standard for how we build software.</p>
+
+<p>Our vision from day 1 was always around <a href="https://micro.mu/blog/2016/03/17/introduction.html">Microservices</a> and the 
+power of what it unlocks insides orgs that buy into this form of development. We also fundamentally believed 
+in <a href="https://micro.mu/blog/2016/03/20/micro.html">RPC</a> and the direction of these patterns based on our 
+existing experiences at Google and Hailo.</p>
+
+<p>Since then though we’ve seen the emergence of gRPC, the dominance of kubernetes and many more systems including 
+the service mesh wave. Micro has stood through this test of time and actually thrived as it remained <strong>developer 
+first focused</strong>.</p>
+
+<p>To us all these tools are merely implementation details. What really matters is the abstractions and opinions 
+provided to the developer and this is why developers continue to adopt Micro in waves.</p>
+
+<p>We are never the early adopters of these new technologies but when a standard emerges we’re fully onboard with 
+committing to a certain direction. In this case we’ve picked gRPC for synchronous communication and NATS for 
+async messaging.</p>
+
+<h2 id="road-ahead">Road Ahead</h2>
+
+<p>Micro started as a solo effort in 2015 as many of you have probably heard numerous times before but we’re now slowly growing a 
+group of maintainers and a full time team to build out the next generation of tools and a platform to go beyond 
+open source.</p>
+
+<p>Micro wil be the defacto standard for microservices development in the Cloud and beyond as we look to build a serverless 
+platform so developers can focus on what really matters and stop thinking about the underlying infrastructure.</p>
+
+<p>Join our #platform channel on <a href="https://micro.mu/community">Slack</a> to be the first to try it out.</p>
+
+<center>...</center>
+<p><br />
+Micro is the simplest way to build microservices. If you’re thinking about microservice development we want to help enable you on that journey. 
+To learn more check out the <a href="https://micro.mu">website</a>, follow us on <a href="https://twitter.com/microhq">twitter</a> or 
+join the <a href="https://micro-services.slack.com">slack</a> community.</p>
+
+<h6><a href="https://github.com/micro/micro"><i class="fa fa-github fa-2x"></i> Micro</a></h6>
+:ET

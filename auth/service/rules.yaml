@@ -1,0 +1,40 @@
+- access: granted
+  role: "*"
+  priority: 0
+  resource:
+    namespace: "*"
+    type: "*"
+    name: "*"
+    endpoint: "*"
+- access: denied
+  role: "*"
+  priority: 1
+  resource:
+    namespace: "go.micro"
+    type: "service"
+    name: "go.micro.web.platform"
+    endpoint: "*"
+- access: denied
+  role: "*"
+  priority: 1
+  resource:
+    namespace: "go.micro"
+    type: "service"
+    name: "go.micro.api.platform"
+    endpoint: "*"
+- access: granted
+  role: "user.*"
+  priority: 2
+  resource:
+    namespace: "go.micro"
+    type: "service"
+    name: "go.micro.web.platform"
+    endpoint: "*"
+- access: granted
+  role: "user.*"
+  priority: 2
+  resource:
+    namespace: "go.micro"
+    type: "service"
+    name: "go.micro.api.platform"
+    endpoint: "*"

@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+
+
+  
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/api.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/architecture.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/bot.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/cli.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/debugging.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/deploy-docker.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/deploy-kubernetes.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/deploy-local.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/enterprise.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/faq.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/fault-tolerance.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/features.html</loc>
+  </url>
+  
+  
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/framework.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/platform/getting-started.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-api.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-config.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-errors.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-examples.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-grpc.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-helloworld.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-internals.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-micro.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-plugins.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-pubsub.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-web.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/go-wrappers.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/grpc-gateway.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/health.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/index.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/installation.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/local-development.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/micro-service.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/js/mydoc_scroll.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/network.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/new.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/platform.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/plugins-framework.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/plugins-nats.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/plugins-runtime.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/plugins.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/proxy.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/resources.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/roadmap.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/run-service.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/run.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/runtime.html</loc>
+  </url>
+  
+  
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/service-network.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/platform/services.html</loc>
+  </url>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/tunnel.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/users.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/web.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/writing-a-go-function.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/writing-a-go-service.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/assets/css/style.css</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/README_cn.html</loc>
+  </url>
+  
+  
+</urlset>
