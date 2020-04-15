@@ -50,7 +50,7 @@ class EditProfile extends React.Component<Props, State> {
 
     return(
       <form className='EditProfile' onSubmit={this.onSubmit.bind(this)}>
-        { user.invite_verified ? null : <label>Invite Verified</label> }
+        { user.invite_verified ? null : <label>Invite Code *</label> }
         { user.invite_verified ? null : <input
           required
           type='text'
