@@ -5,7 +5,7 @@ import Call, { User, Plan } from '../../api';
 import EditProfile from '../../components/EditProfile';
 import EditPaymentMethods from '../../components/EditPaymentMethods';
 import Subscribe from './Subscribe';
-import './Onboarding.scss';
+import './Signup.scss';
 
 interface Props {
   user: User;
@@ -16,10 +16,11 @@ interface State {
   stage: number;
   plans?: Plan[];
   loadedPlans: boolean;
+  creatingPaymentMethod: boolean;
 }
 
-class Onboarding extends React.Component<Props, State> {
-  readonly state: State = { stage: 0, loadedPlans: false };
+class Signup extends React.Component<Props, State> {
+  readonly state: State = { stage: 0, loadedPlans: false, creatingPaymentMethod: false };
   submitNewPaymentMethod: React.RefObject<() => Promise<any>>;
 
   constructor(props: Props) {
@@ -77,7 +78,7 @@ class Onboarding extends React.Component<Props, State> {
     if(!this.state.loadedPlans && this.state.stage === 2) return null;
 
     return(
-      <div className='Onboarding'>
+      <div className='Signup'>
         <div className='inner'>
           <h1>Welcome to Micro</h1>
           { this.renderStage() }
@@ -100,7 +101,13 @@ class Onboarding extends React.Component<Props, State> {
         <div className='payment-methods'>
           <p>Please enter a payment method</p>
           <EditPaymentMethods singleCardMode={true} submitNewPaymentMethod={this.submitNewPaymentMethod} />
-          <button onClick={() => this.submitNewPaymentMethod.current().then(this.incrementStage.bind(this))} className='continue'>Continue →</button>
+          
+          <button
+            className='continue'
+            disabled={this.state.creatingPaymentMethod}
+            onClick={this.onSubmitPaymentMethod.bind(this)}>
+              Continue →
+          </button>
         </div>
       )
     default:
@@ -112,6 +119,14 @@ class Onboarding extends React.Component<Props, State> {
       );
     }
   }
+
+  onSubmitPaymentMethod() {
+    this.setState({ creatingPaymentMethod: true });
+
+    this.submitNewPaymentMethod.current()
+      .then(this.incrementStage.bind(this))
+      .finally(() => this.setState({ creatingPaymentMethod: false }));
+  }
 }
 
 function mapStateToProps(state: any):any {
@@ -120,4 +135,4 @@ function mapStateToProps(state: any):any {
   });
 }
 
-export default withRouter(connect(mapStateToProps)(Onboarding));
+export default withRouter(connect(mapStateToProps)(Signup));

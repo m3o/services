@@ -11,7 +11,7 @@ import Profile from './scenes/Profile';
 import Billing from './scenes/Billing';
 import Settings from './scenes/Settings';
 import Login from './scenes/Login';
-import Onboarding from './scenes/Onboarding';
+import Signup from './scenes/Signup';
 
 // Assets
 import Spinner from './assets/images/spinner.gif'; 
@@ -39,7 +39,7 @@ const Routes = [
   <Route key='profile' exact path='/' component={Profile}/>,
   <Route key='billing' exact path='/billing' component={Billing}/>,
   <Route key='settings' exact path='/settings' component={Settings}/>,
-  <Route key='onboarding' exact path='/onboarding' component={Onboarding}/>,
+  <Route key='signup' exact path='/signup' component={Signup}/>,
 ];
 
 const UnauthenticatedRoutes = [
@@ -79,7 +79,7 @@ class App extends React.Component<Props, State> {
     this.props.setUser(user);
 
     // check to see if the user requires onboarding
-    if(user.requiresOnboarding()) this.props.history.push('/onboarding');
+    if(user.requiresOnboarding()) this.props.history.push('/signup');
   }
 
   render(): JSX.Element {

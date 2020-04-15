@@ -1,6 +1,6 @@
 @import "../../assets/styles/variables.scss";
 
-.Onboarding {
+.Signup {
   height: inherit;
   width: inherit;
 
@@ -46,6 +46,11 @@
     font-size: 10pt;
     cursor: pointer;
     width: 100%;
+
+    &:disabled {
+      background-color: lightgrey;
+      cursor: default;
+    }
   }
 }
 
