@@ -64,6 +64,18 @@ func TestFilesToServiceStatus(t *testing.T) {
 				"asim":           serviceStatusUpdated,
 			},
 		},
+		{
+			files: []fileToStatus{
+				{
+					fileName: "asim/scheduler/main.go",
+					status:   githubFileChangeStatusModified,
+				},
+			},
+			expect: map[string]serviceStatus{
+				"asim/scheduler": serviceStatusUpdated,
+				"asim":           serviceStatusUpdated,
+			},
+		},
 	}
 	for i, c := range cases {
 		ss := folderStatuses(c.files)
