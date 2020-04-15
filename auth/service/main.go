@@ -61,6 +61,10 @@ loop:
 			log.Fatalf("Error deleting rule: %v", err)
 		}
 	}
+
+	// Wait forever to stop the k8s crashloop
+	c := make(chan bool)
+	<-c
 }
 
 func rulesMatch(a, b *pb.Rule) bool {
