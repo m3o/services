@@ -15,7 +15,7 @@ export class User {
   payment_methods: PaymentMethod[];
   subscriptions: Subscription[];
   roles: string[];
-  invite_token: string;
+  invite_code: string;
   invite_verified: boolean;
 
   constructor(args: any) {
@@ -26,6 +26,7 @@ export class User {
     this.payment_methods = (args.payment_methods || []).map(p => new PaymentMethod(p));
     this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
     this.roles = args.roles || [];
+    this.invite_code = args.invite_code;
     this.invite_verified = args.invite_verified;
   }
 

@@ -3,4 +3,11 @@
   text-align: left;
   flex-direction: column;
   flex-grow: 1;
+  
+  .error {
+    margin-top: 0px;
+    margin-bottom: 20px;
+    color: red;
+    font-weight: bold;
+  }
 }

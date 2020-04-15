@@ -36,11 +36,14 @@ class EditProfile extends React.Component<Props, State> {
     const { user } = this.props;
 
     Call("UpdateUser", { user })
-      .then(() => this.setState({ error: '' }))
-      .catch(err => this.setState({ error: err.message }))
+      .then((res) => {
+        this.setState({ error: '' });
+        this.props.updateUser(new User(res.data.user));
+        if(this.props.onSave) this.props.onSave();
+      })
+      .catch(err => this.setState({ error: err.response.data.detail }))
       .finally(() => setTimeout(() => {
         this.setState({ saving: false });
-        if(this.props.onSave) this.props.onSave();
       }, 500));
   }
 
@@ -50,12 +53,14 @@ class EditProfile extends React.Component<Props, State> {
 
     return(
       <form className='EditProfile' onSubmit={this.onSubmit.bind(this)}>
+        { this.state.error.length > 0 ? <p className='error'>{this.state.error}</p> : null }
+
         { user.invite_verified ? null : <label>Invite Code *</label> }
         { user.invite_verified ? null : <input
           required
           type='text'
-          name='invite_token'
-          value={user!.invite_token} 
+          name='invite_code'
+          value={user!.invite_code} 
           disabled={this.state.saving}
           onChange={this.onChange.bind(this)} /> }
 
