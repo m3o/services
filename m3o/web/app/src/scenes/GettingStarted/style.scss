@@ -1,0 +1,49 @@
+@import "../../global.scss";
+
+.GettingStarted {
+  section {
+    display: grid;
+    grid-template-columns: 120px auto;
+
+    img {
+      margin: auto;
+      max-height: 35px;
+      max-width: 35px;
+      filter: $blueFilter;
+    }
+
+    &.complete {
+      img {
+        filter: $greenFilter;
+      }
+    }
+
+    .section-main {
+      padding: 20px 10px 20px 0px;
+
+      .section-upper {
+        display: flex;
+
+        h4, p {
+          margin-top: 5px;
+          margin-bottom: 8px;
+        }
+
+        p {
+          font-size: 9.5pt;
+          margin-left: 20px;
+
+          span {
+            margin: 0px 6px;
+          }
+        }
+      }
+
+      .section-lower {
+        p {
+          margin: 0px;
+        }
+      }
+    }
+  }
+}

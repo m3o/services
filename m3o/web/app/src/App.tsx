@@ -1,10 +1,13 @@
 import React from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
 import './App.scss';
-import PageLayout from './components/PageLayout';
+import GettingStartedScene from './scenes/GettingStarted';
 
 function App() {
   return (
-    <PageLayout />
+    <BrowserRouter>
+      <Route key='getting-started' exact path='/' component={GettingStartedScene} />
+    </BrowserRouter>
   );
 }
 
