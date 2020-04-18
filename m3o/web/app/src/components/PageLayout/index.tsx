@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import Logo from './assets/logo.png';
+import NavDashboard from './assets/nav-dashboard.png';
 import NavGettingStarted from './assets/nav-getting-started.png';
 import NavTeam from './assets/nav-team.png';
 import NavServices from './assets/nav-services.png';
@@ -21,12 +22,17 @@ export default class PageLayout extends React.Component<Props> {
           <img src={Logo} alt='M3O Logo' className='logo' />
 
           <nav>
+            <a href='https://web.micro.mu' target='_blank'>
+              <img src={NavDashboard} alt='Dashboard' />
+              <p>Dashboard</p>
+            </a>
+
             <NavLink exact to='/'>
               <img src={NavGettingStarted} alt='Getting Started' />
               <p>Getting Started</p>
             </NavLink>
 
-            <NavLink exact to='/team'>
+            <NavLink to='/team'>
               <img src={NavTeam} alt='Team' />
               <p>Team</p>
             </NavLink>

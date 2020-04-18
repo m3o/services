@@ -1,24 +1,18 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PageLayout from '../../components/PageLayout';
 import AddUser from './assets/add-user.png';
+import * as API from '../../api';
+import { State as GlobalState } from '../../store';
+import { deleteUser } from '../../store/Team';
 
-interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-  roles: string[];
-  me?: boolean;
+interface Props {
+  history: any;
+  users: API.User[];
+  deleteUser: (user: API.User) => void;
 }
 
-const users: User[] = [
-  {firstName: "Asim", lastName: "Aslam", email: "asim@micro.mu", roles: ["Admin", "Developer"], me: true},
-  {firstName: "Jake", lastName: "Sanders", email: "jake@micro.mu", roles: ["Developer"]},
-  {firstName: "Ben", lastName: "Toogood", email: "ben@micro.mu", roles: ["Developer"]},
-  {firstName: "Janos", lastName: "Dobronszki", email: "janos@micro.mu", roles: ["Developer"]},
-  {firstName: "Vasiliy", lastName: "Tolstov", email: "vasiliy@micro.mu", roles: ["Developer"]},
-];
-
-export default class TeamScene extends React.Component {
+class TeamScene extends React.Component<Props> {
   render(): JSX.Element {
     return(
       <PageLayout className='Team'>
@@ -34,8 +28,7 @@ export default class TeamScene extends React.Component {
         <table>
           <thead>
             <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
+              <th>Name</th>
               <th>Email</th>
               <th>Roles</th>
               <th>Actions</th>
@@ -43,14 +36,13 @@ export default class TeamScene extends React.Component {
           </thead>
 
           <tbody>
-            { users.map(u => <tr key={u.email}>
-              <td>{u.firstName}</td>
-              <td>{u.lastName}</td>
+            { this.props.users.map(u => <tr key={u.id}>
+              <td>{u.firstName} {u.lastName}</td>
               <td>{u.email}</td>
               <td>{u.roles.join(', ')}</td>
               <td>
-                <button className='warning'>Edit</button>
-                <button className='danger'>Delete</button>
+                <button className='warning' onClick={() => this.editUser(u)}>Edit</button>
+                <button className='danger' onClick={() => this.deleteUser(u)}>Delete</button>
               </td>
             </tr>) }
           </tbody>
@@ -58,4 +50,36 @@ export default class TeamScene extends React.Component {
       </PageLayout>
     )
   }
+
+  editUser(user: API.User): void {
+    this.props.history.push(`/team/members/${user.id}/edit`);
+  }
+
+  deleteUser(user: API.User): void {
+    // eslint-disable-next-line no-restricted-globals
+    if (!confirm(`Are you sure you want to delete ${user.firstName}?`)) return;
+    this.props.deleteUser(user);
+  }
+}
+
+function mapStateToProps(state: GlobalState): any {
+  return({
+    users: state.team.users.sort(sortByName),
+  });
+}
+
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    deleteUser: (user: API.User) => dispatch(deleteUser(user)),
+  })
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TeamScene);
+
+function sortByName(a: API.User, b: API.User): number {
+  const aName = (a.firstName + a.lastName).toUpperCase();
+  const bName = (b.firstName + b.lastName).toUpperCase();
+  if(aName > bName) return 1;
+  if(aName < bName) return -1;
+  return 0;
 }

@@ -14,7 +14,7 @@ body {
   width: 100%;
 }
 
-a, p, h1, h2, h3, h4, h5, tr, th, button {
+a, p, h1, h2, h3, h4, h5, tr, th, button, input, label {
   font-family: 'Public Sans', sans-serif;
 }
 
@@ -52,10 +52,14 @@ header {
   padding: 20px 0px 40px 0px;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 
   h1 {
+    flex-grow: 1;
     margin: auto 0px;
+  }
+
+  button {
+    margin-left: 15px;
   }
 }
 
@@ -69,6 +73,7 @@ header {
   padding: 10px 30px;
   cursor: pointer;
   outline: none;
+  min-width: 120px;
 
   img {
     height: 15px;
@@ -80,6 +85,13 @@ header {
     font-weight: 600;
     margin: 0px;
     font-size: 10pt;
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  &.danger {
+    background-color: rgba($color: $red, $alpha: 0.2);
+    color: $red;
   }
 }
 
@@ -150,5 +162,29 @@ table {
         }
       }
     }
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+
+  label, input {
+    font-size: 10pt;
+  }
+
+  label {
+    font-weight: 500;
+    line-height: 30px;
+  }
+
+  input {
+    max-width: 500px;
+    margin: 3px 0px 25px 0px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: solid 1px #00000020;
+    outline: none;
+    line-height: 1.6;
   }
 }
