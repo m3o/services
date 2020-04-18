@@ -10,19 +10,28 @@
     display: flex;
     flex-direction: column;
 
-    img {
+    .logo {
       margin: 70px auto;
       width: 60px;
     }
 
     nav {
       a {
-        display: flex;
-        padding: 5px 15px;
+        display: grid;
+        grid-template-columns: 40px auto;
         text-decoration: none;
         border-radius: 5px;
         height: 40px;
         margin-bottom: 12px;
+        padding: 5px 10px;
+
+        img {
+          max-height: 14px;
+          max-width: 14px;
+          margin: auto auto;
+          // applies the $grey color
+          filter: invert(36%) sepia(0%) saturate(0%) hue-rotate(274deg) brightness(90%) contrast(83%);
+        }
 
         p {
           margin: auto 0px;
@@ -37,6 +46,11 @@
 
         &.active {
           background-color: rgba($color: $green, $alpha: 0.2);
+
+          img {
+            // applies the $green color
+            filter: invert(74%) sepia(10%) saturate(3088%) hue-rotate(68deg) brightness(82%) contrast(72%);
+          }
 
           p {
             color: $green;
