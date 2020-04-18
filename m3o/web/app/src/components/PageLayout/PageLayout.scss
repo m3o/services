@@ -1,0 +1,55 @@
+@import "../../global.scss";
+
+.PageLayout {
+  display: grid;
+  height: 100%;
+  grid-template-columns: 280px auto;
+  
+  .sidebar {
+    padding: 0px 20px;
+    display: flex;
+    flex-direction: column;
+
+    img {
+      margin: 70px auto;
+      width: 60px;
+    }
+
+    nav {
+      a {
+        display: flex;
+        padding: 5px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        height: 40px;
+        margin-bottom: 12px;
+
+        p {
+          margin: auto 0px;
+          font-weight: 600;
+          font-size: 10pt;
+          color: $grey;
+        }
+
+        &:hover {
+          background-color: rgba($color: $grey, $alpha: 0.05);
+        }
+
+        &.active {
+          background-color: rgba($color: $green, $alpha: 0.2);
+
+          p {
+            color: $green;
+          }
+        }
+      }
+    }
+  }
+
+  .main {
+    background-color: white;
+    border-radius: 20px 0px 0px 20px;
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.04);
+    z-index: 2;
+  }
+}

@@ -1,0 +1,19 @@
+@import './global.scss';
+
+body {
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #F6F6F6;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+a, p, h1, h2, h3, h4, h5 {
+  font-family: 'Public Sans', sans-serif;
+}
