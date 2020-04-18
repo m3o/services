@@ -45,7 +45,9 @@ export default class GettingStartedScene extends React.Component {
   render(): JSX.Element {
     return(
       <PageLayout className='GettingStarted'>
-        <h1>Quick start guide</h1>
+        <header>
+          <h1>Quick start guide</h1>
+        </header>
         { tutorials.map(this.renderTutorial) }
       </PageLayout>
     );
@@ -54,18 +56,18 @@ export default class GettingStartedScene extends React.Component {
   renderTutorial(section: Tutorial): JSX.Element {
     return(
       <section key={section.key} className={section.stepsRemaining > 0 ? '' : 'complete'}>
-          <img src={section.icon} alt={section.title} />
-          <div className='section-main'>
-            <div className='section-upper'>
-              <h4>{section.title}</h4>
-              <p>{section.duration}<span>•</span>{section.stepsRemaining > 0 ? `${section.stepsRemaining} steps remaining` : 'Complete'}</p>
-            </div>
-
-            <div className='section-lower'>
-              <p>{section.description}</p>
-            </div>
+        <img src={section.icon} alt={section.title} />
+        <div className='section-main'>
+          <div className='section-upper'>
+            <h4>{section.title}</h4>
+            <p>{section.duration}<span>•</span>{section.stepsRemaining > 0 ? `${section.stepsRemaining} steps remaining` : 'Complete'}</p>
           </div>
-        </section>
+
+          <div className='section-lower'>
+            <p>{section.description}</p>
+          </div>
+        </div>
+      </section>
     )
   }
 }
