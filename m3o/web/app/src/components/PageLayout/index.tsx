@@ -37,14 +37,14 @@ export default class PageLayout extends React.Component<Props> {
               <p>Team</p>
             </NavLink>
 
-            <NavLink exact to='/services'>
-              <img src={NavServices} alt='Services' />
-              <p>Services</p>
-            </NavLink>
-
             <NavLink exact to='/configuration'>
               <img src={NavConfiguration} alt='Configuration' />
               <p>Configuration</p>
+            </NavLink>
+            
+            <NavLink exact to='/services'>
+              <img src={NavServices} alt='Services' />
+              <p>Services</p>
             </NavLink>
             
             <NavLink exact to='/billing'>

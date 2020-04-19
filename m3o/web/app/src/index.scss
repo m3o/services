@@ -168,8 +168,9 @@ table {
 form {
   display: flex;
   flex-direction: column;
+  max-width: 500px;
 
-  label, input {
+  label, input, select {
     font-size: 10pt;
   }
 
@@ -178,13 +179,15 @@ form {
     line-height: 30px;
   }
 
-  input {
-    max-width: 500px;
+  input, select {
     margin: 3px 0px 25px 0px;
-    padding: 10px 12px;
+    padding-left: 10px;
+    padding-right: 10px;
     border-radius: 5px;
     border: solid 1px #00000020;
     outline: none;
     line-height: 1.6;
+    background-color: transparent;
+    height: 44px;
   }
 }

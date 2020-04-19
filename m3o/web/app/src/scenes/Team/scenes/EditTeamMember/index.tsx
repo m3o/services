@@ -71,7 +71,7 @@ class EditTeamMemberScene extends React.Component<Props, State> {
   onChange(e: any): void {
     this.setState({
       user: {
-        ...this.props.user,
+        ...this.state.user,
         [e.target.name]: e.target.value,
       },
     });

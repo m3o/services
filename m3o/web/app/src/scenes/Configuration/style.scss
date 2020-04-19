@@ -1,0 +1,10 @@
+.Configuration {
+  .secret {
+    cursor: pointer;
+    
+    &.hidden {
+      font-style: italic;
+      text-transform: uppercase;
+    }
+  }  
+}

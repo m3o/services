@@ -8,6 +8,8 @@ import GettingStartedScene from './scenes/GettingStarted';
 import TeamScene from './scenes/Team';
 import EditTeamMemberScene from './scenes/Team/scenes/EditTeamMember';
 import InviteTeamMembersScene from './scenes/Team/scenes/InviteTeamMembers';
+import ConfigurationScene from './scenes/Configuration';
+import EditConfigurationScene from './scenes/Configuration/scenes/EditConfiguration';
 
 // Reducer
 import store from './store';
@@ -34,6 +36,8 @@ function App() {
         <Route key='team' exact path='/team' component={TeamScene} />
         <Route key='edit-team-member' path='/team/members/:id/edit' component={EditTeamMemberScene} />
         <Route key='invite-team-members' path='/team/members/invite' component={InviteTeamMembersScene} />
+        <Route key='configuration' exact path='/configuration' component={ConfigurationScene} />
+        <Route key='edit-configuration' path='/configuration/:service/:key/edit' component={EditConfigurationScene} />
       </BrowserRouter>
     </Provider>
   );
