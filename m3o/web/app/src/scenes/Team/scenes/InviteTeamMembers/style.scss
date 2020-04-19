@@ -1,0 +1,33 @@
+.InviteTeamMembers {
+  .instructions {
+    margin-bottom: 30px;
+  }
+
+  .row {
+    display: flex;
+    margin-bottom: 20px;
+    
+    img {
+      height: 16px;
+      margin-top: auto;
+      margin-bottom: auto;
+      margin-left: 10px;
+      padding: 10px;
+      cursor: pointer;
+      opacity: 0.8;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    label {
+      margin-bottom: 20px;
+    }
+
+    input {
+      margin: 0px;
+      flex-grow: 1;
+    }
+  }
+}

@@ -22,7 +22,7 @@ export default class PageLayout extends React.Component<Props> {
           <img src={Logo} alt='M3O Logo' className='logo' />
 
           <nav>
-            <a href='https://web.micro.mu' target='_blank'>
+            <a href='https://web.micro.mu' target='blank'>
               <img src={NavDashboard} alt='Dashboard' />
               <p>Dashboard</p>
             </a>

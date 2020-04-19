@@ -19,9 +19,9 @@ class TeamScene extends React.Component<Props> {
         <header>
           <h1>Team</h1>
           
-          <button className='btn'>
+          <button className='btn' onClick={() => this.props.history.push('/team/members/invite')}>
             <img src={AddUser} alt='Add User' />
-            <p>Invite a team member</p>
+            <p>Invite team members</p>
           </button>
         </header>
 
