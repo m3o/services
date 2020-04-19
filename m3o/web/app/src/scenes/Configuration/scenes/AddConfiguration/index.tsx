@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import PageLayout from '../../../../components/PageLayout';
 import * as API from '../../../../api';
 import { State as GlobalState } from '../../../../store';
-import { updateEnvVar } from '../../../../store/Configuration';
+import { addEnvVar } from '../../../../store/Configuration';
 import Form from '../../components/Form';
 
 interface Props {
   envVar: API.EnvVar;
-  updateEnvVar: (envVar: API.EnvVar) => void;
+  addEnvVar: (envVar: API.EnvVar) => void;
   match: any;
   history: any;
 }
@@ -18,10 +18,7 @@ interface State {
 }
 
 class EditConfigurationService extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { envVar: props.envVar };
-  }
+  readonly state: State = { envVar: {key: '', value: '', service: ''} };
 
   render(): JSX.Element {
     const { envVar } = this.state;
@@ -29,7 +26,7 @@ class EditConfigurationService extends React.Component<Props, State> {
     return(
       <PageLayout>
         <header>
-          <h1>Edit {envVar.key}</h1>
+          <h1>Add Configuration</h1>
 
           <button className='btn danger' onClick={this.onCancel.bind(this)}>
             <p>Cancel</p>
@@ -50,7 +47,7 @@ class EditConfigurationService extends React.Component<Props, State> {
   }
 
   onSave(): void {
-    this.props.updateEnvVar(this.state.envVar);
+    this.props.addEnvVar(this.state.envVar);
     this.props.history.push('/configuration');
   }
 
@@ -61,17 +58,10 @@ class EditConfigurationService extends React.Component<Props, State> {
   }
 }
 
-function mapStateToProps(state: GlobalState, ownProps: Props): any {
-  const { params } = ownProps.match;
-  return({
-    envVar: state.configuration.envVars.find(e => e.service === params.service && e.key === params.key),
-  });
-}
-
 function mapDispatchToProps(dispatch: Function): any {
   return({
-    updateEnvVar: (envVar: API.EnvVar) => dispatch(updateEnvVar(envVar)),
+    addEnvVar: (envVar: API.EnvVar) => dispatch(addEnvVar(envVar)),
   })
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditConfigurationService);
+export default connect(null, mapDispatchToProps)(EditConfigurationService);
