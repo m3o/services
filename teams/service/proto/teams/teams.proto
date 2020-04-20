@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package go.micro.service.teams;
+
+service Teams {
+  rpc Read(ReadRequest) returns (ReadResponse) {};
+  rpc Create(CreateRequest) returns (CreateResponse) {};
+  rpc Update(UpdateRequest) returns (UpdateResponse) {};
+  rpc List(ListRequest) returns (ListResponse) {};
+  rpc AddMember(AddMemberRequest) returns (AddMemberResponse) {};
+  rpc RemoveMember(RemoveMemberRequest) returns (RemoveMemberResponse) {};
+  rpc ListMemberships(ListMembershipsRequest) returns (ListMembershipsResponse) {};
+}
+
+message Team {
+  string id = 1;
+  string name = 2;
+  string namespace = 3;
+  string web_domain = 4;
+  string api_domain = 5;
+  repeated Member members = 6;
+}
+
+message Member {
+  string id = 1;
+}
+
+message ReadRequest {
+  string id = 1;
+  string namespace = 2;
+}
+
+message ReadResponse {
+  Team team = 1;
+}
+
+message CreateRequest {
+  Team team = 1;
+}
+
+message CreateResponse {
+  Team team = 1;
+}
+
+message UpdateRequest {
+  Team team = 1;
+}
+
+message UpdateResponse {}
+
+message ListRequest {}
+
+message ListResponse {
+  repeated Team teams = 1;
+}
+
+message AddMemberRequest {
+  string team_id = 1;
+  string member_id = 2; 
+}
+
+message AddMemberResponse {}
+
+message RemoveMemberRequest {
+  string team_id = 1;
+  string member_id = 2; 
+}
+
+message RemoveMemberResponse {}
+
+message ListMembershipsRequest {
+  string member_id = 1;
+}
+
+message ListMembershipsResponse {
+  repeated Team teams = 1;
+}
