@@ -46,8 +46,10 @@ export default class GettingStartedScene extends React.Component {
     return(
       <PageLayout className='GettingStarted'>
         <header>
-          <h1>Quick start guide</h1>
+          <h1>Getting Started</h1>
         </header>
+
+        <h2>Quick start guide</h2>
         { tutorials.map(this.renderTutorial) }
       </PageLayout>
     );

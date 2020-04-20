@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PageLayout from '../../../../components/PageLayout';
 import * as API from '../../../../api';
-import { State as GlobalState } from '../../../../store';
 import { addEnvVar } from '../../../../store/Configuration';
 import Form from '../../components/Form';
 

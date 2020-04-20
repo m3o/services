@@ -1,6 +1,12 @@
 @import "../../global.scss";
 
 .GettingStarted {
+  h2 {
+    &:first-of-type {
+      margin-top: 0px;
+    }
+  }
+
   section {
     display: grid;
     grid-template-columns: 120px auto;
