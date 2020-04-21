@@ -68,7 +68,7 @@ type Handler struct {
 }
 
 //
-// Helper methods for ensuring persisting invite codes through the oauth flow
+// Helper methods for persisting invite codes through oauth flows
 //
 
 const storePrefixInviteCode = "invite/"

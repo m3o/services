@@ -23,7 +23,7 @@ func (h *Handler) HandleGithubOauthLogin(w http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	// email and invite codes are present if the user was redirected from a team invite
+	// invite code is present if the user was redirected from a team invite
 	inviteCode := req.URL.Query().Get("inviteCode")
 
 	// record the invite code
