@@ -8,6 +8,7 @@ import { setUser } from '../../store/User';
 import GoogleLogo from '../../assets/images/google-logo.png';
 import GitHubLogo from '../../assets/images/github-logo.png';
 import './Login.scss';
+import { sign } from 'crypto';
 
 interface Props {
   history: any;
@@ -19,6 +20,7 @@ interface State {
   email: string;
   password: string;
   passwordConfirmation: string;
+  inviteCode: string;
   loading: boolean;
   signup: boolean;
   error?: string;
@@ -29,7 +31,7 @@ interface Params {
 }
 
 class Login extends React.Component<Props, State> {
-  readonly state: State = { email: '', password: '', passwordConfirmation: '', loading: false, signup: false };
+  readonly state: State = { email: '', password: '', passwordConfirmation: '', inviteCode: '', loading: false, signup: false };
 
   componentDidMount() {
     const params: Params = queryString.parse(window.location.search);
@@ -39,7 +41,7 @@ class Login extends React.Component<Props, State> {
   async onSubmit(event) {
     event.preventDefault();
     
-    const { signup, email, password, passwordConfirmation } = this.state;
+    const { signup, email, password, passwordConfirmation, inviteCode } = this.state;
     if(signup && password !== passwordConfirmation) {
       this.setState({ error: 'Passwords must match' });
       return;
@@ -50,7 +52,9 @@ class Login extends React.Component<Props, State> {
     
     this.setState({ loading: true, error: undefined });
 
-    Call(signup ? 'Signup' : 'Login', { email, password })
+    const params = signup ? { email, password, invite_code: inviteCode } : { email, password };
+
+    Call(signup ? 'Signup' : 'Login', params)
       .then((res) => {
         const user = new User(res.data.user);
         const token = new Token(res.data.token);
@@ -77,7 +81,10 @@ class Login extends React.Component<Props, State> {
         this.setState({ password: e.target.value })
         return
       case 'passwordConfirmation':
-        this.setState({ passwordConfirmation: e.target.value })
+        this.setState({ passwordConfirmation: e.target.value });
+        return
+      case 'inviteCode':
+        this.setState({ inviteCode: e.target.value });
         return
     }
   }
@@ -161,6 +168,14 @@ class Login extends React.Component<Props, State> {
 
           <label>Password Confirmation *</label>
           <input type='password' name='passwordConfirmation' value={passwordConfirmation} disabled={loading} onChange={this.onChange.bind(this)} />
+
+          <label>Invite Code *</label>
+          <input
+            required
+            type='text'
+            name='inviteCode'
+            disabled={loading}
+            onChange={this.onChange.bind(this)} /> 
 
           <input type='submit' value={loading ? 'Creating your account' : 'Create an account'} disabled={loading} />
         </form>
