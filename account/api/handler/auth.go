@@ -40,34 +40,18 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 		return err
 	}
 
+	// Get the users teams
+	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: uRsp.User.Id})
+	if err != nil {
+		return err
+	}
+
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
 	rsp.Token = serializeToken(tok)
-
-	// Fetch the payment methods
-	pRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: uRsp.User.Id})
-	if err != nil {
-		log.Infof("Error listing payment methods: %v", err)
-		return nil
-	}
-
-	// Serialize the payment methods
-	rsp.User.PaymentMethods = make([]*pb.PaymentMethod, len(pRsp.PaymentMethods))
-	for i, p := range pRsp.PaymentMethods {
-		rsp.User.PaymentMethods[i] = serializePaymentMethod(p)
-	}
-
-	// Fetch the subscriptions
-	sRsp, err := h.payment.ListSubscriptions(ctx, &payment.ListSubscriptionsRequest{UserId: uRsp.User.Id})
-	if err != nil {
-		log.Infof("Error listing subscriptions: %v", err)
-		return nil
-	}
-
-	// Serialize the subscriptions
-	rsp.User.Subscriptions = make([]*pb.Subscription, len(sRsp.Subscriptions))
-	for i, s := range sRsp.Subscriptions {
-		rsp.User.Subscriptions[i] = serializeSubscription(s)
+	rsp.User.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
+	for _, t := range tRsp.Teams {
+		rsp.User.Teams = append(rsp.User.Teams, h.serializeTeam(ctx, t))
 	}
 
 	return nil
@@ -130,18 +114,48 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
 	rsp.Token = serializeToken(tok)
-	rsp.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
+	rsp.User.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
 	for _, t := range tRsp.Teams {
-		rsp.Teams = append(rsp.Teams, serializeTeam(t))
+		rsp.User.Teams = append(rsp.User.Teams, h.serializeTeam(ctx, t))
 	}
 
 	return nil
 }
 
-func serializeTeam(t *teams.Team) *pb.Team {
-	return &pb.Team{
+func (h *Handler) serializeTeam(ctx context.Context, t *teams.Team) *pb.Team {
+	team := &pb.Team{
 		Id:        t.Id,
 		Name:      t.Name,
 		Namespace: t.Namespace,
 	}
+
+	// Fetch the payment methods
+	pReq := &payment.ListPaymentMethodsRequest{CustomerType: "team", CustomerId: t.Id}
+	pRsp, err := h.payment.ListPaymentMethods(ctx, pReq)
+	if err != nil {
+		log.Infof("Error listing payment methods: %v", err)
+		return team
+	}
+
+	// Serialize the payment methods
+	team.PaymentMethods = make([]*pb.PaymentMethod, len(pRsp.PaymentMethods))
+	for i, p := range pRsp.PaymentMethods {
+		team.PaymentMethods[i] = serializePaymentMethod(p)
+	}
+
+	// Fetch the subscriptions
+	sReq := &payment.ListSubscriptionsRequest{CustomerType: "team", CustomerId: t.Id}
+	sRsp, err := h.payment.ListSubscriptions(ctx, sReq)
+	if err != nil {
+		log.Infof("Error listing subscriptions: %v", err)
+		return team
+	}
+
+	// Serialize the subscriptions
+	team.Subscriptions = make([]*pb.Subscription, len(sRsp.Subscriptions))
+	for i, s := range sRsp.Subscriptions {
+		team.Subscriptions[i] = serializeSubscription(s)
+	}
+
+	return team
 }

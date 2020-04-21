@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 
+	"github.com/micro/go-micro/v2/logger"
+
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
@@ -55,4 +57,21 @@ func (h *Handler) userFromContext(ctx context.Context) (*users.User, error) {
 	}
 
 	return resp.User, nil
+}
+
+// verifyTeamMembership returns a boolean indicating if a user belongs to a team
+func (h *Handler) verifyTeamMembership(ctx context.Context, userID, teamID string) bool {
+	rsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: userID})
+	if err != nil {
+		logger.Error(err)
+		return false
+	}
+
+	for _, t := range rsp.Teams {
+		if t.Id == teamID {
+			return true
+		}
+	}
+
+	return false
 }

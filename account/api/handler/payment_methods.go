@@ -19,13 +19,19 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 		return err
 	}
 
+	// Validate the user has access to the team
+	if !h.verifyTeamMembership(ctx, user.Id, req.TeamId) {
+		return errors.Forbidden(h.name, "Forbidden team")
+	}
+
 	// Validate the request
 	if len(req.Id) == 0 {
 		return errors.BadRequest(h.name, "Missing payment method ID")
 	}
 
 	// Create a payment method
-	pRsp, err := h.payment.CreatePaymentMethod(ctx, &payment.CreatePaymentMethodRequest{UserId: user.Id, Id: req.Id})
+	pReq := &payment.CreatePaymentMethodRequest{Id: req.Id, CustomerType: "team", CustomerId: req.TeamId}
+	pRsp, err := h.payment.CreatePaymentMethod(ctx, pReq)
 	if err != nil {
 		return errors.InternalServerError(h.name, "Error creating payment method: %v", err)
 	}
@@ -33,8 +39,9 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	// Serialize the payment method
 	rsp.PaymentMethod = serializePaymentMethod(pRsp.PaymentMethod)
 
-	// Check to see if this is the users only payment method
-	lRsp, err := h.payment.ListPaymentMethods(ctx, &payment.ListPaymentMethodsRequest{UserId: user.Id})
+	// Check to see if this is the teams only payment method
+	lReq := &payment.ListPaymentMethodsRequest{CustomerType: "team", CustomerId: req.TeamId}
+	lRsp, err := h.payment.ListPaymentMethods(ctx, lReq)
 	if err != nil {
 		log.Infof("Error listing payment methods: %v", err)
 		return nil
@@ -44,7 +51,8 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	}
 
 	// Set the default
-	_, err = h.payment.SetDefaultPaymentMethod(ctx, &payment.SetDefaultPaymentMethodRequest{UserId: user.Id, PaymentMethodId: pRsp.PaymentMethod.Id})
+	dReq := &payment.SetDefaultPaymentMethodRequest{PaymentMethodId: pRsp.PaymentMethod.Id, CustomerType: "team", CustomerId: req.TeamId}
+	_, err = h.payment.SetDefaultPaymentMethod(ctx, dReq)
 	if err != nil {
 		log.Infof("Error setting default payment method: %v", err)
 		return nil
@@ -67,8 +75,14 @@ func (h *Handler) DefaultPaymentMethod(ctx context.Context, req *pb.DefaultPayme
 		return err
 	}
 
+	// Validate the user has access to the team
+	if !h.verifyTeamMembership(ctx, user.Id, req.TeamId) {
+		return errors.Forbidden(h.name, "Forbidden team")
+	}
+
 	// Set the default payment method
-	_, err = h.payment.SetDefaultPaymentMethod(ctx, &payment.SetDefaultPaymentMethodRequest{UserId: user.Id, PaymentMethodId: req.Id})
+	dReq := &payment.SetDefaultPaymentMethodRequest{PaymentMethodId: req.Id, CustomerType: "team", CustomerId: req.TeamId}
+	_, err = h.payment.SetDefaultPaymentMethod(ctx, dReq)
 	if err != nil {
 		return errors.InternalServerError(h.name, "Error setting default payment method: %v", err)
 	}
@@ -105,7 +119,6 @@ func serializePaymentMethod(p *payment.PaymentMethod) *pb.PaymentMethod {
 	return &pb.PaymentMethod{
 		Id:           p.Id,
 		Created:      p.Created,
-		UserId:       p.UserId,
 		Type:         p.Type,
 		CardBrand:    p.CardBrand,
 		CardExpMonth: p.CardExpMonth,

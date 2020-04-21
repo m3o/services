@@ -2,11 +2,9 @@ package handler
 
 import (
 	"context"
-	"time"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
 
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
@@ -33,42 +31,14 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	rsp.User = serializeUser(user)
 	rsp.User.Roles = acc.Roles
 
-	// Fetch the payment methods
-	pCtx, pCancel := context.WithTimeout(ctx, time.Millisecond*1000)
-	pRsp, err := h.payment.ListPaymentMethods(pCtx, &payment.ListPaymentMethodsRequest{UserId: user.Id})
-	defer pCancel()
-	if err == nil {
-		// Serialize the payment methods
-		rsp.User.PaymentMethods = make([]*pb.PaymentMethod, len(pRsp.PaymentMethods))
-		for i, p := range pRsp.PaymentMethods {
-			rsp.User.PaymentMethods[i] = serializePaymentMethod(p)
-		}
-	} else {
-		log.Warnf("Error getting payment methods for user %v: %v", user.Id, err)
-	}
-
-	// Fetch the subscriptions
-	sCtx, sCancel := context.WithTimeout(ctx, time.Millisecond*500)
-	sRsp, err := h.payment.ListSubscriptions(sCtx, &payment.ListSubscriptionsRequest{UserId: user.Id})
-	defer sCancel()
-	if err == nil {
-		// Serialize the subscriptions
-		rsp.User.Subscriptions = make([]*pb.Subscription, len(sRsp.Subscriptions))
-		for i, s := range sRsp.Subscriptions {
-			rsp.User.Subscriptions[i] = serializeSubscription(s)
-		}
-	} else {
-		log.Warnf("Error getting payment methods for user %v: %v", user.Id, err)
-	}
-
 	// Get the users teams
 	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: user.Id})
 	if err != nil {
 		return err
 	}
-	rsp.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
+	rsp.User.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
 	for _, t := range tRsp.Teams {
-		rsp.Teams = append(rsp.Teams, serializeTeam(t))
+		rsp.User.Teams = append(rsp.User.Teams, h.serializeTeam(ctx, t))
 	}
 
 	return nil

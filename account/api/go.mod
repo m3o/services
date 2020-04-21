@@ -11,3 +11,5 @@ require (
 	github.com/micro/services/teams/service v0.0.0-20200421073553-26a9ccb4988a
 	github.com/micro/services/users/service v0.0.0-20200421094732-38d776e22810
 )
+
+replace github.com/micro/services/payments/provider => ../../payments/provider

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"github.com/micro/go-micro/v2/errors"
 	pb "github.com/micro/services/account/api/proto/account"
 	payment "github.com/micro/services/payments/provider/proto"
 )
@@ -35,8 +36,14 @@ func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscrip
 		return err
 	}
 
+	// Validate the user has access to the team
+	if !h.verifyTeamMembership(ctx, user.Id, req.TeamId) {
+		return errors.Forbidden(h.name, "Forbidden team")
+	}
+
 	// Create the subscription
-	_, err = h.payment.CreateSubscription(ctx, &payment.CreateSubscriptionRequest{UserId: user.Id, PlanId: req.PlanId})
+	sReq := &payment.CreateSubscriptionRequest{PlanId: req.PlanId, CustomerType: "team", CustomerId: req.TeamId}
+	_, err = h.payment.CreateSubscription(ctx, sReq)
 	return err
 }
 

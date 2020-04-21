@@ -22,6 +22,8 @@ message Team {
 	string id = 1;
 	string name = 2;
 	string namespace = 3;
+	repeated PaymentMethod payment_methods = 4;
+	repeated Subscription subscriptions = 5;
 }
 
 message SignupRequest {
@@ -35,7 +37,6 @@ message SignupResponse {
 	User user = 1;
 	string refresh_token = 2;
 	Token token = 3;
-	repeated Team teams = 4;
 }
 
 message LoginRequest {
@@ -76,18 +77,16 @@ message User {
 	string first_name = 4;
 	string last_name = 5;
 	string email = 6;
-	repeated PaymentMethod payment_methods = 8;
-	repeated Subscription subscriptions = 9;
-	repeated string roles = 10;
-	string invite_code = 11;
-	bool invite_verified = 12;
+	repeated string roles = 7;
+	string invite_code = 8;
+	bool invite_verified = 9;
+	repeated Team teams = 10;	
 }
 
 message ReadUserRequest {}
 
 message ReadUserResponse {
 	User user = 1;
-	repeated Team teams = 2;
 }
 
 message UpdateUserRequest {
@@ -105,20 +104,21 @@ message DeleteUserResponse {}
 message PaymentMethod {
   string id = 1;
   int64 created = 2;
-  string user_id = 3;
-  string type = 4;
-  string card_brand = 5;
-  string card_exp_month = 6;
-  string card_exp_year = 7;
-	string card_last_4 = 8;
-	bool default = 9;
+  string type = 3;
+  string card_brand = 4;
+  string card_exp_month = 5;
+  string card_exp_year = 6;
+	string card_last_4 = 7;
+	bool default = 8;
 }
 
 message CreatePaymentMethodRequest {
-  string id = 1;
+	string id = 1;
+	string team_id = 2;
 }
 message DeletePaymentMethodRequest {
-  string id = 1;
+	string id = 1;
+	string team_id = 2;
 }
 
 message CreatePaymentMethodResponse {
@@ -138,12 +138,14 @@ message TokenResponse {
 
 message DefaultPaymentMethodRequest {
 	string id = 1;
+	string team_id = 2;
 }
 
 message DefaultPaymentMethodResponse {}
 
 message CreateSubscriptionRequest {
 	string plan_id = 1;
+	string team_id = 2;
 }
 
 message CreateSubscriptionResponse {}

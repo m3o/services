@@ -7,3 +7,5 @@ require (
 	github.com/micro/go-micro/v2 v2.4.1-0.20200409084150-c1ad6d6c7c11
 	github.com/micro/services/payments/provider v0.0.0-20200318105532-9c3078c484d5
 )
+
+replace github.com/micro/services/payments/provider => ../../payments/provider
