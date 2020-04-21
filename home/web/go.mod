@@ -2,4 +2,4 @@ module github.com/micro/services/home/web
 
 go 1.14
 
-require github.com/micro/go-micro/v2 v2.5.1-0.20200419160325-53db26a61437
+require github.com/micro/go-micro/v2 v2.5.1-0.20200421145440-d7ecb58f6cf6

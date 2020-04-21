@@ -320,12 +320,11 @@ github.com/micro/go-micro v1.18.0/go.mod h1:klwUJL1gkdY1MHFyz+fFJXn52dKcty4hoe95
 github.com/micro/go-micro/v2 v2.3.1-0.20200331090613-76ade7efd9b8/go.mod h1:lYuHYFPjY3QE9fdiy3F2awXcsXTdB68AwoY3RQ3dPN4=
 github.com/micro/go-micro/v2 v2.4.1-0.20200409084150-c1ad6d6c7c11/go.mod h1:QOk6oWfMYQTAvQG50oNk8BYV3CwZlS+e1AJTQNNhjos=
 github.com/micro/go-micro/v2 v2.5.0/go.mod h1:qz2UT4UFdFVs+qUGMuDK3xuHgude1BgntqQ29sbpPlE=
-github.com/micro/go-micro/v2 v2.5.1-0.20200420135429-7c31edd5f845 h1:O/tEWUqSrRT+t8XaJNQ5etUcVLYR27d5mUJKZNd2pkw=
-github.com/micro/go-micro/v2 v2.5.1-0.20200420135429-7c31edd5f845/go.mod h1:qz2UT4UFdFVs+qUGMuDK3xuHgude1BgntqQ29sbpPlE=
+github.com/micro/go-micro/v2 v2.5.1-0.20200421145440-d7ecb58f6cf6 h1:lb1o+997Ow4zoZmsPIUcNBRAM3NrwxRP32tlVsK9/DQ=
+github.com/micro/go-micro/v2 v2.5.1-0.20200421145440-d7ecb58f6cf6/go.mod h1:qz2UT4UFdFVs+qUGMuDK3xuHgude1BgntqQ29sbpPlE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/micro/v2 v2.4.0/go.mod h1:/7lxBaU/Isx3USObggNVw6x6pdIJzTDexee7EsARD+A=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
-github.com/micro/services v0.0.0-20200421073553-26a9ccb4988a h1:PkXIYTvQlNNIP8UBbSEhhLmsSsLBbinlDV9vYdKx3kc=
 github.com/micro/services/teams/service v0.0.0-20200421073553-26a9ccb4988a h1:1BgTnbyXLlj6GA37KfmdsHwiKacxibORipCHmfxKlL8=
 github.com/micro/services/teams/service v0.0.0-20200421073553-26a9ccb4988a/go.mod h1:dJZXyBPfrGUzMvNQOGEuT5g9RoX5wNVkFNybk3OWdc0=
 github.com/micro/services/users/service v0.0.0-20200421073553-26a9ccb4988a h1:4pei5doQZ03iF2NOs0BMB9yU2Tqr1deFW+YpOQPjYew=
@@ -438,10 +437,6 @@ github.com/russross/blackfriday/v2 v2.0.1 h1:lPqVAte+HuHNfhJ/0LC98ESWRz8afy9tM/0
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/sacloud/libsacloud v1.26.1/go.mod h1:79ZwATmHLIFZIMd7sxA3LwzVy/B77uj3LDoToVTxDoQ=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
-github.com/sendgrid/rest v2.4.1+incompatible h1:HDib/5xzQREPq34lN3YMhQtMkdXxS/qLp5G3k9a5++4=
-github.com/sendgrid/rest v2.4.1+incompatible/go.mod h1:kXX7q3jZtJXK5c5qK83bSGMdV6tsOE70KbHoqJls4lE=
-github.com/sendgrid/sendgrid-go v3.5.0+incompatible h1:kosbgHyNVYVaqECDYvFVLVD9nvThweBd6xp7vaCT3GI=
-github.com/sendgrid/sendgrid-go v3.5.0+incompatible/go.mod h1:QRQt+LX/NmgVEvmdRw0VT/QgUn499+iza2FnDca9fg8=
 github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516/go.mod h1:Yow6lPLSAXx2ifx470yD/nUe22Dv5vBvxK/UK9UUTVs=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/shurcooL/sanitized_anchor_name v1.0.0 h1:PdmoCO6wvbs+7yrJyMORt4/BmY5IYyJwS/kOiWx8mHo=

@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/golang/protobuf v1.3.5
-	github.com/micro/go-micro/v2 v2.5.1-0.20200420135429-7c31edd5f845
+	github.com/micro/go-micro/v2 v2.5.1-0.20200421145440-d7ecb58f6cf6
 	github.com/micro/services/account/invite v0.0.0-20200421094732-38d776e22810
 	github.com/micro/services/payments/provider v0.0.0-20200421094732-38d776e22810
 	github.com/micro/services/teams/invites v0.0.0-20200421113609-61eca69e93f6
