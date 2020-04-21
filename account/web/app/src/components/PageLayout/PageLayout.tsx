@@ -52,16 +52,6 @@ class PageLayout extends React.Component<Props> {
               <p>Profile</p>
             </NavLink>
 
-            <NavLink exact to='/billing'>
-              <img src={ path === '/billing' ? BillingActive : BillingInctive } alt='Billing' />
-              <p>Billing</p>
-            </NavLink>
-
-            {/* <NavLink exact to='/subscriptions'>
-              <img src={ path === '/subscriptions' ? SubscriptionsActive : SubscriptionsInctive } alt='Subscriptions' />
-              <p>Subscriptions</p>
-            </NavLink> */}
-
             <NavLink exact to='/settings'>
               <img src={ path === '/settings' ? SettingsActive : SettingsInctive } alt='Settings' />
               <p>Settings</p>

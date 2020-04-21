@@ -36,33 +36,33 @@ export default function(state = defaultState, action: Action): State {
   switch (action.type) {
     case SET_USER: 
       return { ...state, user: action.user! };
-    case ADD_PAYMENT_METHOD:
-      var user = new User({
-        ...state.user, payment_methods: [
-          ...state.user!.payment_methods,
-          action.paymentMethod,
-        ],
-      });
+    // case ADD_PAYMENT_METHOD:
+    //   var user = new User({
+    //     ...state.user, payment_methods: [
+    //       ...state.user!.payment_methods,
+    //       action.paymentMethod,
+    //     ],
+    //   });
 
-      return { ...state, user };
-    case REMOVE_PAYMENT_METHOD:
-      user = new User({
-        ...state.user, payment_methods: [
-          ...state.user!.payment_methods.filter(p => p.id !== action.paymentMethod!.id),
-        ],
-      });
+    //   return { ...state, user };
+    // case REMOVE_PAYMENT_METHOD:
+    //   user = new User({
+    //     ...state.user, payment_methods: [
+    //       ...state.user!.payment_methods.filter(p => p.id !== action.paymentMethod!.id),
+    //     ],
+    //   });
 
-      return { ...state, user };
-    case SET_DEFAULT_PAYMENT_METHOD:
-      user = new User({
-        ...state.user, payment_methods: [
-          ...state.user!.payment_methods.map(p => new PaymentMethod({
-            ...p, default: p.id === action.paymentMethod.id,
-          })),
-        ],
-      });
+    //   return { ...state, user };
+    // case SET_DEFAULT_PAYMENT_METHOD:
+    //   user = new User({
+    //     ...state.user, payment_methods: [
+    //       ...state.user!.payment_methods.map(p => new PaymentMethod({
+    //         ...p, default: p.id === action.paymentMethod.id,
+    //       })),
+    //     ],
+    //   });
 
-      return { ...state, user };
+    //   return { ...state, user };
     default:
       return state;
   }

@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { PaymentMethod } from '../../api';
 import NewPaymentMethod from './components/NewPaymentMethod';
 import PaymentMethodComponent from './components/PaymentMethod';
-import { removePaymentMethod, addPaymentMethod, setDefaultPaymentMethod } from '../../store/User';
 import './EditPaymentMethods.scss';
+import { setDefaultPaymentMethod, addPaymentMethod, removePaymentMethod } from '../../store/User';
 
 interface Props {
   stripe?: any;

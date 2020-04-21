@@ -12,19 +12,17 @@ export class User {
   first_name: string;
   last_name: string;
   email: string;
-  payment_methods: PaymentMethod[];
-  subscriptions: Subscription[];
   roles: string[];
   invite_code: string;
   invite_verified: boolean;
+  teams: Team[];
 
   constructor(args: any) {
     this.id = args.id;
     this.first_name = args.first_name || '';
     this.last_name = args.last_name || '';
     this.email = args.email || '';
-    this.payment_methods = (args.payment_methods || []).map(p => new PaymentMethod(p));
-    this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
+    this.teams = (args.teams || []).map(p => new Team(p));
     this.roles = args.roles || [];
     this.invite_code = args.invite_code;
     this.invite_verified = args.invite_verified;
@@ -32,9 +30,7 @@ export class User {
 
   requiresOnboarding():boolean {
     if(this.roles.includes('admin')) return false;
-    if(this.payment_methods.length === 0) return true;
-    if(this.subscriptions.length === 0) return true;
-    return false
+    return !this.profileCompleted()
   }
 
   profileCompleted():boolean {
@@ -42,6 +38,22 @@ export class User {
     if(this.last_name.length === 0) return false;
     if(!this.invite_verified) return false;
     return true
+  }
+}
+
+export class Team {
+  id: string;
+  name: string;
+  namespace: string;
+  payment_methods: PaymentMethod[];
+  subscriptions: Subscription[];
+
+  constructor(args: any) {
+    this.id = args.id;
+    this.name = args.name;
+    this.namespace = args.namespace;
+    this.payment_methods = (args.payment_methods || []).map(p => new PaymentMethod(p));
+    this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
   }
 }
 

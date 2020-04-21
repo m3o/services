@@ -8,7 +8,6 @@ import { Route } from 'react-router-dom';
 
 // Scenes
 import Profile from './scenes/Profile';
-import Billing from './scenes/Billing';
 import Settings from './scenes/Settings';
 import Login from './scenes/Login';
 import Signup from './scenes/Signup';
@@ -37,7 +36,6 @@ interface Params {
 
 const Routes = [
   <Route key='profile' exact path='/' component={Profile}/>,
-  <Route key='billing' exact path='/billing' component={Billing}/>,
   <Route key='settings' exact path='/settings' component={Settings}/>,
   <Route key='signup' exact path='/signup' component={Signup}/>,
 ];

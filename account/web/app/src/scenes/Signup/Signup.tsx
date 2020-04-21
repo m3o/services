@@ -59,16 +59,12 @@ class Signup extends React.Component<Props, State> {
         }
         break
       case 1:
+        this.incrementStage();
         // setup payment methods
-        if(this.props.user.payment_methods.length > 0) {
-          this.incrementStage();
-        }
         break
       case 2:
-        // setup subscription
-        if(this.props.user.subscriptions.length > 0) {
-          this.incrementStage();
-        }
+        this.incrementStage();
+        // setup subscriptions
         break
     }
 
