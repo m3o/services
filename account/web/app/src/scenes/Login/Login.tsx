@@ -66,7 +66,10 @@ class Login extends React.Component<Props, State> {
         cookies.set('micro-token', token.access_token, { path: '/', domain: Domain, expires: token.expiry });                
 
         // check to see if the user needs onboarding
-        if(user.requiresOnboarding()) this.props.history.push('/signup');
+        if(user.requiresOnboarding()) {
+          this.props.history.push('/signup');
+          return
+        }
       })
       .catch((err: any) => {
         const error = err.response ? err.response.data.detail : err.message;

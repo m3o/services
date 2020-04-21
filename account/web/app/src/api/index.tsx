@@ -44,50 +44,10 @@ export class User {
 export class Team {
   id: string;
   name: string;
-  namespace: string;
-  payment_methods: PaymentMethod[];
-  subscriptions: Subscription[];
 
   constructor(args: any) {
     this.id = args.id;
     this.name = args.name;
-    this.namespace = args.namespace;
-    this.payment_methods = (args.payment_methods || []).map(p => new PaymentMethod(p));
-    this.subscriptions = (args.subscriptions || []).map(p => new Subscription(p));
-  }
-}
-
-export class Subscription {
-  id: string;
-  plan: Plan;
-
-  constructor(args: any) {
-    this.id = args.id;
-    this.plan = new Plan(args.plan);
-  }
-}
-
-export class PaymentMethod {
-  id: string;
-  created: string;
-  user_id: string;
-  type: string;
-  card_brand: string;
-  card_exp_month: string;
-  card_exp_year: string;
-  card_last_4: string;
-  default: boolean;
-
-  constructor(args: any) {
-    this.id = args.id;
-    this.created = args.created;
-    this.user_id = args.user_id;
-    this.type = args.type;
-    this.card_brand = args.card_brand;
-    this.card_exp_month = args.card_exp_month;
-    this.card_exp_year = args.card_exp_year;
-    this.card_last_4 = args.card_last_4;
-    this.default = args.default;
   }
 }
 
@@ -102,21 +62,5 @@ export class Token {
     this.refresh_token = args.refresh_token;
     this.created = new Date(args.created * 1000)
     this.expiry = new Date(args.expiry * 1000)
-  }
-}
-
-export class Plan {
-  id: string;
-  name: string;
-  amount: number;
-  interval: string;
-  available: boolean;
-
-  constructor(args: any) {
-    this.id = args.id;
-    this.name = args.name;
-    this.amount = parseInt(args.amount) || 0;
-    this.interval = args.interval;
-    this.available = args.available;
   }
 }

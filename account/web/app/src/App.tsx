@@ -78,7 +78,10 @@ class App extends React.Component<Props, State> {
     this.props.setUser(user);
 
     // check to see if the user requires onboarding
-    if(user.requiresOnboarding()) this.props.history.push('/signup');
+    if(user.requiresOnboarding()) {
+      this.props.history.push('/signup');
+      return
+    }
   }
 
   render(): JSX.Element {
