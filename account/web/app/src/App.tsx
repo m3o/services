@@ -44,6 +44,7 @@ const Routes = [
 
 const UnauthenticatedRoutes = [
   <Route key='login' exact path='/' component={Login}/>,
+  <Route key='signup' exact path='/signup' component={Signup}/>,
 ]
 
 class App extends React.Component<Props, State> {

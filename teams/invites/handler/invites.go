@@ -29,9 +29,10 @@ var (
 
 // invite is written to the store
 type invite struct {
-	Name   string
-	Email  string
-	TeamID string
+	Name     string
+	Email    string
+	TeamID   string
+	TeamName string
 }
 
 // Invites implements the invites service interface
@@ -100,7 +101,7 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 
 	// generate the invite and write it to the store
 	code := uuid.New().String()
-	invite := &invite{Name: req.Name, Email: req.Email, TeamID: req.TeamId}
+	invite := &invite{Name: req.Name, Email: req.Email, TeamID: req.TeamId, TeamName: tRsp.Team.Name}
 	bytes, err := json.Marshal(invite)
 	if err != nil {
 		return errors.InternalServerError(i.name, "Error mashaling json: %v", err)
@@ -119,12 +120,22 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 // This rpc should be called when the user opens the link in their
 // email before they create a profile.
 func (i *Invites) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.VerifyResponse) error {
-	_, err := i.store.Read(req.Code)
+	// lookup the invite
+	recs, err := i.store.Read(req.Code)
 	if err == store.ErrNotFound {
 		return errors.BadRequest(i.name, "Invalid invite code")
 	} else if err != nil {
 		return errors.InternalServerError(i.name, "Error reading from the store: %v", err)
 	}
+
+	// unmarshal the invite
+	var inv *invite
+	if err := json.Unmarshal(recs[0].Value, &inv); err != nil {
+		return errors.InternalServerError(i.name, "Error unmashaling json: %v", err)
+	}
+	rsp.TeamName = inv.TeamName
+	rsp.Email = inv.Email
+
 	return nil
 }
 

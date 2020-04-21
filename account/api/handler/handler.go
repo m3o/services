@@ -9,26 +9,32 @@ import (
 
 	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
+	teamInvite "github.com/micro/services/teams/invites/proto/invites"
+	teams "github.com/micro/services/teams/service/proto/teams"
 	users "github.com/micro/services/users/service/proto"
 )
 
 // Handler implements the account api proto interface
 type Handler struct {
-	name    string
-	auth    auth.Auth
-	users   users.UsersService
-	invite  invite.InviteService
-	payment payment.ProviderService
+	name       string
+	auth       auth.Auth
+	users      users.UsersService
+	teams      teams.TeamsService
+	invite     invite.InviteService
+	payment    payment.ProviderService
+	teamInvite teamInvite.InvitesService
 }
 
 // NewHandler returns an initialised handle
 func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
-		name:    srv.Name(),
-		auth:    srv.Options().Auth,
-		users:   users.NewUsersService("go.micro.service.users", srv.Client()),
-		invite:  invite.NewInviteService("go.micro.service.account.invite", srv.Client()),
-		payment: payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
+		name:       srv.Name(),
+		auth:       srv.Options().Auth,
+		users:      users.NewUsersService("go.micro.service.users", srv.Client()),
+		teams:      teams.NewTeamsService("go.micro.service.teams", srv.Client()),
+		invite:     invite.NewInviteService("go.micro.service.account.invite", srv.Client()),
+		payment:    payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
+		teamInvite: teamInvite.NewInvitesService("go.micro.service.teams.invites", srv.Client()),
 	}
 }
 

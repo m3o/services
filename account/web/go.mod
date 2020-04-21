@@ -4,9 +4,10 @@ go 1.13
 
 require (
 	github.com/google/uuid v1.1.1
-	github.com/micro/go-micro/v2 v2.4.1-0.20200409084150-c1ad6d6c7c11
+	github.com/micro/go-micro/v2 v2.5.1-0.20200420135429-7c31edd5f845
 	github.com/micro/services/login/service v0.0.0-20200313083714-e72c0c76aa9a
-	github.com/micro/services/users/service v0.0.0-20200319140645-20aa308d0728
+	github.com/micro/services/teams/invites v0.0.0-20200421101014-4b009b48a425
+	github.com/micro/services/users/service v0.0.0-20200421073553-26a9ccb4988a
 )
 
-replace github.com/micro/services/users/service => ../../users/service
+replace github.com/micro/services/teams/invites => ../../teams/invites

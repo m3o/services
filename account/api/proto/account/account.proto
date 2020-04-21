@@ -18,16 +18,24 @@ service Account {
 	rpc Token(TokenRequest) returns (TokenResponse);
 }
 
+message Team {
+	string id = 1;
+	string name = 2;
+	string namespace = 3;
+}
+
 message SignupRequest {
 	string email = 1;
 	string password = 2;
 	string invite_code = 3;
+	bool team_invite = 4;
 }
 
 message SignupResponse {
 	User user = 1;
 	string refresh_token = 2;
 	Token token = 3;
+	repeated Team teams = 4;
 }
 
 message LoginRequest {
@@ -79,6 +87,7 @@ message ReadUserRequest {}
 
 message ReadUserResponse {
 	User user = 1;
+	repeated Team teams = 2;
 }
 
 message UpdateUserRequest {

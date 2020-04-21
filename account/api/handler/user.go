@@ -11,6 +11,7 @@ import (
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
+	teams "github.com/micro/services/teams/service/proto/teams"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -58,6 +59,16 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 		}
 	} else {
 		log.Warnf("Error getting payment methods for user %v: %v", user.Id, err)
+	}
+
+	// Get the users teams
+	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: user.Id})
+	if err != nil {
+		return err
+	}
+	rsp.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
+	for _, t := range tRsp.Teams {
+		rsp.Teams = append(rsp.Teams, serializeTeam(t))
 	}
 
 	return nil

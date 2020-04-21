@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v2/store"
 
 	login "github.com/micro/services/login/service/proto/login"
+	invites "github.com/micro/services/teams/invites/proto/invites"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -49,6 +50,7 @@ func NewHandler(srv micro.Service) *Handler {
 		store:        store.DefaultStore,
 		users:        users.NewUsersService("go.micro.service.users", srv.Client()),
 		login:        login.NewLoginService("go.micro.service.login", srv.Client()),
+		invites:      invites.NewInvitesService("go.micro.service.teams.invites", srv.Client()),
 	}
 }
 
@@ -59,6 +61,7 @@ type Handler struct {
 	auth         auth.Auth
 	users        users.UsersService
 	login        login.LoginService
+	invites      invites.InvitesService
 	google       provider.Provider
 	github       provider.Provider
 	store        store.Store

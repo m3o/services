@@ -30,7 +30,10 @@ message VerifyRequest {
   string code = 1;
 }
 
-message VerifyResponse {}
+message VerifyResponse {
+  string team_name = 1;
+  string email = 2;
+}
 
 message RedeemRequest {
   string user_id = 1;

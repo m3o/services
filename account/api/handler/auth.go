@@ -11,6 +11,8 @@ import (
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
+	teamInvite "github.com/micro/services/teams/invites/proto/invites"
+	teams "github.com/micro/services/teams/service/proto/teams"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -73,8 +75,15 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 
 // Signup creates an account using an email and password
 func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.SignupResponse) error {
-	// Verify the users invite token
-	_, err := h.invite.Validate(ctx, &invite.ValidateRequest{Code: req.InviteCode})
+	// Validate the invite code
+	var err error
+	if req.TeamInvite {
+		// the invite code is from a team
+		_, err = h.teamInvite.Verify(ctx, &teamInvite.VerifyRequest{Code: req.InviteCode})
+	} else {
+		// the invite code is from micro
+		_, err = h.invite.Validate(ctx, &invite.ValidateRequest{Code: req.InviteCode})
+	}
 	if err != nil {
 		return err
 	}
@@ -105,8 +114,34 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 		return err
 	}
 
+	// Assign the user to the team if they were invited
+	if req.TeamInvite {
+		if _, err = h.teamInvite.Redeem(ctx, &teamInvite.RedeemRequest{Code: req.InviteCode, UserId: uRsp.User.Id}); err != nil {
+			return err
+		}
+	}
+
+	// Get the users teams
+	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: uRsp.User.Id})
+	if err != nil {
+		return err
+	}
+
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
 	rsp.Token = serializeToken(tok)
+	rsp.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
+	for _, t := range tRsp.Teams {
+		rsp.Teams = append(rsp.Teams, serializeTeam(t))
+	}
+
 	return nil
+}
+
+func serializeTeam(t *teams.Team) *pb.Team {
+	return &pb.Team{
+		Id:        t.Id,
+		Name:      t.Name,
+		Namespace: t.Namespace,
+	}
 }
