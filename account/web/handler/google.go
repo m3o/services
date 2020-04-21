@@ -123,7 +123,13 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 
 	// Check to see if the user had an invite token, if they did, activate it
 	if invite, err := h.getInviteCode(req.FormValue("state")); err == nil {
+		// redeem the invite, adding the user to the team
 		h.invites.Redeem(req.Context(), &invites.RedeemRequest{Code: invite, UserId: uRsp.User.Id})
+
+		// update the user so the users account does not require
+		// an invite token
+		uRsp.User.InviteVerified = true
+		h.users.Update(req.Context(), &users.UpdateRequest{User: uRsp.User})
 	}
 
 	// Login the user
