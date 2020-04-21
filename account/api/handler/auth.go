@@ -9,6 +9,7 @@ import (
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/services/account/api/proto/account"
+	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
 	users "github.com/micro/services/users/service/proto"
 )
@@ -72,11 +73,17 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 
 // Signup creates an account using an email and password
 func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.SignupResponse) error {
+	// Verify the users invite token
+	_, err := h.invite.Validate(ctx, &invite.ValidateRequest{Code: req.InviteCode})
+	if err != nil {
+		return err
+	}
+
 	// Validate the user can be created
-	_, err := h.users.Create(ctx, &users.CreateRequest{
+	_, err = h.users.Create(ctx, &users.CreateRequest{
 		User:         &users.User{Email: req.Email},
 		ValidateOnly: true,
-	}, client.WithServiceToken())
+	})
 	if err != nil {
 		return err
 	}
@@ -92,7 +99,8 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	}
 
 	// Create the user
-	uRsp, err := h.users.Create(ctx, &users.CreateRequest{User: &users.User{Email: req.Email}}, client.WithServiceToken())
+	u := &users.User{Email: req.Email, InviteVerified: true}
+	uRsp, err := h.users.Create(ctx, &users.CreateRequest{User: u})
 	if err != nil {
 		return err
 	}

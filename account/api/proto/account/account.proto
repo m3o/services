@@ -21,6 +21,7 @@ service Account {
 message SignupRequest {
 	string email = 1;
 	string password = 2;
+	string invite_code = 3;
 }
 
 message SignupResponse {
