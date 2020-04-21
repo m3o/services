@@ -160,15 +160,15 @@ func (i *Invites) Redeem(ctx context.Context, req *pb.RedeemRequest, rsp *pb.Red
 	}
 
 	// lookup the user using the id
-	uRsp, err := i.users.Read(ctx, &users.ReadRequest{Id: req.UserId})
-	if err != nil {
-		return err
-	}
+	// uRsp, err := i.users.Read(ctx, &users.ReadRequest{Id: req.UserId})
+	// if err != nil {
+	// 	return err
+	// }
 
 	// validate the users email matches the one the invite was sent to
-	if inv.Email != uRsp.User.Email {
-		return errors.BadRequest(i.name, "The users email does not match the one invited")
-	}
+	// if inv.Email != uRsp.User.Email {
+	// 	return errors.BadRequest(i.name, "The users email does not match the one invited")
+	// }
 
 	// add the user as a team member
 	_, err = i.teams.AddMember(ctx, &teams.AddMemberRequest{TeamId: inv.TeamID, MemberId: req.UserId})
