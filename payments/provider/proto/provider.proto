@@ -6,7 +6,7 @@ service Provider {
   rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
   rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse);
   rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
   rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
   rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
@@ -51,27 +51,30 @@ message CreatePlanRequest {
 
 message CreatePlanResponse {}
 
-message User {
+message Customer {
   string id = 1;
-  map<string, string> metadata = 2;
+  string type = 2;
+  map<string, string> metadata = 3;
 }
 
-message CreateUserRequest {
-  User User = 1;
+message CreateCustomerRequest {
+  Customer customer = 1;
 }
 
-message CreateUserResponse {}
+message CreateCustomerResponse {}
 
 message CreateSubscriptionRequest {
-  string user_id = 1;
-  string plan_id = 2;
+  string customer_id = 1;
+  string customer_type = 2;
+  string plan_id = 3;
 }
 
 message CreateSubscriptionResponse {}
 
 message ListSubscriptionsRequest {
-  string user_id = 1;
-  string plan_id = 2;
+  string customer_id = 1;
+  string customer_type = 2;
+  string plan_id = 3;
 }
 
 message Subscription {
@@ -87,22 +90,25 @@ message ListSubscriptionsResponse {
 message PaymentMethod {
   string id = 1;
   int64 created = 2;
-  string user_id = 3;
-  string type = 4;
-  string card_brand = 5;
-  string card_exp_month = 6;
-  string card_exp_year = 7;
-  string card_last_4 = 8;
-  bool default = 9;
+  string customer_id = 3;
+  string customer_type = 4;
+  string type = 5;
+  string card_brand = 6;
+  string card_exp_month = 7;
+  string card_exp_year = 8;
+  string card_last_4 = 9;
+  bool default = 10;
 }
 
 message CreatePaymentMethodRequest {
   string id = 1;
-  string user_id =  2;
+  string customer_id = 2;
+  string customer_type = 3;
 }
 
 message ListPaymentMethodsRequest {
-  string user_id = 1;
+  string customer_id = 1;
+  string customer_type = 2;
 }
 
 message DeletePaymentMethodRequest {
@@ -120,8 +126,9 @@ message ListPaymentMethodsResponse {
 message DeletePaymentMethodResponse {}
 
 message SetDefaultPaymentMethodRequest {
-  string user_id = 1;
-  string payment_method_id = 2;
+  string customer_id = 1;
+  string customer_type = 2;
+  string payment_method_id = 3;
 }
 
 message SetDefaultPaymentMethodResponse {

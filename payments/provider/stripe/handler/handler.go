@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/micro/go-micro/v2"
@@ -34,37 +33,36 @@ func NewHandler(srv micro.Service) *Handler {
 	}
 }
 
-// User is the datatype stored in the store
-type User struct {
+// Customer is the datatype stored in the store
+type Customer struct {
 	StripeID string `json:"stripe_id"`
 }
 
-// getStripeIDForUser returns the stripe ID from the store for the given user
-func (h *Handler) getStripeIDForUser(userID string) (string, error) {
-	recs, err := h.store.Read(userID)
+// getStripeIDForCustomer returns the stripe ID from the store for the given customer
+func (h *Handler) getStripeIDForCustomer(customerType, customerID string) (string, error) {
+	recs, err := h.store.Read(customerType + "/" + customerID)
 	if err == store.ErrNotFound {
 		return "", nil
 	} else if err != nil {
 		return "", errors.InternalServerError(h.name, "Could not read from store: %v", err)
 	}
 
-	var user *User
-	if err := json.Unmarshal(recs[0].Value, &user); err != nil {
+	var c *Customer
+	if err := json.Unmarshal(recs[0].Value, &c); err != nil {
 		return "", errors.InternalServerError(h.name, "Could not unmarshal json: %v", err)
 	}
 
-	fmt.Printf("User #%v has stripe ID: %v\n", userID, user.StripeID)
-	return user.StripeID, nil
+	return c.StripeID, nil
 }
 
-// setStripeIDForUser writes the stripe ID to the store for the given user
-func (h *Handler) setStripeIDForUser(stripeID, userID string) error {
-	bytes, err := json.Marshal(&User{StripeID: stripeID})
+// setStripeIDForCustomer writes the stripe ID to the store for the given customer
+func (h *Handler) setStripeIDForCustomer(stripeID, customerType, customerID string) error {
+	bytes, err := json.Marshal(&Customer{StripeID: stripeID})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Could not marshal json: %v", err)
 	}
 
-	if err := h.store.Write(&store.Record{Key: userID, Value: bytes}); err != nil {
+	if err := h.store.Write(&store.Record{Key: customerType + "/" + customerID, Value: bytes}); err != nil {
 		return errors.InternalServerError(h.name, "Could not write to store: %v", err)
 	}
 

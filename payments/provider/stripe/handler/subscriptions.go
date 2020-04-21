@@ -10,7 +10,7 @@ import (
 
 // CreateSubscription via the Stripe API, e.g. "Subscribe John Doe to Notes Gold"
 func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscriptionRequest, rsp *pb.CreateSubscriptionResponse) error {
-	id, err := h.getStripeIDForUser(req.UserId)
+	id, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscrip
 }
 
 func (h *Handler) ListSubscriptions(ctx context.Context, req *pb.ListSubscriptionsRequest, rsp *pb.ListSubscriptionsResponse) error {
-	id, err := h.getStripeIDForUser(req.UserId)
+	id, err := h.getStripeIDForCustomer(req.CustomerId, req.CustomerType)
 	if err != nil {
 		return err
 	}

@@ -14,12 +14,15 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	if len(req.Id) == 0 {
 		return errors.BadRequest(h.name, "ID required")
 	}
-	if len(req.UserId) == 0 {
-		return errors.BadRequest(h.name, "User ID required")
+	if len(req.CustomerId) == 0 {
+		return errors.BadRequest(h.name, "Customer ID required")
+	}
+	if len(req.CustomerType) == 0 {
+		return errors.BadRequest(h.name, "Customer Type required")
 	}
 
 	// Check to see if the user has exists
-	stripeID, err := h.getStripeIDForUser(req.UserId)
+	stripeID, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {
 		return err
 	}
@@ -36,7 +39,7 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 	}
 
 	// Serialize the response
-	rsp.PaymentMethod = serializePaymentMethod(pm, req.UserId)
+	rsp.PaymentMethod = serializePaymentMethod(pm, req.CustomerType, req.CustomerId)
 	return nil
 }
 
@@ -56,12 +59,15 @@ func (h *Handler) DeletePaymentMethod(ctx context.Context, req *pb.DeletePayment
 
 // ListPaymentMethods via the Stripe API, e.g. "List payment methods for John Doe"
 func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMethodsRequest, rsp *pb.ListPaymentMethodsResponse) error {
-	if len(req.UserId) == 0 {
-		return errors.BadRequest(h.name, "User ID required")
+	if len(req.CustomerType) == 0 {
+		return errors.BadRequest(h.name, "Customer Type required")
+	}
+	if len(req.CustomerId) == 0 {
+		return errors.BadRequest(h.name, "Customer ID required")
 	}
 
 	// Check to see if the user has exists
-	stripeID, err := h.getStripeIDForUser(req.UserId)
+	stripeID, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {
 		return err
 	}
@@ -95,7 +101,7 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 			break
 		}
 
-		pm := serializePaymentMethod(iter.PaymentMethod(), req.UserId)
+		pm := serializePaymentMethod(iter.PaymentMethod(), req.CustomerType, req.CustomerId)
 		if pm.Id == defaultPaymentID {
 			pm.Default = true
 		}
@@ -108,7 +114,7 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 // SetDefaultPaymentMethod sets the users default payment method
 func (h *Handler) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefaultPaymentMethodRequest, rsp *pb.SetDefaultPaymentMethodResponse) error {
 	// Check to see if the user has already been created
-	stripeID, err := h.getStripeIDForUser(req.UserId)
+	stripeID, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {
 		return err
 	}
@@ -127,12 +133,13 @@ func (h *Handler) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefaul
 	return nil
 }
 
-func serializePaymentMethod(pm *stripe.PaymentMethod, userID string) *pb.PaymentMethod {
+func serializePaymentMethod(pm *stripe.PaymentMethod, CustomerType, CustomerID string) *pb.PaymentMethod {
 	rsp := &pb.PaymentMethod{
-		Id:      pm.ID,
-		Created: pm.Created,
-		UserId:  userID,
-		Type:    fmt.Sprint(pm.Type),
+		Id:           pm.ID,
+		Created:      pm.Created,
+		CustomerId:   CustomerID,
+		CustomerType: CustomerType,
+		Type:         fmt.Sprint(pm.Type),
 	}
 
 	if pm.Type == stripe.PaymentMethodTypeCard && pm.Card != nil {

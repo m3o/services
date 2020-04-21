@@ -12,9 +12,10 @@ import (
 func (h *Handler) HandleUserEvent(ctx context.Context, event *users.Event) error {
 	switch event.Type {
 	case users.EventType_UserCreated, users.EventType_UserUpdated:
-		req := pb.CreateUserRequest{
-			User: &pb.User{
-				Id: event.User.Id,
+		req := pb.CreateCustomerRequest{
+			Customer: &pb.Customer{
+				Id:   event.User.Id,
+				Type: "user",
 				Metadata: map[string]string{
 					"email": event.User.Email,
 					"name":  fmt.Sprintf("%v %v", event.User.FirstName, event.User.LastName),
@@ -22,7 +23,7 @@ func (h *Handler) HandleUserEvent(ctx context.Context, event *users.Event) error
 			},
 		}
 
-		return h.CreateUser(ctx, &req, &pb.CreateUserResponse{})
+		return h.CreateCustomer(ctx, &req, &pb.CreateCustomerResponse{})
 	default:
 		return nil
 	}
