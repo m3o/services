@@ -19,22 +19,11 @@ class Signup extends React.Component<Props> {
 
           <div className='profile'>
             <p>Let's get started by completing your Micro profile</p>
-            <EditProfile onSave={this.onSave.bind(this)} />
+            <EditProfile onSave={() => window.location.href = 'https://m3o.micro.mu/'} />
         </div>
         </div>
       </div>
     );
-  }
-
-  onSave(): void {
-    // check to see if the user should be redirected
-    // to m3o for first time team onboarding
-    if(this.props.user.teams.length === 0) {
-      window.location.href = 'https://m3o.micro.mu/';
-      return
-    }
-
-    this.props.history.push('/');
   }
 }
 

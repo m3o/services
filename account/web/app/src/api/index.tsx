@@ -15,14 +15,12 @@ export class User {
   roles: string[];
   invite_code: string;
   invite_verified: boolean;
-  teams: Team[];
 
   constructor(args: any) {
     this.id = args.id;
     this.first_name = args.first_name || '';
     this.last_name = args.last_name || '';
     this.email = args.email || '';
-    this.teams = (args.teams || []).map(p => new Team(p));
     this.roles = args.roles || [];
     this.invite_code = args.invite_code;
     this.invite_verified = args.invite_verified;
@@ -38,16 +36,6 @@ export class User {
     if(this.last_name.length === 0) return false;
     if(!this.invite_verified) return false;
     return true
-  }
-}
-
-export class Team {
-  id: string;
-  name: string;
-
-  constructor(args: any) {
-    this.id = args.id;
-    this.name = args.name;
   }
 }
 
