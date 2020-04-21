@@ -68,19 +68,41 @@ type Handler struct {
 }
 
 //
+// Helper methods for ensuring persisting invite codes through the oauth flow
+//
+
+const storePrefixInviteCode = "invite/"
+
+func (h *Handler) setInviteCode(state, code string) error {
+	return h.store.Write(&store.Record{
+		Key:    storePrefixInviteCode + state,
+		Expiry: time.Minute * 5,
+		Value:  []byte(code),
+	})
+}
+
+func (h *Handler) getInviteCode(state string) (string, error) {
+	recs, err := h.store.Read(storePrefixInviteCode + state)
+	if err != nil {
+		return "", err
+	}
+	return string(recs[0].Value), nil
+}
+
+//
 // Helper methods for ensuring oauth state is valid
 //
 
-const storePrefixOauthCode = "code/"
+const storePrefixOauthState = "state/"
 
 func (h *Handler) generateOauthState() (string, error) {
 	code := uuid.New().String()
-	record := &store.Record{Key: storePrefixOauthCode + code, Expiry: time.Minute * 5}
+	record := &store.Record{Key: storePrefixOauthState + code, Expiry: time.Minute * 5}
 	return code, h.store.Write(record)
 }
 
 func (h *Handler) validateOauthState(code string) (bool, error) {
-	_, err := h.store.Read(storePrefixOauthCode + code)
+	_, err := h.store.Read(storePrefixOauthState + code)
 	if err == nil {
 		return true, nil
 	} else if err == store.ErrNotFound {

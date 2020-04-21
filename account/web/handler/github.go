@@ -11,17 +11,28 @@ import (
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/auth/provider"
+	invites "github.com/micro/services/teams/invites/proto/invites"
 	users "github.com/micro/services/users/service/proto"
 )
 
 // HandleGithubOauthLogin redirects the user to begin the oauth flow
 func (h *Handler) HandleGithubOauthLogin(w http.ResponseWriter, req *http.Request) {
-	code, err := h.generateOauthState()
+	state, err := h.generateOauthState()
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return
 	}
-	http.Redirect(w, req, h.github.Endpoint(provider.WithState(code)), http.StatusFound)
+
+	// email and invite codes are present if the user was redirected from a team invite
+	inviteCode := req.URL.Query().Get("inviteCode")
+
+	// record the invite code
+	if len(inviteCode) > 0 {
+		h.setInviteCode(state, inviteCode)
+	}
+
+	endpoint := h.github.Endpoint(provider.WithState(state))
+	http.Redirect(w, req, endpoint, http.StatusFound)
 }
 
 // HandleGithubOauthVerify redirects the user to begin the oauth flow
@@ -72,7 +83,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Create the user in the users service
-	_, err = h.users.Create(req.Context(), &users.CreateRequest{
+	uRsp, err := h.users.Create(req.Context(), &users.CreateRequest{
 		User: &users.User{Email: profile.Email, ProfilePictureUrl: profile.Picture},
 	})
 	if err != nil {
@@ -109,6 +120,11 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return
+	}
+
+	// Check to see if the user had an invite token, if they did, activate it
+	if invite, err := h.getInviteCode(req.FormValue("state")); err == nil {
+		h.invites.Redeem(req.Context(), &invites.RedeemRequest{Code: invite, UserId: uRsp.User.Id})
 	}
 
 	// Login the user

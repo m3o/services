@@ -113,7 +113,19 @@ class Login extends React.Component<Props, State> {
       cookies.set('micro-account-redirect', this.props.redirect, { path: '/', domain: Domain, expires }); 
     }
 
-    window.location.href = `/oauth/${name}/login`;
+    // pass the email to oauth if one was provided from the
+    // email invite, this will auto-populate the oauth provider
+    // and help to ensure the user signs up with the right email
+    // address. The invite code will be stored in a cache so we
+    // can retrieve it after the oauth flow is completed.
+    if(!!this.state.teamName)  {
+      const email = encodeURIComponent(this.state.email)
+      const invite = encodeURIComponent(this.state.inviteCode)
+      window.location.href = `/oauth/${name}/login?email=${email}&inviteCode=${invite}`;  
+      return
+    }
+
+    window.location.href = `/oauth/${name}/login`;  
   }
 
   renderLogin(): JSX.Element {
