@@ -1,3 +1,11 @@
+export interface Project {
+  id?: string;
+  name: string;
+  namespace: string;
+  api_domain?: string;
+  web_domain?: string;
+}
+
 export interface User {
   id: string;
   firstName: string;

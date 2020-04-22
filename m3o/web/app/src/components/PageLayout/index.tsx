@@ -61,7 +61,7 @@ export default class PageLayout extends React.Component<Props> {
 
           <div className='lower'>
             <ProjectSwitcher />
-            <img />
+            {/* <img /> */}
           </div>
         </div>
 
