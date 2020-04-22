@@ -102,6 +102,6 @@ go get ./...
 
 ## Writing a service
 
-Go checkout the [hello world](go-helloworld.html) example to get started
+Go checkout the [hello world](helloworld.html) example to get started
 
 {% include links.html %}

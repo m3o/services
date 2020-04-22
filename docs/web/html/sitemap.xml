@@ -124,12 +124,6 @@
   
   
   <url>
-    <loc>https://micro.mu/docs/go-helloworld.html</loc>
-  </url>
-  
-  
-  
-  <url>
     <loc>https://micro.mu/docs/go-internals.html</loc>
   </url>
   
@@ -167,6 +161,12 @@
   
   <url>
     <loc>https://micro.mu/docs/grpc-gateway.html</loc>
+  </url>
+  
+  
+  
+  <url>
+    <loc>https://micro.mu/docs/helloworld.html</loc>
   </url>
   
   

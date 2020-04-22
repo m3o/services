@@ -215,17 +215,6 @@
 
 
 {
-"title": "Hello World",
-"tags": "go-microframeworkhelloworld",
-"keywords": "go-micro, framework, helloworld",
-"url": "go-helloworld.html",
-"summary": "A hello world example using Go Micro"
-}
-,
-
-
-
-{
 "title": "Internals",
 "tags": "go-micro",
 "keywords": "go-micro",
@@ -297,6 +286,17 @@
 "keywords": "grpc, grpc-gateway",
 "url": "grpc-gateway.html",
 "summary": ""
+}
+,
+
+
+
+{
+"title": "Hello World",
+"tags": "go-microframeworkhelloworld",
+"keywords": "go-micro, framework, helloworld",
+"url": "helloworld.html",
+"summary": "A hello world example using Go Micro"
 }
 ,
 

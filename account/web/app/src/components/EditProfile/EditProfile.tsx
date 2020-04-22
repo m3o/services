@@ -58,7 +58,6 @@ class EditProfile extends React.Component<Props, State> {
         <label>First Name *</label>
         <input
           required
-          autoFocus
           type='text'
           name='first_name'
           value={user!.first_name} 

@@ -3,7 +3,7 @@ title: Hello World
 keywords: go-micro, framework, helloworld
 tags: [go-micro, framework, helloworld]
 sidebar: home_sidebar
-permalink: "/go-helloworld.html"
+permalink: "/helloworld.html"
 summary: A hello world example using Go Micro
 ---
 
