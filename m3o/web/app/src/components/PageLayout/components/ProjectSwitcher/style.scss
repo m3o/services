@@ -1,0 +1,27 @@
+@import "../../../../global.scss";
+
+.popup-overlay {
+  background-color: #00000040 !important;
+}
+
+.popup-content {
+  padding: 25px !important;
+  border-radius: 5px;
+  min-height: 300px;
+
+  .upper {
+    display: flex;
+    margin-bottom: 30px;
+
+    h3 {
+      margin: auto 0px;
+      flex-grow: 1;
+    }
+
+    button {
+      margin-left: 15px;
+    }
+  }
+}
+
+// .ListProjects {}

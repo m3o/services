@@ -16,6 +16,8 @@
     }
 
     nav {
+      flex-grow: 1;
+
       a {
         display: grid;
         grid-template-columns: 40px auto;
@@ -52,6 +54,29 @@
 
           p {
             color: $green;
+          }
+        }
+      }
+    }
+
+    .lower {
+      display: flex;
+      padding: 20px 0px;
+      margin-bottom: 5px;
+      border-top: solid 1px #00000015;
+
+      .project {
+        cursor: pointer;
+        padding: 20px;
+        margin: -20px;
+
+        p {
+          margin: 0px;
+          font-size: 10pt;
+          
+          &.descriptor {
+            font-size: 8pt;
+            color: #00000095;
           }
         }
       }

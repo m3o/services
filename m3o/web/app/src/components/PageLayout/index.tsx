@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import ProjectSwitcher from './components/ProjectSwitcher';
 import Logo from './assets/logo.png';
 import NavDashboard from './assets/nav-dashboard.png';
 import NavGettingStarted from './assets/nav-getting-started.png';
@@ -57,6 +58,11 @@ export default class PageLayout extends React.Component<Props> {
               <p>Settings</p>
             </NavLink>
           </nav>
+
+          <div className='lower'>
+            <ProjectSwitcher />
+            <img />
+          </div>
         </div>
 
         <div className={`main ${this.props.className}`}>
