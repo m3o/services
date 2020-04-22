@@ -2,10 +2,28 @@ syntax = "proto3";
 
 package go.micro.api.m3o;
 
+service AccountService {
+  rpc Read(ReadAccountRequest) returns (ReadAccountResponse) {};
+}
+
 service ProjectService {
   rpc Create(CreateProjectRequest) returns (CreateProjectResponse) {};
   rpc Update(UpdateProjectRequest) returns (UpdateProjectResponse) {};
   rpc List(ListProjectsRequest) returns (ListProjectsResponse) {};
+}
+
+message User {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string profile_picture_url = 5;
+}
+
+message ReadAccountRequest {}
+
+message ReadAccountResponse {
+  User user = 1;
 }
 
 message Project {

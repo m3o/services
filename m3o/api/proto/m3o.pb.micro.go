@@ -33,6 +33,65 @@ var _ context.Context
 var _ client.Option
 var _ server.Option
 
+// Api Endpoints for AccountService service
+
+func NewAccountServiceEndpoints() []*api.Endpoint {
+	return []*api.Endpoint{}
+}
+
+// Client API for AccountService service
+
+type AccountService interface {
+	Read(ctx context.Context, in *ReadAccountRequest, opts ...client.CallOption) (*ReadAccountResponse, error)
+}
+
+type accountService struct {
+	c    client.Client
+	name string
+}
+
+func NewAccountService(name string, c client.Client) AccountService {
+	return &accountService{
+		c:    c,
+		name: name,
+	}
+}
+
+func (c *accountService) Read(ctx context.Context, in *ReadAccountRequest, opts ...client.CallOption) (*ReadAccountResponse, error) {
+	req := c.c.NewRequest(c.name, "AccountService.Read", in)
+	out := new(ReadAccountResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for AccountService service
+
+type AccountServiceHandler interface {
+	Read(context.Context, *ReadAccountRequest, *ReadAccountResponse) error
+}
+
+func RegisterAccountServiceHandler(s server.Server, hdlr AccountServiceHandler, opts ...server.HandlerOption) error {
+	type accountService interface {
+		Read(ctx context.Context, in *ReadAccountRequest, out *ReadAccountResponse) error
+	}
+	type AccountService struct {
+		accountService
+	}
+	h := &accountServiceHandler{hdlr}
+	return s.Handle(s.NewHandler(&AccountService{h}, opts...))
+}
+
+type accountServiceHandler struct {
+	AccountServiceHandler
+}
+
+func (h *accountServiceHandler) Read(ctx context.Context, in *ReadAccountRequest, out *ReadAccountResponse) error {
+	return h.AccountServiceHandler.Read(ctx, in, out)
+}
+
 // Api Endpoints for ProjectService service
 
 func NewProjectServiceEndpoints() []*api.Endpoint {
