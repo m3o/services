@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package go.micro.api.m3o;
+
+service ProjectService {
+  rpc Create(CreateProjectRequest) returns (CreateProjectResponse) {};
+  rpc Update(UpdateProjectRequest) returns (UpdateProjectResponse) {};
+  rpc List(ListProjectsRequest) returns (ListProjectsResponse) {};
+}
+
+message Project {
+  string id = 1;
+  string name = 2;
+  string namespace = 3;
+  string api_domain = 4;
+  string web_domain = 5;
+}
+
+message CreateProjectRequest {
+  Project Project = 1;
+}
+
+message CreateProjectResponse {
+  Project Project = 1;
+}
+
+message UpdateProjectRequest {
+  string id = 1;
+  string name = 2;
+  string api_domain = 3;
+  string web_domain = 4;
+}
+
+message UpdateProjectResponse {}
+
+message ListProjectsRequest {}
+
+message ListProjectsResponse {
+  repeated Project Projects = 1;
+}

@@ -7,9 +7,13 @@ require (
 	github.com/micro/go-micro/v2 v2.5.1-0.20200421145440-d7ecb58f6cf6
 	github.com/micro/services/account/invite v0.0.0-20200421094732-38d776e22810
 	github.com/micro/services/payments/provider v0.0.0-20200421094732-38d776e22810
-	github.com/micro/services/teams/invites v0.0.0-20200421113609-61eca69e93f6
-	github.com/micro/services/teams/service v0.0.0-20200421073553-26a9ccb4988a
+	github.com/micro/services/project/invite v0.0.0-00010101000000-000000000000
+	github.com/micro/services/teams/invites v0.0.0-20200421214208-3610db2af0be
 	github.com/micro/services/users/service v0.0.0-20200421094732-38d776e22810
 )
 
 replace github.com/micro/services/payments/provider => ../../payments/provider
+
+replace github.com/micro/services/project/service => ../../project/service
+
+replace github.com/micro/services/project/invite => ../../project/invite

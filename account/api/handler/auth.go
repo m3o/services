@@ -5,14 +5,11 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2/client"
-	log "github.com/micro/go-micro/v2/logger"
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
-	payment "github.com/micro/services/payments/provider/proto"
-	teamInvite "github.com/micro/services/teams/invites/proto/invites"
-	teams "github.com/micro/services/teams/service/proto/teams"
+	projectInvite "github.com/micro/services/project/invite/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -40,20 +37,9 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 		return err
 	}
 
-	// Get the users teams
-	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: uRsp.User.Id})
-	if err != nil {
-		return err
-	}
-
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
 	rsp.Token = serializeToken(tok)
-	rsp.User.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
-	for _, t := range tRsp.Teams {
-		rsp.User.Teams = append(rsp.User.Teams, h.serializeTeam(ctx, t))
-	}
-
 	return nil
 }
 
@@ -61,9 +47,9 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.Login
 func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.SignupResponse) error {
 	// Validate the invite code
 	var err error
-	if req.TeamInvite {
-		// the invite code is from a team
-		_, err = h.teamInvite.Verify(ctx, &teamInvite.VerifyRequest{Code: req.InviteCode})
+	if req.ProjectInvite {
+		// the invite code is from a project
+		_, err = h.projectInvite.Verify(ctx, &projectInvite.VerifyRequest{Code: req.InviteCode})
 	} else {
 		// the invite code is from micro
 		_, err = h.invite.Validate(ctx, &invite.ValidateRequest{Code: req.InviteCode})
@@ -99,63 +85,14 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	}
 
 	// Assign the user to the team if they were invited
-	if req.TeamInvite {
-		if _, err = h.teamInvite.Redeem(ctx, &teamInvite.RedeemRequest{Code: req.InviteCode, UserId: uRsp.User.Id}); err != nil {
+	if req.ProjectInvite {
+		if _, err = h.projectInvite.Redeem(ctx, &projectInvite.RedeemRequest{Code: req.InviteCode, UserId: uRsp.User.Id}); err != nil {
 			return err
 		}
-	}
-
-	// Get the users teams
-	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: uRsp.User.Id})
-	if err != nil {
-		return err
 	}
 
 	// Serialize the response
 	rsp.User = serializeUser(uRsp.User)
 	rsp.Token = serializeToken(tok)
-	rsp.User.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
-	for _, t := range tRsp.Teams {
-		rsp.User.Teams = append(rsp.User.Teams, h.serializeTeam(ctx, t))
-	}
-
 	return nil
-}
-
-func (h *Handler) serializeTeam(ctx context.Context, t *teams.Team) *pb.Team {
-	team := &pb.Team{
-		Id:        t.Id,
-		Name:      t.Name,
-		Namespace: t.Namespace,
-	}
-
-	// Fetch the payment methods
-	pReq := &payment.ListPaymentMethodsRequest{CustomerType: "team", CustomerId: t.Id}
-	pRsp, err := h.payment.ListPaymentMethods(ctx, pReq)
-	if err != nil {
-		log.Infof("Error listing payment methods: %v", err)
-		return team
-	}
-
-	// Serialize the payment methods
-	team.PaymentMethods = make([]*pb.PaymentMethod, len(pRsp.PaymentMethods))
-	for i, p := range pRsp.PaymentMethods {
-		team.PaymentMethods[i] = serializePaymentMethod(p)
-	}
-
-	// Fetch the subscriptions
-	sReq := &payment.ListSubscriptionsRequest{CustomerType: "team", CustomerId: t.Id}
-	sRsp, err := h.payment.ListSubscriptions(ctx, sReq)
-	if err != nil {
-		log.Infof("Error listing subscriptions: %v", err)
-		return team
-	}
-
-	// Serialize the subscriptions
-	team.Subscriptions = make([]*pb.Subscription, len(sRsp.Subscriptions))
-	for i, s := range sRsp.Subscriptions {
-		team.Subscriptions[i] = serializeSubscription(s)
-	}
-
-	return team
 }

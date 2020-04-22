@@ -8,8 +8,6 @@ import (
 
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
-	payment "github.com/micro/services/payments/provider/proto"
-	teams "github.com/micro/services/teams/service/proto/teams"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -30,17 +28,6 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 	// Serialize the User
 	rsp.User = serializeUser(user)
 	rsp.User.Roles = acc.Roles
-
-	// Get the users teams
-	tRsp, err := h.teams.ListMemberships(ctx, &teams.ListMembershipsRequest{MemberId: user.Id})
-	if err != nil {
-		return err
-	}
-	rsp.User.Teams = make([]*pb.Team, 0, len(tRsp.Teams))
-	for _, t := range tRsp.Teams {
-		rsp.User.Teams = append(rsp.User.Teams, h.serializeTeam(ctx, t))
-	}
-
 	return nil
 }
 
@@ -99,13 +86,34 @@ func (h *Handler) verifyInviteToken(ctx context.Context, user *users.User, token
 	return err
 }
 
-func serializeSubscription(s *payment.Subscription) *pb.Subscription {
-	return &pb.Subscription{
-		Id: s.Id,
-		Plan: &pb.Plan{
-			Id:       s.Plan.Id,
-			Amount:   s.Plan.Amount,
-			Interval: s.Plan.Interval.String(),
-		},
+func serializeUser(u *users.User) *pb.User {
+	return &pb.User{
+		Id:             u.Id,
+		Created:        u.Created,
+		Updated:        u.Updated,
+		FirstName:      u.FirstName,
+		LastName:       u.LastName,
+		Email:          u.Email,
+		InviteVerified: u.InviteVerified,
+	}
+}
+
+func deserializeUser(u *pb.User) *users.User {
+	return &users.User{
+		Id:        u.Id,
+		Created:   u.Created,
+		Updated:   u.Updated,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+	}
+}
+
+func serializeToken(t *auth.Token) *pb.Token {
+	return &pb.Token{
+		AccessToken:  t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		Created:      t.Created.Unix(),
+		Expiry:       t.Expiry.Unix(),
 	}
 }

@@ -22,14 +22,14 @@ interface State {
   loading: boolean;
   signup: boolean;
   error?: string;
-  teamName?: string;
+  projectName?: string;
   inviteCode?: string;
 }
 
 interface Params {
   error?: string;
   inviteCode?: string;
-  teamName?: string;
+  projectName?: string;
 }
 
 class Login extends React.Component<Props, State> {
@@ -37,13 +37,13 @@ class Login extends React.Component<Props, State> {
 
   componentDidMount() {
     const params: Params = queryString.parse(window.location.search);
-    this.setState(params); // set inviteCode & teamName in the state
+    this.setState(params); // set inviteCode & projectName in the state
     }
 
   async onSubmit(event) {
     event.preventDefault();
     
-    const { signup, email, password, passwordConfirmation, inviteCode, teamName } = this.state;
+    const { signup, email, password, passwordConfirmation, inviteCode, projectName } = this.state;
     if(signup && password !== passwordConfirmation) {
       this.setState({ error: 'Passwords must match' });
       return;
@@ -54,7 +54,7 @@ class Login extends React.Component<Props, State> {
     
     this.setState({ loading: true, error: undefined });
 
-    const params = signup ? { email, password, invite_code: inviteCode, team_invite: !!teamName } : { email, password };
+    const params = signup ? { email, password, invite_code: inviteCode, project_invite: !!projectName } : { email, password };
 
     Call(signup ? 'Signup' : 'Login', params)
       .then((res) => {
@@ -118,7 +118,7 @@ class Login extends React.Component<Props, State> {
     // and help to ensure the user signs up with the right email
     // address. The invite code will be stored in a cache so we
     // can retrieve it after the oauth flow is completed.
-    if(!!this.state.teamName)  {
+    if(!!this.state.projectName)  {
       const email = encodeURIComponent(this.state.email)
       const invite = encodeURIComponent(this.state.inviteCode)
       window.location.href = `/oauth/${name}/login?email=${email}&inviteCode=${invite}`;  
@@ -129,11 +129,11 @@ class Login extends React.Component<Props, State> {
   }
 
   renderLogin(): JSX.Element {
-    const { email, password, loading, error, teamName } = this.state;
+    const { email, password, loading, error, projectName } = this.state;
 
     return(
       <div className='inner'>
-        <h1>{ teamName? `Join the ${teamName} team` : 'Welcome back!'}</h1>
+        <h1>{ projectName? `Join the ${projectName} project` : 'Welcome back!'}</h1>
         <p className='subtitle'>To continue, log in with a Google or Micro account.</p>
 
         <div className='google oauth' onClick={() => this.redirectToOauth('google') }>
@@ -154,8 +154,8 @@ class Login extends React.Component<Props, State> {
             type='email'
             name='email'
             value={email}
-            autoFocus={!!teamName}
-            disabled={loading || !!teamName}
+            autoFocus={!!projectName}
+            disabled={loading || !!projectName}
             onChange={this.onChange.bind(this)} />
 
           <label>Password *</label>
@@ -164,7 +164,7 @@ class Login extends React.Component<Props, State> {
             name='password'
             value={password}
             disabled={loading}
-            autoFocus={!teamName}
+            autoFocus={!projectName}
             onChange={this.onChange.bind(this)} />
         
           <input
@@ -179,11 +179,11 @@ class Login extends React.Component<Props, State> {
   }
 
   renderSignup(): JSX.Element {
-    const { email, password, passwordConfirmation, loading, error, teamName, inviteCode } = this.state;
+    const { email, password, passwordConfirmation, loading, error, projectName, inviteCode } = this.state;
 
     return(
       <div className='inner'>
-        <h1>{ teamName? `Join the ${teamName} team` : 'Signup'}</h1>
+        <h1>{ projectName? `Join the ${projectName} project` : 'Signup'}</h1>
         <p className='subtitle'>Enter your email and password below to signup for a Micro account.</p>
 
         { error ? <p className='error'>Error: {error}</p> : null }
@@ -194,7 +194,7 @@ class Login extends React.Component<Props, State> {
             type='email'
             name='email'
             value={email}
-            disabled={loading || !!teamName}
+            disabled={loading || !!projectName}
             onChange={this.onChange.bind(this)} />
 
           <label>Password *</label>
@@ -213,8 +213,8 @@ class Login extends React.Component<Props, State> {
             value={passwordConfirmation}
             onChange={this.onChange.bind(this)} />
 
-          { teamName ? null : <label>Invite Code *</label> }
-          { teamName ? null : <input
+          { projectName ? null : <label>Invite Code *</label> }
+          { projectName ? null : <input
                                 required
                                 type='text'
                                 name='inviteCode'

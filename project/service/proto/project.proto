@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package go.micro.service.teams;
+package go.micro.service.project;
 
-service Teams {
+service ProjectService {
   rpc Read(ReadRequest) returns (ReadResponse) {};
   rpc Create(CreateRequest) returns (CreateResponse) {};
   rpc Update(UpdateRequest) returns (UpdateResponse) {};
@@ -12,7 +12,7 @@ service Teams {
   rpc ListMemberships(ListMembershipsRequest) returns (ListMembershipsResponse) {};
 }
 
-message Team {
+message Project {
   string id = 1;
   string name = 2;
   string namespace = 3;
@@ -31,19 +31,19 @@ message ReadRequest {
 }
 
 message ReadResponse {
-  Team team = 1;
+  Project project = 1;
 }
 
 message CreateRequest {
-  Team team = 1;
+  Project project = 1;
 }
 
 message CreateResponse {
-  Team team = 1;
+  Project project = 1;
 }
 
 message UpdateRequest {
-  Team team = 1;
+  Project project = 1;
 }
 
 message UpdateResponse {}
@@ -51,18 +51,18 @@ message UpdateResponse {}
 message ListRequest {}
 
 message ListResponse {
-  repeated Team teams = 1;
+  repeated Project projects = 1;
 }
 
 message AddMemberRequest {
-  string team_id = 1;
+  string project_id = 1;
   string member_id = 2; 
 }
 
 message AddMemberResponse {}
 
 message RemoveMemberRequest {
-  string team_id = 1;
+  string project_id = 1;
   string member_id = 2; 
 }
 
@@ -73,5 +73,5 @@ message ListMembershipsRequest {
 }
 
 message ListMembershipsResponse {
-  repeated Team teams = 1;
+  repeated Project projects = 1;
 }

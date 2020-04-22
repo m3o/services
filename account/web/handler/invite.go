@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"net/url"
 
-	invites "github.com/micro/services/teams/invites/proto/invites"
+	invite "github.com/micro/services/project/invite/proto"
 )
 
 // HandleInvite is the handler which gets called when a user clicks the
-// link to join a team. The code is verified and then passed to the frontend.
+// link to join a project. The code is verified and then passed to the frontend.
 func (h *Handler) HandleInvite(w http.ResponseWriter, req *http.Request) {
 	code := req.URL.Query().Get("code")
 	if len(code) == 0 {
@@ -16,16 +16,16 @@ func (h *Handler) HandleInvite(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rsp, err := h.invites.Verify(req.Context(), &invites.VerifyRequest{Code: code})
+	rsp, err := h.invite.Verify(req.Context(), &invite.VerifyRequest{Code: code})
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return
 	}
 
 	params := url.Values{
-		"inviteCode": {code},
-		"teamName":   {rsp.TeamName},
-		"email":      {rsp.Email},
+		"inviteCode":  {code},
+		"projectName": {rsp.ProjectName},
+		"email":       {rsp.Email},
 	}
 	http.Redirect(w, req, "/?"+params.Encode(), http.StatusFound)
 }

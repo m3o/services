@@ -17,8 +17,8 @@ import (
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 
-	pb "github.com/micro/services/teams/invites/proto/invites"
-	teams "github.com/micro/services/teams/service/proto/teams"
+	pb "github.com/micro/services/project/invite/proto"
+	project "github.com/micro/services/project/service/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -29,10 +29,10 @@ var (
 
 // invite is written to the store
 type invite struct {
-	Name     string
-	Email    string
-	TeamID   string
-	TeamName string
+	Name        string
+	Email       string
+	ProjectID   string
+	ProjectName string
 }
 
 // Invites implements the invites service interface
@@ -42,7 +42,7 @@ type Invites struct {
 	sendgridAPIKey     string
 	sendgridTemplateID string
 	users              users.UsersService
-	teams              teams.TeamsService
+	projects           project.ProjectService
 }
 
 // New returns an initialised handler
@@ -63,7 +63,7 @@ func New(service micro.Service) *Invites {
 		sendgridAPIKey:     sendgridAPIKey,
 		sendgridTemplateID: sendgridTemplateID,
 		users:              users.NewUsersService("go.micro.service.users", service.Client()),
-		teams:              teams.NewTeamsService("go.micro.service.teams", service.Client()),
+		projects:           project.NewProjectService("go.micro.service.project", service.Client()),
 	}
 }
 
@@ -71,8 +71,8 @@ func New(service micro.Service) *Invites {
 // user containing a code which is valid for 24 hours.
 func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.GenerateResponse) error {
 	// validate the request
-	if len(req.TeamId) == 0 {
-		return errors.BadRequest(i.name, "Missing team id")
+	if len(req.ProjectId) == 0 {
+		return errors.BadRequest(i.name, "Missing project id")
 	}
 	if len(req.Email) == 0 {
 		return errors.BadRequest(i.name, "Missing email")
@@ -93,15 +93,15 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 		return errors.InternalServerError(i.name, "Error loading user: %v", err)
 	}
 
-	// lookup the team (we need the name)
-	tRsp, err := i.teams.Read(ctx, &teams.ReadRequest{Id: req.TeamId})
+	// lookup the project (we need the name)
+	pRsp, err := i.projects.Read(ctx, &project.ReadRequest{Id: req.ProjectId})
 	if err != nil {
 		return err
 	}
 
 	// generate the invite and write it to the store
 	code := uuid.New().String()
-	invite := &invite{Name: req.Name, Email: req.Email, TeamID: req.TeamId, TeamName: tRsp.Team.Name}
+	invite := &invite{Name: req.Name, Email: req.Email, ProjectID: req.ProjectId, ProjectName: pRsp.Project.Name}
 	bytes, err := json.Marshal(invite)
 	if err != nil {
 		return errors.InternalServerError(i.name, "Error mashaling json: %v", err)
@@ -112,7 +112,7 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	}
 
 	// send the email invite async
-	go i.sendEmailInvite(req.Name, req.Email, code, tRsp.Team.Name, uRsp.User.FirstName)
+	go i.sendEmailInvite(req.Name, req.Email, code, pRsp.Project.Name, uRsp.User.FirstName)
 	return nil
 }
 
@@ -133,7 +133,7 @@ func (i *Invites) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.Ver
 	if err := json.Unmarshal(recs[0].Value, &inv); err != nil {
 		return errors.InternalServerError(i.name, "Error unmashaling json: %v", err)
 	}
-	rsp.TeamName = inv.TeamName
+	rsp.ProjectName = inv.ProjectName
 	rsp.Email = inv.Email
 
 	return nil
@@ -141,7 +141,7 @@ func (i *Invites) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.Ver
 
 // Redeem is used called after user completes signup and has an account.
 // Now they have an account we can redeem the invite and add the user
-// to the team. Once this rpc is called, the invite code can no longer
+// to the project. Once this rpc is called, the invite code can no longer
 // be used. The email address used when generating the invite must match
 // the email of the user redeeming the token.
 func (i *Invites) Redeem(ctx context.Context, req *pb.RedeemRequest, rsp *pb.RedeemResponse) error {
@@ -170,14 +170,14 @@ func (i *Invites) Redeem(ctx context.Context, req *pb.RedeemRequest, rsp *pb.Red
 	// 	return errors.BadRequest(i.name, "The users email does not match the one invited")
 	// }
 
-	// add the user as a team member
-	_, err = i.teams.AddMember(ctx, &teams.AddMemberRequest{TeamId: inv.TeamID, MemberId: req.UserId})
+	// add the user as a project member
+	_, err = i.projects.AddMember(ctx, &project.AddMemberRequest{ProjectId: inv.ProjectID, MemberId: req.UserId})
 	return err
 }
 
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
-func (i *Invites) sendEmailInvite(name, email, code, team, inviter string) {
+func (i *Invites) sendEmailInvite(name, email, code, project, inviter string) {
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": i.sendgridTemplateID,
 		"from": map[string]string{
@@ -192,7 +192,7 @@ func (i *Invites) sendEmailInvite(name, email, code, team, inviter string) {
 					},
 				},
 				"dynamic_template_data": map[string]string{
-					"teamName":    team,
+					"projectName": project,
 					"inviteeName": name,
 					"inviterName": inviter,
 					"code":        code,

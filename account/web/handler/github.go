@@ -11,7 +11,7 @@ import (
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/auth/provider"
-	invites "github.com/micro/services/teams/invites/proto/invites"
+	invite "github.com/micro/services/project/invite/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -123,9 +123,9 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Check to see if the user had an invite token, if they did, activate it
-	if invite, err := h.getInviteCode(req.FormValue("state")); err == nil {
+	if inv, err := h.getInviteCode(req.FormValue("state")); err == nil {
 		// redeem the invite, adding the user to the team
-		h.invites.Redeem(req.Context(), &invites.RedeemRequest{Code: invite, UserId: uRsp.User.Id})
+		h.invite.Redeem(req.Context(), &invite.RedeemRequest{Code: inv, UserId: uRsp.User.Id})
 
 		// update the user so the users account does not require
 		// an invite token

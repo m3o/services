@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package go.micro.service.teams.invites;
+package go.micro.service.project.invite;
 
-service Invites {
+service InviteService {
   // Generate an invite to a user. An email will be sent to this
   // user containing a code which is valid for 24 hours. 
   rpc Generate(GenerateRequest) returns (GenerateResponse) {};
@@ -12,14 +12,14 @@ service Invites {
   rpc Verify(VerifyRequest) returns (VerifyResponse) {};
   // Redeem is used called after user completes signup and has an account.
   // Now they have an account we can redeem the invite and add the user
-  // to the team. Once this rpc is called, the invite code can no longer
+  // to the project. Once this rpc is called, the invite code can no longer
   // be used. The email address used when generating the invite must match
   // the email of the user redeeming the token.
   rpc Redeem(RedeemRequest) returns (RedeemResponse) {};
 }
 
 message GenerateRequest {
-  string team_id = 1;
+  string project_id = 1;
   string email = 2;
   string name = 3;
 }
@@ -31,7 +31,7 @@ message VerifyRequest {
 }
 
 message VerifyResponse {
-  string team_name = 1;
+  string project_name = 1;
   string email = 2;
 }
 
