@@ -1,7 +1,12 @@
 // Libraries
 import React from 'react';
+import { connect } from 'react-redux';
 import { BrowserRouter, Route } from 'react-router-dom';
-import { Provider } from 'react-redux';
+
+// Utils
+import { State as GlobalState } from './store';
+import { setUser } from './store/Account';
+import * as API from './api';
 
 // Scenes
 import GettingStartedScene from './scenes/GettingStarted';
@@ -12,26 +17,35 @@ import ConfigurationScene from './scenes/Configuration';
 import EditConfigurationScene from './scenes/Configuration/scenes/EditConfiguration';
 import AddConfigurationScene from './scenes/Configuration/scenes/AddConfiguration';
 
-// Reducer
-import store from './store';
-
 // Styling
+import Logo from './components/PageLayout/assets/logo.png';
 import './App.scss';
 
-// Redux Setup
-window.store = store; 
-
-// Declare global window interface so we can mount redux
-declare global {
-  interface Window {
-    __REDUX_DEVTOOLS_EXTENSION__: any;
-    store: any;
-  }
+interface Props {
+  user?: API.User;
+  setUser: (user: API.User) => void;
 }
 
-function App() {
-  return (
-    <Provider store={window.store} >
+class App extends React.Component<Props> {
+  render(): JSX.Element {
+    if(this.props.user) return this.renderLoggedIn();
+    return this.renderLoading();
+  }
+
+  componentDidMount() {
+    API.Call("AccountService/Read").then((res) => {
+      this.props.setUser(res.data.user);
+    });
+  }
+
+  renderLoading(): JSX.Element {
+    return <div className='loading'>
+      <img src={Logo} alt='M3O' />
+    </div>
+  }
+
+  renderLoggedIn(): JSX.Element {
+    return (
       <BrowserRouter>
         <Route key='getting-started' exact path='/' component={GettingStartedScene} />
         <Route key='team' exact path='/team' component={TeamScene} />
@@ -41,8 +55,20 @@ function App() {
         <Route key='edit-configuration' path='/configuration/:service/:key/edit' component={EditConfigurationScene} />
         <Route key='add-configuration' path='/configuration/add' component={AddConfigurationScene} />
       </BrowserRouter>
-    </Provider>
-  );
+    );  
+  }
 }
 
-export default App;
+function mapStateToProps(state: GlobalState): any {
+  return({
+    user: state.account.user,
+  });
+}
+
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    setUser: (user: API.User) => dispatch(setUser(user)),
+  });
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

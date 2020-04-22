@@ -4,9 +4,26 @@ import * as serviceWorker from './serviceWorker';
 import App from './App';
 import './index.scss';
 
+// Redux
+import { Provider } from 'react-redux';
+import store from './store';
+
+// Redux Setup
+window.store = store; 
+
+// Declare global window interface so we can mount redux
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION__: any;
+    store: any;
+  }
+}
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={window.store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

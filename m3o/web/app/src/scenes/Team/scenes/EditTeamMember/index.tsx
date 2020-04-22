@@ -28,7 +28,7 @@ class EditTeamMemberScene extends React.Component<Props, State> {
     return(
       <PageLayout>
         <header>
-          <h1>Edit {user.firstName} {user.lastName}</h1>
+          <h1>Edit {user.first_name} {user.last_name}</h1>
 
           <button className='btn danger' onClick={this.onCancel.bind(this)}>
             <p>Cancel</p>
@@ -44,16 +44,16 @@ class EditTeamMemberScene extends React.Component<Props, State> {
           <input
             required
             type='text' 
-            name='firstName'
-            value={user.firstName}
+            name='first_name'
+            value={user.first_name}
             onChange={this.onChange.bind(this)} />
             
           <label>Last Name</label>
           <input
             required
             type='text' 
-            name='lastName'
-            value={user.lastName}
+            name='last_name'
+            value={user.last_name}
             onChange={this.onChange.bind(this)} />
           
           <label>Email</label>

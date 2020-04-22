@@ -37,7 +37,7 @@ class TeamScene extends React.Component<Props> {
 
           <tbody>
             { this.props.users.map(u => <tr key={u.id}>
-              <td>{u.firstName} {u.lastName}</td>
+              <td>{u.first_name} {u.last_name}</td>
               <td>{u.email}</td>
               <td>{u.roles.join(', ')}</td>
               <td>
@@ -57,7 +57,7 @@ class TeamScene extends React.Component<Props> {
 
   deleteUser(user: API.User): void {
     // eslint-disable-next-line no-restricted-globals
-    if (!confirm(`Are you sure you want to delete ${user.firstName}?`)) return;
+    if (!confirm(`Are you sure you want to delete ${user.first_name}?`)) return;
     this.props.deleteUser(user);
   }
 }
@@ -77,8 +77,8 @@ function mapDispatchToProps(dispatch: Function): any {
 export default connect(mapStateToProps, mapDispatchToProps)(TeamScene);
 
 function sortByName(a: API.User, b: API.User): number {
-  const aName = (a.firstName + a.lastName).toUpperCase();
-  const bName = (b.firstName + b.lastName).toUpperCase();
+  const aName = (a.first_name + a.last_name).toUpperCase();
+  const bName = (b.first_name + b.last_name).toUpperCase();
   if(aName > bName) return 1;
   if(aName < bName) return -1;
   return 0;

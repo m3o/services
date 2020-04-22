@@ -25,11 +25,11 @@ export function deleteUser(user: API.User): Action {
 
 const defaultState: State = {
   users: [
-    {id: "Asim", firstName: "Asim", lastName: "Aslam", email: "asim@micro.mu", roles: ["Admin", "Developer"], me: true},
-    {id: "Jake", firstName: "Jake", lastName: "Sanders", email: "jake@micro.mu", roles: ["Developer"]},
-    {id: "Ben", firstName: "Ben", lastName: "Toogood", email: "ben@micro.mu", roles: ["Developer"]},
-    {id: "Janos", firstName: "Janos", lastName: "Dobronszki", email: "janos@micro.mu", roles: ["Developer"]},
-    {id: "Vasiliy", firstName: "Vasiliy", lastName: "Tolstov", email: "vasiliy@micro.mu", roles: ["Developer"]},
+    {id: "Asim", first_name: "Asim", last_name: "Aslam", email: "asim@micro.mu", roles: ["Admin", "Developer"]},
+    {id: "Jake", first_name: "Jake", last_name: "Sanders", email: "jake@micro.mu", roles: ["Developer"]},
+    {id: "Ben", first_name: "Ben", last_name: "Toogood", email: "ben@micro.mu", roles: ["Developer"]},
+    {id: "Janos", first_name: "Janos", last_name: "Dobronszki", email: "janos@micro.mu", roles: ["Developer"]},
+    {id: "Vasiliy", first_name: "Vasiliy", last_name: "Tolstov", email: "vasiliy@micro.mu", roles: ["Developer"]},
   ],
 };
 

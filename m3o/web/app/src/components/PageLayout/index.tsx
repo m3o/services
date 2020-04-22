@@ -1,6 +1,16 @@
+// Frameworks
 import React from 'react';
+import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+
+// Utils
+import { State as GlobalState } from '../../store';
+import * as API from '../../api';
+
+// Components
 import ProjectSwitcher from './components/ProjectSwitcher';
+
+// Styling
 import Logo from './assets/logo.png';
 import NavDashboard from './assets/nav-dashboard.png';
 import NavGettingStarted from './assets/nav-getting-started.png';
@@ -12,10 +22,11 @@ import NavSettings from './assets/nav-settings.png';
 import './style.scss';
 
 interface Props {
+  user: API.User;
   className?: string;
 }
 
-export default class PageLayout extends React.Component<Props> {
+class PageLayout extends React.Component<Props> {
   render(): JSX.Element {
     return(
       <div className='PageLayout'>
@@ -61,7 +72,10 @@ export default class PageLayout extends React.Component<Props> {
 
           <div className='lower'>
             <ProjectSwitcher />
-            {/* <img /> */}
+
+            <a href='https://account.micro.mu' target='blank'>
+              <img className='account' src={this.props.user.profile_picture_url} alt='Your account' />
+            </a>
           </div>
         </div>
 
@@ -72,3 +86,11 @@ export default class PageLayout extends React.Component<Props> {
     );
   }
 }
+
+function mapStateToProps(state: GlobalState): any {
+  return({
+    user: state.account.user,
+  });
+}
+
+export default connect(mapStateToProps)(PageLayout);

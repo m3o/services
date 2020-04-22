@@ -65,10 +65,25 @@
       margin-bottom: 5px;
       border-top: solid 1px #00000015;
 
+      a {
+        display: flex;
+        outline: none;
+
+        .account {
+          margin-top: auto;
+          margin-bottom: auto;
+          height: 32px;
+          border-radius: 50%;
+          margin-left: 10px;
+          cursor: pointer;
+        }
+      }
+
       .project {
         cursor: pointer;
         padding: 20px;
         margin: -20px;
+        flex-grow: 1;
 
         p {
           margin: 0px;
