@@ -308,7 +308,7 @@ func reverse(s []*github.WorkflowRun) {
 // Start the scheduler
 func Start(workflowFilename string) error {
 	// @todod avoid these messy global usages
-	configs := config.Get("micro.scheduler").StringMap(map[string]string{})
+	configs := config.Get("micro", "platform", "scheduler").StringMap(map[string]string{})
 	if repoConfig, ok := configs["repo"]; ok {
 		repo = repoConfig
 	}
