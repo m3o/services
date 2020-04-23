@@ -9,13 +9,15 @@ import (
 	"time"
 
 	"github.com/google/go-github/v30/github"
+	"github.com/micro/go-micro/v2/config"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 )
 
-const (
+var (
 	owner   = "micro"
 	repo    = "services"
+	branch  = "master"
 	repoURL = "github.com/micro/services"
 	// DefaultVersion is the default version of the service
 	// the assume if none is specified
@@ -30,7 +32,9 @@ const (
 	// The base image for our builds
 	image = "docker.pkg.github.com/micro/services"
 
-	// self is a reference to self
+	// self is a reference to self to prevent scheduler
+	// from carelessly redeploying itself in the middle of
+	// a deploy flow
 	self = "platform/scheduler"
 )
 
@@ -216,7 +220,7 @@ func (m *manager) Run() {
 				m.workflow,
 				&github.ListWorkflowRunsOptions{
 					Status: "success",
-					Branch: "master",
+					Branch: branch,
 				},
 			)
 			if err != nil {
@@ -303,6 +307,21 @@ func reverse(s []*github.WorkflowRun) {
 
 // Start the scheduler
 func Start(workflowFilename string) error {
+	// @todod avoid these messy global usages
+	configs := config.Get("micro.scheduler").StringMap(map[string]string{})
+	if repoConfig, ok := configs["repo"]; ok {
+		repo = repoConfig
+	}
+	if ownerConfig, ok := configs["owner"]; ok {
+		owner = ownerConfig
+	}
+	if branchConfig, ok := configs["branch"]; ok {
+		branch = branchConfig
+	}
+	if repoURLConfig, ok := configs["repoURL"]; ok {
+		repoURL = repoURLConfig
+	}
+
 	m := new(manager)
 	m.workflow = workflowFilename
 	m.client = github.NewClient(nil)
