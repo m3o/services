@@ -5,7 +5,7 @@ import (
 	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/services/helloworld/handler"
 
-	helloworld "github.com/micro/services/helloworld/proto/helloworld"
+	helloworld "github.com/micro/services/helloworld/proto"
 )
 
 func main() {
