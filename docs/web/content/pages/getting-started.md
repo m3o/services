@@ -13,12 +13,12 @@ summary: A getting started guide for Micro
 
 ## What is Micro?
 
-Micro is a set of tools to build, run and manage microservices.
+Micro is a system for building and managing microservices.
 
-Key components of the Micro ecosystem are as follows:
-* **Micro**, a Runtime for services which provides core functionality e.g auth, config, storage.
-* **Go Micro**, a Go Framework for distributed systems development.
-* **Clients** to enable programs written in other languages to use Micro services.
+Key components of Micro are as follows:
+* **Runtime**: a runtime environment for managing services including auth, config, discovery, networking, storage. 
+* **Framework**: a Go framework for writing services to be run in the runtime.
+* **Clients**: multi-language clients to enable other programs to access Micro services.
 
 ## Install
 
