@@ -25,7 +25,7 @@ Key components of the Micro ecosystem are as follows:
 Using Go:
 
 ```sh
-go install github.com/micro/micro
+go install github.com/micro/micro/v2
 ```
 
 Or by downloading the binary
