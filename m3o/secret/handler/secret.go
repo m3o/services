@@ -34,6 +34,13 @@ func (s *Secret) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 		return err
 	}
 
+	// create the k8s namespace since it's unlikely it already
+	// exists. If it does exist, this request will fail hence
+	// we ignore the error. Eventually we will likely move to creating
+	// namespaces at the time they're issued by the projects service
+	ns := k8s.Namespace{Metadata: &k8s.Metadata{Name: req.Namespace}}
+	s.k8s.Create(&k8s.Resource{Kind: "namespace", Value: ns})
+
 	// the secret structure required for img pull secrets
 	secret := map[string]interface{}{
 		"auths": map[string]interface{}{
