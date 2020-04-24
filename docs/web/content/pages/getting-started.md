@@ -131,7 +131,7 @@ $ micro call go.micro.service.helloworld Helloworld.Call '{"name":"Jane"}'
 
 That worked! If we wonder what endpoints a service has, the best place to look for is its [proto folder](https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto). There are other tools in the making too, like [explore](https://web.micro.mu/explore/?go#helloworld), but they are still a bit experimental.
 
-### From a Go service
+### With Go Micro
 
 Let's write the most minimal service we can have that calls an other service.
 The program below should output `Response:  Hello John`.
@@ -151,17 +151,13 @@ func main() {
 	service := micro.NewService()
 	service.Init()
 
-	client := service.Client()
+	client := proto.NewHelloworldService(service.Client(), "go.micro.service.helloworld")
 
-	req := client.NewRequest("go.micro.service.helloworld", "Helloworld.Call", &proto.Request{
+	rsp, err := client.Call(context.Background(), &proto.Request{
 		Name: "John",
 	})
-
-	rsp := &proto.Response{}
-
-	// Call service
-	if err := client.Call(context.Background(), req, rsp); err != nil {
-		fmt.Println("call err: ", err, rsp)
+	if err != nil {
+		fmt.Println("call err: ", err)
 		return
 	}
 
