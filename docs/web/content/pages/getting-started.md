@@ -234,7 +234,9 @@ The generated code must be committed to source control, to enable other services
 At this point, we know how to write a service, run it, and call other services too.
 We have everything at our fingertips, but there are still some missing pieces to write applications. One of such pieces is the store interface, which helps with persistent data storage even without a database.
 
-## Using the store interface and the store service
+## Storage
+
+Micro includes a persistent store service for storing key-value data.
 
 ### Go Micro interfaces in general
 
