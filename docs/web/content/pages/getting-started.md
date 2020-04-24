@@ -11,19 +11,18 @@ summary: A getting started guide for Micro
 
 > 
 
-## What is micro?
+## What is Micro?
 
 Micro is a set of tools to build, run and manage microservices.
 
-Some more important parts of the Micro ecosystem are:
-* **Micro**, which enables us to interact with services, environments and is
-* **Go Micro**, a go library that enables us to interact with services directly in our Go apps.
-* **Clients** to enable programs written in other languages to call micro services.
-* **Tools and Apps**, built on top of the Micro ecosystem to help with day to day tasks.
+Key components of the Micro ecosystem are as follows:
+* **Micro**, a Runtime for services which provides core functionality e.g auth, config, storage.
+* **Go Micro**, a Go Framework for distributed systems development.
+* **Clients** to enable programs written in other languages to use Micro services.
 
-## Installing
+## Install
 
-With Go:
+Using Go:
 
 ```sh
 go install github.com/micro/micro
