@@ -93,7 +93,7 @@ micro run github.com/micro/services/helloworld
 ```
 
 
-If we take a look at the our running `micro server`, we should see something like
+If we take a look at the running `micro server`, we should see something like
 
 ```
 Creating service helloworld version latest source /tmp/github.com-micro-services/helloworld
@@ -135,7 +135,7 @@ That worked! If we wonder what endpoints a service has, the best place to look f
 ### From a Go service
 
 Let's write the most minimal service we can have that calls an other service.
-The program below should output `Response:  Hello John` if the Hello world 
+The program below should output `Response:  Hello John`.
 
 ```go
 package main
