@@ -151,7 +151,7 @@ func main() {
 	service := micro.NewService()
 	service.Init()
 
-	client := proto.NewHelloworldService(service.Client(), "go.micro.service.helloworld")
+	client := proto.NewHelloworldService("go.micro.service.helloworld", service.Client())
 
 	rsp, err := client.Call(context.Background(), &proto.Request{
 		Name: "John",
