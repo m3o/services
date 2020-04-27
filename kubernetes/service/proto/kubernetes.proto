@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package go.micro.service.kubernetes;
+
+service Kubernetes {
+  rpc CreateNamespace (CreateNamespaceRequest) returns (CreateNamespaceResponse) {};
+  rpc CreateImagePullSecret (CreateImagePullSecretRequest) returns (CreateImagePullSecretResponse) {};
+  rpc CreateServiceAccount (CreateServiceAccountRequest) returns (CreateServiceAccountResponse) {};
+}
+
+message CreateNamespaceRequest {
+  string name = 1;
+}
+
+message CreateNamespaceResponse {}
+
+message CreateImagePullSecretRequest {
+  string name = 1;
+  string namespace = 2;
+  string token = 3;
+}
+
+message CreateImagePullSecretResponse {}
+
+message CreateServiceAccountRequest {
+  string namespace = 1;
+  repeated string image_pull_secrets = 2;
+}
+
+message CreateServiceAccountResponse {}
