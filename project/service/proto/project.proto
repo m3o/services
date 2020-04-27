@@ -19,6 +19,7 @@ message Project {
   string web_domain = 4;
   string api_domain = 5;
   repeated Member members = 6;
+  string repository = 7;
 }
 
 message Member {

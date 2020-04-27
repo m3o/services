@@ -104,6 +104,7 @@ type ProjectService interface {
 	Create(ctx context.Context, in *CreateProjectRequest, opts ...client.CallOption) (*CreateProjectResponse, error)
 	Update(ctx context.Context, in *UpdateProjectRequest, opts ...client.CallOption) (*UpdateProjectResponse, error)
 	List(ctx context.Context, in *ListProjectsRequest, opts ...client.CallOption) (*ListProjectsResponse, error)
+	VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error)
 }
 
 type projectService struct {
@@ -148,12 +149,23 @@ func (c *projectService) List(ctx context.Context, in *ListProjectsRequest, opts
 	return out, nil
 }
 
+func (c *projectService) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error) {
+	req := c.c.NewRequest(c.name, "ProjectService.VerifyGithubToken", in)
+	out := new(VerifyGithubTokenResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for ProjectService service
 
 type ProjectServiceHandler interface {
 	Create(context.Context, *CreateProjectRequest, *CreateProjectResponse) error
 	Update(context.Context, *UpdateProjectRequest, *UpdateProjectResponse) error
 	List(context.Context, *ListProjectsRequest, *ListProjectsResponse) error
+	VerifyGithubToken(context.Context, *VerifyGithubTokenRequest, *VerifyGithubTokenResponse) error
 }
 
 func RegisterProjectServiceHandler(s server.Server, hdlr ProjectServiceHandler, opts ...server.HandlerOption) error {
@@ -161,6 +173,7 @@ func RegisterProjectServiceHandler(s server.Server, hdlr ProjectServiceHandler, 
 		Create(ctx context.Context, in *CreateProjectRequest, out *CreateProjectResponse) error
 		Update(ctx context.Context, in *UpdateProjectRequest, out *UpdateProjectResponse) error
 		List(ctx context.Context, in *ListProjectsRequest, out *ListProjectsResponse) error
+		VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error
 	}
 	type ProjectService struct {
 		projectService
@@ -183,4 +196,8 @@ func (h *projectServiceHandler) Update(ctx context.Context, in *UpdateProjectReq
 
 func (h *projectServiceHandler) List(ctx context.Context, in *ListProjectsRequest, out *ListProjectsResponse) error {
 	return h.ProjectServiceHandler.List(ctx, in, out)
+}
+
+func (h *projectServiceHandler) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error {
+	return h.ProjectServiceHandler.VerifyGithubToken(ctx, in, out)
 }

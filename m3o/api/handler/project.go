@@ -2,6 +2,10 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
@@ -91,19 +95,38 @@ func (p *Project) Update(ctx context.Context, req *pb.UpdateProjectRequest, rsp 
 	if err != nil {
 		return err
 	}
+	proj := rRsp.GetProject()
+
+	// assign the update attributes
+	proj.Name = req.Name
+	proj.WebDomain = req.WebDomain
+	proj.ApiDomain = req.ApiDomain
+
+	// verify the user has access to the github repo
+	if len(req.Repository) > 0 {
+		repos, err := p.listGitHubRepos(req.GithubToken)
+		if err != nil {
+			return err
+		}
+
+		var isMemberOfRepo bool
+		for _, r := range repos {
+			if r == req.Repository {
+				isMemberOfRepo = true
+				break
+			}
+		}
+		if !isMemberOfRepo {
+			return errors.BadRequest(p.name, "Must be a member of the repository")
+		}
+
+		proj.Repository = req.Repository
+		// todo: write the github token to k8s
+	}
 
 	// update the project
-	_, err = p.project.Update(ctx, &project.UpdateRequest{
-		Project: &project.Project{
-			Id:        req.Id,
-			Name:      req.Name,
-			Namespace: rRsp.Project.Namespace,
-			WebDomain: req.WebDomain,
-			ApiDomain: req.ApiDomain,
-		},
-	})
-
-	return nil
+	_, err = p.project.Update(ctx, &project.UpdateRequest{Project: proj})
+	return err
 }
 
 // List all the projects the user has access to
@@ -123,6 +146,16 @@ func (p *Project) List(ctx context.Context, req *pb.ListProjectsRequest, rsp *pb
 		rsp.Projects = append(rsp.Projects, serializeProject(t))
 	}
 
+	return nil
+}
+
+// VerifyGithubToken takes a GitHub personal token and returns the repos it has access to
+func (p *Project) VerifyGithubToken(ctx context.Context, req *pb.VerifyGithubTokenRequest, rsp *pb.VerifyGithubTokenResponse) error {
+	repos, err := p.listGitHubRepos(req.Token)
+	if err != nil {
+		return err
+	}
+	rsp.Repos = repos
 	return nil
 }
 
@@ -148,4 +181,40 @@ func serializeProject(p *project.Project) *pb.Project {
 		ApiDomain: p.ApiDomain,
 		WebDomain: p.WebDomain,
 	}
+}
+
+func (p *Project) listGitHubRepos(token string) ([]string, error) {
+	r, _ := http.NewRequest("GET", "https://api.github.com/user/repos", nil)
+	r.Header.Set("Authorization", "Bearer "+token)
+	r.Header.Set("Content-Type", "application/vnd.github.nebula-preview+json")
+
+	res, err := new(http.Client).Do(r)
+	if err != nil {
+		return nil, errors.InternalServerError(p.name, "Unable to connect to the GitHub API: %v", err)
+	}
+
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.BadRequest(p.name, "Invalid GitHub token")
+	} else if res.StatusCode != http.StatusOK {
+		return nil, errors.InternalServerError(p.name, "Unexpected status returned from the GitHub API: %v", res.Status)
+	}
+
+	bytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.InternalServerError(p.name, "Invalid response returned from the GitHub API: %v", err)
+	}
+
+	var repos []struct {
+		Name string `json:"full_name"`
+	}
+	if err := json.Unmarshal(bytes, &repos); err != nil {
+		return nil, errors.InternalServerError(p.name, "Invalid response returned from the GitHub API: %v", err)
+	}
+
+	repoos := make([]string, 0, len(repos))
+	for _, r := range repos {
+		repoos = append(repoos, strings.ToLower(r.Name))
+	}
+
+	return repoos, nil
 }
