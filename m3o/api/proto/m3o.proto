@@ -37,11 +37,11 @@ message Project {
 }
 
 message CreateProjectRequest {
-  Project Project = 1;
+  Project project = 1;
 }
 
 message CreateProjectResponse {
-  Project Project = 1;
+  Project project = 1;
 }
 
 message UpdateProjectRequest {
@@ -58,7 +58,7 @@ message UpdateProjectResponse {}
 message ListProjectsRequest {}
 
 message ListProjectsResponse {
-  repeated Project Projects = 1;
+  repeated Project projects = 1;
 }
 
 message VerifyGithubTokenRequest {

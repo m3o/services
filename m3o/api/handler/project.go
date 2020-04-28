@@ -38,6 +38,11 @@ type Project struct {
 
 // Create a new project
 func (p *Project) Create(ctx context.Context, req *pb.CreateProjectRequest, rsp *pb.CreateProjectResponse) error {
+	// Validate the request
+	if req.Project == nil {
+		return errors.BadRequest(p.name, "Missing project")
+	}
+
 	// Identify the user
 	userID, err := p.userIDFromContext(ctx)
 	if err != nil {
