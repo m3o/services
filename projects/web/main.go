@@ -374,6 +374,18 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+func reposHandler(w http.ResponseWriter, r *http.Request) {
+	is := e.IndexStats()
+	ctx := context.Background()
+	stats, err := is.Do(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	count := fmt.Sprintf("%d", stats.All.Total.Docs.Count)
+	w.Write([]byte(count))
+}
+
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	q := r.Form.Get("q")
@@ -425,6 +437,7 @@ func main() {
 	service.HandleFunc("/api/browse", browseHandler)
 	service.HandleFunc("/api/recent", recentHandler)
 	service.HandleFunc("/api/search", searchHandler)
+	service.HandleFunc("/api/repos", reposHandler)
 
 	opts := service.Options().Service.Options()
 
