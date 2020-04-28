@@ -10,25 +10,25 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 
-	pb "github.com/micro/services/event/service/proto"
+	pb "github.com/micro/services/events/service/proto"
 )
 
-// Event implement the event service interface
-type Event struct {
+// Events implement the event service interface
+type Events struct {
 	name  string
 	store store.Store
 }
 
 // New returns an initialised event handler
-func New(service micro.Service) *Event {
-	return &Event{
+func New(service micro.Service) *Events {
+	return &Events{
 		name:  service.Name(),
 		store: store.DefaultStore,
 	}
 }
 
 // Create an event
-func (e *Event) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (e *Events) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// validate the request
 	if req.Type == pb.EventType_Unknown {
 		return errors.BadRequest(e.name, "Missing type")
@@ -60,7 +60,7 @@ func (e *Event) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 }
 
 // Read events
-func (e *Event) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+func (e *Events) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	// validate the request
 	if len(req.ProjectId) == 0 {
 		return errors.BadRequest(e.name, "Missing project id")

@@ -4,19 +4,19 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/logger"
 
-	"github.com/micro/services/event/service/handler"
-	pb "github.com/micro/services/event/service/proto"
+	"github.com/micro/services/events/service/handler"
+	pb "github.com/micro/services/events/service/proto"
 )
 
 func main() {
 	service := micro.NewService(
-		micro.Name("go.micro.service.event"),
+		micro.Name("go.micro.service.events"),
 		micro.Version("latest"),
 	)
 
 	service.Init()
 
-	pb.RegisterEventServiceHandler(service.Server(), handler.New(service))
+	pb.RegisterEventsHandler(service.Server(), handler.New(service))
 
 	if err := service.Run(); err != nil {
 		logger.Fatal(err)

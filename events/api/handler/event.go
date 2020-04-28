@@ -7,8 +7,8 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 
-	pb "github.com/micro/services/event/api/proto"
-	event "github.com/micro/services/event/service/proto"
+	pb "github.com/micro/services/events/api/proto"
+	event "github.com/micro/services/events/service/proto"
 	project "github.com/micro/services/project/service/proto"
 )
 
@@ -16,7 +16,7 @@ import (
 type Handler struct {
 	name    string
 	auth    auth.Auth
-	event   event.EventService
+	event   event.EventsService
 	project project.ProjectService
 }
 
@@ -25,7 +25,7 @@ func New(service micro.Service) *Handler {
 	return &Handler{
 		name:    service.Name(),
 		auth:    service.Options().Auth,
-		event:   event.NewEventService("go.micro.service.event", service.Client()),
+		event:   event.NewEventsService("go.micro.service.events", service.Client()),
 		project: project.NewProjectService("go.micro.service.project", service.Client()),
 	}
 }

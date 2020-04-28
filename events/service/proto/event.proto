@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package go.micro.service.event;
+package go.micro.service.events;
 
-service EventService {
+service Events {
   rpc Create(CreateRequest) returns (CreateResponse) {};
   rpc Read(ReadRequest) returns (ReadResponse) {};
 }

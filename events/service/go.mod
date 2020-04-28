@@ -1,4 +1,4 @@
-module github.com/micro/services/event/service
+module github.com/micro/services/events/service
 
 go 1.13
 
