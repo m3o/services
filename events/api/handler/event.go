@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	githubPkgBase = "docker.pkg.github.com"
 	githubBase    = "github.com"
+	githubPkgBase = "docker.pkg.github.com"
 )
 
 // Handler implements the event api interface
