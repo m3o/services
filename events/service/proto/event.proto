@@ -12,6 +12,9 @@ enum EventType {
   BuildStarted = 1;
   BuildFinished = 2;
   BuildFailed = 3;
+  SourceCreated = 4;
+  SourceUpdated = 5;
+  SourceDeleted = 6;
 }
 
 message Event {
