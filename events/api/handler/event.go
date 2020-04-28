@@ -79,32 +79,40 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return err
 	}
 
-	// update the runtime
-	go h.updateRuntime(ctx, evType, req.Metadata["service"], pRsp.Project)
-
 	// create the event
 	_, err = h.event.Create(ctx, &event.CreateRequest{
 		ProjectId: pRsp.Project.Id,
 		Metadata:  req.Metadata,
 		Type:      evType,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+
+	// update the runtime. We create a blank context
+	// with the account so that the downstream services
+	// (e.g. the runtime) will use the namespace only
+	// from the account
+	ctx, _ = auth.ContextWithAccount(context.Background(), acc)
+	go h.updateRuntime(ctx, evType, req.Metadata, pRsp.Project)
+	return nil
 }
 
-func (h *Handler) updateRuntime(ctx context.Context, evType event.EventType, srvName string, project *project.Project) {
+func (h *Handler) updateRuntime(ctx context.Context, evType event.EventType, md map[string]string, project *project.Project) {
 	// we only care about these two events with regards to the runtime
 	if evType != event.EventType_BuildFinished && evType != event.EventType_SourceDeleted {
 		return
 	}
 
 	// construct the service object
+	srvName := md["service"]
 	service := &runtime.Service{
 		Name:    srvName,
 		Source:  path.Join(githubBase, project.Repository, srvName),
 		Version: "latest",
 		Metadata: map[string]string{
-			// "commit":      commit,
-			// "build":       build,
+			"commit":      md["commit"],
+			"build":       md["build"],
 			"repo":        project.Repository,
 			"deployed_by": "go.micro.api.events",
 		},
