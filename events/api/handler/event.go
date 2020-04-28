@@ -79,26 +79,25 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return err
 	}
 
+	// update the runtime
+	go h.updateRuntime(acc, evType, req.Metadata, pRsp.Project)
+
 	// create the event
 	_, err = h.event.Create(ctx, &event.CreateRequest{
 		ProjectId: pRsp.Project.Id,
 		Metadata:  req.Metadata,
 		Type:      evType,
 	})
-	if err != nil {
-		return err
-	}
+	return err
+}
 
+func (h *Handler) updateRuntime(acc *auth.Account, evType event.EventType, md map[string]string, project *project.Project) {
 	// update the runtime. We create a blank context
 	// with the account so that the downstream services
 	// (e.g. the runtime) will use the namespace only
 	// from the account
-	ctx, _ = auth.ContextWithAccount(context.Background(), acc)
-	go h.updateRuntime(ctx, evType, req.Metadata, pRsp.Project)
-	return nil
-}
+	ctx, _ := auth.ContextWithAccount(context.Background(), acc)
 
-func (h *Handler) updateRuntime(ctx context.Context, evType event.EventType, md map[string]string, project *project.Project) {
 	// we only care about these two events with regards to the runtime
 	if evType != event.EventType_BuildFinished && evType != event.EventType_SourceDeleted {
 		return
@@ -121,9 +120,9 @@ func (h *Handler) updateRuntime(ctx context.Context, evType event.EventType, md 
 	// if the service was deleted, remove it from the runtime
 	if evType == event.EventType_SourceDeleted {
 		if err := h.runtime.Delete(service, runtime.DeleteContext(ctx)); err != nil {
-			logger.Warnf("Failed to delete service %v: %v", srvName, err)
+			logger.Warnf("Failed to delete service %v/%v: %v", acc.Namespace, srvName, err)
 		} else {
-			logger.Infof("Successfully deleted service %v: %v", srvName, err)
+			logger.Infof("Successfully deleted service %v/%v: %v", acc.Namespace, srvName, err)
 		}
 		return
 	}
@@ -134,13 +133,13 @@ func (h *Handler) updateRuntime(ctx context.Context, evType event.EventType, md 
 		runtime.ReadContext(ctx),
 	)
 	if err != nil {
-		logger.Warnf("Failed to read service %v: %v", srvName, err)
+		logger.Warnf("Failed to read service %v/%v: %v", acc.Namespace, srvName, err)
 		return
 	}
 	if len(srvs) > 0 {
 		// the service already exists, we just need to update it
 		if err := h.runtime.Update(service, runtime.UpdateContext(ctx)); err != nil {
-			logger.Warnf("Failed to update service %v: %v", srvName, err)
+			logger.Warnf("Failed to update service %v/%v: %v", acc.Namespace, srvName, err)
 		} else {
 			logger.Warnf("Successfully updated service %v", srvName)
 		}
@@ -154,7 +153,7 @@ func (h *Handler) updateRuntime(ctx context.Context, evType event.EventType, md 
 		runtime.CreateContext(ctx),
 	}
 	if err := h.runtime.Create(service, opts...); err != nil {
-		logger.Warnf("Failed to create service %v: %v", srvName, err)
+		logger.Warnf("Failed to create service %v/%v: %v", acc.Namespace, srvName, err)
 	} else {
 		logger.Warnf("Successfully created service %v", srvName)
 	}
