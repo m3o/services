@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package go.micro.api.auth;
+
+service Auth {
+  rpc Login(LoginRequest) returns (LoginResponse) {};
+}
+
+message LoginRequest {
+  string id = 1;
+  string secret = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
