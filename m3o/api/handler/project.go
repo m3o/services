@@ -3,9 +3,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
@@ -20,6 +22,7 @@ import (
 func NewProject(service micro.Service) *Project {
 	return &Project{
 		name:    service.Name(),
+		auth:    service.Options().Auth,
 		users:   users.NewUsersService("go.micro.service.users", service.Client()),
 		project: project.NewProjectService("go.micro.service.project", service.Client()),
 	}
@@ -28,6 +31,7 @@ func NewProject(service micro.Service) *Project {
 // Project implments the M3O project service proto
 type Project struct {
 	name    string
+	auth    auth.Auth
 	users   users.UsersService
 	project project.ProjectService
 }
@@ -66,36 +70,11 @@ func (p *Project) Create(ctx context.Context, req *pb.CreateProjectRequest, rsp 
 
 // Update a project
 func (p *Project) Update(ctx context.Context, req *pb.UpdateProjectRequest, rsp *pb.UpdateProjectResponse) error {
-	// Identify the user
-	userID, err := p.userIDFromContext(ctx)
+	// find the project
+	proj, err := p.findProject(ctx, req.Id)
 	if err != nil {
 		return err
 	}
-
-	// get the projects the user belongs to
-	mRsp, err := p.project.ListMemberships(ctx, &project.ListMembershipsRequest{MemberId: userID})
-	if err != nil {
-		return err
-	}
-
-	// check for membership
-	var isMember bool
-	for _, t := range mRsp.Projects {
-		if t.Id == req.Id {
-			isMember = true
-			break
-		}
-	}
-	if !isMember {
-		return errors.Forbidden(p.name, "Not a member of this team")
-	}
-
-	// lookup the project
-	rRsp, err := p.project.Read(ctx, &project.ReadRequest{Id: req.Id})
-	if err != nil {
-		return err
-	}
-	proj := rRsp.GetProject()
 
 	// assign the update attributes
 	proj.Name = req.Name
@@ -159,6 +138,27 @@ func (p *Project) VerifyGithubToken(ctx context.Context, req *pb.VerifyGithubTok
 	return nil
 }
 
+// WebhookAPIKey generates an auth account token which can be used to authenticate against the webhook api
+func (p *Project) WebhookAPIKey(ctx context.Context, req *pb.WebhookAPIKeyRequest, rsp *pb.WebhookAPIKeyResponse) error {
+	// find the project
+	proj, err := p.findProject(ctx, req.ProjectId)
+	if err != nil {
+		return err
+	}
+
+	// generate the auth account
+	id := fmt.Sprintf("%v-webhook-%v", proj.Namespace, time.Now().Unix())
+	acc, err := p.auth.Generate(id, auth.WithNamespace(proj.Namespace), auth.WithRoles("webhook"))
+	if err != nil {
+		return err
+	}
+
+	// serialize the a secret token
+	rsp.ClientId = acc.ID
+	rsp.ClientSecret = acc.Secret
+	return nil
+}
+
 func (p *Project) userIDFromContext(ctx context.Context) (string, error) {
 	acc, err := auth.AccountFromContext(ctx)
 	if err != nil {
@@ -217,4 +217,37 @@ func (p *Project) listGitHubRepos(token string) ([]string, error) {
 	}
 
 	return repoos, nil
+}
+
+func (p *Project) findProject(ctx context.Context, id string) (*project.Project, error) {
+	// Identify the user
+	userID, err := p.userIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// get the projects the user belongs to
+	mRsp, err := p.project.ListMemberships(ctx, &project.ListMembershipsRequest{MemberId: userID})
+	if err != nil {
+		return nil, err
+	}
+
+	// check for membership
+	var isMember bool
+	for _, t := range mRsp.Projects {
+		if t.Id == id {
+			isMember = true
+			break
+		}
+	}
+	if !isMember {
+		return nil, errors.Forbidden(p.name, "Not a member of this team")
+	}
+
+	// lookup the project
+	rRsp, err := p.project.Read(ctx, &project.ReadRequest{Id: id})
+	if err != nil {
+		return nil, err
+	}
+	return rRsp.GetProject(), nil
 }

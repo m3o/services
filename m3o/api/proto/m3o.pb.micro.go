@@ -105,6 +105,7 @@ type ProjectService interface {
 	Update(ctx context.Context, in *UpdateProjectRequest, opts ...client.CallOption) (*UpdateProjectResponse, error)
 	List(ctx context.Context, in *ListProjectsRequest, opts ...client.CallOption) (*ListProjectsResponse, error)
 	VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error)
+	WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, opts ...client.CallOption) (*WebhookAPIKeyResponse, error)
 }
 
 type projectService struct {
@@ -159,6 +160,16 @@ func (c *projectService) VerifyGithubToken(ctx context.Context, in *VerifyGithub
 	return out, nil
 }
 
+func (c *projectService) WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, opts ...client.CallOption) (*WebhookAPIKeyResponse, error) {
+	req := c.c.NewRequest(c.name, "ProjectService.WebhookAPIKey", in)
+	out := new(WebhookAPIKeyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for ProjectService service
 
 type ProjectServiceHandler interface {
@@ -166,6 +177,7 @@ type ProjectServiceHandler interface {
 	Update(context.Context, *UpdateProjectRequest, *UpdateProjectResponse) error
 	List(context.Context, *ListProjectsRequest, *ListProjectsResponse) error
 	VerifyGithubToken(context.Context, *VerifyGithubTokenRequest, *VerifyGithubTokenResponse) error
+	WebhookAPIKey(context.Context, *WebhookAPIKeyRequest, *WebhookAPIKeyResponse) error
 }
 
 func RegisterProjectServiceHandler(s server.Server, hdlr ProjectServiceHandler, opts ...server.HandlerOption) error {
@@ -174,6 +186,7 @@ func RegisterProjectServiceHandler(s server.Server, hdlr ProjectServiceHandler, 
 		Update(ctx context.Context, in *UpdateProjectRequest, out *UpdateProjectResponse) error
 		List(ctx context.Context, in *ListProjectsRequest, out *ListProjectsResponse) error
 		VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error
+		WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, out *WebhookAPIKeyResponse) error
 	}
 	type ProjectService struct {
 		projectService
@@ -200,4 +213,8 @@ func (h *projectServiceHandler) List(ctx context.Context, in *ListProjectsReques
 
 func (h *projectServiceHandler) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error {
 	return h.ProjectServiceHandler.VerifyGithubToken(ctx, in, out)
+}
+
+func (h *projectServiceHandler) WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, out *WebhookAPIKeyResponse) error {
+	return h.ProjectServiceHandler.WebhookAPIKey(ctx, in, out)
 }

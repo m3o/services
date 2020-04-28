@@ -11,6 +11,7 @@ service ProjectService {
   rpc Update(UpdateProjectRequest) returns (UpdateProjectResponse) {};
   rpc List(ListProjectsRequest) returns (ListProjectsResponse) {};
   rpc VerifyGithubToken(VerifyGithubTokenRequest) returns (VerifyGithubTokenResponse) {};
+  rpc WebhookAPIKey(WebhookAPIKeyRequest) returns (WebhookAPIKeyResponse) {};
 }
 
 message User {
@@ -66,4 +67,13 @@ message VerifyGithubTokenRequest {
 
 message VerifyGithubTokenResponse {
   repeated string repos = 1;
+}
+
+message WebhookAPIKeyRequest {
+  string project_id = 1;
+}
+
+message WebhookAPIKeyResponse {
+  string client_id = 1;
+  string client_secret = 2;
 }
