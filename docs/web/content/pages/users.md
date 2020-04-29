@@ -15,6 +15,7 @@ If you're using Micro, feel free to add your company
 - [Agora.io](http://agora.io) -- Real-Time video, audio, and live interactive broadcasting Communication API solution
 - [Ankr](https://www.ankr.network/) - Distributed cloud computing network
 - [Arex](https://arex.io/) - Automated receivable exchange
+- [BetMakers](https://betmakers.com/) - Data aggregation of horse racing and sports information 
 - [Bottos](https://bottos.org/) - Decentralised AI network
 - [Capital One](https://www.capitalone.com/) - Financial services
 - [CESNET](https://www.cesnet.cz/) - Czech Educational and Research Network
