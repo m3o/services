@@ -1,27 +1,27 @@
 import React from 'react';
 import PageLayout from '../../components/PageLayout';
 import EditIcon from './assets/edit.png';
-import './Project.scss';
+import './Enviroment.scss';
 
 interface Props {
   match: any;
 }
 
-export default class Project extends React.Component<Props> {
+export default class Enviroment extends React.Component<Props> {
   render(): JSX.Element {
-    const { owner, project } = this.props.match.params;
+    const { owner, enviroment } = this.props.match.params;
 
-    return <PageLayout className='Project'>
+    return <PageLayout className='Enviroment'>
       <div className='center'>
         <div className='header'>
-          <h1><span>{owner}</span> / <span>{project}</span></h1>
+          <h1><span>{owner}</span> / <span>{enviroment}</span></h1>
           <img src={EditIcon} alt='Edit Name' />
 
           <button className='btn'><p>Launch Dashboard</p></button>
         </div>
 
         <section>
-          <h2>Project Details</h2>
+          <h2>Enviroment Details</h2>
           <p>These details are only visible to you and collaborators. All M3O projects are private.</p>
 
           <form>
