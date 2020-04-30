@@ -1,0 +1,51 @@
+@import "../../global.scss";
+
+.PageLayout {
+  display: grid;
+  height: 100%;
+  grid-template-rows: 50px auto;
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: solid 0.5px #00000020;
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      margin: auto 0px auto 10px;
+    }
+
+    nav {
+      display: flex;
+      margin-right: 20px;
+      height: inherit;
+
+      a {
+        display: flex;
+        text-decoration: none;
+        margin-left: 15px;
+        padding: 0px 10px;
+        border-bottom-width: 3px;
+        border-bottom-style: solid;
+        border-bottom-color: transparent;
+
+        p {
+          margin: auto 0px;
+          font-weight: 600;
+          font-size: 10pt;
+          color: $grey;
+        }
+
+        &.active {
+          color: $green;
+          border-bottom-color: $green;
+
+          p {
+            color: $green;
+          }
+        }
+      }
+    }
+  }
+}
