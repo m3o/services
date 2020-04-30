@@ -137,6 +137,102 @@
 
     .main {
       overflow: scroll;
+
+      .center {
+        width: 100%;
+        max-width: 850px;
+        padding: 50px 50px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    
+      .header {
+        display: flex;
+        flex-direction: row;
+    
+        h1 {
+          span {
+            &:first-of-type {
+              cursor: pointer;
+            }
+          }
+        }
+    
+        img {
+          height: 14px;
+          margin-top: auto;
+          margin-bottom: auto;
+          padding: 15px;
+          opacity: 0.2;
+          cursor: pointer;
+    
+          &:hover {
+            opacity: 1;
+          }
+        }
+    
+        h1, button {
+          margin-top: auto;
+          margin-bottom: auto;
+        }
+    
+        button {
+          margin-left: auto;
+        }
+      }
+    
+      section {
+        margin-top: 50px;
+        &:first-of-type {
+          margin-top: 0px;
+        }
+
+        &:last-child {
+          margin-bottom: 0px !important;
+        }
+        
+        border-top: solid 0.5px #00000020;
+        &:first-of-type {
+          border-top-color: transparent;
+        }
+    
+        h2 {
+          margin-top: 40px;
+          margin-bottom: 25px;
+        }
+    
+        p {
+          a {
+            color: $blue;
+            text-decoration: none;
+          }
+        }
+
+        .btn {
+          margin-top: 25px;
+        }
+    
+        form, table {
+          margin-top: 40px;
+          margin-bottom: 40px;
+        }
+
+        form {
+          .row {
+            display: grid;
+            grid-template-columns: 150px auto;
+            margin-bottom: 25px;
+            &:last-of-type {
+              margin-bottom: 0px;
+            }
+    
+            label, input {
+              margin-top: auto;
+              margin-bottom: auto;
+            }
+          }
+        }
+      }
     }
   }
 }

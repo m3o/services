@@ -11,6 +11,7 @@ import * as API from './api';
 // Scenes
 import Notifications from './scenes/Notifications';
 import Enviroment from './scenes/Enviroment';
+import Project from './scenes/Project';
 
 // Styling
 import Logo from './components/PageLayout/assets/logo.png';
@@ -43,7 +44,8 @@ class App extends React.Component<Props> {
     return (
       <BrowserRouter>
         <Route key='notificiations' exact path='/' component={Notifications} />
-        <Route key='enviroment' exact path='/projects/:owner/:enviroment' component={Enviroment} />
+        <Route key='project' exact path='/projects/:project' component={Project} />
+        <Route key='enviroment' exact path='/projects/:project/:enviroment' component={Enviroment} />
       </BrowserRouter>
     );  
   }

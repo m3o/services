@@ -5,7 +5,6 @@ import PageLayout from '../../components/PageLayout';
 export default class Notifications extends React.Component {
   render(): JSX.Element {
     return <PageLayout className='Notifications'>
-      <h1>Foo</h1>
     </PageLayout>
   }
 }

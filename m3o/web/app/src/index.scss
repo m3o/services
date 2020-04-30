@@ -67,13 +67,19 @@ header {
   background-color: rgba($color: $green, $alpha: 0.2);
   border: none;
   height: 44px;
-  border-radius: 22px;
+  border-radius: 5px;
   color: $green;
   display: flex;
   padding: 10px 30px;
   cursor: pointer;
   outline: none;
   min-width: 120px;
+  width: fit-content;
+  font-weight: 600;
+  margin: 0px;
+  font-size: 9pt;
+  text-align: center;
+
 
   img {
     height: 15px;

@@ -9,12 +9,12 @@ interface Props {
 
 export default class Enviroment extends React.Component<Props> {
   render(): JSX.Element {
-    const { owner, enviroment } = this.props.match.params;
+    const { project, enviroment } = this.props.match.params;
 
     return <PageLayout className='Enviroment'>
       <div className='center'>
         <div className='header'>
-          <h1><span>{owner}</span> / <span>{enviroment}</span></h1>
+          <h1><span>{project}</span> / <span>{enviroment}</span></h1>
           <img src={EditIcon} alt='Edit Name' />
 
           <button className='btn'><p>Launch Dashboard</p></button>
