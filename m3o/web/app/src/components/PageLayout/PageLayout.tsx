@@ -44,78 +44,84 @@ export default class PageLayout extends React.Component<Props> {
         <div className='wrapper'>
           <div className='sidebar'>
             <section>
-              <a href=''>
+              <NavLink exact to='/'>
                 <img src={NotificationsIcon} alt='Notifications' />
                 <p>Notifications</p>
-              </a>
+              </NavLink>
 
-              <a href=''>
+              <NavLink exact to='/feedback'>
                 <img src={FeedbackIcon} alt='Feedback' />
                 <p>Feedback</p>
-              </a>
+              </NavLink>
 
-              <a href=''>
+              <NavLink exact to='/docs'>
                 <img src={DocsIcon} alt='Docs' />
                 <p>Docs</p>
-              </a>
+              </NavLink>
             </section>
 
             <section>
-              <p>ben-toogood</p>
+              <NavLink exact activeClassName='header active' className='header' to='/projects/ben-toogood'>
+                <p>ben-toogood</p>
+              </NavLink>
               
-              <a href=''>
+              <NavLink to='/projects/ben-toogood/hello-world'>
                 <img src={ProjectIcon} alt='ben-toogood/hello-world' />
                 <p>ben-toogood/hello-world</p>
-              </a>          
+              </NavLink>
 
-              <a href=''>
+              <NavLink to='/projects/ben-toogood/new'>
                 <img src={AddIcon} alt='New Project' />
-                <p>New Project</p>
-              </a>
+                <p>New Enviroment</p>
+              </NavLink>
             </section>
 
             <section>
-              <p>Kytra</p>
+              <NavLink exact activeClassName='header active' className='header' to='/projects/kytra'>
+                <p>Kytra</p>
+              </NavLink>
               
-              <a href='' className='active'>
+              <NavLink to='/projects/kytra/production'>
                 <img src={ProjectIcon} alt='kytra/production' />
                 <p>kytra/production</p>
-              </a>
+              </NavLink>
               
-              <a href=''>
+              <NavLink to='/projects/kytra/staging'>
                 <img src={ProjectIcon} alt='kytra/staging' />
                 <p>kytra/staging</p>
-              </a>
+              </NavLink>
               
-              <a href=''>
+              <NavLink to='/projects/kytra/develpment'>
                 <img src={ProjectIcon} alt='kytra/develpment' />
                 <p>kytra/develpment</p>
-              </a>
+              </NavLink>
               
 
-              <a href=''>
+              <NavLink to='/projects/kytra/new'>
                 <img src={AddIcon} alt='New Project' />
-                <p>New Project</p>
-              </a>
+                <p>New Enviroment</p>
+              </NavLink>
             </section>
 
             <section>
-              <p>Micro</p>
+              <NavLink exact activeClassName='header active' className='header' to='/project/Micro'>
+                <p>Micro</p>
+              </NavLink>
               
-              <a href='' >
+              <NavLink to='/projects/micro/services'>
                 <img src={ProjectIcon} alt='micro/services' />
                 <p>micro/services</p>
-              </a>
+              </NavLink>
               
-              <a href=''>
+              <NavLink to='/projects/micro/m3o'>
                 <img src={ProjectIcon} alt='micro/m3o' />
                 <p>micro/m3o</p>
-              </a>
+              </NavLink>
               
-              <a href=''>
+              <NavLink to='/projects/micro/new'>
                 <img src={AddIcon} alt='New Project' />
-                <p>New Project</p>
-              </a>
+                <p>New Enviroment</p>
+              </NavLink>
             </section>
           </div>
 

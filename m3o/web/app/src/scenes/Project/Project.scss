@@ -1,0 +1,90 @@
+@import "../../global.scss";
+
+.Project {
+  .center {
+    width: 100%;
+    max-width: 850px;
+    padding: 50px 50px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 40px;
+
+    h1 {
+      span {
+        &:first-of-type {
+          cursor: pointer;
+        }
+      }
+    }
+
+    img {
+      height: 14px;
+      margin-top: auto;
+      margin-bottom: auto;
+      padding: 15px;
+      opacity: 0.2;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    h1, button {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    button {
+      margin-left: auto;
+    }
+  }
+
+  section {
+    padding: 50px 0px;
+    &:first-of-type {
+      padding-top: 20px;
+    }
+    
+    border-top: solid 0.5px #00000020;
+    &:first-of-type {
+      border-top-color: transparent;
+    }
+
+    h2 {
+      margin-top: 0px;
+      margin-bottom: 25px;
+    }
+
+    p {
+      a {
+        color: $blue;
+        text-decoration: none;
+      }
+    }
+
+    form {
+      margin-top: 35px;
+      margin-bottom: 10px;
+
+      .row {
+        display: grid;
+        grid-template-columns: 150px auto;
+        margin-bottom: 25px;
+        &:last-of-type {
+          margin-bottom: 0px;
+        }
+
+        label, input {
+          margin-top: auto;
+          margin-bottom: auto;
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,8 @@ import { setUser } from './store/Account';
 import * as API from './api';
 
 // Scenes
-import Dashboard from './scenes/Dashboard';
+import Notifications from './scenes/Notifications';
+import Project from './scenes/Project';
 
 // Styling
 import Logo from './components/PageLayout/assets/logo.png';
@@ -29,7 +30,7 @@ class App extends React.Component<Props> {
   componentDidMount() {
     API.Call("AccountService/Read").then((res) => {
       this.props.setUser(res.data.user);
-    });
+    });  
   }
 
   renderLoading(): JSX.Element {
@@ -41,7 +42,8 @@ class App extends React.Component<Props> {
   renderLoggedIn(): JSX.Element {
     return (
       <BrowserRouter>
-        <Route key='dashboard' exact path='/' component={Dashboard} />
+        <Route key='notificiations' exact path='/' component={Notifications} />
+        <Route key='project' exact path='/projects/:owner/:project' component={Project} />
       </BrowserRouter>
     );  
   }

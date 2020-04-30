@@ -26,7 +26,7 @@ h1 {
 
 h2 {
   font-weight: 500;
-  font-size: 15pt;
+  font-size: 14pt;
   margin: 30px 0px 30px 0px;
 }
 
@@ -64,11 +64,11 @@ header {
 }
 
 .btn {
-  background-color: rgba($color: $blue, $alpha: 0.2);
+  background-color: rgba($color: $green, $alpha: 0.2);
   border: none;
   height: 44px;
   border-radius: 22px;
-  color: $blue;
+  color: $green;
   display: flex;
   padding: 10px 30px;
   cursor: pointer;
@@ -177,7 +177,6 @@ table {
 form {
   display: flex;
   flex-direction: column;
-  max-width: 500px;
 
   label, input, select {
     font-size: 10pt;
@@ -186,6 +185,7 @@ form {
   label {
     font-weight: 500;
     line-height: 30px;
+    margin-bottom: 5px;
   }
 
   input, select {
@@ -193,10 +193,10 @@ form {
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 5px;
-    border: solid 1px #00000020;
+    border: solid 1px #00000010;
     outline: none;
     line-height: 1.6;
     background-color: transparent;
-    height: 44px;
+    height: 40px;
   }
 }
