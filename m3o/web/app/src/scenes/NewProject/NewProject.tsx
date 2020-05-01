@@ -1,4 +1,5 @@
 import React from 'react';
+import Gist from 'react-gist';
 import PageLayout from '../../components/PageLayout';
 import * as API from '../../api';
 import './NewProject.scss';
@@ -9,7 +10,6 @@ interface State {
   project: API.Project;
   token: string;
   tokenStatus: string;
-  credsStatus: string;
   repos: string[];
   clientID?: string;
   clientSecret?: string;
@@ -20,7 +20,6 @@ export default class NewProject extends React.Component<Props, State> {
     token: '',
     repos: [],
     tokenStatus: 'Waiting for token...',
-    credsStatus: 'Creating your credentials...',
     project: { name: '', description: '' },
   };
 
@@ -61,11 +60,11 @@ export default class NewProject extends React.Component<Props, State> {
         clientID: res.data.client_id,
         clientSecret: res.data.client_secret,
       }))
-      .catch(err => this.setState({ credsStatus: err.response.data.detail }));
+      .catch(err => alert(err.response.data.detail));
   }
   
   render(): JSX.Element {
-    const { repository } = this.state.project;
+    const { repository, name } = this.state.project;
 
     return(
       <PageLayout className='NewProject'>
@@ -75,7 +74,7 @@ export default class NewProject extends React.Component<Props, State> {
           </div>
 
           { this.renderProjectDetails() }
-          { this.renderGithubToken() }
+          { name.length > 0 ? this.renderGithubToken() : null }
           { repository ? this.renderSecrets() : null }
         </div>
       </PageLayout>
@@ -135,14 +134,13 @@ export default class NewProject extends React.Component<Props, State> {
   }
 
   renderSecrets(): JSX.Element {
-    const { credsStatus, project, clientID, clientSecret } = this.state;
+    const { project, clientID, clientSecret } = this.state;
     const addSecretsLink = `https://github.com/${project.repository}/settings/secrets`;
 
     return(
       <section>
         <h2>Setup Github Action</h2>
         <p>M3O provides a GitHub action <a href='https://github.com/micro/actions' target='blank'>(micro/actions)</a> which builds packages within your repository, giving you full ownership over your source and builds. The GitHub action requires the following secrets to authenticate with M3O. You can add the secrets at <a href={addSecretsLink} target='blank'>this link</a>.</p>
-        <p className='status'>{credsStatus}</p>
 
         <form onSubmit={null}>
           <div className='row'>
@@ -154,6 +152,9 @@ export default class NewProject extends React.Component<Props, State> {
             <input type='text' disabled value={clientSecret} />
           </div>
         </form>
+
+        <p>Commit the following file to your repo as <strong>.github/workflows/m3o.yaml</strong></p>
+        <Gist id="cd6ed0ae96e83c49569f877be7a22b32" />
       </section>
     );
   }
