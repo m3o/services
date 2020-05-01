@@ -42,6 +42,8 @@ message CreateProjectRequest {
 
 message CreateProjectResponse {
   Project project = 1;
+  string client_id = 2;
+  string client_secret = 3;
 }
 
 message UpdateProjectRequest {

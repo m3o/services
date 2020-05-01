@@ -87,6 +87,9 @@ func (p *Project) Create(ctx context.Context, req *pb.CreateProjectRequest, rsp 
 
 	// serialize the project
 	rsp.Project = serializeProject(cRsp.Project)
+
+	// generate the auth account for the webhooks
+	rsp.ClientId, rsp.ClientSecret, err = p.generateCreds(cRsp.Project.Id)
 	return nil
 }
 
@@ -146,17 +149,20 @@ func (p *Project) WebhookAPIKey(ctx context.Context, req *pb.WebhookAPIKeyReques
 	}
 
 	// generate the auth account
-	id := fmt.Sprintf("%v-webhook-%v", proj.Id, time.Now().Unix())
-	md := map[string]string{"project-id": proj.Id}
+	rsp.ClientId, rsp.ClientSecret, err = p.generateCreds(proj.Id)
+	return err
+}
+
+func (p *Project) generateCreds(projectID string) (string, string, error) {
+	id := fmt.Sprintf("%v-webhook-%v", projectID, time.Now().Unix())
+	md := map[string]string{"project-id": projectID}
+
 	acc, err := p.auth.Generate(id, auth.WithRoles("webhook"), auth.WithMetadata(md))
 	if err != nil {
-		return err
+		return "", "", err
 	}
 
-	// serialize the a secret token
-	rsp.ClientId = acc.ID
-	rsp.ClientSecret = acc.Secret
-	return nil
+	return acc.ID, acc.Secret, nil
 }
 
 func (p *Project) userIDFromContext(ctx context.Context) (string, error) {
