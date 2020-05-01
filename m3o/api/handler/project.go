@@ -77,9 +77,14 @@ func (p *Project) Create(ctx context.Context, req *pb.CreateProjectRequest, rsp 
 		return err
 	}
 
-	// add the user as a member
+	// add the user as an owner
 	_, err = p.project.AddMember(ctx, &project.AddMemberRequest{
-		MemberId: userID, ProjectId: cRsp.Project.Id,
+		Role:      project.Role_Owner,
+		ProjectId: cRsp.Project.Id,
+		Member: &project.Member{
+			Type: "user",
+			Id:   userID,
+		},
 	})
 	if err != nil {
 		return err
@@ -117,7 +122,9 @@ func (p *Project) List(ctx context.Context, req *pb.ListProjectsRequest, rsp *pb
 		return err
 	}
 
-	tRsp, err := p.project.ListMemberships(ctx, &project.ListMembershipsRequest{MemberId: userID})
+	tRsp, err := p.project.ListMemberships(ctx, &project.ListMembershipsRequest{
+		Member: &project.Member{Type: "user", Id: userID},
+	})
 	if err != nil {
 		return err
 	}
@@ -232,7 +239,9 @@ func (p *Project) findProject(ctx context.Context, id string) (*project.Project,
 	}
 
 	// get the projects the user belongs to
-	mRsp, err := p.project.ListMemberships(ctx, &project.ListMembershipsRequest{MemberId: userID})
+	mRsp, err := p.project.ListMemberships(ctx, &project.ListMembershipsRequest{
+		Member: &project.Member{Type: "user", Id: userID},
+	})
 	if err != nil {
 		return nil, err
 	}

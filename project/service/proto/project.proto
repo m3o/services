@@ -20,8 +20,16 @@ message Project {
   repeated Member members = 5;
 }
 
+enum Role {
+  Unknown = 0;
+  Owner = 1;
+  Collaborator = 2;
+}
+
 message Member {
   string id = 1;
+  string type = 2;
+  Role role = 3;
 }
 
 message ReadRequest {
@@ -53,21 +61,23 @@ message ListResponse {
 }
 
 message AddMemberRequest {
-  string project_id = 1;
-  string member_id = 2; 
+  Member member = 1;
+  string project_id = 2;
+  Role role = 3;
 }
 
 message AddMemberResponse {}
 
 message RemoveMemberRequest {
-  string project_id = 1;
-  string member_id = 2; 
+  Member member = 1;
+  string project_id = 2;
+  Role role = 3;
 }
 
 message RemoveMemberResponse {}
 
 message ListMembershipsRequest {
-  string member_id = 1;
+  Member member = 1;
 }
 
 message ListMembershipsResponse {

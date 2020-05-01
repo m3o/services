@@ -35,7 +35,6 @@ class ProjectsScene extends React.Component<Props> {
 
           <tbody>
             { this.props.projects.map(p => <tr key={p.id}>
-              <td>{p.namespace}</td>
               <td>{p.name}</td>
               <td>
                 <button className='warning' onClick={() => this.editProject(p)}>Edit</button>

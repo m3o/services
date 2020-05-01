@@ -9,7 +9,10 @@ interface State {
   project: API.Project;
   token: string;
   tokenStatus: string;
+  credsStatus: string;
   repos: string[];
+  clientID?: string;
+  clientSecret?: string;
 }
 
 export default class NewProject extends React.Component<Props, State> {
@@ -17,6 +20,7 @@ export default class NewProject extends React.Component<Props, State> {
     token: '',
     repos: [],
     tokenStatus: 'Waiting for token...',
+    credsStatus: 'Creating your credentials...',
     project: { name: '', description: '' },
   };
 
@@ -34,8 +38,30 @@ export default class NewProject extends React.Component<Props, State> {
   }
 
   onRepositoryChange(e: any): void {
-    if(e.target.value === "") e.target.value = undefined;
-    this.setState({ project: {...this.state.project, repository: e.target.value}});
+    let repository = e.target.value;
+    if(repository === "") {
+      this.setState({ project: { ...this.state.project, repository: undefined }});
+      return;
+    };
+
+    this.setState({ project: {...this.state.project, repository }})
+
+    const params = {
+      github_token: this.state.token,
+      project: {
+        repository,
+        name: this.state.project.name,
+        description: this.state.project.description,
+      },
+    };
+
+    API.Call("ProjectService/Create", params)
+      .then(res => this.setState({ 
+        project: res.data.project,
+        clientID: res.data.client_id,
+        clientSecret: res.data.client_secret,
+      }))
+      .catch(err => this.setState({ credsStatus: err.response.data.detail }));
   }
   
   render(): JSX.Element {
@@ -60,7 +86,7 @@ export default class NewProject extends React.Component<Props, State> {
     const { name, description } = this.state.project;
 
     return(
-      <section>
+      <section className='complete'>
         <h2>Project Details</h2>
         <p>Let's start by entering some basic project information</p>
 
@@ -109,12 +135,25 @@ export default class NewProject extends React.Component<Props, State> {
   }
 
   renderSecrets(): JSX.Element {
-    const addSecretsLink = `https://github.com/${this.state.project.repository}/settings/secrets`;
+    const { credsStatus, project, clientID, clientSecret } = this.state;
+    const addSecretsLink = `https://github.com/${project.repository}/settings/secrets`;
 
     return(
       <section>
         <h2>Setup Github Action</h2>
         <p>M3O provides a GitHub action <a href='https://github.com/micro/actions' target='blank'>(micro/actions)</a> which builds packages within your repository, giving you full ownership over your source and builds. The GitHub action requires the following secrets to authenticate with M3O. You can add the secrets at <a href={addSecretsLink} target='blank'>this link</a>.</p>
+        <p className='status'>{credsStatus}</p>
+
+        <form onSubmit={null}>
+          <div className='row'>
+            <label>M3O_CLIENT_ID</label>
+            <input type='text' disabled value={clientID} />
+          </div>
+          <div className='row'>
+            <label>M3O_CLIENT_SECRET</label>
+            <input type='text' disabled value={clientSecret} />
+          </div>
+        </form>
       </section>
     );
   }

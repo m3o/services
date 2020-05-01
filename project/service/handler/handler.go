@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -29,12 +30,12 @@ func New(service micro.Service) *Project {
 
 const (
 	// projectsPrefix is the store prefix for projects. projects are stored with
-	// keys in the following format "projects/{id}".
-	projectsPrefix = "projects/"
+	// keys in the following format "project/{id}".
+	projectsPrefix = "project/"
 	// membersPrefix is the stroe prefix for memberships. Memberships are
-	// stored with key in the following format "memberships/{projectID}/{userID}".
+	// stored with key in the following format "membership/{projectID}/{userID}".
 	// The value is the user ID (string, stored as bytes).
-	membersPrefix = "members/"
+	membersPrefix = "member/"
 )
 
 // Read looks up a project using id
@@ -139,30 +140,72 @@ func (p *Project) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 	return nil
 }
 
+type membership struct {
+	ProjectID  string
+	MemberType string
+	MemberID   string
+	Role       pb.Role
+}
+
+func (m *membership) Key() string {
+	return fmt.Sprintf("%v%v/%v/%v", membersPrefix, m.ProjectID, m.MemberType, m.MemberID)
+}
+
+func (m *membership) Bytes() []byte {
+	bytes, _ := json.Marshal(m)
+	return bytes
+}
+
 // AddMember to a project
 func (p *Project) AddMember(ctx context.Context, req *pb.AddMemberRequest, rsp *pb.AddMemberResponse) error {
 	// validate the request
 	if _, err := p.findProjectByID(req.ProjectId); err != nil {
 		return err
 	}
-	if len(req.MemberId) == 0 {
-		return errors.BadRequest(p.name, "Missing member id")
+	if req.Member == nil {
+		return errors.BadRequest(p.name, "Missing member")
+	}
+	if req.Role == pb.Role_Unknown {
+		return errors.BadRequest(p.name, "Missing role")
+	}
+
+	// construct the membership
+	m := &membership{
+		ProjectID:  req.ProjectId,
+		Role:       req.Role,
+		MemberID:   req.Member.Id,
+		MemberType: req.Member.Type,
 	}
 
 	// write the membership to the store
-	return p.store.Write(&store.Record{
-		Key:   membersPrefix + req.ProjectId + "/" + req.MemberId,
-		Value: []byte(req.MemberId),
-	})
+	return p.store.Write(&store.Record{Key: m.Key(), Value: m.Bytes()})
 }
 
 // RemoveMember from a project
 func (p *Project) RemoveMember(ctx context.Context, req *pb.RemoveMemberRequest, rsp *pb.RemoveMemberResponse) error {
-	return p.store.Delete(membersPrefix + req.ProjectId + "/" + req.MemberId)
+	// validate the request
+	if req.Member == nil {
+		return errors.BadRequest(p.name, "Missing member")
+	}
+
+	// construct the membership
+	m := &membership{
+		ProjectID:  req.ProjectId,
+		Role:       req.Role,
+		MemberID:   req.Member.Id,
+		MemberType: req.Member.Type,
+	}
+
+	return p.store.Delete(m.Key())
 }
 
 // ListMemberships returns all the projects a member belongs to
 func (p *Project) ListMemberships(ctx context.Context, req *pb.ListMembershipsRequest, rsp *pb.ListMembershipsResponse) error {
+	// validate the request
+	if req.Member == nil {
+		return errors.BadRequest(p.name, "Missing member")
+	}
+
 	// member id is the last component of the key, so list all
 	// the keys in the store which relate to memberships
 	keys, err := p.store.List(store.ListPrefix(membersPrefix))
@@ -173,7 +216,7 @@ func (p *Project) ListMemberships(ctx context.Context, req *pb.ListMembershipsRe
 	// filter to get the project ids which the member belongs to
 	var projectIDs []string
 	for _, k := range keys {
-		if strings.HasSuffix(k, "/"+req.MemberId) {
+		if strings.HasSuffix(k, "/"+req.Member.Type+"/"+req.Member.Id) {
 			projectIDs = append(projectIDs, strings.Split(k, "/")[1])
 		}
 	}

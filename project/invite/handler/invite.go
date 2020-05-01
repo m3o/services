@@ -171,7 +171,14 @@ func (i *Invites) Redeem(ctx context.Context, req *pb.RedeemRequest, rsp *pb.Red
 	// }
 
 	// add the user as a project member
-	_, err = i.projects.AddMember(ctx, &project.AddMemberRequest{ProjectId: inv.ProjectID, MemberId: req.UserId})
+	_, err = i.projects.AddMember(ctx, &project.AddMemberRequest{
+		Role:      project.Role_Collaborator,
+		ProjectId: inv.ProjectID,
+		Member: &project.Member{
+			Type: "user",
+			Id:   req.UserId,
+		},
+	})
 	return err
 }
 
