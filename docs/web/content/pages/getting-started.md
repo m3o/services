@@ -114,7 +114,7 @@ So since our service is running happily, let's try to call it! That's what servi
 
 We have a couple of options to call a service running on our `micro server`.
 
-### From CLI
+### Calling a service from CLI
 
 The easiest is perhaps with the CLI:
 
@@ -128,7 +128,7 @@ $ micro call go.micro.service.helloworld Helloworld.Call '{"name":"Jane"}'
 
 That worked! If we wonder what endpoints a service has, the best place to look for is its [proto folder](https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto). There are other tools in the making too, like [explore](https://web.micro.mu/explore/?go#helloworld), but they are still a bit experimental.
 
-### With Go Micro
+### Calling a service with Go Micro
 
 Let's write the most minimal service we can have that calls an other service.
 This is not going to be a typical service, but for the sake of simplicity, let's do it this way.
@@ -279,7 +279,7 @@ This is a recurring theme across Micro interfaces. Let's take a look at the defa
 
 ### Using the Store
 
-#### With CLI
+#### Using the store with CLI
 
 First, let's go over the more basic store CLI commands.
 
@@ -322,11 +322,76 @@ key2   val2    None
 
 There are more to the store, but this knowledge already enables us to be dangerous!
 
-#### With Go-Micro
+#### Using the Store with Go-Micro
 
-Accessing the same data we have just manipulated from our Go Micro services could not be easier. Here is a short example:
+Accessing the same data we have just manipulated from our Go Micro services could not be easier.
+Let's modify [the example service we wrote previously](#-calling-a-service-with-go-micro) so instead of calling a service, it reads a value from a store.
 
 ```go
+package main
 
+import (
+	"context"
+	"fmt"
+
+	"github.com/micro/go-micro/v2"
+	proto "github.com/micro/services/helloworld/proto"
+)
+
+func main() {
+	service := micro.NewService()
+	service.Init()
+
+	client := proto.NewHelloworldService("go.micro.service.helloworld", service.Client())
+
+	rsp, err := client.Call(context.Background(), &proto.Request{
+		Name: "John",
+	})
+	if err != nil {
+		fmt.Println("Error calling helloworld: ", err)
+		return
+	}
+
+	fmt.Println("Response: ", rsp.Msg)
+
+	// Let's just hang up here and nothing to imitate a long running service :P.
+	// Fake it till you make it!
+	time.Sleep(1 * time.Hour)
+}
+```
+
+### Updating and killing a service
+
+Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
+
+We can simply issue
 
 ```
+micro update .
+```
+
+And verify both with the micro server output:
+
+```
+Updating service example-service version latest source /home/username/example-service
+Processing update event example-service:latest in namespace default
+```
+
+and micro status:
+
+```
+$ micro status example-service
+NAME			VERSION	SOURCE							STATUS		BUILD	UPDATED		METADATA
+example-service	latest	/home/username/example-service	starting	n/a		10s ago		owner=n/a,group=n/a
+```
+
+that it was updated.
+
+If things for some reason go haywire, we can try the time tested "turning it off and on again" solution and do:
+
+```
+micro kill .
+micro run .
+```
+
+to start with a clean slate.
