@@ -325,40 +325,48 @@ There are more to the store, but this knowledge already enables us to be dangero
 #### Using the Store with Go-Micro
 
 Accessing the same data we have just manipulated from our Go Micro services could not be easier.
-Let's modify [the example service we wrote previously](#-calling-a-service-with-go-micro) so instead of calling a service, it reads a value from a store.
+First let's create an entry that our service can read. This time we will specify the table for the `micro store write` command too, as each service has its own table in the store:
+
+
+```
+micro store write --table go.micro.service.example mykey "Hi there"
+```
+
+Let's modify [the example service we wrote previously](#-calling-a-service-with-go-micro) so instead of calling a service, it reads the above value from a store.
 
 ```go
 package main
 
 import (
-	"context"
 	"fmt"
+	"time"
 
 	"github.com/micro/go-micro/v2"
-	proto "github.com/micro/services/helloworld/proto"
 )
 
 func main() {
 	service := micro.NewService()
-	service.Init()
 
-	client := proto.NewHelloworldService("go.micro.service.helloworld", service.Client())
+	service.Init(micro.Name("go.micro.service.example"))
 
-	rsp, err := client.Call(context.Background(), &proto.Request{
-		Name: "John",
-	})
+	records, err := service.Options().Store.Read("mykey")
 	if err != nil {
-		fmt.Println("Error calling helloworld: ", err)
-		return
+		fmt.Println("Error reading from store: ", err)
 	}
 
-	fmt.Println("Response: ", rsp.Msg)
+	if len(records) == 0 {
+		fmt.Println("No records")
+	}
+	for _, record := range records {
+		fmt.Printf("key: %v, value: %v\n", record.Key, string(record.Value))
+	}
 
-	// Let's just hang up here and nothing to imitate a long running service :P.
-	// Fake it till you make it!
 	time.Sleep(1 * time.Hour)
 }
+
 ```
+
+We are almost done! But first we have to learn how to update a service.
 
 ## Updating and killing a service
 
@@ -395,6 +403,15 @@ micro run .
 ```
 
 to start with a clean slate.
+
+So once we did update the example service, we should see the following in the logs:
+
+```
+$ micro logs example-service
+key: mykey, value: Hi there
+```
+
+Nice! The example service read the value from the store successfully.
 
 ## The end
 
