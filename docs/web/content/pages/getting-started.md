@@ -52,7 +52,7 @@ First, we have to start the `micro server`. The command to do that is:
 micro server
 ```
 
-To talk to this server, we just have to tell Micro CLI to address our server instead of using the default implementations - micro can work without a server too, but let's ignore that for now.
+To talk to this server, we just have to tell Micro CLI to address our server instead of using the default implementations - micro can work without a server too, but [more about that later](#-environments).
 
 The following command tells the CLI to talk to our server:
 
@@ -100,15 +100,12 @@ Processing create event helloworld:latest
 ```
 
 We can also have a look at logs of the service to verify it's running.
-The default log location is the temporary directory of your system:
 
-```
-tail /tmp/micro/logs/helloworld.log
-```
-
-```
+```sh
+$ micro logs helloworld
 Starting [service] go.micro.service.helloworld
-Server [grpc] Listening on [::]:41601
+Server [grpc] Listening on [::]:36577
+Registry [service] Registering node: go.micro.service.helloworld-213b807a-15c2-496f-93ac-7949ad38aadf
 ```
 
 So since our service is running happily, let's try to call it! That's what services are for.
@@ -134,7 +131,10 @@ That worked! If we wonder what endpoints a service has, the best place to look f
 ### With Go Micro
 
 Let's write the most minimal service we can have that calls an other service.
-The program below should output `Response:  Hello John`.
+This is not going to be a typical service, but for the sake of simplicity, let's do it this way.
+We will [learn how to write a fully fledged service soon](#-writing-a-service).
+
+Let's take the following file:
 
 ```go
 package main
@@ -157,14 +157,42 @@ func main() {
 		Name: "John",
 	})
 	if err != nil {
-		fmt.Println("call err: ", err)
+		fmt.Println("Error calling helloworld: ", err)
 		return
 	}
 
 	fmt.Println("Response: ", rsp.Msg)
 
+	// Let's just hang up here and nothing to imitate a long running service :P.
+	// Fake it till you make it!
+	time.Sleep(1 * time.Hour)
 }
 ```
+
+and save it to a folder. For ease of following this guide, name the folder `example-service`.
+After doing a `cd example-service && go mod init example`, we are ready to run this service with `micro run`:
+
+```
+micro run .
+```
+
+An other useful command to see what is running, is `micro status`. At this point we should have two services running:
+
+```
+$ micro status
+NAME			VERSION	SOURCE										STATUS		BUILD	UPDATED		METADATA
+example-service	latest	/home/username/example-service				starting	n/a		4s ago		owner=n/a,group=n/a
+helloworld		latest	/tmp/github.com-micro-services/helloworld	running		n/a		6m5s ago	owner=n/a,group=n/a
+```
+
+Now, since our example-service is also running, we should be able to see it's logs:
+```sh
+$ micro logs example-service
+# some go build output here
+Response:  Hello John
+```
+
+Great! That response is coming straight from the helloworld service we started earlier!
 
 ### From other languages
 
@@ -244,5 +272,61 @@ Let's take our current case of the [store interface](https://github.com/micro/go
 * couchbase backed
 
 Similarly, the [runtime](https://github.com/micro/go-micro/blob/master/runtime/runtime.go) interface, that represents something that runs processes, has a couple of implementations:
-* local, which just runs actual binaries - aimed at local usage (who would have guessed)
+* local, which just runs actual binaries - aimed at local usage
 * kubernetes, aimed for beefier production settings
+
+This is a recurring theme across Micro interfaces. Let's take a look at the default store when running `micro server`.
+
+### Using the Store
+
+#### With CLI
+
+First, let's go over the more basic store CLI commands.
+
+To save a value, we use the write command:
+
+```sh
+micro store write key1 value1
+```
+
+The UNIX style no output meant it was happily saved. What about reading it?
+
+```
+$ micro store read key1
+val1
+```
+
+Or to display it in a fancier way, we can use the `--verbose` or `-v` flags:
+
+```
+KEY    VALUE   EXPIRY
+key1   val1    None
+```
+
+This view is especially useful when we use the `--prefix` or `-p` flag, which lets us search for entries which key have certain prefixes.
+
+To demonstrate that first let's save an other value:
+
+```
+micro store write key2 val2
+```
+
+After this, we can list both `key1` and `key2` keys as they both share commond prefixes:
+
+```
+$ micro store read --prefix --verbose key
+KEY    VALUE   EXPIRY
+key1   val1    None
+key2   val2    None
+```
+
+There are more to the store, but this knowledge already enables us to be dangerous!
+
+#### With Go-Micro
+
+Accessing the same data we have just manipulated from our Go Micro services could not be easier. Here is a short example:
+
+```go
+
+
+```
