@@ -82,9 +82,9 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	}
 
 	// get the auth account of the current user (the one sending the invite)
-	acc, err := auth.AccountFromContext(ctx)
-	if err != nil {
-		return errors.Forbidden(i.name, "Error loading account: %v", err)
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Forbidden(i.name, "Error loading account")
 	}
 
 	// lookup the user using the account id (email)
