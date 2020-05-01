@@ -360,7 +360,7 @@ func main() {
 }
 ```
 
-### Updating and killing a service
+## Updating and killing a service
 
 Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
 
@@ -395,3 +395,13 @@ micro run .
 ```
 
 to start with a clean slate.
+
+## The end
+
+This takes us to the end of this getting started guide.
+Come back from time to time as this guide will be continually upgraded.
+
+If you are hungry for more micro magic, you can have a look at the following sources:
+- The [docs](https://micro.mu.docs)
+- The [examples](https://github.com/micro/examples)
+- Come to [our Slack channel](https://micro-services.slack.com/) and ask any quesions you have in mind
