@@ -1,10 +1,22 @@
+// Frameworks
 import React from 'react';
 import Gist from 'react-gist';
-import PageLayout from '../../components/PageLayout';
-import * as API from '../../api';
-import './NewProject.scss';
+import { connect } from 'react-redux';
 
-interface Props {}
+// Components
+import PageLayout from '../../components/PageLayout';
+
+// Utils
+import * as API from '../../api';
+
+// Styling
+import './NewProject.scss';
+import { createProject } from '../../store/Project';
+
+interface Props {
+  history: any;
+  createProject: (project: API.Project) => void;
+}
 
 interface State {
   project: API.Project;
@@ -15,7 +27,7 @@ interface State {
   clientSecret?: string;
 }
 
-export default class NewProject extends React.Component<Props, State> {
+class NewProject extends React.Component<Props, State> {
   readonly state: State = {
     token: '',
     repos: [],
@@ -155,7 +167,22 @@ export default class NewProject extends React.Component<Props, State> {
 
         <p>Commit the following file to your repo as <strong>.github/workflows/m3o.yaml</strong></p>
         <Gist id="cd6ed0ae96e83c49569f877be7a22b32" />
+
+        <button className='btn' onClick={this.done.bind(this)}>Done</button>
       </section>
     );
   }
+
+  done(): void {
+    this.props.createProject(this.state.project);
+    this.props.history.push(`/projects/${this.state.project.name}`);
+  }
 }
+
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    createProject: (project: API.Project) => dispatch(createProject(project)),
+  });
+}
+
+export default connect(null, mapDispatchToProps)(NewProject);

@@ -3,23 +3,23 @@ import * as API from '../api';
 // Interfaces
 export interface State {
   projects: API.Project[];
-  currentProjectID?: string;
 }
 
 interface Action {
   type: string;
   project?: API.Project;
+  projects?: API.Project[];
 }
 
 // Action Types
-const SWITCH_PROJECT = 'project.switch';
+const SET_PROJECTS = 'project.set';
 const CREATE_PROJECT = 'project.create';
 const UPDATE_PROJECT = 'project.update';
 const DELETE_PROJECT = 'project.delete';
 
 // Actions
-export function switchProject(project: API.Project): Action {
-  return { type: SWITCH_PROJECT, project };
+export function setProjects(projects: API.Project[]): Action {
+  return { type: SET_PROJECTS, projects };
 }
 
 export function createProject(project: API.Project): Action {
@@ -34,20 +34,12 @@ export function deleteProject(project: API.Project): Action {
   return { type: DELETE_PROJECT, project };
 }
 
-const defaultState: State = {
-  projects: [
-    { id: "one", name: "Kytra", description: "" },
-    { id: "two", name: "Kytra / Staging", description: "" },
-    { id: "three", name: "Kytra / Ben Development", description: "" },
-  ],
-  currentProjectID: "one",
-};
-
 // Reducer
+const defaultState: State = { projects: [] };
 export default function(state = defaultState, action: Action): State {
   switch(action.type) {
-    case SWITCH_PROJECT: {
-      return { ...state, currentProjectID: action.project!.id };
+    case SET_PROJECTS: {
+      return { ...state, projects: action.projects! };
     }
     case CREATE_PROJECT: {
       return {

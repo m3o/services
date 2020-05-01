@@ -63,6 +63,14 @@
         flex-direction: column;
         margin-top: 20px;
 
+        &:first-of-type {
+          a {
+            p {
+              text-transform: capitalize;
+            }
+          }
+        }
+
         a {
           display: grid;
           grid-template-columns: 22px auto;
@@ -116,6 +124,13 @@
             text-transform: none;
             margin: auto 0px;
             padding: 0px;
+            text-transform: lowercase;
+          }
+
+          &:last-of-type {
+            p {
+              text-transform: capitalize;
+            }
           }
 
           &.active {

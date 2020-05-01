@@ -17,10 +17,12 @@ import NewProject from './scenes/NewProject';
 // Styling
 import Logo from './components/PageLayout/assets/logo.png';
 import './App.scss';
+import { setProjects } from './store/Project';
 
 interface Props {
   user?: API.User;
   setUser: (user: API.User) => void;
+  setProjects: (projects: API.Project[]) => void;
 }
 
 class App extends React.Component<Props> {
@@ -35,6 +37,10 @@ class App extends React.Component<Props> {
     API.Call("AccountService/Read").then((res) => {
       this.props.setUser(res.data.user);
     });  
+
+    API.Call("ProjectService/List").then((res) => {
+      this.props.setProjects(res.data.projects);
+    });
   }
 
   renderLoading(): JSX.Element {
@@ -64,6 +70,7 @@ function mapStateToProps(state: GlobalState): any {
 function mapDispatchToProps(dispatch: Function): any {
   return({
     setUser: (user: API.User) => dispatch(setUser(user)),
+    setProjects: (projects: API.Project[]) => dispatch(setProjects(projects)),
   });
 }
 

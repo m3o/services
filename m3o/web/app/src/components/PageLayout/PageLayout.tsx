@@ -1,6 +1,11 @@
 // Frameworks
 import React from 'react';
+import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+
+// Utils
+import * as API from '../../api';
+import { State as GlobalState } from '../../store';
 
 // Styling
 import Logo from './assets/logo.png';
@@ -11,11 +16,13 @@ import FeedbackIcon from './assets/feedback.png';
 import DocsIcon from './assets/docs.png';
 import './PageLayout.scss';
 
+
 interface Props {
   className?: string;
+  projects: API.Project[];
 }
 
-export default class PageLayout extends React.Component<Props> {
+class PageLayout extends React.Component<Props> {
   render(): JSX.Element {
     return(
       <div className='PageLayout'>
@@ -60,69 +67,21 @@ export default class PageLayout extends React.Component<Props> {
               </NavLink>
             </section>
 
-            <section>
-              <NavLink exact activeClassName='header active' className='header' to='/projects/ben-toogood'>
-                <p>ben-toogood</p>
-              </NavLink>
-              
-              <NavLink to='/projects/ben-toogood/hello-world'>
-                <img src={ProjectIcon} alt='ben-toogood/hello-world' />
-                <p>ben-toogood/hello-world</p>
+            { this.props.projects.map(p => <section key={p.id}>
+              <NavLink exact activeClassName='header active' className='header' to={`/projects/${p.name}`}>
+                <p>{p.name}</p>
               </NavLink>
 
-              <NavLink to='/projects/ben-toogood/new'>
-                <img src={AddIcon} alt='New Project' />
+              <NavLink to={`projects/${p.name}`}>
+                <img src={ProjectIcon} alt={`${p.name}/production`} />
+                <p>{p.name}/production</p>
+              </NavLink>
+
+              <NavLink to={`/projects/${p.name}/new`}>
+                <img src={AddIcon} alt='New Enviroment' />
                 <p>New Enviroment</p>
               </NavLink>
-            </section>
-
-            <section>
-              <NavLink exact activeClassName='header active' className='header' to='/projects/kytra'>
-                <p>Kytra</p>
-              </NavLink>
-              
-              <NavLink to='/projects/kytra/production'>
-                <img src={ProjectIcon} alt='kytra/production' />
-                <p>kytra/production</p>
-              </NavLink>
-              
-              <NavLink to='/projects/kytra/staging'>
-                <img src={ProjectIcon} alt='kytra/staging' />
-                <p>kytra/staging</p>
-              </NavLink>
-              
-              <NavLink to='/projects/kytra/develpment'>
-                <img src={ProjectIcon} alt='kytra/develpment' />
-                <p>kytra/develpment</p>
-              </NavLink>
-              
-
-              <NavLink to='/projects/kytra/new'>
-                <img src={AddIcon} alt='New Project' />
-                <p>New Enviroment</p>
-              </NavLink>
-            </section>
-
-            <section>
-              <NavLink exact activeClassName='header active' className='header' to='/project/Micro'>
-                <p>Micro</p>
-              </NavLink>
-              
-              <NavLink to='/projects/micro/services'>
-                <img src={ProjectIcon} alt='micro/services' />
-                <p>micro/services</p>
-              </NavLink>
-              
-              <NavLink to='/projects/micro/m3o'>
-                <img src={ProjectIcon} alt='micro/m3o' />
-                <p>micro/m3o</p>
-              </NavLink>
-              
-              <NavLink to='/projects/micro/new'>
-                <img src={AddIcon} alt='New Project' />
-                <p>New Enviroment</p>
-              </NavLink>
-            </section>
+            </section>)}
           </div>
 
           <div className={`main ${this.props.className}`}>
@@ -133,3 +92,11 @@ export default class PageLayout extends React.Component<Props> {
     );
   }
 }
+
+function mapStateToProps(state: GlobalState): any {
+  return({
+    projects: state.project.projects,
+  });
+}
+
+export default connect(mapStateToProps)(PageLayout);
