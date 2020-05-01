@@ -73,12 +73,10 @@ header {
   padding: 10px 30px;
   cursor: pointer;
   outline: none;
-  min-width: 120px;
   width: fit-content;
   font-weight: 600;
   margin: 0px;
   font-size: 9pt;
-  text-align: center;
 
 
   img {
@@ -98,6 +96,11 @@ header {
   &.danger {
     background-color: rgba($color: $red, $alpha: 0.2);
     color: $red;
+  }
+
+  &.warning {
+    background-color: rgba($color: $orange, $alpha: 0.2);
+    color: $orange;
   }
 
   &.btn-small {

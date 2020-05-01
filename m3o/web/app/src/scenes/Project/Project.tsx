@@ -53,7 +53,7 @@ export default class Project extends React.Component<Props> {
           </form>
 
           <p>Configure the GitHub action using your Client ID and Secret. If you loose your ID/Secret, click the regenerate button below to generate a new set of credentials.</p>
-          <button className='btn danger'>Regenerate Credentials</button>
+          <button className='btn warning'>Regenerate Credentials</button>
         </section>
 
         <section>
@@ -74,30 +74,40 @@ export default class Project extends React.Component<Props> {
               <td>Asim Aslam</td>
               <td>asim@micro.mu</td>
               <td>
-                <button className='warning'>Edit</button>
-                <button className='danger'>Delete</button>
+                <button className='danger'>Remove</button>
               </td>
             </tr>
             <tr key={'jake'}>
               <td>Jake Sanders</td>
               <td>jake@micro.mu</td>
               <td>
-                <button className='warning'>Edit</button>
-                <button className='danger'>Delete</button>
+                <button className='danger'>Remove</button>
               </td>
             </tr>
             <tr key={'ben'}>
               <td>Ben Toogood</td>
               <td>ben@micro.mu</td>
               <td>
-                <button className='warning'>Edit</button>
-                <button className='danger'>Delete</button>
+                <button className='danger'>Remove</button>
               </td>
             </tr>
           </tbody>
         </table>
 
         <p>Invite users to your project. Collaborators will recieve an email invite which is valid for 24 hours. </p>
+        <form>
+          <div className='row'>
+            <label>Name</label>
+            <input required type='text' placeholder='John Doe' name='name' />
+          </div>
+
+          <div className='row'>
+            <label>Email</label>
+            <input required type='email' placeholder='john@doe.com' name='email' />
+          </div>
+
+          <button className='btn'>Send Invite</button>
+        </form>
       </section>
      </div>
     </PageLayout>
