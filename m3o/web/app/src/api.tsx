@@ -9,7 +9,8 @@ export async function Call(path: string, params?: any): Promise<any> {
 export interface Project {
   id?: string;
   name: string;
-  namespace: string;
+  description: string;
+  repository?: string;
   api_domain?: string;
   web_domain?: string;
 }

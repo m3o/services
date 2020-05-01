@@ -226,7 +226,7 @@
               margin-bottom: 0px;
             }
     
-            label, input {
+            label, input, select {
               margin-top: auto;
               margin-bottom: auto;
             }
@@ -235,4 +235,9 @@
       }
     }
   }
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
 }

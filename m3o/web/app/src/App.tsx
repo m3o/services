@@ -12,6 +12,7 @@ import * as API from './api';
 import Notifications from './scenes/Notifications';
 import Enviroment from './scenes/Enviroment';
 import Project from './scenes/Project';
+import NewProject from './scenes/NewProject';
 
 // Styling
 import Logo from './components/PageLayout/assets/logo.png';
@@ -24,8 +25,10 @@ interface Props {
 
 class App extends React.Component<Props> {
   render(): JSX.Element {
-    if(this.props.user) return this.renderLoggedIn();
-    return this.renderLoading();
+    // if(this.props.user) return this.renderLoggedIn();
+    // return this.renderLoading();
+
+    return this.renderLoggedIn();
   }
 
   componentDidMount() {
@@ -44,6 +47,7 @@ class App extends React.Component<Props> {
     return (
       <BrowserRouter>
         <Route key='notificiations' exact path='/' component={Notifications} />
+        <Route key='new-enviroment' exact path='/new/project' component={NewProject} />
         <Route key='project' exact path='/projects/:project' component={Project} />
         <Route key='enviroment' exact path='/projects/:project/:enviroment' component={Enviroment} />
       </BrowserRouter>

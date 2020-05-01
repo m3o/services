@@ -36,9 +36,9 @@ export function deleteProject(project: API.Project): Action {
 
 const defaultState: State = {
   projects: [
-    { id: "one", name: "Kytra", namespace: "kytra-production" },
-    { id: "two", name: "Kytra / Staging", namespace: "kytra-staging" },
-    { id: "three", name: "Kytra / Ben Development", namespace: "kytra-development-ben" },
+    { id: "one", name: "Kytra", description: "" },
+    { id: "two", name: "Kytra / Staging", description: "" },
+    { id: "three", name: "Kytra / Ben Development", description: "" },
   ],
   currentProjectID: "one",
 };
