@@ -15,11 +15,9 @@ service ProjectService {
 message Project {
   string id = 1;
   string name = 2;
-  string namespace = 3;
-  string web_domain = 4;
-  string api_domain = 5;
-  repeated Member members = 6;
-  string repository = 7;
+  string description = 3;
+  string repository = 4;
+  repeated Member members = 5;
 }
 
 message Member {
@@ -28,7 +26,6 @@ message Member {
 
 message ReadRequest {
   string id = 1;
-  string namespace = 2;
 }
 
 message ReadResponse {

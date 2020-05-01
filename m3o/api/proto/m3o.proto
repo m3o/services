@@ -31,14 +31,13 @@ message ReadAccountResponse {
 message Project {
   string id = 1;
   string name = 2;
-  string namespace = 3;
-  string api_domain = 4;
-  string web_domain = 5;
-  string repository = 6;
+  string description = 3;
+  string repository = 4;
 }
 
 message CreateProjectRequest {
   Project project = 1;
+  string github_token = 2;
 }
 
 message CreateProjectResponse {
@@ -48,10 +47,7 @@ message CreateProjectResponse {
 message UpdateProjectRequest {
   string id = 1;
   string name = 2;
-  string api_domain = 3;
-  string web_domain = 4;
-  string repository = 5;
-  string github_token = 6;
+  string description = 3;
 }
 
 message UpdateProjectResponse {}

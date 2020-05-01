@@ -49,11 +49,28 @@ func (p *Project) Create(ctx context.Context, req *pb.CreateProjectRequest, rsp 
 		return err
 	}
 
+	// verify the user has access to the github repo
+	repos, err := p.listGitHubRepos(req.GithubToken)
+	if err != nil {
+		return err
+	}
+	var isMemberOfRepo bool
+	for _, r := range repos {
+		if r == req.Project.Repository {
+			isMemberOfRepo = true
+			break
+		}
+	}
+	if !isMemberOfRepo {
+		return errors.BadRequest(p.name, "Must be a member of the repository")
+	}
+
 	// create the project
 	cRsp, err := p.project.Create(ctx, &project.CreateRequest{
 		Project: &project.Project{
-			Name:      req.Project.Name,
-			Namespace: req.Project.Namespace,
+			Name:        req.Project.Name,
+			Description: req.Project.Description,
+			Repository:  req.Project.Repository,
 		},
 	})
 	if err != nil {
@@ -83,30 +100,7 @@ func (p *Project) Update(ctx context.Context, req *pb.UpdateProjectRequest, rsp 
 
 	// assign the update attributes
 	proj.Name = req.Name
-	proj.WebDomain = req.WebDomain
-	proj.ApiDomain = req.ApiDomain
-
-	// verify the user has access to the github repo
-	if len(req.Repository) > 0 {
-		repos, err := p.listGitHubRepos(req.GithubToken)
-		if err != nil {
-			return err
-		}
-
-		var isMemberOfRepo bool
-		for _, r := range repos {
-			if r == req.Repository {
-				isMemberOfRepo = true
-				break
-			}
-		}
-		if !isMemberOfRepo {
-			return errors.BadRequest(p.name, "Must be a member of the repository")
-		}
-
-		proj.Repository = req.Repository
-		// todo: write the github token to k8s
-	}
+	proj.Description = req.Description
 
 	// update the project
 	_, err = p.project.Update(ctx, &project.UpdateRequest{Project: proj})
@@ -152,8 +146,9 @@ func (p *Project) WebhookAPIKey(ctx context.Context, req *pb.WebhookAPIKeyReques
 	}
 
 	// generate the auth account
-	id := fmt.Sprintf("%v-webhook-%v", proj.Namespace, time.Now().Unix())
-	acc, err := p.auth.Generate(id, auth.WithNamespace(proj.Namespace), auth.WithRoles("webhook"))
+	id := fmt.Sprintf("%v-webhook-%v", proj.Id, time.Now().Unix())
+	md := map[string]string{"project-id": proj.Id}
+	acc, err := p.auth.Generate(id, auth.WithRoles("webhook"), auth.WithMetadata(md))
 	if err != nil {
 		return err
 	}
@@ -180,12 +175,10 @@ func (p *Project) userIDFromContext(ctx context.Context) (string, error) {
 
 func serializeProject(p *project.Project) *pb.Project {
 	return &pb.Project{
-		Id:         p.Id,
-		Name:       p.Name,
-		Namespace:  p.Namespace,
-		WebDomain:  p.WebDomain,
-		ApiDomain:  p.ApiDomain,
-		Repository: p.Repository,
+		Id:          p.Id,
+		Name:        p.Name,
+		Description: p.Description,
+		Repository:  p.Repository,
 	}
 }
 

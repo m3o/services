@@ -29,10 +29,7 @@ func New(service micro.Service) *Project {
 
 const (
 	// projectsPrefix is the store prefix for projects. projects are stored with
-	// keys in the following format "projects/{namespace}/{id}". This allows
-	// us to lookup projects using both namespace and ID. Namespace is used
-	// more commonly than ID so we'll use this as the first component of
-	// the key.
+	// keys in the following format "projects/{id}".
 	projectsPrefix = "projects/"
 	// membersPrefix is the stroe prefix for memberships. Memberships are
 	// stored with key in the following format "memberships/{projectID}/{userID}".
@@ -40,20 +37,12 @@ const (
 	membersPrefix = "members/"
 )
 
-var (
-	// reservedNamespaces cannot be used by projects
-	reservedNamespaces = []string{"default", "go.micro", "runtime"}
-)
-
-// Read looks up a project using ID or namespace
+// Read looks up a project using id
 func (p *Project) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	// lookup the project
 	var err error
 	if len(req.Id) > 0 {
 		rsp.Project, err = p.findProjectByID(req.Id)
-	}
-	if len(req.Namespace) > 0 && rsp.Project == nil {
-		rsp.Project, err = p.findProjectByNamespace(req.Namespace)
 	}
 	if err != nil {
 		return err
@@ -83,8 +72,8 @@ func (p *Project) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	if len(req.Project.Name) == 0 {
 		return errors.BadRequest(p.name, "Missing project name")
 	}
-	if err := p.validateNamespace(req.Project.Namespace); err != nil {
-		return err
+	if len(req.Project.Repository) == 0 {
+		return errors.BadRequest(p.name, "Missing project repository")
 	}
 
 	// add the default fields
@@ -121,8 +110,7 @@ func (p *Project) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	// assign the update params
 	project.Name = req.Project.Name
-	project.WebDomain = req.Project.WebDomain
-	project.ApiDomain = req.Project.ApiDomain
+	project.Description = req.Project.Description
 
 	// write to the store
 	if err := p.writeProjectToStore(req.Project); err != nil {
@@ -204,96 +192,27 @@ func (p *Project) ListMemberships(ctx context.Context, req *pb.ListMembershipsRe
 }
 
 func (p *Project) findProjectByID(id string) (*pb.Project, error) {
-	// ID is stored as the last component of the key, so list
-	// all the keys in the store which relate to projects
-	keys, err := p.store.List(store.ListPrefix(projectsPrefix))
+	recs, err := p.store.Read(projectsPrefix + id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Check each key to see if it ends in the ID. If the key
-	// is not found, return an error.
-	var projectKey string
-	for _, k := range keys {
-		if strings.HasSuffix(k, "/"+id) {
-			projectKey = k
-			break
-		}
-	}
-	if len(projectKey) == 0 {
-		return nil, store.ErrNotFound
-	}
-
-	// Lookup the record and then decode the value
-	recs, err := p.store.Read(projectKey)
-	if err != nil {
-		return nil, err
-	}
 	var project *pb.Project
 	err = json.Unmarshal(recs[0].Value, &project)
 	return project, err
 }
 
 // writeProjectToStore marshals a project and writes it to the store under
-// the corresponding key (prefix + namespace + id)
+// the corresponding key (prefix + id)
 func (p *Project) writeProjectToStore(project *pb.Project) error {
 	bytes, err := json.Marshal(project)
 	if err != nil {
 		return errors.InternalServerError(p.name, "Error marsaling json: %v", err)
 	}
 
-	key := projectsPrefix + project.Namespace + "/" + project.Id
+	key := projectsPrefix + project.Id
 	if err := p.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(p.name, "Error writing to the store: %v", err)
-	}
-
-	return nil
-}
-
-func (p *Project) findProjectByNamespace(ns string) (*pb.Project, error) {
-	// Namespace is the first component of the key, so lookup records which
-	// have this as a prefix. Read does't return an error when using the
-	// ReadPrefix option, so we also need to check for an empty slice.
-	recs, err := p.store.Read(projectsPrefix+ns+"/", store.ReadPrefix())
-	if err != nil {
-		return nil, err
-	} else if len(recs) != 1 {
-		return nil, store.ErrNotFound
-	}
-
-	// Unmarshal and return the result
-	var project *pb.Project
-	err = json.Unmarshal(recs[0].Value, &project)
-	return project, err
-}
-
-// validateNamespace returns an error if the namespace provided is invalid.
-func (p *Project) validateNamespace(ns string) error {
-	// compare namespaces in lowercase
-	ns = strings.ToLower(ns)
-
-	// validate the length of the namespace
-	if len(ns) < 3 {
-		return errors.BadRequest(p.name, "Namespaces must be at least 3 characters long")
-	}
-	if len(ns) > 20 {
-		return errors.BadRequest(p.name, "Namespaces must be at no more than 20 characters long")
-	}
-
-	// check against reserved namespaces
-	for _, v := range reservedNamespaces {
-		if v == ns {
-			return errors.BadRequest(p.name, "%v is a reserved namespace", ns)
-		}
-	}
-
-	// check against existing namespaces. The namespace is used
-	// as the key in the store
-	recs, err := p.store.Read(projectsPrefix+ns+"/", store.ReadPrefix())
-	if err != nil {
-		return err
-	} else if len(recs) > 0 {
-		return errors.BadRequest(p.name, "The namespace %v has already been taken", ns)
 	}
 
 	return nil
