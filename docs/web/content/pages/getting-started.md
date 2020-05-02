@@ -79,9 +79,7 @@ go.micro.server
 go.micro.web
 ```
 
-All those services are ones started by our `micro server`. This is pretty cool, but still it's not something we launched! Let's start a service for which existence we can actually take credit for.
-
-If we go to [github.com/micro/services](https://github.com/micro/services), we see a bunch of services written by micro authors. One of them is the `helloworld`. Try our luck, shall we?
+All those services are ones started by our `micro server`. This is pretty cool, but still it's not something we launched! Let's start a service for which existence we can actually take credit for. If we go to [github.com/micro/services](https://github.com/micro/services), we see a bunch of services written by micro authors. One of them is the `helloworld`. Try our luck, shall we?
 
 The command to run services is `micro run`. This command may take a while as it checks out
 the repository from GitHub. (@todo this actually fails currently, fix)
