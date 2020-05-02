@@ -267,18 +267,20 @@ We have everything at our fingertips, but there are still some missing pieces to
 
 Amongst many other useful built-in services Micro includes a persistent storage service for storing data.
 
-### Go Micro interfaces in general
+### Interfaces as building blocks
 
-Both Micro (the server/CLI) and Go Micro (the framework) is very centered around precisely defined interfaces and their different implementations. What does this mean?
+A quick side note. Micro (the server/CLI) and Go Micro (the framework) are centered around strongly defined interfaces which are pluggable and provide an abstraction for underlying distributed systems concepts. What does this mean?
 
 Let's take our current case of the [store interface](https://github.com/micro/go-micro/blob/master/store/store.go). It's aimed to enable service writers data storage with a couple of different implementations:
-* in memory
-* local file (default when running `micro server`)
-* couchbase backed
 
-Similarly, the [runtime](https://github.com/micro/go-micro/blob/master/runtime/runtime.go) interface, that represents something that runs processes, has a couple of implementations:
-* local, which just runs actual binaries - aimed at local usage
-* kubernetes, aimed for beefier production settings
+* in memory
+* file storage (default when running `micro server`)
+* cockroachdb
+
+Similarly, the [runtime](https://github.com/micro/go-micro/blob/master/runtime/runtime.go) interface, that allows you to run services in a completely runtime agnostic way has a few implementations:
+
+* local, which just runs actual processes - aimed at local development
+* kubernetes - for running containers in a highly available and distributed way
 
 This is a recurring theme across Micro interfaces. Let's take a look at the default store when running `micro server`.
 
@@ -418,12 +420,13 @@ key: mykey, value: Hi there
 
 Nice! The example service read the value from the store successfully.
 
-## The end
+## To end
 
-This takes us to the end of this getting started guide.
-Come back from time to time as this guide will be continually upgraded.
+This is just a brief getting started guide for quickly getting up and running with Micro. 
+Come back from time to time to learn more as this guide gets continually upgraded.
 
-If you are hungry for more micro magic, you can have a look at the following sources:
-- The [docs](https://micro.mu.docs)
-- The [examples](https://github.com/micro/examples)
-- Come to [our Slack channel](https://micro-services.slack.com/) and ask any quesions you have in mind
+If you're interested in learning more Micro magic, have a look at the following sources:
+
+- Read the [docs](https://micro.mu.docs)
+- Learn by [examples](https://github.com/micro/examples)
+- Come join us on [Slack](https://slack.micro.mu) and ask quesions
