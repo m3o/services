@@ -133,9 +133,8 @@ Otherwise the best place to look is at the [proto definition](https://github.com
 
 ### Calling a service with Go Micro
 
-Let's write the most minimal service we can have that calls an other service.
-This is not going to be a typical service, but for the sake of simplicity, let's do it this way.
-We will [learn how to write a fully fledged service soon](#-writing-a-service).
+Let's write a small client we can use to call the helloworld service.
+Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#-writing-a-service).
 
 Let's take the following file:
 
@@ -151,11 +150,14 @@ import (
 )
 
 func main() {
+	// create and initialise a new service
 	service := micro.NewService()
 	service.Init()
 
+	// create the proto client for helloworld
 	client := proto.NewHelloworldService("go.micro.service.helloworld", service.Client())
 
+	// call an endpoint on the service
 	rsp, err := client.Call(context.Background(), &proto.Request{
 		Name: "John",
 	})
@@ -164,11 +166,8 @@ func main() {
 		return
 	}
 
+	// print the response
 	fmt.Println("Response: ", rsp.Msg)
-
-	// Let's just hang up here and nothing to imitate a long running service :P.
-	// Fake it till you make it!
-	time.Sleep(1 * time.Hour)
 }
 ```
 
