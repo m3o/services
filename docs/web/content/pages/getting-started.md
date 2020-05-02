@@ -168,10 +168,13 @@ func main() {
 
 	// print the response
 	fmt.Println("Response: ", rsp.Msg)
+	
+	// let's delay the process for exiting for reasons you'll see below
+	time.Sleep(time.Second * 5)
 }
 ```
 
-and save it to a folder. For ease of following this guide, name the folder `example-service`.
+Save the example locally. For ease of following this guide, name the folder `example-service`.
 After doing a `cd example-service && go mod init example`, we are ready to run this service with `micro run`:
 
 ```
@@ -187,7 +190,7 @@ example-service	latest	/home/username/example-service				starting	n/a		4s ago		o
 helloworld		latest	/tmp/github.com-micro-services/helloworld	running		n/a		6m5s ago	owner=n/a,group=n/a
 ```
 
-Now, since our example-service is also running, we should be able to see it's logs:
+Now, since our example-service client is also running, we should be able to see it's logs:
 ```sh
 $ micro logs example-service
 # some go build output here
