@@ -423,9 +423,8 @@ Nice! The example service read the value from the store successfully.
 ## To end
 
 This is just a brief getting started guide for quickly getting up and running with Micro. 
-Come back from time to time to learn more as this guide gets continually upgraded.
-
-If you're interested in learning more Micro magic, have a look at the following sources:
+Come back from time to time to learn more as this guide gets continually upgraded. If you're 
+interested in learning more Micro magic, have a look at the following sources:
 
 - Read the [docs](https://micro.mu.docs)
 - Learn by [examples](https://github.com/micro/examples)
