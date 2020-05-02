@@ -76,7 +76,6 @@ go.micro.registry
 go.micro.router
 go.micro.runtime
 go.micro.server
-go.micro.tunnel
 go.micro.web
 ```
 
