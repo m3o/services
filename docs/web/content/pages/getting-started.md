@@ -13,7 +13,7 @@ summary: A getting started guide for Micro
 
 ## What is Micro?
 
-Micro is a system for building and managing microservices.
+Micro is a system for building and managing distributed systems.
 
 Key components of Micro are as follows:
 * **Runtime**: a runtime environment for managing services including auth, config, discovery, networking, storage. 
