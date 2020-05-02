@@ -129,7 +129,7 @@ That worked! If we wonder what endpoints a service has we can run the following 
 micro get service go.micro.service.helloworld
 ```
 
-Otherwise the best place to look is at the [proto definition](https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto). You can also browse to the UI at [http://localhost:8082/service/go.micro.service.helloworld]() to see live info.
+Otherwise the best place to look is at the [proto definition](https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto). You can also browse to the UI at [http://localhost:8082](http://localhost:8082/service/go.micro.service.helloworld) to see live info.
 
 ### Calling a service with Go Micro
 
