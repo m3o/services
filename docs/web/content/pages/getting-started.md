@@ -265,7 +265,7 @@ We have everything at our fingertips, but there are still some missing pieces to
 
 ## Storage
 
-Micro includes a persistent store service for storing key-value data.
+Amongst many other useful built-in services Micro includes a persistent storage service for storing data.
 
 ### Go Micro interfaces in general
 
