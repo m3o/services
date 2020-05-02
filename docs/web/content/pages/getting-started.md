@@ -123,7 +123,13 @@ $ micro call go.micro.service.helloworld Helloworld.Call '{"name":"Jane"}'
 
 ```
 
-That worked! If we wonder what endpoints a service has, the best place to look for is its [proto folder](https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto). There are other tools in the making too, like [explore](https://web.micro.mu/explore/?go#helloworld), but they are still a bit experimental.
+That worked! If we wonder what endpoints a service has we can run the following command:
+
+```sh
+micro get service go.micro.service.helloworld
+```
+
+Otherwise the best place to look is at the [proto definition](https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto). There are other tools in the making too, like [explore](https://web.micro.mu/explore/?go#helloworld), but they are still a bit experimental.
 
 ### Calling a service with Go Micro
 
