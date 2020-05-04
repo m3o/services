@@ -14,7 +14,7 @@ For those who prefer action to words, the [getting started guide](https://micro.
 
 At Google in 2011, Asim Aslam, the creator of Micro, experienced what it was like to build systems at Google scale. Google operated a microservices architecture before most ever knew what the term meant. They did this because of an organisational and technical need to build systems that could be developed and managed independently.
 
-In 2013 at a company called Hailo - a European Uber competitor - we were one of the few companies that followed Neflix's model to build the company on microservices. This enabled us to become - at the time - the most successful taxi application in Europe.
+In 2013 at a company called Hailo - a European Uber competitor - we were one of the few companies that followed Neflix's model to build an organisational architecture based on microservices. This enabled us to become - at the time - to be incredibly productive and arguably the most successful taxi app in Europe.
 
 Years later, ex-Hailo members brought the fruits of years of microservices R&D done at Hailo to companies like Monzo, Sixt and many others. We at the Micro team are working on bringing these ideas to the Open Source community. The source of our passion is both the fact that microservices enable companies to be successful and also that we have collectively seen many dozens of companies building similar systems from scratch. Some successfully, some not so successfully.
 
