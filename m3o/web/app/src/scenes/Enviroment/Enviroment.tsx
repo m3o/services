@@ -39,7 +39,7 @@ export default class Enviroment extends React.Component<Props> {
 
         <section>
           <h2>DNS</h2>
-          <p>Your default domain is <a href='https://kytra-production.m3o.app' target='blank'>https://kytra-production.m3o.app</a>. Your web domain is served at <a href=''>/ (root)</a> and your API is available at <a href=''>/api</a>. To configure a custom domain, enter the domains below and then setup CNAME records for each domain pointing at <strong>m3o.app</strong>. For more information about custom domains, see <a href=''>the docs</a>.</p>
+          <p>Your default domain is <a href='https://production.kytra.m3o.app' target='blank'>https://production.kytra.m3o.app</a>. Your web domain is served at <a href=''>/ (root)</a> and your API is available at <a href=''>/api</a>. To configure a custom domain, enter the domains below and then setup CNAME records for each domain pointing at <strong>m3o.app</strong>. For more information about custom domains, see <a href=''>the docs</a>.</p>
           <form>
             <div className='row'>
               <label>Web Domain</label>
@@ -51,6 +51,27 @@ export default class Enviroment extends React.Component<Props> {
               <input type='text' value='' placeholder='api.myapp.com' name='api_domain' />
             </div>
           </form>
+        </section>
+
+        <section>
+          <h2>CLI</h2>
+          <p>Configure your CLI to use the {project}/{enviroment} enviroment. Firstly, all calls made to your enviroment are authenticated so if you aren't already, login using the following command and a token you can get at <a href=''>this link</a>.</p>
+          <p className='code'>
+            micro login [token]
+          </p>
+
+          <p>Once you're logged in, add your enviroment and configure micro to use it with the following commands.</p>
+          <p className='code'>
+            micro env add {project}/{enviroment} {project}.{enviroment}.proxy.m3o.app
+            <br />
+            micro env set {project}/{enviroment}
+          </p>
+        </section>
+
+        <section>
+          <h2>Settings</h2>
+          <p><strong>Warning:</strong> Deleting your enviroment cannot be undone and all data will be lost.</p>
+          <button className='btn danger'>Delete {project}/{enviroment}</button>
         </section>
      </div>
     </PageLayout>

@@ -72,7 +72,7 @@ class PageLayout extends React.Component<Props> {
                 <p>{p.name}</p>
               </NavLink>
 
-              <NavLink to={`projects/${p.name}`}>
+              <NavLink to={`/projects/${p.name}/production`.toLowerCase()}>
                 <img src={ProjectIcon} alt={`${p.name}/production`} />
                 <p>{p.name}/production</p>
               </NavLink>

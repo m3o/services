@@ -153,6 +153,16 @@
     .main {
       overflow: scroll;
 
+      .code {
+        background-color:#EEEEEE;
+        font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+        padding: 10px 15px;
+        border-radius: 4px;
+        line-height: 2;
+        margin-bottom: 30px;
+        font-size: 9pt;
+      }
+
       .center {
         width: 100%;
         max-width: 850px;
