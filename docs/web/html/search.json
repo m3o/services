@@ -149,22 +149,22 @@
 
 
 {
-"title": "Getting Started with Micro",
-"tags": "micro",
-"keywords": "micro",
-"url": "getting-started.html",
-"summary": "A getting started guide for Micro"
+"title": "Get Started",
+"tags": "platformM3O",
+"keywords": "platform, M3O",
+"url": "platformgetting-started.html",
+"summary": "M3O is a serverless microservices platform"
 }
 ,
 
 
 
 {
-"title": "Get Started",
-"tags": "platformM3O",
-"keywords": "platform, M3O",
-"url": "platformgetting-started.html",
-"summary": "M3O is a serverless microservices platform"
+"title": "Getting Started with Micro",
+"tags": "micro",
+"keywords": "micro",
+"url": "getting-started.html",
+"summary": "A getting started guide for Micro"
 }
 ,
 
