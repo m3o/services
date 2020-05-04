@@ -10,7 +10,9 @@ In 2016, `go-micro`, a Go microservices framework was announced. Today we introd
 
 For those who prefer action to words, the [getting started guide](https://micro.mu/docs/getting-started.html)! can give a taste of what the `micro server` is about.
 
-## Bottling 7 years of research
+## Combining a decade of research
+
+At Google in 2011, Asim Aslam, the creator of Micro, experienced what it was like to build systems at Google scale. Google operated a microservices architecture before most ever knew what the term meant. They did this because of an organisational and technical need to build systems that could be developed and managed independently.
 
 Back in 2013 at a company called Hailo - a European Uber competitor - we were one of the few companies that followed Neflix's model to build the company on microservices, which enabled us to become - at the time - the most successful taxi application in Europe.
 
