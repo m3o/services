@@ -8,23 +8,33 @@ import PageLayout from '../../components/PageLayout';
 
 // Utils
 import * as API from '../../api';
+import { createProject } from '../../store/Project';
 
 // Styling
+import OpenSourceIcon from './assets/opensource.png';
+import DeveloperIcon from './assets/developer.png';
+import TeamIcon from './assets/team.png';
 import './NewProject.scss';
-import { createProject } from '../../store/Project';
 
 interface Props {
   history: any;
   createProject: (project: API.Project) => void;
 }
 
+interface Repository {
+  name: string;
+  public?: boolean;
+}
+
 interface State {
   project: API.Project;
   token: string;
   tokenStatus: string;
-  repos: string[];
+  repos: Repository[];
+  repository?: Repository;
   clientID?: string;
   clientSecret?: string;
+  paymentPlan?: string;
 }
 
 class NewProject extends React.Component<Props, State> {
@@ -49,34 +59,42 @@ class NewProject extends React.Component<Props, State> {
   }
 
   onRepositoryChange(e: any): void {
-    let repository = e.target.value;
-    if(repository === "") {
-      this.setState({ project: { ...this.state.project, repository: undefined }});
+    const repoName: string = e.target.value;
+    const repo = this.state.repos.find(r => r.name === repoName);
+
+    if(!repo) {
+      this.setState({ 
+        repository: undefined,
+        project: { ...this.state.project, repository: '' },
+      });
       return;
     };
 
-    this.setState({ project: {...this.state.project, repository }})
+    this.setState({
+      project: {...this.state.project, repository: repo.name },
+      repository: repo,
+    });
 
-    const params = {
-      github_token: this.state.token,
-      project: {
-        repository,
-        name: this.state.project.name,
-        description: this.state.project.description,
-      },
-    };
+    // const params = {
+    //   github_token: this.state.token,
+    //   project: {
+    //     repository: repoName,
+    //     name: this.state.project.name,
+    //     description: this.state.project.description,
+    //   },
+    // };
 
-    API.Call("ProjectService/Create", params)
-      .then(res => this.setState({ 
-        project: res.data.project,
-        clientID: res.data.client_id,
-        clientSecret: res.data.client_secret,
-      }))
-      .catch(err => alert(err.response.data.detail));
+    // API.Call("ProjectService/Create", params)
+    //   .then(res => this.setState({ 
+    //     project: res.data.project,
+    //     clientID: res.data.client_id,
+    //     clientSecret: res.data.client_secret,
+    //   }))
+    //   .catch(err => alert(err.response.data.detail));
   }
   
   render(): JSX.Element {
-    const { repository, name } = this.state.project;
+    const { repository, project, paymentPlan } = this.state;
 
     return(
       <PageLayout className='NewProject'>
@@ -86,8 +104,10 @@ class NewProject extends React.Component<Props, State> {
           </div>
 
           { this.renderProjectDetails() }
-          { name.length > 0 ? this.renderGithubToken() : null }
-          { repository ? this.renderSecrets() : null }
+          { project.name.length > 0 ? this.renderGithubToken() : null }
+          { repository ? this.renderPlans() : null }
+          { paymentPlan ? this.renderPaymentMethod() : null }
+          { project.id ? this.renderSecrets() : null }
         </div>
       </PageLayout>
     );
@@ -137,12 +157,82 @@ class NewProject extends React.Component<Props, State> {
             <label>Repository *</label>
             <select value={repository} onChange={this.onRepositoryChange.bind(this)}>
               <option value=''>{repos.length > 0 ? 'Select a repository' : ''}</option>
-              { repos.map(r => <option key={r} value={r}>{r}</option>) }
+              { repos.map(r => <option key={r.name} value={r.name}>{r.name}</option>) }
             </select>
           </div>
         </form>
       </section>
     );
+  }
+
+  renderPlans(): JSX.Element {
+    const setPlan = (paymentPlan: string) => this.setState({ paymentPlan });
+
+    return(
+      <section>
+        <h2>Payment Tiers</h2>
+        <p>Select one of the payment tiers below. The community tier is only available to public repositories with an Apache License. See <a href=''>the docs</a> for more information on pricing.</p>
+
+        <div className='payment-plans'>
+          <div className='plan'>
+            <div className='img-wrapper'>
+              <img src={OpenSourceIcon} alt='Community'/>
+            </div>
+
+            <h5>Community</h5>
+            <h6>Built for open-source</h6>
+            
+            <p className='attr'><span>Single</span> Enviroment</p>
+            <p className='attr'><span>Unlimited</span> Collaborators</p>
+            
+            <p className='price'><span>$0</span>/month</p>
+
+            <button onClick={() => setPlan('community')} className='btn info'><p>Choose Community</p></button>
+          </div>
+
+          <div className='plan'>
+            <div className='img-wrapper'>
+              <img src={DeveloperIcon} alt='Community'/>
+            </div>
+
+            <h5>Developer</h5>
+            <h6>Perfect for Indie Hackers</h6>
+            
+            <p className='attr'><span>Single</span> Enviroment</p>
+            <p className='attr'><span>No</span> Collaborators</p>
+            
+            <p className='price'><span>$35</span>/month</p>
+
+            <button onClick={() => setPlan('developer')} className='btn info'><p>Choose Developer</p></button>
+          </div>
+
+          <div className='plan'>
+            <div className='img-wrapper'>
+              <img src={TeamIcon} alt='Community'/>
+            </div>
+
+            <h5>Team</h5>
+            <h6>Ideal for Startups</h6>
+            
+            <p className='attr'><span>5</span> Enviroments</p>
+            <p className='attr'><span>Unlimited</span> Collaborators</p>
+            
+            <p className='price'><span>$35</span>/user per month</p>
+
+            <button onClick={() => setPlan('team')} className='btn info'><p>Choose Team</p></button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  renderPaymentMethod(): JSX.Element {
+    return(
+      <section>
+        <h2>Setup Billing</h2>
+        <p>Add a payment method for your project. Payments are processed by <a href=''>Stripe</a> and taken on the first of each month. For more information, see <a href=''>the docs</a>.</p>
+      </section>
+    )
   }
 
   renderSecrets(): JSX.Element {
