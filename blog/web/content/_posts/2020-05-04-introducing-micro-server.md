@@ -10,9 +10,10 @@ In 2016, `go-micro`, a Go microservices framework was announced. Today we introd
 
 For those who prefer action to words, the [getting started guide](https://micro.mu/docs/getting-started.html)! can give a taste of what the `micro server` is about.
 
-<center>
+<br>
+<div style="text-align: center; width: 100%;">
   <img src="https://micro.mu/images/runtime10.svg" />
-</center>
+</div>
 
 ## Combining a decade of research
 
