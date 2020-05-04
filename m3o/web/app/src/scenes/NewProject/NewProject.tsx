@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 // Components
 import PageLayout from '../../components/PageLayout';
+import PaymentMethod from './components/PaymentMethod';
 
 // Utils
 import * as API from '../../api';
@@ -35,6 +36,8 @@ interface State {
   clientID?: string;
   clientSecret?: string;
   paymentPlan?: string;
+  paymentMethodStatus?: string;
+  paymentMethodDisabled: boolean;
 }
 
 class NewProject extends React.Component<Props, State> {
@@ -45,6 +48,7 @@ class NewProject extends React.Component<Props, State> {
     repos: [],
     tokenStatus: 'Waiting for token...',
     project: { name: '', description: '' },
+    paymentMethodDisabled: false,
   };
 
   onInputChange(e: any): void {
@@ -78,22 +82,6 @@ class NewProject extends React.Component<Props, State> {
     });
 
     setTimeout(this.scrollToBottom.bind(this), 100);
-    // const params = {
-    //   github_token: this.state.token,
-    //   project: {
-    //     repository: repoName,
-    //     name: this.state.project.name,
-    //     description: this.state.project.description,
-    //   },
-    // };
-
-    // API.Call("ProjectService/Create", params)
-    //   .then(res => this.setState({ 
-    //     project: res.data.project,
-    //     clientID: res.data.client_id,
-    //     clientSecret: res.data.client_secret,
-    //   }))
-    //   .catch(err => alert(err.response.data.detail));
   }
   
   render(): JSX.Element {
@@ -146,7 +134,7 @@ class NewProject extends React.Component<Props, State> {
     return (
       <section>
         <h2>Connect to GitHub Repository</h2>
-        <p>Enter a personal access token below. The token will need the <strong>repo</strong> and <strong>read:packages</strong> scopes. You can generate a new token at <a href='https://github.com/settings/tokens/new' target='blank'>this link</a>. Read more at the <a href=''>docs</a>.</p>
+        <p>Enter a personal access token below. The token will need the <strong>repo</strong> and <strong>read:packages</strong> scopes. You can generate a new token at <a href='https://github.com/settings/tokens/new' target='blank'>this link</a>. Read more at the <a href='/todo'>docs</a>.</p>
 
         <p className='status'>{tokenStatus}</p>
 
@@ -177,7 +165,7 @@ class NewProject extends React.Component<Props, State> {
     return(
       <section>
         <h2>Payment Tiers</h2>
-        <p>Select one of the payment tiers below. The community tier is only available to public repositories with an Apache License. See <a href=''>the docs</a> for more information on pricing.</p>
+        <p>Select one of the payment tiers below. The community tier is only available to public repositories with an Apache License. See <a href='/todo'>the docs</a> for more information on pricing.</p>
 
         <div className='payment-plans'>
           <div className='plan'>
@@ -223,7 +211,7 @@ class NewProject extends React.Component<Props, State> {
             <p className='attr'><span>5</span> Enviroments</p>
             <p className='attr'><span>Unlimited</span> Collaborators</p>
             
-            <p className='price'><span>$35</span>/user per month</p>
+            <p className='price'><span>$45</span>/user per month</p>
 
             <button onClick={() => setPlan('team')} className='btn info'><p>Choose Team</p></button>
           </div>
@@ -233,10 +221,50 @@ class NewProject extends React.Component<Props, State> {
   }
 
   renderPaymentMethod(): JSX.Element {
+    const onComplete = (paymentMethodID: string) => {
+      const params = {
+        github_token: this.state.token,
+        // payment_method_id: paymentMethodID,
+        project: {
+          repository: this.state.project.repository,
+          name: this.state.project.name,
+          description: this.state.project.description,
+        },
+      };
+
+      API.Call("ProjectService/Create", params)
+        .then(res => {
+          this.setState({ 
+            project: res.data.project,
+            clientID: res.data.client_id,
+            clientSecret: res.data.client_secret,
+            paymentMethodStatus: 'Subscription Setup.'
+          })
+
+          setTimeout(this.scrollToBottom.bind(this), 100);    
+        })
+        .catch(err => onError(err.response.data.detail));
+    }
+
+    const onError = (err: string) => {
+      this.setState({
+        paymentMethodDisabled: false,
+        paymentMethodStatus: `Error: ${err}`,
+      });
+    }
+
+    const onSubmit = () => {
+      this.setState({ 
+        paymentMethodDisabled: true,
+        paymentMethodStatus: 'Creating Subscription...',
+      });
+    }
+
     return(
       <section>
         <h2>Setup Billing</h2>
-        <p>Add a payment method for your project. Payments are processed by <a href=''>Stripe</a> and taken on the first of each month. For more information, see <a href=''>the docs</a>.</p>
+        <p>Add a payment method for your project. Payments are processed by <a href='/todo'>Stripe</a> and taken on the first of each month. For more information, see <a href='/todo'>the docs</a>.</p>
+        <PaymentMethod status={this.state.paymentMethodStatus} onSubmit={onSubmit} onComplete={onComplete} onError={onError} />
       </section>
     )
   }
@@ -271,7 +299,7 @@ class NewProject extends React.Component<Props, State> {
 
   done(): void {
     this.props.createProject(this.state.project);
-    this.props.history.push(`/projects/${this.state.project.name}`);
+    this.props.history.push(`/projects/${this.state.project.name}/production`);
   }
 
   scrollToBottom(): void {

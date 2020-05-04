@@ -13,7 +13,7 @@ export default class Project extends React.Component<Props> {
     return <PageLayout className='Project'>
       <div className='center'>
         <div className='header'>
-          <h1>Kytra</h1>
+          <h1>{this.props.match.params.project}</h1>
         </div>
 
         <section>
@@ -23,19 +23,19 @@ export default class Project extends React.Component<Props> {
           <form>
             <div className='row'>
               <label>Name *</label>
-              <input required type='text' value='Kytra' placeholder='My Awesome Project' name='name' />
+              <input required type='text' value={this.props.match.params.project} placeholder='My Awesome Project' name='name' />
             </div>
             
             <div className='row'>
               <label>Description</label>
-              <input type='text' value='Kytra is your intelligent broker' placeholder='Description' name='description' />
+              <input type='text' value='Description' placeholder='Description' name='description' />
             </div>
           </form>
         </section>
 
         <section>
           <h2>GitHub</h2>
-          <p>M3O connects to GitHub and builds your services in your repo, keeping your source and builds firmly in your control. The <a href='https://github.com/micro/actions' target='blank'>micro/actions</a> GitHub action automatically builds your services when any changes are detected and triggers a release. Find our more at our <a href=''>docs</a>.</p>
+          <p>M3O connects to GitHub and builds your services in your repo, keeping your source and builds firmly in your control. The <a href='https://github.com/micro/actions' target='blank'>micro/actions</a> GitHub action automatically builds your services when any changes are detected and triggers a release. Find our more at our <a href='/todo'>docs</a>.</p>
 
           <form>
             <div className='row'>

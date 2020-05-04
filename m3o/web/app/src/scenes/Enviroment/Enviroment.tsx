@@ -39,7 +39,7 @@ export default class Enviroment extends React.Component<Props> {
 
         <section>
           <h2>DNS</h2>
-          <p>Your default domain is <a href='https://production.kytra.m3o.app' target='blank'>https://production.kytra.m3o.app</a>. Your web domain is served at <a href=''>/ (root)</a> and your API is available at <a href=''>/api</a>. To configure a custom domain, enter the domains below and then setup CNAME records for each domain pointing at <strong>m3o.app</strong>. For more information about custom domains, see <a href=''>the docs</a>.</p>
+          <p>Your default domain is <a href='https://production.kytra.m3o.app' target='blank'>https://production.kytra.m3o.app</a>. Your web domain is served at <a href='/todo'>/ (root)</a> and your API is available at <a href='/todo'>/api</a>. To configure a custom domain, enter the domains below and then setup CNAME records for each domain pointing at <strong>m3o.app</strong>. For more information about custom domains, see <a href='/todo'>the docs</a>.</p>
           <form>
             <div className='row'>
               <label>Web Domain</label>
@@ -55,7 +55,7 @@ export default class Enviroment extends React.Component<Props> {
 
         <section>
           <h2>CLI</h2>
-          <p>Configure your CLI to use the {project}/{enviroment} enviroment. Firstly, all calls made to your enviroment are authenticated so if you aren't already, login using the following command and a token you can get at <a href=''>this link</a>.</p>
+          <p>Configure your CLI to use the {project}/{enviroment} enviroment. Firstly, all calls made to your enviroment are authenticated so if you aren't already, login using the following command and a token you can get at <a href='/todo'>this link</a>.</p>
           <p className='code'>
             micro login [token]
           </p>

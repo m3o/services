@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import * as serviceWorker from './serviceWorker';
 import App from './App';
 import './index.scss';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 // Redux
 import { Provider } from 'react-redux';
@@ -10,6 +12,9 @@ import store from './store';
 
 // Redux Setup
 window.store = store; 
+
+// Stripe
+const stripePromise = loadStripe('pk_test_wuI8wlKwKBUZ9iHnYlQPa8BH');
 
 // Declare global window interface so we can mount redux
 declare global {
@@ -22,7 +27,9 @@ declare global {
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={window.store}>
-      <App />
+      <Elements stripe={stripePromise}>
+        <App />
+      </Elements>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
