@@ -32,7 +32,7 @@ We also aim to help working with different environments (ie local/custom envs/pr
 There is no question that most local and production setups vastly differ.
 The differences dictated by resiliency and scaling requirements and available computing resources creates a disconnect between the different steps during the lifecycle of a code change - from the moment of its birth locally to different environments and ending up in production.
 
-A simple file backed persistent on a simple node is not enough, but similarly you might not want to install and maintain kubernetes or different databases locally.
+A simple file backed persistent on a single node is "not enough" in production settings, but similarly you might not want to install and maintain kubernetes or a different heavy container based solution locally.
 
 This is one of the many areas of modern microservices based workflows that Micro aims to simplify, and our current focus with the `micro server` release. There are many more concepts we plan to explore, so if you are interested, stay tuned for further developments.
 
