@@ -1,5 +1,6 @@
 ---
 layout:	post
+author: Janos Dobronszki
 title:	Introducing Micro Server
 date:	2020-05-04 17:00:00
 ---
@@ -42,4 +43,5 @@ If you're interested in the future of cloud-native development, microservices an
 Also check out the project on [github](https://github.com/micro/micro) and give us a ⭐ if you like it.
 
 Cheers
+
 From the team at Micro
