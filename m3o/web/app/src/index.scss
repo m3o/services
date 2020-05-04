@@ -1,5 +1,9 @@
 @import './global.scss';
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   height: 100vh;

@@ -38,6 +38,8 @@ interface State {
 }
 
 class NewProject extends React.Component<Props, State> {
+  readonly ref: React.RefObject<HTMLDivElement> = React.createRef();
+
   readonly state: State = {
     token: '',
     repos: [],
@@ -75,6 +77,7 @@ class NewProject extends React.Component<Props, State> {
       repository: repo,
     });
 
+    setTimeout(this.scrollToBottom.bind(this), 100);
     // const params = {
     //   github_token: this.state.token,
     //   project: {
@@ -97,7 +100,7 @@ class NewProject extends React.Component<Props, State> {
     const { repository, project, paymentPlan } = this.state;
 
     return(
-      <PageLayout className='NewProject'>
+      <PageLayout className='NewProject' childRef={this.ref}>
         <div className='center'>
           <div className='header'>
             <h1>New Project</h1>
@@ -166,7 +169,10 @@ class NewProject extends React.Component<Props, State> {
   }
 
   renderPlans(): JSX.Element {
-    const setPlan = (paymentPlan: string) => this.setState({ paymentPlan });
+    const setPlan = (paymentPlan: string) => {
+      this.setState({ paymentPlan });
+      setTimeout(this.scrollToBottom.bind(this), 100);
+    };
 
     return(
       <section>
@@ -266,6 +272,14 @@ class NewProject extends React.Component<Props, State> {
   done(): void {
     this.props.createProject(this.state.project);
     this.props.history.push(`/projects/${this.state.project.name}`);
+  }
+
+  scrollToBottom(): void {
+    this.ref.current.scroll({
+      top: this.ref.current.scrollHeight, 
+      left: 0, 
+      behavior: 'smooth'
+    });
   }
 }
 

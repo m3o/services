@@ -18,6 +18,7 @@ import './PageLayout.scss';
 
 
 interface Props {
+  childRef?: React.RefObject<HTMLDivElement>;
   className?: string;
   projects: API.Project[];
 }
@@ -84,7 +85,7 @@ class PageLayout extends React.Component<Props> {
             </section>)}
           </div>
 
-          <div className={`main ${this.props.className}`}>
+          <div className={`main ${this.props.className}`} ref={this.props.childRef}>
             { this.props.children }
           </div>
         </div>
