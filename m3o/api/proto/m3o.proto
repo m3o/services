@@ -65,7 +65,7 @@ message VerifyGithubTokenRequest {
 }
 
 message VerifyGithubTokenResponse {
-  repeated string repos = 1;
+  repeated Repository repos = 1;
 }
 
 message WebhookAPIKeyRequest {
@@ -75,4 +75,9 @@ message WebhookAPIKeyRequest {
 message WebhookAPIKeyResponse {
   string client_id = 1;
   string client_secret = 2;
+}
+
+message Repository {
+  string name = 1;
+  bool private = 2;
 }

@@ -56,7 +56,7 @@ func (p *Project) Create(ctx context.Context, req *pb.CreateProjectRequest, rsp 
 	}
 	var isMemberOfRepo bool
 	for _, r := range repos {
-		if r == req.Project.Repository {
+		if r.Name == req.Project.Repository {
 			isMemberOfRepo = true
 			break
 		}
@@ -195,7 +195,7 @@ func serializeProject(p *project.Project) *pb.Project {
 	}
 }
 
-func (p *Project) listGitHubRepos(token string) ([]string, error) {
+func (p *Project) listGitHubRepos(token string) ([]*pb.Repository, error) {
 	r, _ := http.NewRequest("GET", "https://api.github.com/user/repos", nil)
 	r.Header.Set("Authorization", "Bearer "+token)
 	r.Header.Set("Content-Type", "application/vnd.github.nebula-preview+json")
@@ -217,15 +217,16 @@ func (p *Project) listGitHubRepos(token string) ([]string, error) {
 	}
 
 	var repos []struct {
-		Name string `json:"full_name"`
+		Name    string `json:"full_name"`
+		Private bool   `json:"private"`
 	}
 	if err := json.Unmarshal(bytes, &repos); err != nil {
 		return nil, errors.InternalServerError(p.name, "Invalid response returned from the GitHub API: %v", err)
 	}
 
-	repoos := make([]string, 0, len(repos))
+	repoos := make([]*pb.Repository, 0, len(repos))
 	for _, r := range repos {
-		repoos = append(repoos, strings.ToLower(r.Name))
+		repoos = append(repoos, &pb.Repository{Name: strings.ToLower(r.Name), Private: r.Private})
 	}
 
 	return repoos, nil
