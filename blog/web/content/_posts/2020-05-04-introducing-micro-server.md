@@ -1,0 +1,32 @@
+---
+layout:	post
+title:	Introducing Micro Server
+date:	2020-05-04 17:00:00
+---
+<br>
+# Introducing Micro Server
+
+In 2016, `go-micro`, a Go microservices framework was announced. Today we introduce `micro server`, which builds on top of `go-micro`, and enables you to run and manage microservices at ease, both locally and across different environments. Wether you are running `micro server` locally with zero dependencies (using memory or files), or on k8s, databases and other third party tools, `micro server` and the micro cli should provide a straightforward and uniform experience.
+
+For those who prefer action to words, the [getting started guide](TODO LINK TO GETTING STARTED)! can give a taste of what the `micro server` is about.
+
+## Bottling 7 years of research
+
+Back in 2013 at a company called Hailo - a European Uber competitor - we were one of the few companies that followed Neflix's model to build the company on microservices, which enabled us to become - at the time - the most successful taxi application in Europe.
+
+Years later, ex-Hailo members brought the fruits of years of microservices R&D done at Hailo to companies like Monzo, Sixt and many others. We at the Micro team are working on bringing these ideas to the Open Source community. The source of our passion is both the fact that microservices enable companies to be successful and also that we have collectively seen many dozens of companies building similar systems from scratch. Some successfully, some not so successfully.
+
+## Complexity in the age of cloud computing
+
+We primarily exist to ensure company and developer success - the advantages of microservices became clear to the industry in the past years, but the tooling around it was and is still in infancy. Breaking up the monolith to different processes comes with an increase in [accidental complexity](https://en.wikipedia.org/wiki/No_Silver_Bullet), which, without appropriate tooling can cause non-negligible amounts of pain. Micro's mission is to make this pain go away, and unlock a whole new ear of computing where services play as nicely together as functions in a programming language do.
+
+We also aim to help working with different environments (ie local/custom envs/prod) and tools (different databases, orchestration systems etc.), so similar concepts and interfaces can be reused across them.
+
+There is no question that most local and production setups vastly differ.
+The differences dictated by resiliency and scaling requirements and available computing resources creates a disconnect between the different steps during the lifecycle of a code change - from the moment of its birth locally to different environments and ending up in production.
+
+A simple file backed persistent on a simple node is not enough, but similarly you might not want to install and maintain kubernetes or different databases locally.
+
+This is one of the many areas of modern microservices based workflows that Micro aims to simplify, and our current focus with the `micro server` release. There are many more concepts we plan to explore, so if you are interested, stay tuned for further developments.
+
+Please also feel free to join our [Slack channel](TODO LINK HERE), we can help you if for any reason you get stuck with our [docs](LINK LINK LINK) or the [getting started guide](LINK TODO LINK).
