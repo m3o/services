@@ -6,6 +6,7 @@ date:	2020-05-04 17:00:00
 <br>
 In 2016, `go-micro`, a Go microservices framework was announced. Today we introduce the `micro server`, which builds on top of `go-micro`, and enables you to run and manage microservices with ease, both locally and across different environments. Whether you are running the `micro server` locally with zero dependencies (using memory or files), or on k8s (with highly available distributed systems and other third party tools), the `micro server` and the micro cli should provide a straightforward and runtime agnostic experience that is the same across any environment.
 
+
 For those who prefer action to words, the [getting started guide](https://micro.mu/docs/getting-started.html)! can give a taste of what the `micro server` is about.
 
 <br>
