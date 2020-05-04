@@ -31,4 +31,4 @@ A simple file backed persistent on a simple node is not enough, but similarly yo
 
 This is one of the many areas of modern microservices based workflows that Micro aims to simplify, and our current focus with the `micro server` release. There are many more concepts we plan to explore, so if you are interested, stay tuned for further developments.
 
-Please also feel free to join our [Slack channel](TODO LINK HERE), we can help you if for any reason you get stuck with our [docs](LINK LINK LINK) or the [getting started guide](LINK TODO LINK).
+Please also feel free to join our [Slack channel](https://slack.micro.mu), we can help you if for any reason you get stuck with our [docs](https://micro.mu/docs) or the [getting started guide](https://micro.mu/docs/getting-started.html).
