@@ -5,9 +5,61 @@
     <description>The simplest way to build, share and collaborate on microservices</description>
     <link>https://micro.mu//blog/</link>
     <atom:link href="https://micro.mu//blog/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 30 Apr 2020 11:04:34 +0100</pubDate>
-    <lastBuildDate>Thu, 30 Apr 2020 11:04:34 +0100</lastBuildDate>
+    <pubDate>Mon, 04 May 2020 13:02:02 +0100</pubDate>
+    <lastBuildDate>Mon, 04 May 2020 13:02:02 +0100</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>Introducing Micro Server</title>
+        <description>&lt;p&gt;&lt;br /&gt;
+In 2016, &lt;code&gt;go-micro&lt;/code&gt;, a Go microservices framework was announced. Today we introduce the &lt;code&gt;micro server&lt;/code&gt;, which builds on top of &lt;code&gt;go-micro&lt;/code&gt;, and enables you to run and manage microservices with ease, both locally and across different environments.&lt;/p&gt;
+
+&lt;p&gt;Whether you are running the &lt;code&gt;micro server&lt;/code&gt; locally with zero dependencies (using memory or files), or on k8s (with highly available distributed systems and other third party tools), the &lt;code&gt;micro server&lt;/code&gt; and the micro cli should provide a straightforward and runtime agnostic experience that is the same across any environment.&lt;/p&gt;
+
+&lt;p&gt;For those who prefer action to words, the &lt;a href=&quot;https://micro.mu/docs/getting-started.html&quot;&gt;getting started guide&lt;/a&gt;! can give a taste of what the &lt;code&gt;micro server&lt;/code&gt; is about or visit the project on &lt;a href=&quot;https://github.com/micro/micro&quot;&gt;github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;div style=&quot;text-align: center; width: 100%;&quot;&gt;
+  &lt;img src=&quot;https://micro.mu/images/runtime10.svg&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;combining-a-decade-of-research&quot;&gt;Combining a decade of research&lt;/h2&gt;
+
+&lt;p&gt;At Google in 2011, Asim Aslam, the creator of Micro, experienced what it was like to build systems at Google scale. Google operated a microservices architecture before most ever knew what the term meant. They did this because of an organisational and technical need to build systems that could be developed and managed independently.&lt;/p&gt;
+
+&lt;p&gt;In 2013 a few of us worked at a company called Hailo - a European Uber competitor - one of the few companies that followed Neflix’s model to build an organisational architecture based on microservices. This enabled us to become - at the time - to be incredibly productive and arguably the most successful taxi app in Europe.&lt;/p&gt;
+
+&lt;p&gt;Years later, ex-Hailo members brought the fruits of years of microservices R&amp;amp;D done at Hailo to companies like Monzo, Sixt and many others. We at the Micro team are working on bringing these ideas to the Open Source community. The source of our passion is both the fact that microservices enable companies to be successful and also that we have collectively seen many dozens of companies building similar systems from scratch. Some successfully, some not so successfully.&lt;/p&gt;
+
+&lt;h2 id=&quot;complexity-in-the-age-of-cloud-computing&quot;&gt;Complexity in the age of cloud computing&lt;/h2&gt;
+
+&lt;p&gt;We primarily exist to ensure company and developer success - the advantages of microservices became clear to the industry in the past years, but the tooling around it was and is still in infancy. Breaking up the monolith to different processes comes with an increase in &lt;a href=&quot;https://en.wikipedia.org/wiki/No_Silver_Bullet&quot;&gt;accidental complexity&lt;/a&gt;, which, without appropriate tooling can cause non-negligible amounts of pain. Micro’s mission is to make this pain go away, and unlock a whole new era of computing where services play as nicely together as functions in a programming language do.&lt;/p&gt;
+
+&lt;p&gt;We also aim to help working with different environments (ie local/custom envs/prod) and tools (different databases, orchestration systems etc.), so similar concepts and interfaces can be reused across them.&lt;/p&gt;
+
+&lt;p&gt;There is no question that most local and production setups vastly differ.
+The differences dictated by resiliency and scaling requirements and available computing resources creates a disconnect between the different steps during the lifecycle of a code change - from the moment of its birth locally to different environments and ending up in production.&lt;/p&gt;
+
+&lt;p&gt;A simple file backed persistent on a single node is “not enough” in production settings, but similarly you might not want to install and maintain kubernetes or a different heavy container based solution locally.&lt;/p&gt;
+
+&lt;p&gt;This is one of the many areas of modern microservices based workflows that Micro aims to simplify, and our current focus with the &lt;code&gt;micro server&lt;/code&gt; release. There are many more concepts we plan to explore, so if you are interested, stay tuned for further developments.&lt;/p&gt;
+
+&lt;h2 id=&quot;to-end&quot;&gt;To end&lt;/h2&gt;
+
+&lt;p&gt;If you’re interested in the future of cloud-native development, microservices and distributed systems come join us in the community. You can find us in our &lt;a href=&quot;https://slack.micro.mu&quot;&gt;Slack channel&lt;/a&gt; or on &lt;a href=&quot;https://community.micro.mu/&quot;&gt;Discourse&lt;/a&gt;. We can help you if for any reason you get stuck with our &lt;a href=&quot;https://micro.mu/docs&quot;&gt;docs&lt;/a&gt; or the &lt;a href=&quot;https://micro.mu/docs/getting-started.html&quot;&gt;getting started guide&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Also check out the project on &lt;a href=&quot;https://github.com/micro/micro&quot;&gt;github&lt;/a&gt; and give us a ⭐ if you like it.&lt;/p&gt;
+
+&lt;p&gt;Cheers&lt;/p&gt;
+
+&lt;p&gt;From the team at Micro&lt;/p&gt;
+</description>
+        <pubDate>Mon, 04 May 2020 10:00:00 +0100</pubDate>
+        <link>https://micro.mu//blog/2020/05/04/introducing-micro-server.html</link>
+        <guid isPermaLink="true">https://micro.mu//blog/2020/05/04/introducing-micro-server.html</guid>
+        
+        
+      </item>
     
       <item>
         <title>Micro v2.0.0 release is out!</title>
@@ -1109,164 +1161,6 @@ visit &lt;a href=&quot;https://github.com/micro/micro&quot;&gt;GitHub&lt;/a&gt;.
         <pubDate>Sat, 07 Jul 2018 10:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2018/07/07/the-micro-newsletter.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2018/07/07/the-micro-newsletter.html</guid>
-        
-        
-      </item>
-    
-      <item>
-        <title>Go Config - A pluggable config framework</title>
-        <description>&lt;p&gt;&lt;br /&gt;
-Application configuration has remained largely static for most of our lifetime, using flags, environment variables and files. 
-Any change has usually required restarting the application or significant complexity in code to signal and reload the config.&lt;/p&gt;
-
-&lt;p&gt;Today though, we need more. Restarting an application for a minor configuration seems like overkill. If only one property 
-needs to change, should there not be a better way? Dynamic configuration provides us this option.&lt;/p&gt;
-
-&lt;h3 id=&quot;dynamic-config&quot;&gt;Dynamic Config&lt;/h3&gt;
-
-&lt;p&gt;Dynamic configuration is the concept by which a system can be modified or extended while it’s running. Or in simpler terms 
-the values you require for configuration are automatically updated as they change.&lt;/p&gt;
-
-&lt;p&gt;There’s an emergence of tooling for dynamic config mostly driven by key-value stores as the source of truth. Yet when we then 
-need to extract out these values it requires reading individual keys, extracting bytes and handling decoding manually.&lt;/p&gt;
-
-&lt;p&gt;In an ideal world, the configuration system should handle all of these concerns leaving you to focus on what’s most important. 
-Your code.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/micro/go-config&quot;&gt;&lt;strong&gt;Go Config&lt;/strong&gt;&lt;/a&gt; is a pluggable config framework which looks to solve these problems.&lt;/p&gt;
-
-&lt;h3 id=&quot;go-config&quot;&gt;Go Config&lt;/h3&gt;
-
-&lt;p&gt;Go Config was born out of a need to simplify configuration for users of micro. Once companies had started building real 
-products that were going to production they echoed the need for the ability to provide configuration for business logic 
-related code or higher level config that shouldn’t really necessitate the need for a restart.&lt;/p&gt;
-
-&lt;p&gt;In some cases they had opted for the kubernetes config map or a key-value store such as consul or etcd but handling 
-this configuration in code was not pleasant. They were looking for abstractions similar to Go Micro for their config.&lt;/p&gt;
-
-&lt;p&gt;And so Go Config was created to help with this and much more.&lt;/p&gt;
-
-&lt;p&gt;Go Config is:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Dynamic&lt;/strong&gt; - Config is updated transparently in the background&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Pluggable&lt;/strong&gt; - Backend sources can be swapped out&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Mergeable&lt;/strong&gt; - Multiple sources are merged into a single source of truth&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Observable&lt;/strong&gt; - Actively watch the config for changes if you need&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Safe&lt;/strong&gt; - Default fallback values can be specified in case they don’t exist&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;It also has the benefit of supporting multiple backend sources and config encoding formats out of the box. See the project 
-&lt;a href=&quot;https://github.com/micro/go-config&quot;&gt;readme&lt;/a&gt; for details.&lt;/p&gt;
-
-&lt;p&gt;Here’s the top level interface which encapsulates all the features mentioned.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/9365ffa1115d2215a39d9073a2fa0ffc.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;Ok so let’s break it down and discuss the various concerns in the framework starting with the backend sources.&lt;/p&gt;
-
-&lt;h3 id=&quot;source&quot;&gt;Source&lt;/h3&gt;
-
-&lt;p&gt;A source is a backend from which config is loaded. This could be command line flags, environment variables, a key-value store 
-or any other number of places.&lt;/p&gt;
-
-&lt;p&gt;Go Config provides a simple abstraction over all these sources as a simple interface from which we read data or what we call a ChangeSet.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/45a0c1f0a40c29c034b1aea796a24c96.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;The ChangeSet includes the raw data, it’s format, timestamp of creation or last update and the source from which it was loaded. 
-There’s also an optional md5 checksum which can be recalculated using the &lt;code&gt;Sum()&lt;/code&gt; method.&lt;/p&gt;
-
-&lt;p&gt;The simplicity of this interface allows us to easily create a source for any backend, read it’s values at any given time or 
-watch for changes where possible.&lt;/p&gt;
-
-&lt;h3 id=&quot;encoding&quot;&gt;Encoding&lt;/h3&gt;
-
-&lt;p&gt;Config is rarely available in just a single format and people usually have varying preferences on whether it should be stored 
-in json, yaml, toml or something else. We make sure to deal with this in the framework so almost any encoding format can be 
-dealt with.&lt;/p&gt;
-
-&lt;p&gt;The encoder is a very simply interface for handling encoding and decoding different formats. Why wouldn’t we reuse existing libraries for 
-this? We do beneath the covers but to ensure we could deal with encoding in an abstract way it made sense to define an interface for it.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/131349521cbb974c680cd3a245bf13c7.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;The current supported formats are json, yaml, toml, xml and hcl.&lt;/p&gt;
-
-&lt;h3 id=&quot;reader&quot;&gt;Reader&lt;/h3&gt;
-
-&lt;p&gt;Once we’ve loaded backend sources and developed a way to decode the variety of config formats we need some way of actually internally 
-representing and reading it. For this we’ve created a reader.&lt;/p&gt;
-
-&lt;p&gt;The reader manages decoding and merging multiple changesets into a single source of truth. It then provides a value interface which 
-allows you to retrieve native Go types or scan the config into a type of your choosing.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/e19799834382975b85e1c1813c4e2f89.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;Our default internal representation for the merged source is json.&lt;/p&gt;
-
-&lt;h3 id=&quot;example&quot;&gt;Example&lt;/h3&gt;
-
-&lt;p&gt;Let’s look at how Go Config actually works in code. Starting with a simple example, let’s read config from a file.&lt;/p&gt;
-
-&lt;h4 id=&quot;read-config&quot;&gt;Read Config&lt;/h4&gt;
-
-&lt;p&gt;Step 1. Define a config.json file&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/f6ddc55133f54f32fe0e9e6813e286dc.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;Step 2. Load the file into config&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/716a352d1f2d071fbf14a4fae39fc692.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;Step 3. Read the values from config&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/d97fe7bd2d16b125c721808e693ba88b.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;And that’s it! It’s really that simple.&lt;/p&gt;
-
-&lt;h4 id=&quot;watch-config&quot;&gt;Watch Config&lt;/h4&gt;
-
-&lt;p&gt;If the config file changes, the next time you read the value it will be different. But what if you want to 
-track that change? You can watch for changes. Let’s test it out.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/d7b98889aaf0342f99c0360641907bc0.js&quot;&gt;&lt;/script&gt;
-
-&lt;p&gt;In this example rather than getting a value, we watch it. The next time the value changes we’ll receive it and 
-can update our Host struct.&lt;/p&gt;
-
-&lt;h4 id=&quot;merge-config&quot;&gt;Merge Config&lt;/h4&gt;
-
-&lt;p&gt;Another useful feature is the ability to load config from multiple sources which are ordered, merged and overridden.
-A good example of this would be loading config from a file but overriding via environment variables or flags.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/e91071c4eaff6e0a081ea43a9cdcf7da.js&quot;&gt;&lt;/script&gt;
-
-&lt;h4 id=&quot;fallback-values&quot;&gt;Fallback Values&lt;/h4&gt;
-
-&lt;p&gt;In the event some values may not exist or config does not load due to an error, you can set fallback values at 
-time of getting them.&lt;/p&gt;
-
-&lt;script src=&quot;https://gist.github.com/asim/fbfef8fcfe16cb252377fae821c03a2e.js&quot;&gt;&lt;/script&gt;
-
-&lt;h3 id=&quot;summary&quot;&gt;Summary&lt;/h3&gt;
-
-&lt;p&gt;The way in which config is managed and consumed needs to evolve. Go Config looks to do this by drastically simplifying 
-use of dynamic configuration with a pluggable framework.&lt;/p&gt;
-
-&lt;p&gt;Go Config currently supports a number of configuration formats and backend sources but we’re always looking for 
-more contributions. If you’re interested in contribution please feel free to do so by with a pull request.&lt;/p&gt;
-
-&lt;p&gt;Let Go Config managed the complexity of configuration for you so you can focus on what’s really important. Your code.&lt;/p&gt;
-
-&lt;p&gt;To learn more about micro check out the &lt;a href=&quot;https://micro.mu&quot;&gt;website&lt;/a&gt;, follow us on &lt;a href=&quot;https://twitter.com/microhq&quot;&gt;twitter&lt;/a&gt; or 
-join the &lt;a href=&quot;https://micro-services.slack.com&quot;&gt;slack&lt;/a&gt; community.&lt;/p&gt;
-
-&lt;h6&gt;&lt;a href=&quot;https://github.com/micro/go-config&quot;&gt;&lt;i class=&quot;fa fa-github fa-2x&quot;&gt;&lt;/i&gt; Go Config&lt;/a&gt;&lt;/h6&gt;
-</description>
-        <pubDate>Wed, 04 Jul 2018 10:00:00 +0100</pubDate>
-        <link>https://micro.mu//blog/2018/07/04/go-config.html</link>
-        <guid isPermaLink="true">https://micro.mu//blog/2018/07/04/go-config.html</guid>
         
         
       </item>

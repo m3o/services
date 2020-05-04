@@ -48,6 +48,10 @@ entries:
     output: web, pdf
     folderitems:
 
+    - title: Overview
+      url: /getting-started.html
+      output: web, pdf
+ 
     - title: Installation
       url: /installation.html
       output: web, pdf
