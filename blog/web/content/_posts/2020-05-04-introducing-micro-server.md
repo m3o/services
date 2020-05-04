@@ -25,7 +25,7 @@ Years later, ex-Hailo members brought the fruits of years of microservices R&D d
 
 ## Complexity in the age of cloud computing
 
-We primarily exist to ensure company and developer success - the advantages of microservices became clear to the industry in the past years, but the tooling around it was and is still in infancy. Breaking up the monolith to different processes comes with an increase in [accidental complexity](https://en.wikipedia.org/wiki/No_Silver_Bullet), which, without appropriate tooling can cause non-negligible amounts of pain. Micro's mission is to make this pain go away, and unlock a whole new ear of computing where services play as nicely together as functions in a programming language do.
+We primarily exist to ensure company and developer success - the advantages of microservices became clear to the industry in the past years, but the tooling around it was and is still in infancy. Breaking up the monolith to different processes comes with an increase in [accidental complexity](https://en.wikipedia.org/wiki/No_Silver_Bullet), which, without appropriate tooling can cause non-negligible amounts of pain. Micro's mission is to make this pain go away, and unlock a whole new era of computing where services play as nicely together as functions in a programming language do.
 
 We also aim to help working with different environments (ie local/custom envs/prod) and tools (different databases, orchestration systems etc.), so similar concepts and interfaces can be reused across them.
 
