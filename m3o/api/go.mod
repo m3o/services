@@ -12,4 +12,4 @@ require (
 	google.golang.org/appengine v1.6.1
 )
 
-replace github.com/micro/services/projects/service => ../../project/service
+replace github.com/micro/services/projects/service => ../../projects/service
