@@ -26,7 +26,7 @@ type Store struct {
 func NewStore(srv micro.Service) *Store {
 	return &Store{
 		name:  srv.Name(),
-		store: store.DefaultStore,
+		store: srv.Options().Store,
 	}
 }
 

@@ -59,7 +59,7 @@ func New(service micro.Service) *Invites {
 
 	return &Invites{
 		name:               service.Name(),
-		store:              store.DefaultStore,
+		store:              service.Options().Store,
 		sendgridAPIKey:     sendgridAPIKey,
 		sendgridTemplateID: sendgridTemplateID,
 		users:              users.NewUsersService("go.micro.service.users", service.Client()),

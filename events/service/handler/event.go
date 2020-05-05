@@ -23,7 +23,7 @@ type Events struct {
 func New(service micro.Service) *Events {
 	return &Events{
 		name:  service.Name(),
-		store: store.DefaultStore,
+		store: service.Options().Store,
 	}
 }
 

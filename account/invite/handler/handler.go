@@ -15,7 +15,7 @@ import (
 func NewHandler(srv micro.Service) *Handler {
 	return &Handler{
 		name:  srv.Name(),
-		store: store.DefaultStore,
+		store: srv.Options().Store,
 	}
 }
 
