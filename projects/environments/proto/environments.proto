@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.service.projects.environments;
 
-service environments {
+service Environments {
   rpc Create(CreateRequest) returns (CreateResponse) {};
   rpc Read(ReadRequest) returns (ReadResponse) {};
   rpc Update(UpdateRequest) returns (UpdateResponse) {};
