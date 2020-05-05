@@ -5,14 +5,14 @@
     <description>The simplest way to build, share and collaborate on microservices</description>
     <link>https://micro.mu//blog/</link>
     <atom:link href="https://micro.mu//blog/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 05 May 2020 17:25:57 +0200</pubDate>
-    <lastBuildDate>Tue, 05 May 2020 17:25:57 +0200</lastBuildDate>
+    <pubDate>Tue, 05 May 2020 17:51:52 +0100</pubDate>
+    <lastBuildDate>Tue, 05 May 2020 17:51:52 +0100</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
       <item>
         <title>Announcing: M3O - A Micro services development platform</title>
         <description>&lt;p&gt;&lt;br /&gt;
-Today we’re announcing M3O - a cloud native platform for Micro services development. A vastly simpler method of building distributed systems in the Cloud and beyond without having to manage the infrastructure. M3O (pronounced “em-3-oh” and derived from the word &lt;code&gt;M[icr]o&lt;/code&gt;) is the culmination of many experience of distributed systems development and today we want to shed more light on what we’re working on.&lt;/p&gt;
+Today we’re announcing M3O - a cloud native platform for Micro services development. A vastly simpler method of building distributed systems in the Cloud and beyond without having to manage the infrastructure. M3O (pronounced “em-3-oh” and derived from the word &lt;code&gt;M[icr]o&lt;/code&gt;) is the culmination of many years of experience doing distributed systems development and today we want to shed more light on what we’re working on.&lt;/p&gt;
 
 &lt;p&gt;Before we do, let’s talk about how we got here and what developers have had to deal with over the past decade, as all attempts to focus on software development has been thwarted by the new era of Cloud computing.
 &lt;br /&gt;&lt;/p&gt;
@@ -84,7 +84,7 @@ Today we’re announcing M3O - a cloud native platform for Micro services develo
 
 &lt;p&gt;The Micro Team&lt;/p&gt;
 </description>
-        <pubDate>Tue, 05 May 2020 12:00:00 +0200</pubDate>
+        <pubDate>Tue, 05 May 2020 11:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2020/05/05/m3o-micro-services-development-platform.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2020/05/05/m3o-micro-services-development-platform.html</guid>
         
@@ -495,7 +495,7 @@ interested in learning more Micro magic, have a look at the following sources:&l
 
 &lt;p&gt;From the team at Micro&lt;/p&gt;
 </description>
-        <pubDate>Tue, 05 May 2020 12:00:00 +0200</pubDate>
+        <pubDate>Tue, 05 May 2020 11:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2020/05/05/getting-started-with-microservices.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2020/05/05/getting-started-with-microservices.html</guid>
         
@@ -548,7 +548,7 @@ The differences dictated by resiliency and scaling requirements and available co
 
 &lt;p&gt;From the team at Micro&lt;/p&gt;
 </description>
-        <pubDate>Mon, 04 May 2020 11:00:00 +0200</pubDate>
+        <pubDate>Mon, 04 May 2020 10:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2020/05/04/introducing-micro-server.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2020/05/04/introducing-micro-server.html</guid>
         
@@ -608,7 +608,7 @@ join the &lt;a href=&quot;https://micro-services.slack.com&quot;&gt;slack&lt;/a&
 
 &lt;h6&gt;&lt;a href=&quot;https://github.com/micro/micro&quot;&gt;&lt;i class=&quot;fa fa-github fa-2x&quot;&gt;&lt;/i&gt; Micro&lt;/a&gt;&lt;/h6&gt;
 </description>
-        <pubDate>Thu, 30 Jan 2020 10:00:00 +0100</pubDate>
+        <pubDate>Thu, 30 Jan 2020 09:00:00 +0000</pubDate>
         <link>https://micro.mu//blog/2020/01/30/micro-v2.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2020/01/30/micro-v2.html</guid>
         
@@ -999,7 +999,7 @@ To learn more check out the &lt;a href=&quot;https://micro.mu&quot;&gt;website&l
 join the &lt;a href=&quot;https://micro.mu/slack&quot;&gt;slack&lt;/a&gt; community. We are hiring!&lt;/p&gt;
 
 </description>
-        <pubDate>Thu, 05 Dec 2019 10:00:00 +0100</pubDate>
+        <pubDate>Thu, 05 Dec 2019 09:00:00 +0000</pubDate>
         <link>https://micro.mu//blog/2019/12/05/building-a-microservices-network.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2019/12/05/building-a-microservices-network.html</guid>
         
@@ -1268,7 +1268,7 @@ Asim&lt;/p&gt;
 
 &lt;h6&gt;&lt;a href=&quot;https://micro.mu&quot;&gt;Micro&lt;/a&gt;&lt;/h6&gt;
 </description>
-        <pubDate>Mon, 18 Nov 2019 10:00:00 +0100</pubDate>
+        <pubDate>Mon, 18 Nov 2019 09:00:00 +0000</pubDate>
         <link>https://micro.mu//blog/2019/11/18/what-is-micro.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2019/11/18/what-is-micro.html</guid>
         
@@ -1316,7 +1316,7 @@ join the &lt;a href=&quot;https://micro-services.slack.com&quot;&gt;slack&lt;/a&
 
 &lt;h6&gt;&lt;a href=&quot;https://github.com/micro/micro&quot;&gt;&lt;i class=&quot;fa fa-github fa-2x&quot;&gt;&lt;/i&gt; Micro&lt;/a&gt;&lt;/h6&gt;
 </description>
-        <pubDate>Fri, 04 Oct 2019 11:00:00 +0200</pubDate>
+        <pubDate>Fri, 04 Oct 2019 10:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2019/10/04/deprecating-consul.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2019/10/04/deprecating-consul.html</guid>
         
@@ -1345,7 +1345,7 @@ join the &lt;a href=&quot;https://micro-services.slack.com&quot;&gt;slack&lt;/a&
 
 &lt;h6&gt;&lt;a href=&quot;https://github.com/micro/micro&quot;&gt;&lt;i class=&quot;fa fa-github fa-2x&quot;&gt;&lt;/i&gt; Micro&lt;/a&gt;&lt;/h6&gt;
 </description>
-        <pubDate>Thu, 13 Jun 2019 11:00:00 +0200</pubDate>
+        <pubDate>Thu, 13 Jun 2019 10:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2019/06/13/the-developer-end-game.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2019/06/13/the-developer-end-game.html</guid>
         
@@ -1466,7 +1466,7 @@ join the &lt;a href=&quot;https://micro-services.slack.com&quot;&gt;slack&lt;/a&
 
 &lt;h6&gt;&lt;a href=&quot;https://github.com/micro/micro&quot;&gt;&lt;i class=&quot;fa fa-github fa-2x&quot;&gt;&lt;/i&gt; Micro&lt;/a&gt;&lt;/h6&gt;
 </description>
-        <pubDate>Mon, 10 Jun 2019 11:00:00 +0200</pubDate>
+        <pubDate>Mon, 10 Jun 2019 10:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2019/06/10/the-great-consolidation.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2019/06/10/the-great-consolidation.html</guid>
         
@@ -1563,7 +1563,7 @@ join the &lt;a href=&quot;https://micro-services.slack.com&quot;&gt;slack&lt;/a&
 
 &lt;h6&gt;&lt;a href=&quot;https://github.com/micro/micro&quot;&gt;&lt;i class=&quot;fa fa-github fa-2x&quot;&gt;&lt;/i&gt; Micro&lt;/a&gt;&lt;/h6&gt;
 </description>
-        <pubDate>Mon, 01 Apr 2019 11:00:00 +0200</pubDate>
+        <pubDate>Mon, 01 Apr 2019 10:00:00 +0100</pubDate>
         <link>https://micro.mu//blog/2019/04/01/micro-version-1-and-beyond.html</link>
         <guid isPermaLink="true">https://micro.mu//blog/2019/04/01/micro-version-1-and-beyond.html</guid>
         
