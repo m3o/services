@@ -14,6 +14,7 @@ import Notifications from './scenes/Notifications';
 import Enviroment from './scenes/Enviroment';
 import Project from './scenes/Project';
 import NewProject from './scenes/NewProject';
+import NewEnvironment from './scenes/NewEnvironment';
 import NotFound from './scenes/404';
 
 // Styling
@@ -56,7 +57,7 @@ class App extends React.Component<Props> {
         <Route key='billing' exact path='/billing' component={Billing} />
         <Route key='notificiations' exact path='/' component={Notifications} />
         <Route key='new-project' exact path='/new/project' component={NewProject} />
-        <Route key='new-environmnt' exact path='/new/environment/:project' component={NewProject} />
+        <Route key='new-environmnt' exact path='/new/environment/:project' component={NewEnvironment} />
         <Route key='project' exact path='/projects/:project' component={Project} />
         <Route key='enviroment' exact path='/projects/:project/:enviroment' component={Enviroment} />
       </BrowserRouter>

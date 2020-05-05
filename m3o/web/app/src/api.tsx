@@ -15,7 +15,7 @@ export interface Project {
 }
 
 export interface Environment {
-  id: string;
+  id?: string;
   name: string;
   description: string;
 }
