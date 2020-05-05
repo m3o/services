@@ -44,7 +44,7 @@ Our goal is to focus on the following:
 - Everything as a Service - all applications on the platform are built as Micro services
 - Velocity of development - we're building an environment that allows you to move at a blistering pace
 
-Judging the industry by our primary focus on simplicity, developer productivity and happiness (concepts we believe to be very correlated), we see constant ebbs and flows. One stride towards a positive direction is cancelled by the introduction and promotion of overly complex tools, or at least the promotion of overly complex tools to the wrong audience and for the wrong usecase.
+Judging the industry by our primary focus on simplicity, developer productivity and happiness (concepts we believe to be very correlated), we see constant ebbs and flows. One stride towards a positive direction is cancelled out by the introduction and promotion of overly complex tools, or at least the promotion of overly complex tools to the wrong audience and for the wrong usecase.
 
 Naturally, with millions of us working in this industry, we can't and don't expect everything to go the way we envision - we just enthusiastically wish for it. Our industry is still very young, and we all work hard to make it and the world a better place. That being said, we hope our hard work and decades of collective experience with microservices will result in something that the users will love and put to productive use.
 
