@@ -5,13 +5,14 @@
     <description>The simplest way to build, share and collaborate on microservices</description>
     <link>https://micro.mu//blog/</link>
     <atom:link href="https://micro.mu//blog/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 05 May 2020 11:54:54 +0200</pubDate>
-    <lastBuildDate>Tue, 05 May 2020 11:54:54 +0200</lastBuildDate>
+    <pubDate>Tue, 05 May 2020 12:00:40 +0200</pubDate>
+    <lastBuildDate>Tue, 05 May 2020 12:00:40 +0200</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
       <item>
-        <title>Getting Started with Micro</title>
-        <description>&lt;h2 id=&quot;what-is-micro&quot;&gt;What is Micro?&lt;/h2&gt;
+        <title>Micro Server - Getting started with microservices</title>
+        <description>&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;what-is-micro&quot;&gt;What is Micro?&lt;/h2&gt;
 
 &lt;p&gt;Micro is a system for building and managing distributed systems.&lt;/p&gt;
 
@@ -414,12 +415,14 @@ interested in learning more Micro magic, have a look at the following sources:&l
   &lt;li&gt;Learn by &lt;a href=&quot;https://github.com/micro/examples&quot;&gt;examples&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;Come join us on &lt;a href=&quot;https://slack.micro.mu&quot;&gt;Slack&lt;/a&gt; and ask quesions&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;Cheers&lt;/p&gt;
+
+&lt;p&gt;From the team at Micro&lt;/p&gt;
 </description>
-        <pubDate>Tue, 05 May 2020 00:00:00 +0200</pubDate>
-        <link>https://micro.mu//blog/getting-started.html</link>
-        <guid isPermaLink="true">https://micro.mu//blog/getting-started.html</guid>
-        
-        <category>micro</category>
+        <pubDate>Tue, 05 May 2020 12:00:00 +0200</pubDate>
+        <link>https://micro.mu//blog/2020/05/05/getting-started-with-microservices.html</link>
+        <guid isPermaLink="true">https://micro.mu//blog/2020/05/05/getting-started-with-microservices.html</guid>
         
         
       </item>
