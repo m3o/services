@@ -1,0 +1,85 @@
+I"�<p><br />
+As technology evolves so do our programming models. We’ve gone from monoliths to microservices 
+and more recently started to push this separation even further towards functions.</p>
+
+<p>Micro looks to simplify distributed systems development, with <a href="https://github.com/micro/go-micro">go-micro</a> 
+providing a pluggable framework for microservices. Go-micro has historically included a high level <a href="https://godoc.org/github.com/micro/go-micro#Service">Service</a> 
+interface, encapsulating the lower level requirements for microservices.</p>
+
+<p>Today we’re introducing the <a href="https://godoc.org/github.com/micro/go-micro#Function">Function</a> 
+interface, a one time executing Service.</p>
+
+<script src="https://gist.github.com/asim/bfbaf036c90761879dbf6e939e5172e4.js"></script>
+
+<h3 id="the-inspiration">The Inspiration</h3>
+
+<p>Ben Firshman open sourced a project last year called <a href="https://github.com/bfirsh/funker">Funker</a>, functions as docker containers. The concept is very 
+simple but also extremely clever.</p>
+
+<p>Functions could quite simply be programs with one method, listening on the network for a request and exiting after 
+executing once, leveraging docker swarm services for lifecycle management, discovery, etc.</p>
+
+<p>This sparked the inspiration for including functions as part of go-micro.</p>
+
+<h3 id="why-functions">Why Functions?</h3>
+
+<p>The function programming model is the evolution of microservices. As our scale requirements increase both technically and organisationally 
+there’s a need to decouple systems and teams so they can operate independently.</p>
+
+<p>In the past 5 years we’ve seen the emergence of microservices as a way of dealing with those scaling requirements. The microservices 
+architecture pattern is of course nothing new but we’ve now started to define best practices which help us build better software.</p>
+
+<p>Functions push us into a new realm of possibility in terms of simplifying distributed systems development and solving software problems. 
+Going back to the unix philosophy, “do one thing and do it well”, functions truly embody that philosophy even more so than microservices.</p>
+
+<p>While infrastructure helps us build scalable systems, remember that microservices and functions are software architecture patterns 
+and programming models, so with that we need tools which help us to write software using those patterns.</p>
+
+<h3 id="example-function">Example Function</h3>
+
+<p>Here’s a straight forward example of writing a function with go-micro.</p>
+
+<p>As you can tell it looks almost identical to a service definition. That’s because underneath the covers they are exactly the 
+same except for one small detail, functions exit after one execution of a handler or subscriber.</p>
+
+<p>Functions give you the same functionality as services, letting you leverage all the existing micro ecosystem tooling.</p>
+
+<script src="https://gist.github.com/asim/7d70cf1160ad1279597f12985fe3fbd5.js"></script>
+
+<h3 id="running-functions">Running Functions</h3>
+
+<p>As previously stated, functions in micro are one time executing services, the function will exit after completing a request. This then 
+poses the question, how do we keep functions running?</p>
+
+<p>There is an abundance of existing tooling out there for process lifecycle management, so feel free to use any of your favourite 
+process managers.</p>
+
+<p>However the micro toolkit now includes a convenience tool called <a href="https://micro.mu/docs/run.html"><strong>micro run</strong></a>.</p>
+
+<p>Here’s how to run a function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro run -r github.com/micro/examples/function
+</code></pre></div></div>
+
+<p>The <strong>micro run</strong> command fetches, builds and executes from source. The <code class="highlighter-rouge">-r</code> flag tells it restart the function on exit. 
+It’s currently a simple and experimental tool for running micro based microservices and functions. From source to running in one command.</p>
+
+<p>There will be a separate post for the run command once it’s more stable.</p>
+
+<h3 id="summary">Summary</h3>
+
+<p>Functions are a natural extension of microservices as the next programming model to help simplify distributed systems development. 
+Micro treats functions as a first class citizen.</p>
+
+<p>While functions have been added to go-micro, it does not mean 100% of your software needs to be written with them. It’s important 
+to understand when monoliths, microservices or functions are appropriate.</p>
+
+<p>Look to see more on integrating micro functions with existing systems and serverless tooling in the near future.</p>
+
+<center><p>...</p></center>
+<p>If you want to learn more about the services we offer or microservices, checkout the <a href="https://micro.mu">website</a> or 
+visit <a href="https://github.com/micro/micro">GitHub</a>.</p>
+
+<p>Follow us on <a href="https://twitter.com/microhq">Twitter</a> or join the <a href="http://slack.micro.mu">Slack</a> community.</p>
+
+:ET

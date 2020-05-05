@@ -1,0 +1,340 @@
+I"_k<p><br />
+This is a high level guide to writing microservices with <a href="https://github.com/micro/go-micro"><strong>go-micro</strong></a>.</p>
+
+<p>If you want to learn more about microservices check out the introductory blog post <a href="/2016/03/17/introduction.html">here</a> 
+and if you want to know more about <a href="https://github.com/micro/micro"><strong>Micro</strong></a>, the microservice toolkit, look <a href="/2016/03/20/micro.html">here</a>.</p>
+
+<p>Let’s get to it.</p>
+
+<h5 id="what-is-go-micro">What is Go Micro?</h5>
+
+<p><a href="https://github.com/micro/go-micro"><strong>Go Micro</strong></a> is a pluggable RPC based library which provides the fundamental building blocks 
+for writing microservices in Go. The Micro philosophy is “batteries included” with a pluggable architecture. Out of the box, it implements 
+service discovery using consul, communication via http and encoding using proto-rpc or json-rpc.</p>
+
+<p>That’s a bit of a mouthful so let’s break it down.</p>
+
+<p>Go Micro is:</p>
+
+<ol>
+  <li>A library written in Go</li>
+  <li>A set of pluggable interfaces</li>
+  <li>RPC based</li>
+</ol>
+
+<p>Go Micro provides interfaces for:</p>
+
+<ol>
+  <li>Service Discovery</li>
+  <li>Encoding</li>
+  <li>Client/Server</li>
+  <li>Pub/Sub</li>
+</ol>
+
+<p>A more detailed breakdown can be found <a href="/2016/03/20/micro.html#go-micro">here</a>.</p>
+
+<h5 id="why-go-micro">Why Go Micro?</h5>
+
+<p>Go Micro started more than a year ago, initially serving a personal need. It was clear very soon after that it would 
+be valuable to a broader audience also looking to write microservices. It’s based on experiences at various 
+technology companies that operate microservice platforms at scale like Google and Hailo.</p>
+
+<p>As mentioned before Go Micro is a pluggable architecture that focuses on providing Go based interfaces which when used 
+together providing the building blocks for writing microservices. These interfaces can be satisfied by concrete 
+implementations. For example the <a href="https://godoc.org/github.com/micro/go-micro/registry">Registry</a> interface for 
+service discovery has a default implementation for Consul but can be swapped out 
+for etcd, zookeeper, or anything else that is able to satify the interface.</p>
+
+<p>The pluggable architecture means zero code rewriting if you want to swap out the underlying technologies.</p>
+
+<p>Let’s get into writing a service.</p>
+
+<h5 id="writing-a-service">Writing a service</h5>
+
+<p>If you want to get straight into reading the code, look at <a href="https://github.com/micro/examples/tree/master/service">examples/service</a>.</p>
+
+<p>The top level <a href="https://godoc.org/github.com/micro/go-micro#Service">Service</a> interface is the main component for 
+building a service. It wraps all the underlying packages of Go Micro into a single convenient interface.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="n">Service</span> <span class="k">interface</span> <span class="p">{</span>
+    <span class="n">Init</span><span class="p">(</span><span class="o">...</span><span class="n">Option</span><span class="p">)</span>
+    <span class="n">Options</span><span class="p">()</span> <span class="n">Options</span>
+    <span class="n">Client</span><span class="p">()</span> <span class="n">client</span><span class="o">.</span><span class="n">Client</span>
+    <span class="n">Server</span><span class="p">()</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span>
+    <span class="n">Run</span><span class="p">()</span> <span class="kt">error</span>
+    <span class="n">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h5 id="1-initialisation">1. Initialisation</h5>
+
+<p>A service is created like so using <code class="highlighter-rouge">micro.NewService</code>.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="s">"github.com/micro/go-micro"</span>
+
+<span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">()</span> 
+</code></pre></div></div>
+
+<p>Options can be passed in during creation.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span>
+	<span class="n">micro</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s">"greeter"</span><span class="p">),</span>
+	<span class="n">micro</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s">"latest"</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>All the available options can be found <a href="https://godoc.org/github.com/micro/go-micro#Option">here</a>.</p>
+
+<p>Go Micro also provides a way to set command line flags using <code class="highlighter-rouge">micro.Flags</code>.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">(</span>
+	<span class="s">"github.com/micro/cli"</span>
+	<span class="s">"github.com/micro/go-micro"</span>
+<span class="p">)</span>
+
+<span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span>
+	<span class="n">micro</span><span class="o">.</span><span class="n">Flags</span><span class="p">(</span>
+		<span class="n">cli</span><span class="o">.</span><span class="n">StringFlag</span><span class="p">{</span>
+			<span class="n">Name</span><span class="o">:</span>  <span class="s">"environment"</span><span class="p">,</span>
+			<span class="n">Usage</span><span class="o">:</span> <span class="s">"The environment"</span><span class="p">,</span>
+		<span class="p">},</span>
+	<span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>To parse flags use <code class="highlighter-rouge">service.Init</code>. Additionally access flags use the <code class="highlighter-rouge">micro.Action</code> option.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">(</span>
+	<span class="n">micro</span><span class="o">.</span><span class="n">Action</span><span class="p">(</span><span class="k">func</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span><span class="n">cli</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">env</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">StringFlag</span><span class="p">(</span><span class="s">"environment"</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">&gt;</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Environment set to"</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">}),</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Go Micro provides predefined flags which are set and parsed if <code class="highlighter-rouge">service.Init</code> is called. See all the flags 
+<a href="https://godoc.org/github.com/micro/go-micro/cmd#pkg-variables">here</a>.</p>
+
+<h6 id="2-defining-the-api">2. Defining the API</h6>
+
+<p>We use protobuf files to define the service API interface. This is a very convenient way to strictly define the API and 
+provide concrete types for both the server and a client.</p>
+
+<p>Here’s an example definition.</p>
+
+<p>greeter.proto</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>syntax = "proto3";
+
+service Greeter {
+	rpc Hello(HelloRequest) returns (HelloResponse) {}
+}
+
+message HelloRequest {
+	string name = 1;
+}
+
+message HelloResponse {
+	string greeting = 2;
+}
+</code></pre></div></div>
+
+<p>Here we’re defining a service handler called Greeter with the method Hello which takes the parameter HelloRequest type and returns HelloResponse.</p>
+
+<h6 id="3-generate-the-api-interface">3. Generate the API interface</h6>
+
+<p>We use protoc and protoc-gen-go to generate the concrete go implementation for this definition.</p>
+
+<p>Go-micro uses code generation to provide client stub methods to reduce boiler plate code much like gRPC. It’s done via a protobuf plugin 
+which requires a fork of <a href="https://github.com/golang/protobuf">golang/protobuf</a> that can be found here 
+<a href="github.com/micro/protobuf">github.com/micro/protobuf</a>.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go get github.com/micro/protobuf/<span class="o">{</span>proto,protoc-gen-go<span class="o">}</span>
+protoc <span class="nt">--go_out</span><span class="o">=</span><span class="nv">plugins</span><span class="o">=</span>micro:. greeter.proto
+</code></pre></div></div>
+
+<p>The types generated can now be imported and used within a <strong>handler</strong> for a server or the client when making a request.</p>
+
+<p>Here’s part of the generated code.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="n">HelloRequest</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">Name</span> <span class="kt">string</span> <span class="s">`protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="n">HelloResponse</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">Greeting</span> <span class="kt">string</span> <span class="s">`protobuf:"bytes,2,opt,name=greeting" json:"greeting,omitempty"`</span>
+<span class="p">}</span>
+
+<span class="c">// Client API for Greeter service</span>
+
+<span class="k">type</span> <span class="n">GreeterClient</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="n">Hello</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">in</span> <span class="o">*</span><span class="n">HelloRequest</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">client</span><span class="o">.</span><span class="n">CallOption</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="n">HelloResponse</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="n">greeterClient</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">c</span>           <span class="n">client</span><span class="o">.</span><span class="n">Client</span>
+	<span class="n">serviceName</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">NewGreeterClient</span><span class="p">(</span><span class="n">serviceName</span> <span class="kt">string</span><span class="p">,</span> <span class="n">c</span> <span class="n">client</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="n">GreeterClient</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">NewClient</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">serviceName</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="n">serviceName</span> <span class="o">=</span> <span class="s">"greeter"</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="n">greeterClient</span><span class="p">{</span>
+		<span class="n">c</span><span class="o">:</span>           <span class="n">c</span><span class="p">,</span>
+		<span class="n">serviceName</span><span class="o">:</span> <span class="n">serviceName</span><span class="p">,</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span><span class="n">greeterClient</span><span class="p">)</span> <span class="n">Hello</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">in</span> <span class="o">*</span><span class="n">HelloRequest</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">client</span><span class="o">.</span><span class="n">CallOption</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="n">HelloResponse</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">req</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">NewRequest</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">serviceName</span><span class="p">,</span> <span class="s">"Greeter.Hello"</span><span class="p">,</span> <span class="n">in</span><span class="p">)</span>
+	<span class="n">out</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="n">HelloResponse</span><span class="p">)</span>
+	<span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">opts</span><span class="o">...</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="c">// Server API for Greeter service</span>
+
+<span class="k">type</span> <span class="n">GreeterHandler</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="n">Hello</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">*</span><span class="n">HelloRequest</span><span class="p">,</span> <span class="o">*</span><span class="n">HelloResponse</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">RegisterGreeterHandler</span><span class="p">(</span><span class="n">s</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span><span class="p">,</span> <span class="n">hdlr</span> <span class="n">GreeterHandler</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">s</span><span class="o">.</span><span class="n">Handle</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">NewHandler</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Greeter</span><span class="p">{</span><span class="n">hdlr</span><span class="p">}))</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h6 id="4-implement-the-handler">4. Implement the handler</h6>
+
+<p>The server requires <strong>handlers</strong> to be registered to serve requests. A handler is an public type with public methods 
+which conform to the signature <code class="highlighter-rouge">func(ctx context.Context, req interface{}, rsp interface{}) error</code>.</p>
+
+<p>As you can see above, a handler signature for the Greeter interface looks like so.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="n">GreeterHandler</span> <span class="k">interface</span> <span class="p">{</span>
+        <span class="n">Hello</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">*</span><span class="n">HelloRequest</span><span class="p">,</span> <span class="o">*</span><span class="n">HelloResponse</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an implementation of the Greeter handler.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="n">proto</span> <span class="s">"github.com/micro/examples/service/proto"</span>
+
+<span class="k">type</span> <span class="n">Greeter</span> <span class="k">struct</span><span class="p">{}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">g</span> <span class="o">*</span><span class="n">Greeter</span><span class="p">)</span> <span class="n">Hello</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">req</span> <span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">HelloRequest</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">HelloResponse</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="n">rsp</span><span class="o">.</span><span class="n">Greeting</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="n">Name</span>
+	<span class="k">return</span> <span class="no">nil</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The handler is registered with your service much like a http.Handler.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>service := micro.NewService(
+	micro.Name("greeter"),
+)
+
+proto.RegisterGreeterHandler(service.Server(), new(Greeter))
+</code></pre></div></div>
+
+<p>You can also create a bidirectional streaming handler but we’ll leave that for another day.</p>
+
+<h6 id="5-running-the-service">5. Running the service</h6>
+
+<p>The service can be run by calling <code class="highlighter-rouge">server.Run</code>. This causes the service to bind to the address in the config 
+(which defaults to the first RFC1918 interface found and a random port) and listen for requests.</p>
+
+<p>This will additionally Register the service with the registry on start and Deregister when issued a kill signal.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">service</span><span class="o">.</span><span class="n">Run</span><span class="p">();</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+	<span class="n">log</span><span class="o">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h6 id="6-the-complete-service">6. The complete service</h6>
+<p><br />
+greeter.go</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+        <span class="s">"log"</span>
+
+        <span class="s">"github.com/micro/go-micro"</span>
+        <span class="n">proto</span> <span class="s">"github.com/micro/examples/service/proto"</span>
+
+        <span class="s">"golang.org/x/net/context"</span>
+<span class="p">)</span>
+
+<span class="k">type</span> <span class="n">Greeter</span> <span class="k">struct</span><span class="p">{}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">g</span> <span class="o">*</span><span class="n">Greeter</span><span class="p">)</span> <span class="n">Hello</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">req</span> <span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">HelloRequest</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">*</span><span class="n">proto</span><span class="o">.</span><span class="n">HelloResponse</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">Greeting</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="n">Name</span>
+        <span class="k">return</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span>
+                <span class="n">micro</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s">"greeter"</span><span class="p">),</span>
+                <span class="n">micro</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s">"latest"</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">()</span>
+
+        <span class="n">proto</span><span class="o">.</span><span class="n">RegisterGreeterHandler</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">Server</span><span class="p">(),</span> <span class="nb">new</span><span class="p">(</span><span class="n">Greeter</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">service</span><span class="o">.</span><span class="n">Run</span><span class="p">();</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note. The service discovery mechanism will need to be running so the service can register to be discovered by clients and 
+other services. A quick getting started for that is <a href="https://github.com/micro/go-micro#getting-started">here</a>.</p>
+
+<h6 id="writing-a-client">Writing a Client</h6>
+
+<p>The <a href="https://godoc.org/github.com/micro/go-micro/client">client</a> package is used to query services. When you create a 
+Service, a Client is included which matches the initialised packages used by the server.</p>
+
+<p>Querying the above service is as simple as the following.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// create the greeter client using the service name and client</span>
+<span class="n">greeter</span> <span class="o">:=</span> <span class="n">proto</span><span class="o">.</span><span class="n">NewGreeterClient</span><span class="p">(</span><span class="s">"greeter"</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">Client</span><span class="p">())</span>
+
+<span class="c">// request the Hello method on the Greeter handler</span>
+<span class="n">rsp</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">greeter</span><span class="o">.</span><span class="n">Hello</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">TODO</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">proto</span><span class="o">.</span><span class="n">HelloRequest</span><span class="p">{</span>
+	<span class="n">Name</span><span class="o">:</span> <span class="s">"John"</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+	<span class="k">return</span>
+<span class="p">}</span>
+
+<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Greeter</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">proto.NewGreeterClient</code> takes the service name and the client used for making requests.</p>
+
+<p>The full example is can be found at <a href="https://github.com/micro/examples/tree/master/service">go-micro/examples/service</a>.</p>
+
+<h6 id="summary">Summary</h6>
+
+<p>Hopefully this blog post has been a helpful high level guide into writing microservices with <a href="https://github.com/micro/go-micro"><strong>Go Micro</strong></a>. 
+You can find many more example services in the repo <a href="https://github.com/micro">github.com/micro</a> to help you gain a further 
+understanding of more real world solutions.</p>
+
+<p>If you want to learn more about the services we offer or microservices, checkout the website <a href="https://micro.mu">micro.mu</a> or 
+the github <a href="https://github.com/micro/micro">repo</a>.</p>
+
+<p>Follow us on Twitter at <a href="https://twitter.com/microhq">@MicroHQ</a> or join the <a href="https://micro-services.slack.com">Slack</a> 
+community <a href="http://slack.micro.mu">here</a>.</p>
+:ET

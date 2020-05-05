@@ -1,0 +1,409 @@
+I"<^<p><br /></p>
+<h2 id="what-is-micro">What is Micro?</h2>
+
+<p>Micro is a system for building and managing distributed systems.</p>
+
+<p>Key components of Micro are as follows:</p>
+<ul>
+  <li><strong>Runtime</strong>: a runtime environment for managing services including auth, config, discovery, networking, storage.</li>
+  <li><strong>Framework</strong>: a Go framework for writing services to be run in the runtime.</li>
+  <li><strong>Clients</strong>: multi-language clients to enable other programs to access Micro services.</li>
+</ul>
+
+<h2 id="install">Install</h2>
+
+<p>Using Go:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go <span class="nb">install </span>github.com/micro/micro/v2
+</code></pre></div></div>
+
+<p>Or by downloading the binary</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># MacOS</span>
+curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
+
+<span class="c"># Linux</span>
+wget <span class="nt">-q</span>  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh <span class="nt">-O</span> - | /bin/bash
+
+<span class="c"># Windows</span>
+powershell <span class="nt">-Command</span> <span class="s2">"iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"</span>
+</code></pre></div></div>
+
+<h2 id="running-a-service">Running a service</h2>
+
+<p>Before diving into writing a service, let’s run an existing one, because it’s just a few commands away!</p>
+
+<p>First, we have to start the <code class="highlighter-rouge">micro server</code>. The command to do that is:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro server
+</code></pre></div></div>
+
+<p>To talk to this server, we just have to tell Micro CLI to address our server instead of using the default implementations - micro can work without a server too, but <a href="#-environments">more about that later</a>.</p>
+
+<p>The following command tells the CLI to talk to our server:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro env set server
+</code></pre></div></div>
+
+<p>Great! We are ready to roll. Just to verify that everything is in order, let’s see what services are running:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ micro list services
+go.micro.api
+go.micro.auth
+go.micro.bot
+go.micro.broker
+go.micro.config
+go.micro.debug
+go.micro.network
+go.micro.proxy
+go.micro.registry
+go.micro.router
+go.micro.runtime
+go.micro.server
+go.micro.web
+</code></pre></div></div>
+
+<p>All those services are ones started by our <code class="highlighter-rouge">micro server</code>. This is pretty cool, but still it’s not something we launched! Let’s start a service for which existence we can actually take credit for. If we go to <a href="https://github.com/micro/services">github.com/micro/services</a>, we see a bunch of services written by micro authors. One of them is the <code class="highlighter-rouge">helloworld</code>. Try our luck, shall we?</p>
+
+<p>The command to run services is <code class="highlighter-rouge">micro run</code>. This command may take a while as it checks out
+the repository from GitHub. (@todo this actually fails currently, fix)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro run github.com/micro/services/helloworld
+</code></pre></div></div>
+
+<p>If we take a look at the running <code class="highlighter-rouge">micro server</code>, we should see something like</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Creating service helloworld version latest source /tmp/github.com-micro-services/helloworld
+Processing create event helloworld:latest
+</code></pre></div></div>
+
+<p>We can also have a look at logs of the service to verify it’s running.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>micro logs helloworld
+Starting <span class="o">[</span>service] go.micro.service.helloworld
+Server <span class="o">[</span>grpc] Listening on <span class="o">[</span>::]:36577
+Registry <span class="o">[</span>service] Registering node: go.micro.service.helloworld-213b807a-15c2-496f-93ac-7949ad38aadf
+</code></pre></div></div>
+
+<p>So since our service is running happily, let’s try to call it! That’s what services are for.</p>
+
+<h2 id="calling-a-service">Calling a service</h2>
+
+<p>We have a couple of options to call a service running on our <code class="highlighter-rouge">micro server</code>.</p>
+
+<h3 id="calling-a-service-from-cli">Calling a service from CLI</h3>
+
+<p>The easiest is perhaps with the CLI:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>micro call go.micro.service.helloworld Helloworld.Call <span class="s1">'{"name":"Jane"}'</span>
+<span class="o">{</span>
+	<span class="s2">"msg"</span>: <span class="s2">"Hello Jane"</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>That worked! If we wonder what endpoints a service has we can run the following command:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro get service go.micro.service.helloworld
+</code></pre></div></div>
+
+<p>Otherwise the best place to look is at the <a href="https://github.com/micro/services/blob/master/helloworld/proto/helloworld/helloworld.proto">proto definition</a>. You can also browse to the UI at <a href="http://localhost:8082/service/go.micro.service.helloworld">http://localhost:8082</a> to see live info.</p>
+
+<h3 id="calling-a-service-with-go-micro">Calling a service with Go Micro</h3>
+
+<p>Let’s write a small client we can use to call the helloworld service.
+Normally you’ll make a service call inside another service so this is just a sample of a function you may write. We’ll <a href="#-writing-a-service">learn how to write a full fledged service soon</a>.</p>
+
+<p>Let’s take the following file:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+	<span class="s">"context"</span>
+	<span class="s">"fmt"</span>
+
+	<span class="s">"github.com/micro/go-micro/v2"</span>
+	<span class="n">proto</span> <span class="s">"github.com/micro/services/helloworld/proto"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c">// create and initialise a new service</span>
+	<span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">()</span>
+	<span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">()</span>
+
+	<span class="c">// create the proto client for helloworld</span>
+	<span class="n">client</span> <span class="o">:=</span> <span class="n">proto</span><span class="o">.</span><span class="n">NewHelloworldService</span><span class="p">(</span><span class="s">"go.micro.service.helloworld"</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">Client</span><span class="p">())</span>
+
+	<span class="c">// call an endpoint on the service</span>
+	<span class="n">rsp</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">client</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">proto</span><span class="o">.</span><span class="n">Request</span><span class="p">{</span>
+		<span class="n">Name</span><span class="o">:</span> <span class="s">"John"</span><span class="p">,</span>
+	<span class="p">})</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Error calling helloworld: "</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="c">// print the response</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Response: "</span><span class="p">,</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Msg</span><span class="p">)</span>
+	
+	<span class="c">// let's delay the process for exiting for reasons you'll see below</span>
+	<span class="n">time</span><span class="o">.</span><span class="n">Sleep</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">Second</span> <span class="o">*</span> <span class="m">5</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Save the example locally. For ease of following this guide, name the folder <code class="highlighter-rouge">example-service</code>.
+After doing a <code class="highlighter-rouge">cd example-service &amp;&amp; go mod init example</code>, we are ready to run this service with <code class="highlighter-rouge">micro run</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro run .
+</code></pre></div></div>
+
+<p>An other useful command to see what is running, is <code class="highlighter-rouge">micro status</code>. At this point we should have two services running:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ micro status
+NAME			VERSION	SOURCE										STATUS		BUILD	UPDATED		METADATA
+example-service	latest	/home/username/example-service				starting	n/a		4s ago		owner=n/a,group=n/a
+helloworld		latest	/tmp/github.com-micro-services/helloworld	running		n/a		6m5s ago	owner=n/a,group=n/a
+</code></pre></div></div>
+
+<p>Now, since our example-service client is also running, we should be able to see it’s logs:</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>micro logs example-service
+<span class="c"># some go build output here</span>
+Response:  Hello John
+</code></pre></div></div>
+
+<p>Great! That response is coming straight from the helloworld service we started earlier!</p>
+
+<h3 id="from-other-languages">From other languages</h3>
+
+<p>In the <a href="https://github.com/micro/clients">clients repo</a> there are Micro clients for various languages and frameworks. They are designed to connect easily to the live Micro environment or your local one, but more about environments later.</p>
+
+<h2 id="writing-a-service">Writing a service</h2>
+
+<p>To scaffold a new service, the <code class="highlighter-rouge">micro new</code> command can be used. It should output something
+reasonably similar to the following:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>micro new foobar
+Creating service go.micro.service.foobar <span class="k">in </span>foobar
+
+<span class="nb">.</span>
+├── main.go
+├── generate.go
+├── plugin.go
+├── handler
+│   └── foobar.go
+├── subscriber
+│   └── foobar.go
+├── proto/foobar
+│   └── foobar.proto
+├── Dockerfile
+├── Makefile
+├── README.md
+├── .gitignore
+└── go.mod
+
+
+download protobuf <span class="k">for </span>micro:
+
+brew <span class="nb">install </span>protobuf
+go get <span class="nt">-u</span> github.com/golang/protobuf/proto
+go get <span class="nt">-u</span> github.com/golang/protobuf/protoc-gen-go
+go get github.com/micro/micro/v2/cmd/protoc-gen-micro@master
+
+compile the proto file foobar.proto:
+
+<span class="nb">cd </span>foobar
+protoc <span class="nt">--proto_path</span><span class="o">=</span>.:<span class="nv">$GOPATH</span>/src <span class="nt">--go_out</span><span class="o">=</span><span class="nb">.</span> <span class="nt">--micro_out</span><span class="o">=</span><span class="nb">.</span> proto/foobar/foobar.proto
+</code></pre></div></div>
+
+<p>As can be seen from the output above, before building the first service, the following tools must be installed:</p>
+<ul>
+  <li><a href="http://google.github.io/proto-lens/installing-protoc.html">protoc</a></li>
+  <li><a href="github.com/golang/protobuf/protoc-gen-go">protobuf/proto</a></li>
+  <li><a href="github.com/golang/protobuf/protoc-gen-go">protoc-gen-micro</a></li>
+</ul>
+
+<p>They are all needed to translate proto files to actual Go code.
+Protos exist to provide a language agnostic way to describe service endpoints, their input and output types, and to have an efficient serialization format at hand.</p>
+
+<p>Currently Micro is  Go focused (apart from the <a href="#-from-other-languages">clients</a> mentioned before), but this will change soon.</p>
+
+<p>So once all tools are installed, being inside the service root, we can issue the following command to generate the Go code from the protos:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/foobar/foobar.proto
+</code></pre></div></div>
+
+<p>The generated code must be committed to source control, to enable other services to import the proto when making service calls (see previous section <a href="#-calling-a-service">Calling a service</a>.</p>
+
+<p>At this point, we know how to write a service, run it, and call other services too.
+We have everything at our fingertips, but there are still some missing pieces to write applications. One of such pieces is the store interface, which helps with persistent data storage even without a database.</p>
+
+<h2 id="storage">Storage</h2>
+
+<p>Amongst many other useful built-in services Micro includes a persistent storage service for storing data.</p>
+
+<h3 id="interfaces-as-building-blocks">Interfaces as building blocks</h3>
+
+<p>A quick side note. Micro (the server/CLI) and Go Micro (the framework) are centered around strongly defined interfaces which are pluggable and provide an abstraction for underlying distributed systems concepts. What does this mean?</p>
+
+<p>Let’s take our current case of the <a href="https://github.com/micro/go-micro/blob/master/store/store.go">store interface</a>. It’s aimed to enable service writers data storage with a couple of different implementations:</p>
+
+<ul>
+  <li>in memory</li>
+  <li>file storage (default when running <code class="highlighter-rouge">micro server</code>)</li>
+  <li>cockroachdb</li>
+</ul>
+
+<p>Similarly, the <a href="https://github.com/micro/go-micro/blob/master/runtime/runtime.go">runtime</a> interface, that allows you to run services in a completely runtime agnostic way has a few implementations:</p>
+
+<ul>
+  <li>local, which just runs actual processes - aimed at local development</li>
+  <li>kubernetes - for running containers in a highly available and distributed way</li>
+</ul>
+
+<p>This is a recurring theme across Micro interfaces. Let’s take a look at the default store when running <code class="highlighter-rouge">micro server</code>.</p>
+
+<h3 id="using-the-store">Using the Store</h3>
+
+<h4 id="using-the-store-with-cli">Using the store with CLI</h4>
+
+<p>First, let’s go over the more basic store CLI commands.</p>
+
+<p>To save a value, we use the write command:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro store write key1 value1
+</code></pre></div></div>
+
+<p>The UNIX style no output meant it was happily saved. What about reading it?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ micro store read key1
+val1
+</code></pre></div></div>
+
+<p>Or to display it in a fancier way, we can use the <code class="highlighter-rouge">--verbose</code> or <code class="highlighter-rouge">-v</code> flags:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>KEY    VALUE   EXPIRY
+key1   val1    None
+</code></pre></div></div>
+
+<p>This view is especially useful when we use the <code class="highlighter-rouge">--prefix</code> or <code class="highlighter-rouge">-p</code> flag, which lets us search for entries which key have certain prefixes.</p>
+
+<p>To demonstrate that first let’s save an other value:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro store write key2 val2
+</code></pre></div></div>
+
+<p>After this, we can list both <code class="highlighter-rouge">key1</code> and <code class="highlighter-rouge">key2</code> keys as they both share commond prefixes:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ micro store read --prefix --verbose key
+KEY    VALUE   EXPIRY
+key1   val1    None
+key2   val2    None
+</code></pre></div></div>
+
+<p>There are more to the store, but this knowledge already enables us to be dangerous!</p>
+
+<h4 id="using-the-store-with-go-micro">Using the Store with Go-Micro</h4>
+
+<p>Accessing the same data we have just manipulated from our Go Micro services could not be easier.
+First let’s create an entry that our service can read. This time we will specify the table for the <code class="highlighter-rouge">micro store write</code> command too, as each service has its own table in the store:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro store write --table go.micro.service.example mykey "Hi there"
+</code></pre></div></div>
+
+<p>Let’s modify <a href="#-calling-a-service-with-go-micro">the example service we wrote previously</a> so instead of calling a service, it reads the above value from a store.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+	<span class="s">"fmt"</span>
+	<span class="s">"time"</span>
+
+	<span class="s">"github.com/micro/go-micro/v2"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">()</span>
+
+	<span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">(</span><span class="n">micro</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s">"go.micro.service.example"</span><span class="p">))</span>
+
+	<span class="n">records</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">service</span><span class="o">.</span><span class="n">Options</span><span class="p">()</span><span class="o">.</span><span class="n">Store</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s">"mykey"</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Error reading from store: "</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"No records"</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">record</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">records</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"key: %v, value: %v</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">Key</span><span class="p">,</span> <span class="kt">string</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">Value</span><span class="p">))</span>
+	<span class="p">}</span>
+
+	<span class="n">time</span><span class="o">.</span><span class="n">Sleep</span><span class="p">(</span><span class="m">1</span> <span class="o">*</span> <span class="n">time</span><span class="o">.</span><span class="n">Hour</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>We are almost done! But first we have to learn how to update a service.</p>
+
+<h2 id="updating-and-killing-a-service">Updating and killing a service</h2>
+
+<p>Now since the example service is running (can be easily verified by <code class="highlighter-rouge">micro status</code>), we should not use <code class="highlighter-rouge">micro run</code>, but rather <code class="highlighter-rouge">micro update</code> to deploy it.</p>
+
+<p>We can simply issue</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro update .
+</code></pre></div></div>
+
+<p>And verify both with the micro server output:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Updating service example-service version latest source /home/username/example-service
+Processing update event example-service:latest in namespace default
+</code></pre></div></div>
+
+<p>and micro status:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ micro status example-service
+NAME			VERSION	SOURCE							STATUS		BUILD	UPDATED		METADATA
+example-service	latest	/home/username/example-service	starting	n/a		10s ago		owner=n/a,group=n/a
+</code></pre></div></div>
+
+<p>that it was updated.</p>
+
+<p>If things for some reason go haywire, we can try the time tested “turning it off and on again” solution and do:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro kill .
+micro run .
+</code></pre></div></div>
+
+<p>to start with a clean slate.</p>
+
+<p>So once we did update the example service, we should see the following in the logs:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ micro logs example-service
+key: mykey, value: Hi there
+</code></pre></div></div>
+
+<p>Nice! The example service read the value from the store successfully.</p>
+
+<h2 id="clients">Clients</h2>
+
+<p>Beyond this we’re working on multi-language clients which you can find and contribute to 
+on github at <a href="https://github.com/micro/clients">github.com/micro/clients</a>. We’d love to 
+discuss this further but it’s not quite ready.</p>
+
+<h2 id="further-reading">Further reading</h2>
+
+<p>This is just a brief getting started guide for quickly getting up and running with Micro. 
+Come back from time to time to learn more as this guide gets continually upgraded. If you’re 
+interested in learning more Micro magic, have a look at the following sources:</p>
+
+<ul>
+  <li>Read the <a href="https://micro.mu.docs">docs</a></li>
+  <li>Learn by <a href="https://github.com/micro/examples">examples</a></li>
+  <li>Come join us on <a href="https://slack.micro.mu">Slack</a> and ask quesions</li>
+</ul>
+
+<p>Cheers</p>
+
+<p>From the team at Micro</p>
+:ET

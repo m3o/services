@@ -1,0 +1,47 @@
+I"�
+<p><br />
+Today we’re announcing support for Connect-Native Go Micro services via a slim initialisation library called <a href="https://github.com/micro/go-proxy">Go Proxy</a>. 
+This will provide <a href="https://github.com/micro/go-micro">Go Micro</a> with the ability to do authorized and secure service-to-service communication.</p>
+
+<h2 id="what-is-consul-connect">What is Consul Connect?</h2>
+
+<p><a href="https://www.consul.io/docs/connect/index.html">Consul Connect</a> is a feature of <a href="https://www.consul.io/">Consul</a> which provides 
+service-to-service authorization and encryption via mutual TLS. Consul Connect uses <a href="https://spiffe.io/">SPIFEE</a> compliant 
+certificates for identity.</p>
+
+<p>We believe Consul Connect is a powerful mechanism for securing micro services. So how do we integrate?</p>
+
+<h2 id="connect-native">Connect-Native</h2>
+
+<p>Consul <a href="https://www.consul.io/docs/connect/native.html">Connect-Native</a> is native integration with the Connect API. This allows 
+<a href="https://github.com/micro/go-micro">Go Micro</a> services to become secure by default.</p>
+
+<p>Consul Connect provides the ability to use proxies for communication but this can add overhead, Go Micro handles distributed 
+systems concerns as a client library, which eliminates this overhead. Native integration with Connect gives us all its benefits 
+while maintaining direct point to point connections for performance.</p>
+
+<p>The consul documentation provides an overview of how this works. In Go Micro’s case we initialise a consul registry with the 
+connect option enabled and setup the broker and transport tls config.</p>
+
+<p><img src="https://www.consul.io/assets/images/connect-native-overview-cc9dc497.png" /></p>
+
+<h2 id="using-connect-native">Using Connect-Native</h2>
+
+<p>We’ve provided a complete example of how to get started in the <a href="https://github.com/micro/go-proxy">Go Proxy</a> repository.</p>
+
+<p>But essentially it’s a two line change. Import the connect package and create a new service with it. That’s it!</p>
+
+<script src="https://gist.github.com/asim/de7a3bcfcd93f6102e6c657ed54b8f2e.js"></script>
+
+<h2 id="summary">Summary</h2>
+
+<p>Connect-Native gives us support for authorization and secure end to end communication for Go Micro apps without the overhead 
+of proxies. It’s a great addition for micro users and we highly recommend using it.</p>
+
+<center>...</center>
+
+<p>To learn more about micro check out the <a href="https://micro.mu">website</a>, follow us on <a href="https://twitter.com/microhq">twitter</a> or 
+join the <a href="https://micro-services.slack.com">slack</a> community.</p>
+
+<h6><a href="https://github.com/micro/go-proxy"><i class="fa fa-github fa-2x"></i> Go Proxy</a></h6>
+:ET

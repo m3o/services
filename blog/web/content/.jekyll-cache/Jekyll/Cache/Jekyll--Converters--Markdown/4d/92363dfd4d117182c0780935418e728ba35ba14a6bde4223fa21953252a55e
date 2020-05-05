@@ -1,15 +1,7 @@
-I"m<<h2 id="what-is-micro">What is Micro?</h2>
+I"4;<p><br />
+In this post we will have a look at how to run and manage microservices locally with <code>micro server</code> and the Micro CLI in general.</p>
 
-<p>Micro is a system for building and managing distributed systems.</p>
-
-<p>Key components of Micro are as follows:</p>
-<ul>
-  <li><strong>Runtime</strong>: a runtime environment for managing services including auth, config, discovery, networking, storage.</li>
-  <li><strong>Framework</strong>: a Go framework for writing services to be run in the runtime.</li>
-  <li><strong>Clients</strong>: multi-language clients to enable other programs to access Micro services.</li>
-</ul>
-
-<h2 id="install">Install</h2>
+<h2 id="installation">Installation</h2>
 
 <p>Using Go:</p>
 
@@ -401,4 +393,8 @@ interested in learning more Micro magic, have a look at the following sources:</
   <li>Learn by <a href="https://github.com/micro/examples">examples</a></li>
   <li>Come join us on <a href="https://slack.micro.mu">Slack</a> and ask quesions</li>
 </ul>
+
+<p>Cheers</p>
+
+<p>From the team at Micro</p>
 :ET

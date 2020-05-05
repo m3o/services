@@ -4,17 +4,10 @@ author: Janos Dobronszki
 title:	Micro Server - Getting started with microservices
 date:	2020-05-05 10:00:00
 ---
-<br>
-## What is Micro?
+<br />
+In this post we will have a look at how to run and manage microservices locally with `micro server` and the Micro CLI in general.
 
-Micro is a system for building and managing distributed systems.
-
-Key components of Micro are as follows:
-* **Runtime**: a runtime environment for managing services including auth, config, discovery, networking, storage. 
-* **Framework**: a Go framework for writing services to be run in the runtime.
-* **Clients**: multi-language clients to enable other programs to access Micro services.
-
-## Install
+## Installation
 
 Using Go:
 

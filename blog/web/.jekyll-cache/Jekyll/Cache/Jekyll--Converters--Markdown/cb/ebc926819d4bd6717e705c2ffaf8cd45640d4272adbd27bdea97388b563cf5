@@ -1,0 +1,382 @@
+I"+�<p>Over the past 6 months we at <a href="https://micro.mu/">Micro</a> have been hard at work developing a global service network to build, share and collaborate on microservices.</p>
+
+<p>In this post we’re going to share some of the technical details, the design decisions we made, challenges we faced and ultimately how we have succeeded in building the microservices network.</p>
+
+<h2 id="motivations">Motivations</h2>
+
+<p>The power of collaborative development has largely been restricted to trusted environments within organisations. When done right, these private in-house platforms unlock incredible productivity and compounding value with every new service added.They provide an always-on runtime and known developer workflow for engineers to collaborate on and deliver new features to their customers.</p>
+
+<p>Historically, this has been quite difficult to achieve outside of organisations. When developers decide to work on new services they often have to deal with a lot of unnecessary work when it comes to making the services available to others to consume and collaborate on. Public cloud providers are too complex and the elaborate setups when hosting things yourself don’t make things easier either. At <a href="https://micro.mu/">Micro</a> we felt this pain and decided to do something about it. We built a microservices network!</p>
+
+<p>The micro network looks to solve these problems using a shared global network for micro services. Let’s see how we’ve made this dream a reality!</p>
+
+<h2 id="design">Design</h2>
+
+<p>The micro network is a globally distributed network based on <a href="https://go-micro.dev">go-micro</a>, a Go microservices framework which enables developers to build services quickly without dealing with the complexity of distributed systems. Go Micro provides strongly opinionated interfaces that are pluggable but also come with sane defaults. This allows Go Micro services to be built once and deployed anywhere, with zero code changes.</p>
+
+<p>The micro network leverages five of the core primitives: registry, transport, broker, client and server. Our default implementations can be found in each package in the <a href="https://github.com/micro/go-micro">go-micro</a> framework. Community maintained plugins live in the <a href="https://github.com/micro/go-plugins">go-plugins</a> repo.</p>
+
+<p>The micro “network” is an overloaded term, referring both to the global network over which services discover and communicate with each other and the underpinning system consisting of peer nodes whom connect to each and establish the routes over which services communicate.</p>
+
+<p>The network abstracts away the low level details of distributed system communication at large scale, across any cloud or machine, and allows anyone to build services together without thinking about where they are running. This essentially enables large scale sharing of resources and more importantly microservices.</p>
+
+<p>There are four fundamental concepts that make the micro network possible. These are entirely new and built into <a href="https://go-micro.dev/">Go Micro</a> as of the last 6 months:</p>
+
+<ul>
+  <li><strong>Tunnel</strong> - point to point tunnelling</li>
+  <li><strong>Proxy</strong> - transparent rpc proxying</li>
+  <li><strong>Router</strong> - route aggregation and advertising</li>
+  <li><strong>Network</strong> - multi-cloud networking built on the above three</li>
+</ul>
+
+<p>Each of these components is just like any other <a href="https://go-micro.dev/">Go Micro</a> component - pluggable, with an out of the box default implementation to get started. In our case the micro network it was important that the defaults worked at scale across the world.</p>
+
+<p>Let’s dig into the details.</p>
+
+<h3 id="tunnel">Tunnel</h3>
+
+<p>From a high level view the micro network is an overlay network that spans the internet. All micro network nodes maintain secure tunnel connections between each other to enable the secure communication between the services running in the network. Go Micro provides a default tunnel implementation using the QUIC protocol along with custom session management.</p>
+
+<p>We chose QUIC because it provides some excellent properties especially when it comes to dealing with high latency networks, an important property when dealing with <a href="https://eng.uber.com/employing-quic-protocol/">running services in large distributed networks</a>. QUIC runs over UDP, but by adding some connection based semantics it supports reliable packet delivery. QUIC also supports multiple streams without <a href="https://en.wikipedia.org/wiki/Head-of-line_blocking">head of line blocking</a> and it’s designed to work with encryption natively. Finally, QUIC runs in userspace, not in the kernel space on conventional systems, so it can provide both a performance and extra security, too.</p>
+
+<p>Micro tunnel uses <a href="https://github.com/lucas-clemente/quic-go">quic-go</a> which is the most complete Go implementation of QUIC that we could find at the inception of the micro network. We are aware quic-go is a work in progress and that it can occasionally break, but we are happy to pay the early adopter cost as we believe QUIC will become the defacto standard internet communication protocol in the future, enabling large scale networks such as the micro network.</p>
+
+<p>Let’s look at the Go Micro tunnel interface:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Tunnel creates a gre tunnel on top of the go-micro/transport.</span>
+<span class="c">// It establishes multiple streams using the Micro-Tunnel-Channel header</span>
+<span class="c">// and Micro-Tunnel-Session header. The tunnel id is a hash of</span>
+<span class="c">// the address being requested.</span>
+<span class="k">type</span> <span class="n">Tunnel</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="c">// Address the tunnel is listening on</span>
+	<span class="n">Address</span><span class="p">()</span> <span class="kt">string</span>
+	<span class="c">// Connect connects the tunnel</span>
+	<span class="n">Connect</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c">// Close closes the tunnel</span>
+	<span class="n">Close</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c">// Links returns all the links the tunnel is connected to</span>
+	<span class="n">Links</span><span class="p">()</span> <span class="p">[]</span><span class="n">Link</span>
+	<span class="c">// Dial to a tunnel channel</span>
+	<span class="n">Dial</span><span class="p">(</span><span class="n">channel</span> <span class="kt">string</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">DialOption</span><span class="p">)</span> <span class="p">(</span><span class="n">Session</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c">// Accept connections on a channel</span>
+	<span class="n">Listen</span><span class="p">(</span><span class="n">channel</span> <span class="kt">string</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">ListenOption</span><span class="p">)</span> <span class="p">(</span><span class="n">Listener</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>It may look fairly familiar to Go developers. With Go Micro we’ve tried to maintain common interfaces in line with distributed systems development while stepping in at a lower layer to solve some of the nitty gritty details.</p>
+
+<p>Most of the interface methods should hopefully be self-explanatory, but you might be wondering about channels and sessions. Channels are much like addresses, providing a way to segment different message streams over the tunnel. Listeners listen on a given channel and return a unique session when a client dials into the channel. The session is used to communicate between peers on the same tunnel channel. The Go Micro tunnel provides different communication semantics too. You can choose to use either unicast or multicast.</p>
+
+<p><img src="https://micro.mu/docs/images/session.svg" alt="" /></p>
+
+<p>In addition tunnels enable bidirectional connections; sessions can be dialled or listened from either side. This enables the reversal of connections so anything behind a <a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a> or without a public IP can become a server.</p>
+
+<h3 id="router">Router</h3>
+
+<p>Micro router is a critical component of the micro network. It provides the network’s routing plane. Without the router, we wouldn’t know where to send messages. It constructs a routing table based on the local service registry (a component of Go Micro). The routing table maintains the routes to the services available on the local network. With the tunnel its then also able to process messages from any other datacenter or network enabling global routing by default.</p>
+
+<p>Our default routing table implementation uses a simple Go in memory map, but as with all things in Go Micro, the router and routing table are both pluggable. As we scale we’re thinking about alternative implementations and even the possibility of switching dynamically based on the size of networks.</p>
+
+<p>The Go Micro router interface is as follows:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Router is an interface for a routing control plane</span>
+<span class="k">type</span> <span class="n">Router</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="c">// The routing table</span>
+	<span class="n">Table</span><span class="p">()</span> <span class="n">Table</span>
+	<span class="c">// Advertise advertises routes to the network</span>
+	<span class="n">Advertise</span><span class="p">()</span> <span class="p">(</span><span class="o">&lt;-</span><span class="k">chan</span> <span class="o">*</span><span class="n">Advert</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c">// Process processes incoming adverts</span>
+	<span class="n">Process</span><span class="p">(</span><span class="o">*</span><span class="n">Advert</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c">// Solicit advertises the whole routing table to the network</span>
+	<span class="n">Solicit</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c">// Lookup queries routes in the routing table</span>
+	<span class="n">Lookup</span><span class="p">(</span><span class="o">...</span><span class="n">QueryOption</span><span class="p">)</span> <span class="p">([]</span><span class="n">Route</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+	<span class="c">// Watch returns a watcher which tracks updates to the routing table</span>
+	<span class="n">Watch</span><span class="p">(</span><span class="n">opts</span> <span class="o">...</span><span class="n">WatchOption</span><span class="p">)</span> <span class="p">(</span><span class="n">Watcher</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When the router starts it automatically creates a watcher for its local registry. The micro registry emits events any time services are created, updated or deleted. The router processes these events and then applies actions to its routing table accordingly. The router itself advertises the routing table events which you can think of as a cut down version of the registry solely concerned with routing of requests where as the registry provides more feature rich information like api endpoints.</p>
+
+<p>These routes are propagated as events to other routers on both the local and global network and applied by every router to their own routing table. Thus maintaining the global network routing plane.</p>
+
+<p>Here’s a look at a typical route:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Route is a network route</span>
+<span class="k">type</span> <span class="n">Route</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="c">// Service is destination service name</span>
+	<span class="n">Service</span> <span class="kt">string</span>
+	<span class="c">// Address is service node address</span>
+	<span class="n">Address</span> <span class="kt">string</span>
+	<span class="c">// Gateway is route gateway</span>
+	<span class="n">Gateway</span> <span class="kt">string</span>
+	<span class="c">// Network is the network name</span>
+	<span class="n">Network</span> <span class="kt">string</span>
+	<span class="c">// Router is router id</span>
+	<span class="n">Router</span> <span class="kt">string</span>
+	<span class="c">// Link is networks link</span>
+	<span class="n">Link</span> <span class="kt">string</span>
+	<span class="c">// Metric is the route cost</span>
+	<span class="n">Metric</span> <span class="kt">int64</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>What we’re primarily concerned with here is routing by service name first, finding its address if its local or a gateway if we have to go through some remote endpoint or different network. We also want to know what type of Link to use e.g whether routing through our tunnel, Cloudflare Argo tunnel or some other network implementation. And then most importantly the metric a.k.a. the cost of routing to that node. We may have many routes and we want to take routes with optimal cost to ensure lowest latency. This doesn’t always mean your request is sent to the local network though! Imagine a situation when the service running on your local network is overloaded. We will always pick the route with the lowest cost no matter where the service is running.</p>
+
+<h3 id="proxy">Proxy</h3>
+
+<p>We’ve already discussed the tunnel - how messages get from point to point, and routing - detailing how to find where the services are, but then the question really is how do services actually make use of this? For this we really need a proxy.</p>
+
+<p>It was important to us when building the micro network that we build something that was native to micro and capable of understanding our routing protocol. Building another VPN or IP based networking solution was not our goal. Instead we wanted to facilitate communication between services.</p>
+
+<p>When a service needs to communicate with other services in the network it uses micro proxy.</p>
+
+<p>The proxy is a native RPC proxy implementation built on the Go Micro <code class="highlighter-rouge">Client</code> and <code class="highlighter-rouge">Server</code> interfaces. It encapsulates the core means of communication for our services and provides a forwarding mechanism for requests based on service name and endpoints. Additionally it has the ability to also act as a messaging exchange for asynchronous communication since Go Micro supports both request/response and pub/sub communication. This is native to Go Micro and a powerful building block for request routing.</p>
+
+<p>The interface itself is straightforward and encapsulates the complexity of proxying.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Proxy can be used as a proxy server for go-micro services</span>
+<span class="k">type</span> <span class="n">Proxy</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="c">// ProcessMessage handles inbound messages</span>
+	<span class="n">ProcessMessage</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">server</span><span class="o">.</span><span class="n">Message</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c">// ServeRequest handles inbound requests</span>
+	<span class="n">ServeRequest</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">server</span><span class="o">.</span><span class="n">Request</span><span class="p">,</span> <span class="n">server</span><span class="o">.</span><span class="n">Response</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The proxy receives RPC requests and routes them to an endpoint. It asks the router for the location of the service (caching as needed) and decides based on the <code class="highlighter-rouge">Link</code> field in the routing table whether to send the request locally or over the tunnel across the global network. The value of the <code class="highlighter-rouge">Link</code> field is either <code class="highlighter-rouge">“local"</code> (for local services) or <code class="highlighter-rouge">“network"</code> if the service is accessible only via the network.</p>
+
+<p>Like everything else, the proxy is something we built standalone that can work between services in one datacenter but also across many when used in conjunction with the tunnel and router.</p>
+
+<p>And finally arriving at the pièce de résistance. The network interface.</p>
+
+<h3 id="network">Network</h3>
+
+<p>Network nodes are the magic that ties all the core components together. Enabling the ability to build a truly global service network. It was really important when creating the network interface that it fit inline with our existing assumptions and understanding about Go Micro and distributed systems development. We really wanted to embrace the existing interfaces of the framework and design something with symmetry in regards to a Service.</p>
+
+<p>What we arrived at was something very similar to the <a href="https://github.com/micro/go-micro/blob/master/micro.go#L16">micro.Service</a> interface itself</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// Network is a micro network</span>
+<span class="k">type</span> <span class="n">Network</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="c">// Node is network node</span>
+	<span class="n">Node</span>
+	<span class="c">// Name of the network</span>
+	<span class="n">Name</span><span class="p">()</span> <span class="kt">string</span>
+	<span class="c">// Connect starts the resolver and tunnel server</span>
+	<span class="n">Connect</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c">// Close stops the tunnel and resolving</span>
+	<span class="n">Close</span><span class="p">()</span> <span class="kt">error</span>
+	<span class="c">// Client is micro client</span>
+	<span class="n">Client</span><span class="p">()</span> <span class="n">client</span><span class="o">.</span><span class="n">Client</span>
+	<span class="c">// Server is micro server</span>
+	<span class="n">Server</span><span class="p">()</span> <span class="n">server</span><span class="o">.</span><span class="n">Server</span>
+<span class="p">}</span>
+
+<span class="c">// Node is a network node</span>
+<span class="k">type</span> <span class="n">Node</span> <span class="k">interface</span> <span class="p">{</span>
+	<span class="c">// Id is node id</span>
+	<span class="n">Id</span><span class="p">()</span> <span class="kt">string</span>
+	<span class="c">// Address is node bind address</span>
+	<span class="n">Address</span><span class="p">()</span> <span class="kt">string</span>
+	<span class="c">// Peers returns node peers</span>
+	<span class="n">Peers</span><span class="p">()</span> <span class="p">[]</span><span class="n">Node</span>
+	<span class="c">// Network is the network node is in</span>
+	<span class="n">Network</span><span class="p">()</span> <span class="n">Network</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>As you can see, a <code class="highlighter-rouge">Network</code> has a Name, Client and Server, much like a <code class="highlighter-rouge">Service</code>, so it provides a similar method of communication. This means we can reuse a lot of the existing code base, but it also goes much further. A <code class="highlighter-rouge">Network</code> includes the concept of a <code class="highlighter-rouge">Node</code> directly in the interface, one which has peers and whom may belong to the same network or others. This means is networks are peer-to-peer while Services are largely focused on Client/Server. On a day to day basis developers stay focused on building services but these when built to communicate globally need to operate across networks made up of identical peers.</p>
+
+<p>Our networks have the ability to behave as peers which route for others but also may provide some sort of service themselves. In this case it’s mostly routing related information.</p>
+
+<p>So how does it all work together?</p>
+
+<p>Networks have a list of peer nodes to talk to. In the case of the default implementation the peer list comes from the registry with other network nodes with the same name (the name of the network itself). When a node starts it “connects” to the network by establishing its tunnel, resolving the nodes and then connecting to them. Once they’ve connected the nodes peer over two multicast sessions, one for peer announcements and the other for route advertisements. As these propagate the network begins to converge on identical routing information building a full mesh that allows for routing of services from any node to the other.</p>
+
+<p>The nodes maintain keepalives, periodically advertise the full routing table and flush any events as they occur. Our core network nodes make use of multiple resolvers to find each other, including DNS and the local registry. In the case of peers that join our network, we’ve configured them to use a http resolver which gets geo-steered via Cloudflare anycast DNS and global load balanced to the most local region. From there they pull a list of nodes and connect to the ones with the lowest metric. They then repeat the same song and dance as above to continue the growth of the network and participate in service routing.</p>
+
+<p>Each node maintains its own network graph based on the peer messages it receives. Peer messages contain the graph of each peer up to 3 hops which enables the ability for every node to build a local view of the network. Peers ignore anything with more than a 3 hop radius. This is to avoid potential performance problems.</p>
+
+<p>We mentioned a little something about peer and route advertisements. So what message do the network nodes actually exchange? First, the network embeds the router interface through which it advertises its local routes to other network nodes. These routes are then propagated across the whole network, much like the internet. The node itself receives route advertisements from its peers and applies the advertised changes to its routing own routing table. The message types are “solicit” to ask for routes and “advert” for updates broadcast.</p>
+
+<p>Network nodes send “connect” messages on start and “close” on exit. For their lifetime they are periodically broadcasting “peer” messages so that others can discover them and they all can build the network topology.</p>
+
+<p>When the network is created and converges, services are then capable of sending messages across it. When a service on the network needs to communicate with some other service on the network it sends a request to the network node. The micro network node embeds micro proxy and thus has the ability to forward the request through network or locally if it deems so more fit based on the metrics it retrieves after looking up the routes in the routing table.</p>
+
+<p>This as a whole forms our micro services network.</p>
+
+<h2 id="challenges">Challenges</h2>
+
+<p>Building a global services is not without its challenges. We encountered many from the initial design phase right through to the present day of dealing with broken nodes, bad actors, event storms and more.</p>
+
+<h3 id="initial-implementation">Initial Implementation</h3>
+
+<p>The actual task we’d set out to accomplish was pretty monumental and we’d underestimated how much effort it would take even in an MVP phase of the first implementation.</p>
+
+<p>Every time we attempted to go from design diagram to implementing code we found ourselves stuck. In theory everything made sense but no matter how many times we attempted to write code things just didn’t click.</p>
+
+<p>We wrote 3-4 implementations that were essentially thrown away before figuring out the best approach was to make local networking work first and then slowly carve out specific problems to solve. So proxying, following by routing and then a network interface. Eventually when these pieces were in place we could get to multi-cloud or global networking by implementing a tunnel to handle the heavy lifting.</p>
+
+<center>
+<img src="https://micro.mu/images/it-works.jpg" style="width: 80%; height: auto;" />
+</center>
+
+<p>Once again, the lesson is to keep it simple, but where the task itself is complex, break it down into steps you can actually keep simple independently and then piece back together in practice.</p>
+
+<h3 id="multipoint-tunneling">Multipoint Tunneling</h3>
+
+<p>One of the most complex pieces of code we had to write was the tunnel. It’s still not where we’d like it to be but it was pretty important to us to write this from the ground up so we’d have a good understanding of how we wanted to operate globally but also have full control over the foundations of the system.</p>
+
+<p>The complexity in writing network protocols really came to light in this effort, from trying to NOT reimplement tcp, crypto or anything else but also find a path to a working solution. In the end we were able to create a subset of commands which formed enough of a bidirectional and multi-session based tunnel over QUIC. We left most of the heavy lifting to QUIC but we also needed the ability to do multicast.</p>
+
+<p>For us it didn’t make sense to just rely on unicast, considering the async and pubsub based semantics built into Go Micro we felt pretty adamant it needed to be part of core network routing. So with that sessions needed to be reimplemented on top of QUIC.</p>
+
+<p>We’ll spare you the gory details but what’s really clear to us is that writing state machines and reliable connection protocol code is not where we want to spend the majority of our time. We have a fairly resilient working solution but our hope is to replace this with something far better in the future.</p>
+
+<h3 id="event-storms">Event Storms</h3>
+
+<p>When things work they work and when they break they break badly. For us everything came crashing down when we started to encounter broadcast storms caused by services being recycled. When a service is created the service registry fires a create event and when it’s shutting down it automatically deregisters from service registry which fires a delete event. Maybe you can see where this is going. As services cycled in our network they’d generate these events which leads to the routers generating new route events which are then propagated every 5 seconds to every other node on the network.</p>
+
+<p>This sounds ok if the network converges and they stop propagating events but in our case the sequence of events are observed and applied at random time intervals on every node. This in essence can lead to a broadcast storm which never stops. Understanding and resolving this is an incredibly difficult task.</p>
+
+<p>For us this really led to research in BGP internet routing in which they’ve defined flap detection algorithms to handle this. We’ve read a few whitepapers to get familiar with the concepts and hacked up a simple flap detection algorithm in the router.</p>
+
+<p>At its core, the flap detection assigns a numerical cost to every route event. When a route event occurs it’s cost gets incremented. If the same event happens multiple times within a certain period of time and the accumulated cost reaches a predefined threshold the event is immediately suppressed. Suppressed events are not processed by router, but are kept in a memory cache for a redefined period of time. Meanwhile the cost of the event decays with time whilst at the same time it can keep on growing if the event keeps on flapping. If the event drops below another threshold the event is unsuppressed and can be processed by the routers. If the event remains suppressed for longer than a predefined time period it’s discarded.</p>
+
+<p>The picture below depicts how the decaying actually works.</p>
+
+<center>
+<img src="https://micro.mu/blog/assets/images/flap-detection.png" style="width: 80%; height: auto;" />
+</center>
+
+<p><small>source: http://linuxczar.net/blog/2016/01/31/flap-detection/</small></p>
+
+<p>This had a huge effect on the issues we had been experiencing in the network. The nodes were no longer hammered with crazy event storms and the network stabilised and continued to work without any interruptions. Happy days!</p>
+
+<h2 id="architecture">Architecture</h2>
+
+<p>Our overall goal is to build a micro services network that manages not only communication but all aspects of running services, governance, and more. To accomplish this we started by addressing networking from the ground up for Go Micro services. Not just to communicate locally within one private network but to have the ability to do so across many networks.</p>
+
+<p>For this purpose we’ve created a global multi-cloud network that enables communication from anywhere, with anyone. This is fundamental to the architecture of the micro services network.</p>
+
+<p>Our next goal will be to tackle the runtime aspects so that we offer the ability to host services without the need to manage them. This could be imagined as the basis of a serverless microservices platform which we’re looking to launch soon.</p>
+
+<p>The platform is designed to be open. Anyone should be able to run services on the platform or join the global network using their own node. What’s more, you can even pick up the open source code and build their own private networks or join theirs to our public one.</p>
+
+<center>
+  <img src="https://github.com/micro/development/raw/f4c77580acac228c522623c217575fb266d2d4ab/images/arch.jpg" style="width: 80%; height: auto;" />
+</center>
+<p><br /></p>
+
+<p>What we think is pretty cool and rather unique about the micro network is the network nodes themselves are just regular micro services like any other. Because we built everything using Go Micro they behave just like any other service. In fact what’s even more exciting is that literally <em>everything is a service</em> in the micro network.</p>
+
+<p>This holds true for all the individual components that make up the network. If you don’t want to run full network nodes, you can also run individual components of the network separately as standalone micro services such as the tunnel, router and proxy. All the components register themselves with local registry via which they can be discovered.</p>
+
+<h2 id="eventual-success">Eventual success</h2>
+
+<p>On 29th August 2019 around 4PM we sent the first successful RPC request between our laptops across the internet using the micro network.</p>
+
+<center>
+  <img src="https://micro.mu/blog/assets/images/success.jpg" style="width: 80%; height: auto;" />
+</center>
+<p><br /></p>
+
+<p>Since then we have squashed a lot of bugs and deployed the network nodes across the globe.
+At the moment we are running the micro network in 4 cloud providers across 4 geographical regions with 3 nodes in each region.</p>
+
+<center>
+  <img src="https://micro.mu/blog/assets/images/radar.png" style="width: 80%; height: auto;" />
+</center>
+
+<h2 id="usage">Usage</h2>
+
+<p>If you’re interested in testing out micro and the network just do the following.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span> <span class="n">enable</span> <span class="k">go</span> <span class="n">modules</span>
+<span class="n">export</span> <span class="n">GO111MODULE</span><span class="o">=</span><span class="n">on</span>
+
+<span class="err">#</span> <span class="n">download</span> <span class="n">micro</span>
+<span class="k">go</span> <span class="n">get</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">micro</span><span class="o">/</span><span class="n">micro</span><span class="err">@</span><span class="n">master</span>
+
+<span class="err">#</span> <span class="n">connect</span> <span class="n">to</span> <span class="n">the</span> <span class="n">network</span>
+<span class="n">micro</span> <span class="o">--</span><span class="n">peer</span>
+</code></pre></div></div>
+
+<p>Now you’re connected to the network. Start to explore what’s there.</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span> <span class="n">List</span> <span class="n">the</span> <span class="n">services</span> <span class="n">in</span> <span class="n">the</span> <span class="n">network</span>
+<span class="n">micro</span> <span class="n">network</span> <span class="n">services</span>
+
+<span class="err">#</span> <span class="n">See</span> <span class="n">which</span> <span class="n">nodes</span> <span class="n">you</span><span class="err">'</span><span class="n">re</span> <span class="n">connected</span> <span class="n">to</span>
+<span class="n">micro</span> <span class="n">network</span> <span class="n">connections</span>
+
+<span class="err">#</span> <span class="n">List</span> <span class="n">all</span> <span class="n">the</span> <span class="n">nodes</span> <span class="n">in</span> <span class="n">your</span> <span class="n">network</span> <span class="n">graph</span>
+<span class="n">micro</span> <span class="n">network</span> <span class="n">nodes</span>
+
+<span class="err">#</span> <span class="n">See</span> <span class="n">what</span> <span class="n">the</span> <span class="n">metrics</span> <span class="n">look</span> <span class="n">like</span> <span class="n">to</span> <span class="n">different</span> <span class="n">service</span> <span class="n">routes</span>
+<span class="n">micro</span> <span class="n">network</span> <span class="n">routes</span>
+</code></pre></div></div>
+
+<p>So what does a micro network developer workflow look like? Developers write their Go code using the <a href="https://github.com/micro/go-micro">Go Micro</a> framework and once they’re ready they can make their services available on the network either directly from their laptop or from anywhere the micro network node runs (more on what micro network node is later).</p>
+
+<p>Here is an example of a simple service written using <code class="highlighter-rouge">go-micro</code>:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+	<span class="s">"context"</span>
+	<span class="s">"log"</span>
+	<span class="s">"time"</span>
+
+	<span class="n">hello</span> <span class="s">"github.com/micro/examples/greeter/srv/proto/hello"</span>
+	<span class="s">"github.com/micro/go-micro"</span>
+<span class="p">)</span>
+
+<span class="k">type</span> <span class="n">Say</span> <span class="k">struct</span><span class="p">{}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">s</span> <span class="o">*</span><span class="n">Say</span><span class="p">)</span> <span class="n">Hello</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">req</span> <span class="o">*</span><span class="n">hello</span><span class="o">.</span><span class="n">Request</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">*</span><span class="n">hello</span><span class="o">.</span><span class="n">Response</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="n">log</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s">"Received Say.Hello request"</span><span class="p">)</span>
+	<span class="n">rsp</span><span class="o">.</span><span class="n">Msg</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="n">Name</span>
+	<span class="k">return</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">service</span> <span class="o">:=</span> <span class="n">micro</span><span class="o">.</span><span class="n">NewService</span><span class="p">(</span>
+		<span class="n">micro</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="s">"helloworld"</span><span class="p">),</span>
+	<span class="p">)</span>
+
+	<span class="c">// optionally setup command line usage</span>
+	<span class="n">service</span><span class="o">.</span><span class="n">Init</span><span class="p">()</span>
+
+	<span class="c">// Register Handlers</span>
+	<span class="n">hello</span><span class="o">.</span><span class="n">RegisterSayHandler</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">Server</span><span class="p">(),</span> <span class="nb">new</span><span class="p">(</span><span class="n">Say</span><span class="p">))</span>
+
+	<span class="c">// Run server</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">service</span><span class="o">.</span><span class="n">Run</span><span class="p">();</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">log</span><span class="o">.</span><span class="n">Fatal</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Once you launch the service it automatically registers with service registry and becomes instantly accessible to everyone on the network to consume and collaborate on. All of this is completely transparent to developers. No need to deal with low level distributed systems cruft!</p>
+
+<p>We’re already running a greeter service in the network so why not try giving it a call.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># enable proxying through the network
+export MICRO_PROXY=go.micro.network
+
+# call a service
+micro call go.micro.srv.greeter Say.Hello '{"name": "John"}'
+</code></pre></div></div>
+
+<p>It works!</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Building distributed systems is difficult, but it turns out building the networks they communicate over is an equally, if not more difficult, problem. The classic fallacy, <a href="https://queue.acm.org/detail.cfm?id=2655736">the network is reliable</a>, continues to hold, as we found while building the micro network. However what’s also clear is that our world and most technology thrives through the use of networks. They underpin the very fabric of all that we’ve come to know. Our goal with the micro network is to create a new type of foundation for the open services of the future. Hopefully this post shed some light on the technical accomplishments and challenges of building such a thing.</p>
+
+<p><br />
+To learn more check out the <a href="https://micro.mu">website</a>, follow us on <a href="https://twitter.com/microhq">twitter</a> or 
+join the <a href="https://micro.mu/slack">slack</a> community. We are hiring!</p>
+
+:ET
