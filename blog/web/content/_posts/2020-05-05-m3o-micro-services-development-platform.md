@@ -1,7 +1,7 @@
 ---
 layout:	post
 author: Janos Dobronszki
-title:	Announcing: M3O - A Micro services development platform
+title:	"Announcing: M3O - A Micro services development platform"
 date:	2020-05-05 10:00:00
 ---
 
@@ -19,7 +19,7 @@ Gone are the days of launching a successful company on a shared PHP host, or bei
 
 Somehow between the disparate contribution of technologies to the Cloud ecosystem from startups and the thousands of features now promoted by AWS, the ease of use for the developer has drastically suffered. In fact we argue, the cognitive load on the developer is now so bad that we cannot even begin to start building software for the cloud without 3-6 months of wrangling a kubernetes cluster on one of the incumbent cloud providers, while muddling our way through CloudFormation and walls of YAML...
 
-Or perhaps it's a form of decision paralysis due to the explosion of available technologies. In this fast moving industry one often can't help but follow the technologies provided by FAANGs in a "Nobody got fired for using IMB" spirit. Or the thousand open source projects listed on the CNCF landscape which give us FOMO and a headache all a the same time as we figure out if any of its needed or all of it.
+Or perhaps it's a form of decision paralysis due to the explosion of available technologies. In this fast moving industry one often can't help but follow the technologies provided by FAANGs in a "Nobody got fired for using IBM" spirit. Or the thousand open source projects listed on the CNCF landscape which give us FOMO and a headache all a the same time as we figure out if any of its needed or all of it.
 
 ## So what now?
 
@@ -50,7 +50,7 @@ Naturally, with millions of us working in this industry, we can't and don't expe
 
 ## Who are we?
 
-We are a collective of engineers who's experienced the woes of cloud-native complexity, built platforms before the era of containers and fire fought battles with Kubernetes on multiple cloud providers. We are the every-man, the every-day engineer, who just so happens to now want to do something to combat the complexity that AWS, Google and others have introduced to the world.
+We are a collective of engineers who have experienced the woes of cloud-native complexity, built platforms before the era of containers and fire fought battles with Kubernetes on multiple cloud providers. We are the every-man, the every-day engineer, who just so happens to now want to do something to combat the complexity that AWS, Google and others have introduced to the world.
 
 Micro is and always was, an opinionated framework and ecosystem. Convention over configuration. Easy bootstrapping with zero dependencies locally. Filling in blanks as demands of scaling and resiliency comes up - by switching out implementations of interfaces with more sophisticated ones - that was always the Micro way.
 
