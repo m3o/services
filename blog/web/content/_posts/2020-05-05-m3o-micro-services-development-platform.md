@@ -29,7 +29,7 @@ Being a small team, we hope to be the David against the Goliaths and provide a u
 
 We did not always want to get into the platform business. In fact we desperately tried to avoid doing it at all costs, knowing how PaaS how played out before us. Unfortunately seeing what the status quo has become and having experienced a better world at companies like Google, Hailo and Monzo, we knew it was on us to do something about it.
 
-There were some times over the past few years where we thought technologies like AWS lambdas and Google Cloud functions would push serverless in a direction that would solve for all the developers problems but this was wishful thinking. What we came away with was the realisation that developers don't want to and shouldn't have to manage infrastructure. But functions was the wrong development model.
+There were some times over the past few years where we thought technologies like AWS lambda and Google Cloud functions would push serverless in a direction that would solve for all the developers problems but this was wishful thinking. What we came away with was the realisation that developers don't want to and shouldn't have to manage infrastructure. But functions was the wrong development model.
 
 ## A platform for Micro services development
 
