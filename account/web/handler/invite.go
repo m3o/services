@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
-	invite "github.com/micro/services/project/invite/proto"
+	invite "github.com/micro/services/projects/invite/proto"
 )
 
 // HandleInvite is the handler which gets called when a user clicks the

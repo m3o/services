@@ -13,7 +13,7 @@ import (
 
 	pb "github.com/micro/services/events/api/proto"
 	event "github.com/micro/services/events/service/proto"
-	project "github.com/micro/services/project/service/proto"
+	project "github.com/micro/services/projects/service/proto"
 )
 
 const (
@@ -37,7 +37,7 @@ func New(service micro.Service) *Handler {
 		auth:    service.Options().Auth,
 		runtime: runtime.DefaultRuntime,
 		event:   event.NewEventsService("go.micro.service.events", service.Client()),
-		project: project.NewProjectService("go.micro.service.project", service.Client()),
+		project: project.NewProjectsService("go.micro.service.projects", service.Client()),
 	}
 }
 

@@ -9,7 +9,7 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/services/account/api/proto/account"
 	invite "github.com/micro/services/account/invite/proto"
-	projectInvite "github.com/micro/services/project/invite/proto"
+	projectInvite "github.com/micro/services/projects/invite/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 

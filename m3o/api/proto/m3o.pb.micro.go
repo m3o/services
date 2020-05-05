@@ -145,7 +145,7 @@ func (h *accountServiceHandler) DefaultPaymentMethod(ctx context.Context, in *De
 
 // Api Endpoints for ProjectService service
 
-func NewProjectServiceEndpoints() []*api.Endpoint {
+func NewProjectsServiceEndpoints() []*api.Endpoint {
 	return []*api.Endpoint{}
 }
 
@@ -164,7 +164,7 @@ type projectService struct {
 	name string
 }
 
-func NewProjectService(name string, c client.Client) ProjectService {
+func NewProjectsService(name string, c client.Client) ProjectService {
 	return &projectService{
 		c:    c,
 		name: name,

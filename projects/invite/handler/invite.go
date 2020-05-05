@@ -17,8 +17,8 @@ import (
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 
-	pb "github.com/micro/services/project/invite/proto"
-	project "github.com/micro/services/project/service/proto"
+	pb "github.com/micro/services/projects/invite/proto"
+	project "github.com/micro/services/projects/service/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -63,7 +63,7 @@ func New(service micro.Service) *Invites {
 		sendgridAPIKey:     sendgridAPIKey,
 		sendgridTemplateID: sendgridTemplateID,
 		users:              users.NewUsersService("go.micro.service.users", service.Client()),
-		projects:           project.NewProjectService("go.micro.service.project", service.Client()),
+		projects:           project.NewProjectsService("go.micro.service.projects", service.Client()),
 	}
 }
 

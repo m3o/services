@@ -4,13 +4,13 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/logger"
 
-	"github.com/micro/services/project/invite/handler"
-	pb "github.com/micro/services/project/invite/proto"
+	"github.com/micro/services/projects/invite/handler"
+	pb "github.com/micro/services/projects/invite/proto"
 )
 
 func main() {
 	service := micro.NewService(
-		micro.Name("go.micro.service.project.invite"),
+		micro.Name("go.micro.service.projects.invite"),
 		micro.Version("latest"),
 	)
 

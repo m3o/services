@@ -1,4 +1,4 @@
-module github.com/micro/services/project/service
+module github.com/micro/services/projects/service
 
 go 1.13
 

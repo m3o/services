@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package go.micro.service.project;
+package go.micro.service.projects;
 
-service ProjectService {
+service Projects {
   rpc Read(ReadRequest) returns (ReadResponse) {};
   rpc Create(CreateRequest) returns (CreateResponse) {};
   rpc Update(UpdateRequest) returns (UpdateResponse) {};

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go.micro.service.project.invite;
+package go.micro.service.projects.invite;
 
 service InviteService {
   // Generate an invite to a user. An email will be sent to this

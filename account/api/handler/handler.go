@@ -9,7 +9,7 @@ import (
 
 	invite "github.com/micro/services/account/invite/proto"
 	payment "github.com/micro/services/payments/provider/proto"
-	projectInvite "github.com/micro/services/project/invite/proto"
+	projectInvite "github.com/micro/services/projects/invite/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -31,7 +31,7 @@ func NewHandler(srv micro.Service) *Handler {
 		users:         users.NewUsersService("go.micro.service.users", srv.Client()),
 		invite:        invite.NewInviteService("go.micro.service.account.invite", srv.Client()),
 		payment:       payment.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
-		projectInvite: projectInvite.NewInviteService("go.micro.service.project.invite", srv.Client()),
+		projectInvite: projectInvite.NewInviteService("go.micro.service.projects.invite", srv.Client()),
 	}
 }
 
