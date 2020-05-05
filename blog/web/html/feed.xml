@@ -5,14 +5,16 @@
     <description>The simplest way to build, share and collaborate on microservices</description>
     <link>https://micro.mu//blog/</link>
     <atom:link href="https://micro.mu//blog/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 05 May 2020 12:08:46 +0200</pubDate>
-    <lastBuildDate>Tue, 05 May 2020 12:08:46 +0200</lastBuildDate>
+    <pubDate>Tue, 05 May 2020 12:36:51 +0200</pubDate>
+    <lastBuildDate>Tue, 05 May 2020 12:36:51 +0200</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
       <item>
         <title>Micro Server - Getting started with microservices</title>
         <description>&lt;p&gt;&lt;br /&gt;
-In this post we will have a look at how to run and manage microservices locally with &lt;code&gt;micro server&lt;/code&gt; and the Micro CLI in general.&lt;/p&gt;
+In this post we will have a look at how to run and manage microservices locally with &lt;code&gt;micro server&lt;/code&gt; and the Micro CLI in general.
+The Micro CLI consists of both the server command and other client commands that enable us to interact with the server.
+&lt;code&gt;micro server&lt;/code&gt; can run microservices in different environments - binaries locally for speed and simplicity, or containers in a more production ready environment.&lt;/p&gt;
 
 &lt;h2 id=&quot;installation&quot;&gt;Installation&lt;/h2&gt;
 

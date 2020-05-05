@@ -6,6 +6,8 @@ date:	2020-05-05 10:00:00
 ---
 <br />
 In this post we will have a look at how to run and manage microservices locally with `micro server` and the Micro CLI in general.
+The Micro CLI consists of both the server command and other client commands that enable us to interact with the server.
+`micro server` can run microservices in different environments - binaries locally for speed and simplicity, or containers in a more production ready environment.
 
 ## Installation
 
