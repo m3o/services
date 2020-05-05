@@ -62,7 +62,7 @@ We make a promise to you. We will never ask you to run or touch Kubernetes. You 
 
 The M3O platform initially will be providing [Micro](https://github.com/micro/micro) as a Service. A hosted offering of the open source project which will be billed on a monthly subscription basis. We'll build the platform so you can build the product. Rather than thinking about infrastructure management, we want you to focus on service development. You'll never have to touch infrastructure ever again.
 
-Later on we'll look to introduce collaboration features and value add services so you don't have to build them yourself. Email, sms, payments, etc. We've got you covered.
+Later on we'll look to introduce collaboration features and value add services so you don't have to build them yourself. Email, sms, payments, user management, etc. We've got you covered.
 
 For existing users who already have their own live setup, perhaps easy to configure custom environments (staging, testing or even per engineer environments) will provide enough value to try us out. Or if you're perfectly happy with your current setup, maybe they using M3O for the next project to save bootstrapping time and cost.
 
