@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package go.micro.service.projects.enviroments;
+
+service Enviroments {
+  rpc Create(CreateRequest) returns (CreateResponse) {};
+  rpc Read(ReadRequest) returns (ReadResponse) {};
+  rpc Update(UpdateRequest) returns (UpdateResponse) {};
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {};
+}
+
+message Enviroment {
+  string id = 1;
+  string name = 2;
+  string namespace = 3;
+  string project_id = 4;
+  string description = 5;
+}
+
+message CreateRequest {
+  Enviroment enviroment = 1;
+}
+
+message CreateResponse {
+  Enviroment enviroment = 1;
+}
+
+message ReadRequest {
+  string id = 1;
+  string namespace = 2;
+  string project_id = 3;
+}
+
+message ReadResponse {
+  Enviroment enviroment = 1;
+  repeated Enviroment enviroments = 2;
+}
+
+message UpdateRequest {
+  Enviroment enviroment = 1;
+}
+
+message UpdateResponse {}
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message DeleteResponse {}
