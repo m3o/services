@@ -43,6 +43,9 @@ func NewAccountServiceEndpoints() []*api.Endpoint {
 
 type AccountService interface {
 	Read(ctx context.Context, in *ReadAccountRequest, opts ...client.CallOption) (*ReadAccountResponse, error)
+	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
+	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
+	DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, opts ...client.CallOption) (*DefaultPaymentMethodResponse, error)
 }
 
 type accountService struct {
@@ -67,15 +70,51 @@ func (c *accountService) Read(ctx context.Context, in *ReadAccountRequest, opts 
 	return out, nil
 }
 
+func (c *accountService) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "AccountService.CreatePaymentMethod", in)
+	out := new(CreatePaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountService) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "AccountService.DeletePaymentMethod", in)
+	out := new(DeletePaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountService) DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, opts ...client.CallOption) (*DefaultPaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "AccountService.DefaultPaymentMethod", in)
+	out := new(DefaultPaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for AccountService service
 
 type AccountServiceHandler interface {
 	Read(context.Context, *ReadAccountRequest, *ReadAccountResponse) error
+	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
+	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
+	DefaultPaymentMethod(context.Context, *DefaultPaymentMethodRequest, *DefaultPaymentMethodResponse) error
 }
 
 func RegisterAccountServiceHandler(s server.Server, hdlr AccountServiceHandler, opts ...server.HandlerOption) error {
 	type accountService interface {
 		Read(ctx context.Context, in *ReadAccountRequest, out *ReadAccountResponse) error
+		CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error
+		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
+		DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, out *DefaultPaymentMethodResponse) error
 	}
 	type AccountService struct {
 		accountService
@@ -90,6 +129,18 @@ type accountServiceHandler struct {
 
 func (h *accountServiceHandler) Read(ctx context.Context, in *ReadAccountRequest, out *ReadAccountResponse) error {
 	return h.AccountServiceHandler.Read(ctx, in, out)
+}
+
+func (h *accountServiceHandler) CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, out *CreatePaymentMethodResponse) error {
+	return h.AccountServiceHandler.CreatePaymentMethod(ctx, in, out)
+}
+
+func (h *accountServiceHandler) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error {
+	return h.AccountServiceHandler.DeletePaymentMethod(ctx, in, out)
+}
+
+func (h *accountServiceHandler) DefaultPaymentMethod(ctx context.Context, in *DefaultPaymentMethodRequest, out *DefaultPaymentMethodResponse) error {
+	return h.AccountServiceHandler.DefaultPaymentMethod(ctx, in, out)
 }
 
 // Api Endpoints for ProjectService service
