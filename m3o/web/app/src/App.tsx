@@ -9,6 +9,7 @@ import { setUser } from './store/Account';
 import * as API from './api';
 
 // Scenes
+import Billing from './scenes/Billing';
 import Notifications from './scenes/Notifications';
 import Enviroment from './scenes/Enviroment';
 import Project from './scenes/Project';
@@ -27,18 +28,16 @@ interface Props {
 
 class App extends React.Component<Props> {
   render(): JSX.Element {
-    // if(this.props.user) return this.renderLoggedIn();
-    // return this.renderLoading();
-
-    return this.renderLoggedIn();
+    if(this.props.user) return this.renderLoggedIn();
+    return this.renderLoading();
   }
 
   componentDidMount() {
-    API.Call("AccountService/Read").then((res) => {
+    API.Call("Accounts/Read").then((res) => {
       this.props.setUser(res.data.user);
     });  
 
-    API.Call("ProjectService/List").then((res) => {
+    API.Call("Projects/ListProjects").then((res) => {
       this.props.setProjects(res.data.projects);
     });
   }
@@ -52,6 +51,7 @@ class App extends React.Component<Props> {
   renderLoggedIn(): JSX.Element {
     return (
       <BrowserRouter>
+        <Route key='billing' exact path='/billing' component={Billing} />
         <Route key='notificiations' exact path='/' component={Notifications} />
         <Route key='new-enviroment' exact path='/new/project' component={NewProject} />
         <Route key='project' exact path='/projects/:project' component={Project} />

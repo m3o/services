@@ -21,6 +21,7 @@ interface Props {
   childRef?: React.RefObject<HTMLDivElement>;
   className?: string;
   projects: API.Project[];
+  hideSidebar?: boolean;
 }
 
 class PageLayout extends React.Component<Props> {
@@ -31,64 +32,66 @@ class PageLayout extends React.Component<Props> {
           <img src={Logo} alt='M3O Logo' className='logo' />
 
           <nav>
-            <NavLink to='/'>
+            <NavLink exact to='/'>
               <p>Dashboard</p>
             </NavLink>
             
-            <NavLink exact to='/teams'>
-              <p>Teams</p>
-            </NavLink>
-
             <NavLink exact to='/billing'>
               <p>Billing</p>
             </NavLink>
 
-            <NavLink exact to='/settings'>
+            <a href='https://account.micro.mu/' target='blank'>
               <p>Account</p>
-            </NavLink>
+            </a>
           </nav>
         </div>
 
         <div className='wrapper'>
-          <div className='sidebar'>
-            <section>
-              <NavLink exact to='/'>
-                <img src={NotificationsIcon} alt='Notifications' />
-                <p>Notifications</p>
-              </NavLink>
-
-              <NavLink exact to='/feedback'>
-                <img src={FeedbackIcon} alt='Feedback' />
-                <p>Feedback</p>
-              </NavLink>
-
-              <NavLink exact to='/docs'>
-                <img src={DocsIcon} alt='Docs' />
-                <p>Docs</p>
-              </NavLink>
-            </section>
-
-            { this.props.projects.map(p => <section key={p.id}>
-              <NavLink exact activeClassName='header active' className='header' to={`/projects/${p.name}`}>
-                <p>{p.name}</p>
-              </NavLink>
-
-              <NavLink to={`/projects/${p.name}/production`.toLowerCase()}>
-                <img src={ProjectIcon} alt={`${p.name}/production`} />
-                <p>{p.name}/production</p>
-              </NavLink>
-
-              <NavLink to={`/projects/${p.name}/new`}>
-                <img src={AddIcon} alt='New Enviroment' />
-                <p>New Enviroment</p>
-              </NavLink>
-            </section>)}
-          </div>
-
+          { this.props.hideSidebar ? null :this.renderSidebar() }
+          
           <div className={`main ${this.props.className}`} ref={this.props.childRef}>
             { this.props.children }
           </div>
         </div>
+      </div>
+    );
+  }
+
+  renderSidebar(): JSX.Element {
+    return(
+      <div className='sidebar'>
+        <section>
+          <NavLink exact to='/'>
+            <img src={NotificationsIcon} alt='Notifications' />
+            <p>Notifications</p>
+          </NavLink>
+
+          <NavLink exact to='/feedback'>
+            <img src={FeedbackIcon} alt='Feedback' />
+            <p>Feedback</p>
+          </NavLink>
+
+          <NavLink exact to='/docs'>
+            <img src={DocsIcon} alt='Docs' />
+            <p>Docs</p>
+          </NavLink>
+        </section>
+
+        { this.props.projects.map(p => <section key={p.id}>
+          <NavLink exact activeClassName='header active' className='header' to={`/projects/${p.name}`}>
+            <p>{p.name}</p>
+          </NavLink>
+
+          <NavLink to={`/projects/${p.name}/production`.toLowerCase()}>
+            <img src={ProjectIcon} alt={`${p.name}/production`} />
+            <p>{p.name}/production</p>
+          </NavLink>
+
+          <NavLink to={`/projects/${p.name}/new`}>
+            <img src={AddIcon} alt='New Enviroment' />
+            <p>New Enviroment</p>
+          </NavLink>
+        </section>)}
       </div>
     );
   }

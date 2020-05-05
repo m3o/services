@@ -50,11 +50,11 @@
   }
 
   .wrapper {
-    display: grid;
-    grid-template-columns: 320px auto; 
+    display: flex;
     overflow: hidden;
 
     .sidebar {
+      width: 320px;
       border-right: solid 2px #00000008;
       overflow: scroll;
 
@@ -152,6 +152,7 @@
 
     .main {
       overflow: scroll;
+      flex-grow: 1;
 
       .code {
         background-color:#EEEEEE;
