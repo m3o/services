@@ -32,7 +32,7 @@ class PageLayout extends React.Component<Props> {
           <img src={Logo} alt='M3O Logo' className='logo' />
 
           <nav>
-            <NavLink exact to='/'>
+            <NavLink to='/'>
               <p>Dashboard</p>
             </NavLink>
             
@@ -82,16 +82,22 @@ class PageLayout extends React.Component<Props> {
             <p>{p.name}</p>
           </NavLink>
 
-          <NavLink to={`/projects/${p.name}/production`.toLowerCase()}>
-            <img src={ProjectIcon} alt={`${p.name}/production`} />
-            <p>{p.name}/production</p>
-          </NavLink>
+          { p.environments?.map(e => <NavLink key={e.id} to={`/projects/${p.name}/${e.name}`}>
+            <img src={ProjectIcon} alt={`${p.name}/${e.name}`} />
+            <p>{p.name}/{e.name}</p>
+          </NavLink> ) }
 
-          <NavLink to={`/projects/${p.name}/new`}>
+          <NavLink to={`/new/environment/${p.name}`}>
             <img src={AddIcon} alt='New Enviroment' />
             <p>New Enviroment</p>
           </NavLink>
         </section>)}
+
+        <section>
+          <NavLink exact activeClassName='header active' className='header' to={`/new/project`}>
+            <p>New Project</p>
+          </NavLink>
+        </section>
       </div>
     );
   }

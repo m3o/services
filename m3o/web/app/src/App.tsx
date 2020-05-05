@@ -14,6 +14,7 @@ import Notifications from './scenes/Notifications';
 import Enviroment from './scenes/Enviroment';
 import Project from './scenes/Project';
 import NewProject from './scenes/NewProject';
+import NotFound from './scenes/404';
 
 // Styling
 import Logo from './components/PageLayout/assets/logo.png';
@@ -51,9 +52,11 @@ class App extends React.Component<Props> {
   renderLoggedIn(): JSX.Element {
     return (
       <BrowserRouter>
+        <Route key='not-found' exact path='/not-found' component={NotFound} />
         <Route key='billing' exact path='/billing' component={Billing} />
         <Route key='notificiations' exact path='/' component={Notifications} />
-        <Route key='new-enviroment' exact path='/new/project' component={NewProject} />
+        <Route key='new-project' exact path='/new/project' component={NewProject} />
+        <Route key='new-environmnt' exact path='/new/environment/:project' component={NewProject} />
         <Route key='project' exact path='/projects/:project' component={Project} />
         <Route key='enviroment' exact path='/projects/:project/:enviroment' component={Enviroment} />
       </BrowserRouter>

@@ -11,8 +11,13 @@ export interface Project {
   name: string;
   description: string;
   repository?: string;
-  api_domain?: string;
-  web_domain?: string;
+  environments?: Environment[];
+}
+
+export interface Environment {
+  id: string;
+  name: string;
+  description: string;
 }
 
 export interface User {
@@ -22,12 +27,4 @@ export interface User {
   profile_picture_url?: string;
   email: string;
   roles: string[];
-}
-
-export interface EnvVar {
-  id?: string;
-  key: string;
-  value: string;
-  service: string;
-  secret?: boolean;
 }
