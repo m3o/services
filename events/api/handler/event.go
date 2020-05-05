@@ -27,7 +27,7 @@ type Handler struct {
 	auth    auth.Auth
 	runtime runtime.Runtime
 	event   event.EventsService
-	project project.ProjectService
+	project project.ProjectsService
 }
 
 // New returns an initialised handler

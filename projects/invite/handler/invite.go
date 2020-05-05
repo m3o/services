@@ -42,7 +42,7 @@ type Invites struct {
 	sendgridAPIKey     string
 	sendgridTemplateID string
 	users              users.UsersService
-	projects           project.ProjectService
+	projects           project.ProjectsService
 }
 
 // New returns an initialised handler

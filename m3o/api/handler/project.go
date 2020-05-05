@@ -33,7 +33,7 @@ type Project struct {
 	name    string
 	auth    auth.Auth
 	users   users.UsersService
-	project project.ProjectService
+	project project.ProjectsService
 }
 
 // Create a new project
