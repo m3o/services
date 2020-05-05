@@ -10,3 +10,5 @@ require (
 )
 
 replace github.com/micro/services/events/service => ../service
+
+replace github.com/micro/services/projects/service => ../../projects/service
