@@ -48,6 +48,8 @@ First, we have to start the `micro server`. The command to do that is:
 micro server
 ```
 
+If all goes well you'll see log output from the various services initialising; this terminal will continue to output logs as we go through the rest of the tutorial so keep it running.
+
 To talk to this server, we just have to tell Micro CLI to address our server instead of using the default implementations - micro can work without a server too, but [more about that later](#-environments).
 
 The following command tells the CLI to talk to our server:
@@ -375,7 +377,7 @@ We are almost done! But first we have to learn how to update a service.
 
 Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
 
-We can simply issue
+We can simply issue the update command (remember to switch back to the root directory of the example service first)
 
 ```
 micro update .
