@@ -96,8 +96,7 @@ class Project extends React.Component<Props> {
           </div>
         </form>
 
-        <p>Configure the GitHub action using your Client ID and Secret. If you loose your ID/Secret, click the regenerate button below to generate a new set of credentials.</p>
-        <button className='btn warning'>Regenerate Credentials</button>
+        {/* <button className='btn warning'>Regenerate Credentials</button> */}
       </section>
     );
   }
