@@ -13,6 +13,6 @@ require (
 
 replace github.com/micro/services/payments/provider => ../../payments/provider
 
-replace github.com/micro/services/projects/service => ../../project/service
+replace github.com/micro/services/projects/service => ../../projects/service
 
-replace github.com/micro/services/projects/invite => ../../project/invite
+replace github.com/micro/services/projects/invite => ../../projects/invite

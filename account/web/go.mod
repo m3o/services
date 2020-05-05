@@ -10,6 +10,6 @@ require (
 	github.com/micro/services/users/service v0.0.0-20200501143857-056deed3461f
 )
 
-replace github.com/micro/services/projects/invite => ../../project/invite
+replace github.com/micro/services/projects/invite => ../../projects/invite
 
-replace github.com/micro/services/projects/service => ../../project/service
+replace github.com/micro/services/projects/service => ../../projects/service
