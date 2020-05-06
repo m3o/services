@@ -11,27 +11,42 @@ interface Props {
   autoFocus?: boolean;
   placeholder?: string;
   onChange: (name: string, value: string) => void;
-  validate: ((value: string) => string) | ((value: string) => Promise<string>);
+  validate?: (value: string) => Promise<string>;
 }
 
 interface State {
   status: string;
+  error?: string;
 }
 
 export default class ValidatedInput extends React.Component<Props, State> {
   readonly state: State = { status: 'pending' };
 
   async componentDidMount() {
-    const status = await this.props.validate(this.props.value);
-    this.setState({ status });
+    if(!this.props.validate) {
+      this.setState({ status: 'valid' });
+      return;
+    }
+
+    this.setState({ status: 'pending' });
+    if(this.props.value.length === 0) return;
+
+    this.props.validate(this.props.value)
+      .then((error) => this.setState({ error, status: error ? 'invalid' : 'valid' }))
+      .catch((error) => this.setState({ error, status: 'invalid' }));
   }
 
   async onChange(e: any) {
     const value = e.target.value;
     this.props.onChange(this.props.name, value);
+    if(!this.props.validate) return;
 
-    const status = await this.props.validate(value);
-    this.setState({ status });
+    this.setState({ status: 'pending' });
+    if(value.length === 0) return;
+
+    this.props.validate(value)
+      .then((error) => this.setState({ error, status: error ? 'invalid' : 'valid' }))
+      .catch((error) => this.setState({ error, status: 'invalid' }));
   }
 
   render(): JSX.Element {

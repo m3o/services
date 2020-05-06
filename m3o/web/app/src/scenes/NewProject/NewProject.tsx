@@ -108,13 +108,17 @@ class NewProject extends React.Component<Props, State> {
   renderProjectDetails(): JSX.Element {
     const { name, description } = this.state.project;
 
-    const validateName = (name: string): any => {
-      if(name.length === 0) return 'pending';
-      return 'valid';
-    }
+    const validateName = (name: string): Promise<string> => {      
+      return new Promise(async (resolve: Function, reject: Function) => {
+        if(name.length === 0) {
+          resolve('pending');
+          return
+        }
 
-    const validateDescription = (description: string): any => {
-      return 'valid';
+        API.Call('Projects/VerifyProjectName', { name })
+          .then(() => resolve(null))
+          .catch(err => err.response ? resolve(err.response.data.detail) : reject(err));
+      });
     }
 
     return(
@@ -141,7 +145,6 @@ class NewProject extends React.Component<Props, State> {
             <ValidatedInput
               name='description'
               value={description}
-              validate={validateDescription}
               placeholder='My Awesome Project'
               onChange={this.onInputChange.bind(this)}  />
           </div>
