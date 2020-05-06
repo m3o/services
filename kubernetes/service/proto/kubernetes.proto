@@ -4,8 +4,13 @@ package go.micro.service.kubernetes;
 
 service Kubernetes {
   rpc CreateNamespace (CreateNamespaceRequest) returns (CreateNamespaceResponse) {};
+  rpc DeleteNamespace (DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {};
+  
   rpc CreateImagePullSecret (CreateImagePullSecretRequest) returns (CreateImagePullSecretResponse) {};
+  rpc DeleteImagePullSecret (DeleteImagePullSecretRequest) returns (DeleteImagePullSecretResponse) {};
+
   rpc CreateServiceAccount (CreateServiceAccountRequest) returns (CreateServiceAccountResponse) {};
+  rpc DeleteServiceAccount (DeleteServiceAccountRequest) returns (DeleteServiceAccountResponse) {};
 }
 
 message CreateNamespaceRequest {
@@ -13,6 +18,12 @@ message CreateNamespaceRequest {
 }
 
 message CreateNamespaceResponse {}
+
+message DeleteNamespaceRequest {
+  string name = 1;
+}
+
+message DeleteNamespaceResponse {}
 
 message CreateImagePullSecretRequest {
   string name = 1;
@@ -22,9 +33,22 @@ message CreateImagePullSecretRequest {
 
 message CreateImagePullSecretResponse {}
 
+message DeleteImagePullSecretRequest {
+  string name = 1;
+  string namespace = 2;
+}
+
+message DeleteImagePullSecretResponse {}
+
 message CreateServiceAccountRequest {
   string namespace = 1;
   repeated string image_pull_secrets = 2;
 }
 
 message CreateServiceAccountResponse {}
+
+message DeleteServiceAccountRequest {
+  string namespace = 1;
+}
+
+message DeleteServiceAccountResponse {}

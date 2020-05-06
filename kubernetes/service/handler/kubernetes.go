@@ -37,6 +37,18 @@ func (k *Kubernetes) CreateNamespace(ctx context.Context, req *pb.CreateNamespac
 	})
 }
 
+// DeleteNamespace in k8s
+func (k *Kubernetes) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
+	return k.client.Delete(&k8s.Resource{
+		Kind: "namespace",
+		Value: k8s.Namespace{
+			Metadata: &k8s.Metadata{
+				Name: req.Name,
+			},
+		},
+	})
+}
+
 // CreateImagePullSecret in k8s
 func (k *Kubernetes) CreateImagePullSecret(ctx context.Context, req *pb.CreateImagePullSecretRequest, rsp *pb.CreateImagePullSecretResponse) error {
 	// the secret structure required for img pull secrets
@@ -68,6 +80,19 @@ func (k *Kubernetes) CreateImagePullSecret(ctx context.Context, req *pb.CreateIm
 	}, k8s.CreateNamespace(req.Namespace))
 }
 
+// DeleteImagePullSecret in k8s
+func (k *Kubernetes) DeleteImagePullSecret(ctx context.Context, req *pb.DeleteImagePullSecretRequest, rsp *pb.DeleteImagePullSecretResponse) error {
+	return k.client.Delete(&k8s.Resource{
+		Name: req.Name,
+		Kind: "secret",
+		Value: &k8s.Secret{
+			Metadata: &k8s.Metadata{
+				Name: req.Name,
+			},
+		},
+	}, k8s.DeleteNamespace(req.Namespace))
+}
+
 // CreateServiceAccount in k8s. Note, the service accounts are always named the same
 // as the namespace so there is no name attribute in the request.
 func (k *Kubernetes) CreateServiceAccount(ctx context.Context, req *pb.CreateServiceAccountRequest, rsp *pb.CreateServiceAccountResponse) error {
@@ -88,6 +113,20 @@ func (k *Kubernetes) CreateServiceAccount(ctx context.Context, req *pb.CreateSer
 				Name: req.Namespace,
 			},
 			ImagePullSecrets: secrets,
+		},
+	})
+}
+
+// DeleteServiceAccount in k8s. Note, the service accounts are always named the same
+// as the namespace so there is no name attribute in the request.
+func (k *Kubernetes) DeleteServiceAccount(ctx context.Context, req *pb.DeleteServiceAccountRequest, rsp *pb.DeleteServiceAccountResponse) error {
+	return k.client.Delete(&k8s.Resource{
+		Name: req.Namespace,
+		Kind: "serviceaccount",
+		Value: &k8s.ServiceAccount{
+			Metadata: &k8s.Metadata{
+				Name: req.Namespace,
+			},
 		},
 	})
 }

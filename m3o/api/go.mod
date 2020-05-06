@@ -13,3 +13,5 @@ require (
 )
 
 replace github.com/micro/services/projects/service => ../../projects/service
+
+replace github.com/micro/services/kubernetes/service => ../../kubernetes/service

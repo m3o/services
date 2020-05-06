@@ -90,6 +90,76 @@ func (m *CreateNamespaceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateNamespaceResponse proto.InternalMessageInfo
 
+type DeleteNamespaceRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteNamespaceRequest) Reset()         { *m = DeleteNamespaceRequest{} }
+func (m *DeleteNamespaceRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteNamespaceRequest) ProtoMessage()    {}
+func (*DeleteNamespaceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_09bf30676138af59, []int{2}
+}
+
+func (m *DeleteNamespaceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteNamespaceRequest.Unmarshal(m, b)
+}
+func (m *DeleteNamespaceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteNamespaceRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteNamespaceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteNamespaceRequest.Merge(m, src)
+}
+func (m *DeleteNamespaceRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteNamespaceRequest.Size(m)
+}
+func (m *DeleteNamespaceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteNamespaceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteNamespaceRequest proto.InternalMessageInfo
+
+func (m *DeleteNamespaceRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type DeleteNamespaceResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteNamespaceResponse) Reset()         { *m = DeleteNamespaceResponse{} }
+func (m *DeleteNamespaceResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteNamespaceResponse) ProtoMessage()    {}
+func (*DeleteNamespaceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_09bf30676138af59, []int{3}
+}
+
+func (m *DeleteNamespaceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteNamespaceResponse.Unmarshal(m, b)
+}
+func (m *DeleteNamespaceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteNamespaceResponse.Marshal(b, m, deterministic)
+}
+func (m *DeleteNamespaceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteNamespaceResponse.Merge(m, src)
+}
+func (m *DeleteNamespaceResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteNamespaceResponse.Size(m)
+}
+func (m *DeleteNamespaceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteNamespaceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteNamespaceResponse proto.InternalMessageInfo
+
 type CreateImagePullSecretRequest struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Namespace            string   `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
@@ -103,7 +173,7 @@ func (m *CreateImagePullSecretRequest) Reset()         { *m = CreateImagePullSec
 func (m *CreateImagePullSecretRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateImagePullSecretRequest) ProtoMessage()    {}
 func (*CreateImagePullSecretRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_09bf30676138af59, []int{2}
+	return fileDescriptor_09bf30676138af59, []int{4}
 }
 
 func (m *CreateImagePullSecretRequest) XXX_Unmarshal(b []byte) error {
@@ -155,7 +225,7 @@ func (m *CreateImagePullSecretResponse) Reset()         { *m = CreateImagePullSe
 func (m *CreateImagePullSecretResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateImagePullSecretResponse) ProtoMessage()    {}
 func (*CreateImagePullSecretResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_09bf30676138af59, []int{3}
+	return fileDescriptor_09bf30676138af59, []int{5}
 }
 
 func (m *CreateImagePullSecretResponse) XXX_Unmarshal(b []byte) error {
@@ -176,6 +246,84 @@ func (m *CreateImagePullSecretResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateImagePullSecretResponse proto.InternalMessageInfo
 
+type DeleteImagePullSecretRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Namespace            string   `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteImagePullSecretRequest) Reset()         { *m = DeleteImagePullSecretRequest{} }
+func (m *DeleteImagePullSecretRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteImagePullSecretRequest) ProtoMessage()    {}
+func (*DeleteImagePullSecretRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_09bf30676138af59, []int{6}
+}
+
+func (m *DeleteImagePullSecretRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteImagePullSecretRequest.Unmarshal(m, b)
+}
+func (m *DeleteImagePullSecretRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteImagePullSecretRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteImagePullSecretRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteImagePullSecretRequest.Merge(m, src)
+}
+func (m *DeleteImagePullSecretRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteImagePullSecretRequest.Size(m)
+}
+func (m *DeleteImagePullSecretRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteImagePullSecretRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteImagePullSecretRequest proto.InternalMessageInfo
+
+func (m *DeleteImagePullSecretRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *DeleteImagePullSecretRequest) GetNamespace() string {
+	if m != nil {
+		return m.Namespace
+	}
+	return ""
+}
+
+type DeleteImagePullSecretResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteImagePullSecretResponse) Reset()         { *m = DeleteImagePullSecretResponse{} }
+func (m *DeleteImagePullSecretResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteImagePullSecretResponse) ProtoMessage()    {}
+func (*DeleteImagePullSecretResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_09bf30676138af59, []int{7}
+}
+
+func (m *DeleteImagePullSecretResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteImagePullSecretResponse.Unmarshal(m, b)
+}
+func (m *DeleteImagePullSecretResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteImagePullSecretResponse.Marshal(b, m, deterministic)
+}
+func (m *DeleteImagePullSecretResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteImagePullSecretResponse.Merge(m, src)
+}
+func (m *DeleteImagePullSecretResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteImagePullSecretResponse.Size(m)
+}
+func (m *DeleteImagePullSecretResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteImagePullSecretResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteImagePullSecretResponse proto.InternalMessageInfo
+
 type CreateServiceAccountRequest struct {
 	Namespace            string   `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	ImagePullSecrets     []string `protobuf:"bytes,2,rep,name=image_pull_secrets,json=imagePullSecrets,proto3" json:"image_pull_secrets,omitempty"`
@@ -188,7 +336,7 @@ func (m *CreateServiceAccountRequest) Reset()         { *m = CreateServiceAccoun
 func (m *CreateServiceAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceAccountRequest) ProtoMessage()    {}
 func (*CreateServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_09bf30676138af59, []int{4}
+	return fileDescriptor_09bf30676138af59, []int{8}
 }
 
 func (m *CreateServiceAccountRequest) XXX_Unmarshal(b []byte) error {
@@ -233,7 +381,7 @@ func (m *CreateServiceAccountResponse) Reset()         { *m = CreateServiceAccou
 func (m *CreateServiceAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceAccountResponse) ProtoMessage()    {}
 func (*CreateServiceAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_09bf30676138af59, []int{5}
+	return fileDescriptor_09bf30676138af59, []int{9}
 }
 
 func (m *CreateServiceAccountResponse) XXX_Unmarshal(b []byte) error {
@@ -254,13 +402,89 @@ func (m *CreateServiceAccountResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateServiceAccountResponse proto.InternalMessageInfo
 
+type DeleteServiceAccountRequest struct {
+	Namespace            string   `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteServiceAccountRequest) Reset()         { *m = DeleteServiceAccountRequest{} }
+func (m *DeleteServiceAccountRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteServiceAccountRequest) ProtoMessage()    {}
+func (*DeleteServiceAccountRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_09bf30676138af59, []int{10}
+}
+
+func (m *DeleteServiceAccountRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteServiceAccountRequest.Unmarshal(m, b)
+}
+func (m *DeleteServiceAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteServiceAccountRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteServiceAccountRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteServiceAccountRequest.Merge(m, src)
+}
+func (m *DeleteServiceAccountRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteServiceAccountRequest.Size(m)
+}
+func (m *DeleteServiceAccountRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteServiceAccountRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteServiceAccountRequest proto.InternalMessageInfo
+
+func (m *DeleteServiceAccountRequest) GetNamespace() string {
+	if m != nil {
+		return m.Namespace
+	}
+	return ""
+}
+
+type DeleteServiceAccountResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteServiceAccountResponse) Reset()         { *m = DeleteServiceAccountResponse{} }
+func (m *DeleteServiceAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteServiceAccountResponse) ProtoMessage()    {}
+func (*DeleteServiceAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_09bf30676138af59, []int{11}
+}
+
+func (m *DeleteServiceAccountResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteServiceAccountResponse.Unmarshal(m, b)
+}
+func (m *DeleteServiceAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteServiceAccountResponse.Marshal(b, m, deterministic)
+}
+func (m *DeleteServiceAccountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteServiceAccountResponse.Merge(m, src)
+}
+func (m *DeleteServiceAccountResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteServiceAccountResponse.Size(m)
+}
+func (m *DeleteServiceAccountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteServiceAccountResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteServiceAccountResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*CreateNamespaceRequest)(nil), "go.micro.service.kubernetes.CreateNamespaceRequest")
 	proto.RegisterType((*CreateNamespaceResponse)(nil), "go.micro.service.kubernetes.CreateNamespaceResponse")
+	proto.RegisterType((*DeleteNamespaceRequest)(nil), "go.micro.service.kubernetes.DeleteNamespaceRequest")
+	proto.RegisterType((*DeleteNamespaceResponse)(nil), "go.micro.service.kubernetes.DeleteNamespaceResponse")
 	proto.RegisterType((*CreateImagePullSecretRequest)(nil), "go.micro.service.kubernetes.CreateImagePullSecretRequest")
 	proto.RegisterType((*CreateImagePullSecretResponse)(nil), "go.micro.service.kubernetes.CreateImagePullSecretResponse")
+	proto.RegisterType((*DeleteImagePullSecretRequest)(nil), "go.micro.service.kubernetes.DeleteImagePullSecretRequest")
+	proto.RegisterType((*DeleteImagePullSecretResponse)(nil), "go.micro.service.kubernetes.DeleteImagePullSecretResponse")
 	proto.RegisterType((*CreateServiceAccountRequest)(nil), "go.micro.service.kubernetes.CreateServiceAccountRequest")
 	proto.RegisterType((*CreateServiceAccountResponse)(nil), "go.micro.service.kubernetes.CreateServiceAccountResponse")
+	proto.RegisterType((*DeleteServiceAccountRequest)(nil), "go.micro.service.kubernetes.DeleteServiceAccountRequest")
+	proto.RegisterType((*DeleteServiceAccountResponse)(nil), "go.micro.service.kubernetes.DeleteServiceAccountResponse")
 }
 
 func init() {
@@ -268,26 +492,31 @@ func init() {
 }
 
 var fileDescriptor_09bf30676138af59 = []byte{
-	// 332 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x53, 0xcb, 0x4e, 0xc2, 0x40,
-	0x14, 0xb5, 0xa0, 0x26, 0xdc, 0x8d, 0x66, 0x82, 0x5a, 0x01, 0x95, 0x74, 0xc5, 0x82, 0x4c, 0x13,
-	0x71, 0x21, 0xee, 0x0c, 0x2b, 0x63, 0x62, 0x0c, 0x7c, 0x00, 0x29, 0x93, 0x2b, 0x4e, 0x68, 0x67,
-	0xea, 0x3c, 0x5c, 0xfa, 0x07, 0x26, 0xfe, 0x89, 0xbf, 0x68, 0x9c, 0x52, 0x90, 0x5a, 0x09, 0xb2,
-	0x6b, 0xef, 0xe3, 0x9c, 0x73, 0xcf, 0xc9, 0xc0, 0x60, 0xca, 0xcd, 0xb3, 0x9d, 0x50, 0x26, 0x93,
-	0x30, 0xe1, 0x4c, 0xc9, 0x50, 0xa3, 0x7a, 0xe5, 0x0c, 0x75, 0x38, 0xb3, 0x13, 0x54, 0x02, 0x0d,
-	0xea, 0xbc, 0x16, 0xa6, 0x4a, 0x1a, 0xf9, 0xa3, 0x41, 0x5d, 0x81, 0x34, 0xa7, 0x92, 0xba, 0x65,
-	0x3a, 0x1f, 0xa4, 0xcb, 0x91, 0xa0, 0x0b, 0xc7, 0x03, 0x85, 0x91, 0xc1, 0x87, 0x28, 0x41, 0x9d,
-	0x46, 0x0c, 0x87, 0xf8, 0x62, 0x51, 0x1b, 0x42, 0x60, 0x57, 0x44, 0x09, 0xfa, 0x5e, 0xdb, 0xeb,
-	0xd4, 0x86, 0xee, 0x3b, 0x38, 0x85, 0x93, 0x5f, 0xd3, 0x3a, 0x95, 0x42, 0x63, 0xf0, 0x04, 0xad,
-	0xac, 0x75, 0x97, 0x44, 0x53, 0x7c, 0xb4, 0x71, 0x3c, 0x42, 0xa6, 0xd0, 0xac, 0x81, 0x23, 0x2d,
-	0xa8, 0x89, 0x1c, 0xc8, 0xaf, 0xb8, 0xc6, 0xb2, 0x40, 0xea, 0xb0, 0x67, 0xe4, 0x0c, 0x85, 0x5f,
-	0x75, 0x9d, 0xec, 0x27, 0xb8, 0x80, 0xb3, 0x3f, 0x78, 0xe6, 0x42, 0x38, 0x34, 0xb3, 0x81, 0x51,
-	0x76, 0xed, 0x2d, 0x63, 0xd2, 0x8a, 0x85, 0x8e, 0x15, 0x4e, 0xaf, 0xc8, 0xd9, 0x05, 0xc2, 0xbf,
-	0x71, 0xc7, 0xa9, 0x8d, 0xe3, 0xb1, 0x76, 0xc8, 0xda, 0xaf, 0xb4, 0xab, 0x9d, 0xda, 0xf0, 0x90,
-	0xaf, 0x32, 0xea, 0xe0, 0x3c, 0xbf, 0xb9, 0x48, 0x95, 0x49, 0xb9, 0xfc, 0xac, 0x02, 0xdc, 0x2f,
-	0xbc, 0x26, 0x6f, 0x70, 0x50, 0x70, 0x8f, 0xf4, 0xe8, 0x9a, 0x70, 0x68, 0x79, 0x32, 0x8d, 0xab,
-	0xff, 0x2d, 0xcd, 0x7d, 0xd9, 0x21, 0x1f, 0x1e, 0x1c, 0x95, 0x7a, 0x47, 0xfa, 0x1b, 0x20, 0x96,
-	0xe7, 0xda, 0xb8, 0xd9, 0x66, 0x75, 0x21, 0xe9, 0xdd, 0x83, 0x7a, 0x99, 0x85, 0xe4, 0x7a, 0x03,
-	0xd8, 0xd2, 0x80, 0x1b, 0xfd, 0x2d, 0x36, 0x73, 0x3d, 0x93, 0x7d, 0xf7, 0x64, 0x7a, 0x5f, 0x01,
-	0x00, 0x00, 0xff, 0xff, 0x55, 0x75, 0x0b, 0x10, 0x79, 0x03, 0x00, 0x00,
+	// 415 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xc1, 0x4e, 0xfa, 0x40,
+	0x10, 0xc6, 0x29, 0xfc, 0xff, 0x24, 0xcc, 0x45, 0xb3, 0x41, 0xad, 0x05, 0x95, 0xf4, 0xc4, 0x81,
+	0xb4, 0x89, 0x78, 0x10, 0x3d, 0x19, 0xbc, 0x18, 0x13, 0x43, 0xe0, 0x01, 0x48, 0x69, 0x46, 0x6c,
+	0x68, 0xbb, 0xb5, 0xdb, 0x7a, 0xf4, 0x0d, 0x4c, 0x7c, 0x36, 0x9f, 0xc8, 0xb4, 0xdb, 0x82, 0x2d,
+	0x4b, 0x8b, 0x8d, 0x37, 0xd8, 0x9d, 0xf9, 0xbe, 0x6f, 0xda, 0xdf, 0x14, 0xc6, 0x4b, 0x2b, 0x78,
+	0x09, 0x17, 0x9a, 0x49, 0x1d, 0xdd, 0xb1, 0x4c, 0x9f, 0xea, 0x0c, 0xfd, 0x37, 0xcb, 0x44, 0xa6,
+	0xaf, 0xc2, 0x05, 0xfa, 0x2e, 0x06, 0xc8, 0xd2, 0x33, 0xdd, 0xf3, 0x69, 0x40, 0x7f, 0x5c, 0x68,
+	0xf1, 0x01, 0xe9, 0x2c, 0xa9, 0x16, 0x37, 0x6b, 0x49, 0xa1, 0xb6, 0x29, 0x51, 0x07, 0x70, 0x3c,
+	0xf6, 0xd1, 0x08, 0xf0, 0xc9, 0x70, 0x90, 0x79, 0x86, 0x89, 0x53, 0x7c, 0x0d, 0x91, 0x05, 0x84,
+	0xc0, 0x3f, 0xd7, 0x70, 0x50, 0x96, 0x7a, 0x52, 0xbf, 0x35, 0x8d, 0x7f, 0xab, 0xa7, 0x70, 0xb2,
+	0x55, 0xcd, 0x3c, 0xea, 0x32, 0x8c, 0x84, 0xee, 0xd1, 0xc6, 0xfd, 0x85, 0xb6, 0xaa, 0x13, 0xa1,
+	0x67, 0xe8, 0x72, 0x8f, 0x07, 0xc7, 0x58, 0xe2, 0x24, 0xb4, 0xed, 0x19, 0x9a, 0x3e, 0x06, 0x05,
+	0x72, 0xa4, 0x0b, 0x2d, 0x37, 0x15, 0x92, 0xeb, 0xf1, 0xc5, 0xe6, 0x80, 0xb4, 0xe1, 0x7f, 0x40,
+	0x57, 0xe8, 0xca, 0x8d, 0xf8, 0x86, 0xff, 0x51, 0x2f, 0xe0, 0x6c, 0x87, 0x4f, 0x12, 0x64, 0x02,
+	0x5d, 0x9e, 0xf1, 0xaf, 0x82, 0x44, 0x96, 0x3b, 0x14, 0x13, 0x4b, 0x0b, 0x3a, 0x3c, 0xd3, 0x8c,
+	0xbf, 0xa9, 0x3b, 0xd3, 0xa4, 0xa1, 0xbb, 0x76, 0xcc, 0xa8, 0x4b, 0xf9, 0x31, 0x07, 0x40, 0xac,
+	0x48, 0x77, 0xee, 0x85, 0xb6, 0x3d, 0x67, 0xb1, 0x32, 0x93, 0xeb, 0xbd, 0x46, 0xbf, 0x35, 0x3d,
+	0xb4, 0xb2, 0x8e, 0x4c, 0x3d, 0x4f, 0x1f, 0x73, 0xde, 0x2a, 0x89, 0x72, 0x0b, 0x1d, 0x9e, 0xb5,
+	0x42, 0x94, 0x48, 0x5c, 0xdc, 0xcc, 0xc5, 0x2f, 0xbf, 0x9a, 0x00, 0x8f, 0x6b, 0x08, 0xc9, 0x3b,
+	0x1c, 0xe4, 0xb0, 0x22, 0x43, 0xad, 0x80, 0x5a, 0x4d, 0x8c, 0xac, 0x72, 0xf5, 0xbb, 0xa6, 0x64,
+	0xd2, 0x5a, 0xe4, 0x9f, 0xa3, 0xb1, 0xc4, 0x5f, 0x4c, 0x7a, 0x89, 0xff, 0x2e, 0xe0, 0x6b, 0xe4,
+	0x53, 0x82, 0x23, 0x21, 0x8b, 0x64, 0xb4, 0xc7, 0x44, 0x62, 0x3c, 0x95, 0x9b, 0x2a, 0xad, 0x99,
+	0x48, 0x42, 0x56, 0x4b, 0x22, 0x15, 0x6d, 0x4c, 0x49, 0xa4, 0xe2, 0xd5, 0xa8, 0x91, 0x0f, 0x09,
+	0xda, 0x22, 0x64, 0xc9, 0xf5, 0x1e, 0x93, 0x0a, 0x29, 0x56, 0x46, 0x15, 0x3a, 0x33, 0x79, 0x44,
+	0x94, 0x97, 0xe4, 0x29, 0xd8, 0x2a, 0x65, 0x54, 0xa1, 0x33, 0xcd, 0xb3, 0x68, 0xc6, 0x9f, 0xfb,
+	0xe1, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x14, 0x60, 0x69, 0xd9, 0x35, 0x06, 0x00, 0x00,
 }
