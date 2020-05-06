@@ -47,7 +47,7 @@ func NewHandler(srv micro.Service) *Handler {
 		githubOrgID:  getConfigInt(srv, "github", "org_id"),
 		githubTeamID: getConfigInt(srv, "github", "team_id"),
 		auth:         srv.Options().Auth,
-		store:        store.DefaultStore,
+		store:        srv.Options().Store,
 		users:        users.NewUsersService("go.micro.service.users", srv.Client()),
 		login:        login.NewLoginService("go.micro.service.login", srv.Client()),
 		invite:       invite.NewInviteService("go.micro.service.projects.invite", srv.Client()),

@@ -1,6 +1,7 @@
 package store
 
 import (
+	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/store"
 )
 
@@ -10,6 +11,6 @@ type Store struct {
 }
 
 // NewStore returns an initialised store
-func NewStore(srvName string) *Store {
-	return &Store{store: store.DefaultStore}
+func NewStore(srv micro.Service) *Store {
+	return &Store{store: srv.Options().Store}
 }

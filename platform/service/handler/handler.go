@@ -65,8 +65,8 @@ func NewHandler(srv micro.Service) *Handler {
 		Config:   srv.Options().Config,
 		Event:    micro.NewEvent(Topic, srv.Client()),
 		Registry: srv.Options().Registry,
+		Store:    srv.Options().Store,
 		Runtime:  runtime.DefaultRuntime,
-		Store:    store.DefaultStore,
 	}
 
 	err := micro.RegisterSubscriber(

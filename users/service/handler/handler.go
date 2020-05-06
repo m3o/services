@@ -31,7 +31,7 @@ type Handler struct {
 func NewHandler(srv micro.Service) (*Handler, error) {
 	// Return the initialised store
 	return &Handler{
-		store:     store.DefaultStore,
+		store:     srv.Options().Store,
 		publisher: micro.NewPublisher(srv.Name(), srv.Client()),
 	}, nil
 }

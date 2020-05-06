@@ -27,9 +27,9 @@ func NewHandler(srv micro.Service) *Handler {
 	}
 
 	return &Handler{
-		store:  store.DefaultStore,
-		client: client.New(apiKey, nil),
 		name:   srv.Name(),
+		store:  srv.Options().Store,
+		client: client.New(apiKey, nil),
 	}
 }
 

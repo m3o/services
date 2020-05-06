@@ -24,7 +24,7 @@ type Project struct {
 func New(service micro.Service) *Project {
 	return &Project{
 		name:  service.Name(),
-		store: store.DefaultStore,
+		store: service.Options().Store,
 	}
 }
 

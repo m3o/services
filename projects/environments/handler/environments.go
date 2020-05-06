@@ -50,7 +50,7 @@ func (e *Environments) Create(ctx context.Context, req *pb.CreateRequest, rsp *p
 	}
 
 	// generate the namespace (projectName.EnvironmentName)
-	namespace := pRsp.Project.Name + "." + req.Environment.Name
+	namespace := strings.ToLower(pRsp.Project.Name + "." + req.Environment.Name)
 
 	// validiate the namespace is unique
 	if _, err := e.findEnvironmentByNamespace(namespace); err == nil {
