@@ -296,5 +296,5 @@ Pull the latest release of micro
 
 ## Contribute
 
-Join the [slack](https://micro.mu/slack/) or [reddit](https://www.reddit.com/r/micronet/) community to discuss
+Join the [slack](https://slack.micro.mu/) or [reddit](https://www.reddit.com/r/micronet/) community to discuss
 

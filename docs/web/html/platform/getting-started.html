@@ -539,14 +539,20 @@
     
 
   <h2 id="getting-access">Getting Access</h2>
-<p>M30 uses GitHub OAuth to login and verify users. While we’re in a closed beta, you must be invited to the Micro community team on GitHub in order to gain access. If you don’t have access to this team, please message us on the #platform channel on <a href="micro-services.slack.com" title="Slack">Slack</a>.</p>
+
+<p>While we’re in a closed beta, you must be invited to use the platform. Please join the <a href="https://micro.mu/signup">waitlist</a> and ping us on <a href="https://slack.micro.mu">slack</a> 
+in the #platform channel to get pushed to the top of the list.</p>
 
 <h2 id="setup">Setup</h2>
+
 <p>Before starting let’s ensure you have the latest version of Micro installed locally. To do this, run the following commands in your terminal:</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rm $GOPATH/bin/micro
 go get github.com/micro/micro/v2@master
 </code></pre></div></div>
-<p>Next, let’s go to the <a href="https://micro.mu/platform/" title="Micro">Micro website</a> to get our login token. Press the “Sign in with GitHub button”, if you are successfully authenticated, you’ll be directed to the platform homepage where you’ll see a list of running services and a button to login with CLI. Press this button and copy the command you’re given, it will be in the format of:</p>
+
+<p>Next, let’s go to the <a href="https://account.micro.mu">accounts</a> page to create a new account. Once you have an account you’ll be redirected to the M3O portal where you can 
+gain access to your API token and start using it from the CLI. Copy the token from your account settings and login on the CLI.</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>micro login --token $token
 </code></pre></div></div>
 
@@ -604,7 +610,7 @@ foobar		latest	github.com/micro/services	running		n/a	owner=n/a,group=n/a
             <div class="row">
                 <div class="col-lg-12 footer">
                &copy; 2020 Micro Services, Inc.<br />
- Last generated: May 4, 2020 <br />
+ Last generated: May 6, 2020 <br />
                 </div>
             </div>
 </footer>

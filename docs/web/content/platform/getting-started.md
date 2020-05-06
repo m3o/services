@@ -8,15 +8,22 @@ summary: M3O is a serverless microservices platform
 ---
 
 ## Getting Access
-M30 uses GitHub OAuth to login and verify users. While we're in a closed beta, you must be invited to the Micro community team on GitHub in order to gain access. If you don't have access to this team, please message us on the #platform channel on [Slack](micro-services.slack.com "Slack"). 
+
+While we're in a closed beta, you must be invited to use the platform. Please join the [waitlist](https://micro.mu/signup) and ping us on [slack](https://slack.micro.mu) 
+in the #platform channel to get pushed to the top of the list.
 
 ## Setup
+
+
 Before starting let's ensure you have the latest version of Micro installed locally. To do this, run the following commands in your terminal:
 ```
 rm $GOPATH/bin/micro
 go get github.com/micro/micro/v2@master
 ```
-Next, let's go to the [Micro website](https://micro.mu/platform/ "Micro") to get our login token. Press the "Sign in with GitHub button", if you are successfully authenticated, you'll be directed to the platform homepage where you'll see a list of running services and a button to login with CLI. Press this button and copy the command you're given, it will be in the format of:
+
+Next, let's go to the [accounts](https://account.micro.mu) page to create a new account. Once you have an account you'll be redirected to the M3O portal where you can 
+gain access to your API token and start using it from the CLI. Copy the token from your account settings and login on the CLI.
+
 ```
 micro login --token $token
 ```

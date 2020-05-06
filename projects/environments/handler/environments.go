@@ -46,7 +46,7 @@ func (e *Environments) Create(ctx context.Context, req *pb.CreateRequest, rsp *p
 	// lookup the project
 	pRsp, err := e.projects.Read(ctx, &projects.ReadRequest{Id: req.Environment.ProjectId})
 	if err != nil {
-		return err
+		return errors.BadRequest(e.name, "Error finding project: %v", err)
 	}
 
 	// generate the namespace (projectName.EnvironmentName)
@@ -56,7 +56,7 @@ func (e *Environments) Create(ctx context.Context, req *pb.CreateRequest, rsp *p
 	if _, err := e.findEnvironmentByNamespace(namespace); err == nil {
 		return errors.BadRequest(e.name, "%v already taken in the %v project", req.Environment.Name, pRsp.Project.Name)
 	} else if err != store.ErrNotFound {
-		return err
+		return errors.InternalServerError(e.name, "Error reading from store: %v", err)
 	}
 
 	// create the record
@@ -70,6 +70,9 @@ func (e *Environments) Create(ctx context.Context, req *pb.CreateRequest, rsp *p
 	if err := e.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(e.name, "Error writing to store: %v", err)
 	}
+
+	// serialize the result
+	rsp.Environment = req.Environment
 	return nil
 }
 
@@ -83,12 +86,18 @@ func (e *Environments) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.Re
 
 	if len(req.Namespace) > 0 {
 		env, err := e.findEnvironmentByNamespace(req.Namespace)
+		if err == store.ErrNotFound {
+			return errors.BadRequest(e.name, "Environment with %v namespace not found", req.Namespace)
+		}
 		rsp.Environment = env
 		return err
 	}
 
 	if len(req.ProjectId) > 0 {
 		envs, err := e.findEnvironmentsForProject(req.ProjectId)
+		if err == store.ErrNotFound {
+			return errors.BadRequest(e.name, "Environment with %v id not found", req.Id)
+		}
 		rsp.Environments = envs
 		return err
 	}

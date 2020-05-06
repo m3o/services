@@ -209,7 +209,6 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 	}
 
 	// TODO: Load the projects secret (the GH token) and create an image pull secret in the above namespacce
-
 	rsp.Environment = serializeEnvironment(eRsp.Environment)
 	return nil
 }
