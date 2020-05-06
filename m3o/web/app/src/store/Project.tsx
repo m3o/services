@@ -7,6 +7,8 @@ export interface State {
 
 interface Action {
   type: string;
+  projectID?: string;
+  environment?: API.Environment;
   project?: API.Project;
   projects?: API.Project[];
 }
@@ -16,6 +18,7 @@ const SET_PROJECTS = 'project.set';
 const CREATE_PROJECT = 'project.create';
 const UPDATE_PROJECT = 'project.update';
 const DELETE_PROJECT = 'project.delete';
+const CREATE_ENVIRONMENT = 'project.environment.create';
 
 // Actions
 export function setProjects(projects: API.Project[]): Action {
@@ -32,6 +35,11 @@ export function updateProject(project: API.Project): Action {
 
 export function deleteProject(project: API.Project): Action {
   return { type: DELETE_PROJECT, project };
+}
+
+
+export function createEnvironment(projectID: string, environment: API.Environment): Action {
+  return { type: CREATE_PROJECT, environment, projectID };
 }
 
 // Reducer
@@ -61,6 +69,17 @@ export default function(state = defaultState, action: Action): State {
           ...state.projects.filter(u => u.id !== action.project!.id),
         ],
       };
+    }
+    case CREATE_ENVIRONMENT: {
+      return {
+        ...state, projects: state.projects.map((p: API.Project): API.Project => {
+          let project = { ...p };
+          if(p.id! === action.projectID!) {
+            project.environments = [...(project.environments || []), action.project!];
+          }
+          return project
+        }),
+      }
     }
   }
   return state;
