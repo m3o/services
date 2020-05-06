@@ -204,6 +204,7 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 
 	// create the k8s namespace etc
 	if _, err := p.kubernetes.CreateNamespace(ctx, &kubernetes.CreateNamespaceRequest{Name: eRsp.Environment.Namespace}); err != nil {
+		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
 		return errors.BadRequest(p.name, "Unable to create k8s namespace: %v", err.Error())
 	}
 
