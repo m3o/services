@@ -15,6 +15,7 @@ import Enviroment from './scenes/Enviroment';
 import Project from './scenes/Project';
 import NewProject from './scenes/NewProject';
 import NewEnvironment from './scenes/NewEnvironment';
+import GettingStarted from './scenes/GettingStarted';
 import NotFound from './scenes/404';
 
 // Styling
@@ -24,24 +25,32 @@ import { setProjects } from './store/Project';
 
 interface Props {
   user?: API.User;
+  projects: API.Project[];
   setUser: (user: API.User) => void;
   setProjects: (projects: API.Project[]) => void;
 }
 
-class App extends React.Component<Props> {
+interface State {
+  loaded: boolean;
+}
+
+class App extends React.Component<Props, State> {
+  readonly state: State = { loaded: false };
+
   render(): JSX.Element {
-    if(this.props.user) return this.renderLoggedIn();
+    if(this.state.loaded) return this.renderLoggedIn();
     return this.renderLoading();
   }
 
   componentDidMount() {
     API.Call("Accounts/Read").then((res) => {
       this.props.setUser(res.data.user);
-    });  
 
-    API.Call("Projects/ListProjects").then((res) => {
-      this.props.setProjects(res.data.projects);
-    });
+      API.Call("Projects/ListProjects").then((res) => {
+        this.props.setProjects(res.data.projects || []);
+        this.setState({ loaded: true });
+      });  
+    });  
   }
 
   renderLoading(): JSX.Element {
@@ -53,13 +62,15 @@ class App extends React.Component<Props> {
   renderLoggedIn(): JSX.Element {
     return (
       <BrowserRouter>
-        <Route key='not-found' exact path='/not-found' component={NotFound} />
+        { this.props.projects.length > 0 ? <Route key='notificiations' exact path='/' component={Notifications} />  : null }
+        { this.props.projects.length === 0 ? <Route key='getting-started' exact path='/' component={GettingStarted} /> : null }
+
         <Route key='billing' exact path='/billing' component={Billing} />
-        <Route key='notificiations' exact path='/' component={Notifications} />
         <Route key='new-project' exact path='/new/project' component={NewProject} />
         <Route key='new-environmnt' exact path='/new/environment/:project' component={NewEnvironment} />
         <Route key='project' exact path='/projects/:project' component={Project} />
         <Route key='environment' exact path='/projects/:project/:environment' component={Enviroment} />
+        <Route key='not-found' exact path='/not-found' component={NotFound} />
       </BrowserRouter>
     );  
   }
@@ -68,6 +79,7 @@ class App extends React.Component<Props> {
 function mapStateToProps(state: GlobalState): any {
   return({
     user: state.account.user,
+    projects: state.project.projects,
   });
 }
 

@@ -63,7 +63,7 @@ class PageLayout extends React.Component<Props> {
         <section>
           <NavLink exact to='/'>
             <img src={NotificationsIcon} alt='Notifications' />
-            <p>Notifications</p>
+            <p>{this.props.projects.length === 0 ? 'Getting Started' : 'Notifications'}</p>
           </NavLink>
 
           <NavLink exact to='/feedback'>
