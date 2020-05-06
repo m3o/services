@@ -49,8 +49,8 @@ func (e *Environments) Create(ctx context.Context, req *pb.CreateRequest, rsp *p
 		return errors.BadRequest(e.name, "Error finding project: %v", err)
 	}
 
-	// generate the namespace (projectName.EnvironmentName)
-	namespace := strings.ToLower(pRsp.Project.Name + "." + req.Environment.Name)
+	// generate the namespace (projectName-EnvironmentName)
+	namespace := strings.ToLower(pRsp.Project.Name + "-" + req.Environment.Name)
 
 	// validiate the namespace is unique
 	if _, err := e.findEnvironmentByNamespace(namespace); err == nil {
