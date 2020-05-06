@@ -59,7 +59,7 @@ class App extends React.Component<Props> {
         <Route key='new-project' exact path='/new/project' component={NewProject} />
         <Route key='new-environmnt' exact path='/new/environment/:project' component={NewEnvironment} />
         <Route key='project' exact path='/projects/:project' component={Project} />
-        <Route key='enviroment' exact path='/projects/:project/:enviroment' component={Enviroment} />
+        <Route key='environment' exact path='/projects/:project/:environment' component={Enviroment} />
       </BrowserRouter>
     );  
   }
