@@ -74,7 +74,7 @@ func (p *Projects) CreateProject(ctx context.Context, req *pb.CreateProjectReque
 	// create the project
 	cRsp, err := p.projects.Create(ctx, &projects.CreateRequest{
 		Project: &projects.Project{
-			Name:        strings.ToLower(req.Environment.Name),
+			Name:        strings.ToLower(req.Project.Name),
 			Description: req.Project.Description,
 			Repository:  req.Project.Repository,
 		},
@@ -156,7 +156,7 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 // VerifyProjectName validates a project name to ensure it is unique
 func (p *Projects) VerifyProjectName(ctx context.Context, req *pb.VerifyProjectNameRequest, rsp *pb.VerifyProjectNameResponse) error {
 	_, err := p.projects.Read(ctx, &projects.ReadRequest{Name: req.Name})
-	if err != nil {
+	if err == nil {
 		return errors.BadRequest(p.name, "Name has already been taken")
 	}
 	return nil

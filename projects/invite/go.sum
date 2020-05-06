@@ -332,10 +332,10 @@ github.com/micro/go-micro v1.18.0 h1:gP70EZVHpJuUIT0YWth192JmlIci+qMOEByHm83XE9E
 github.com/micro/go-micro v1.18.0/go.mod h1:klwUJL1gkdY1MHFyz+fFJXn52dKcty4hoe95Mp571AA=
 github.com/micro/go-micro/v2 v2.3.1-0.20200331090613-76ade7efd9b8/go.mod h1:lYuHYFPjY3QE9fdiy3F2awXcsXTdB68AwoY3RQ3dPN4=
 github.com/micro/go-micro/v2 v2.4.1-0.20200409084150-c1ad6d6c7c11/go.mod h1:QOk6oWfMYQTAvQG50oNk8BYV3CwZlS+e1AJTQNNhjos=
-github.com/micro/go-micro/v2 v2.5.1-0.20200430232517-e8105d22adc6 h1:3dKLB4QQHKyCNedTRM/XafCd157LvnSplqWhD/u1LMs=
-github.com/micro/go-micro/v2 v2.5.1-0.20200430232517-e8105d22adc6/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
 github.com/micro/go-micro/v2 v2.6.1-0.20200504125053-90dd1f63c853 h1:Vq9gRNDpPChWYHq7u0wCe7ydeptCVPwu5qjBFvVNEPM=
 github.com/micro/go-micro/v2 v2.6.1-0.20200504125053-90dd1f63c853/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
+github.com/micro/go-micro/v2 v2.6.1-0.20200506095814-5387f73b5d8e h1:EvjB9RKFavhizMUClRqK3hymBdhm9Ysa2UYWN6tLUL0=
+github.com/micro/go-micro/v2 v2.6.1-0.20200506095814-5387f73b5d8e/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/micro/v2 v2.4.0/go.mod h1:/7lxBaU/Isx3USObggNVw6x6pdIJzTDexee7EsARD+A=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=

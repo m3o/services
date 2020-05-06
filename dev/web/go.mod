@@ -2,4 +2,4 @@ module github.com/micro/services/dev/web
 
 go 1.13
 
-require github.com/micro/go-micro/v2 v2.6.1-0.20200504125053-90dd1f63c853
+require github.com/micro/go-micro/v2 v2.6.1-0.20200506095814-5387f73b5d8e
