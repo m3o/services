@@ -41,6 +41,10 @@ interface State {
   paymentMethodDisabled: boolean;
 }
 
+// regex to check for specical chars
+var regex = /[^\w]|_/g
+
+
 class NewProject extends React.Component<Props, State> {
   readonly ref: React.RefObject<HTMLDivElement> = React.createRef();
 
@@ -108,15 +112,20 @@ class NewProject extends React.Component<Props, State> {
   renderProjectDetails(): JSX.Element {
     const { name, description } = this.state.project;
 
-    const validateName = (name: string): Promise<string> => {      
+    const validateName = async (name: string): Promise<string> => {      
       return new Promise(async (resolve: Function, reject: Function) => {
-        if(name.length === 0) {
-          resolve('pending');
+        if(name.length < 3) {
+          resolve("Name must be at least 3 characters long");
           return
         }
 
+        if(regex.test(name)) {
+          resolve("Name cannot contain any special characters");
+          return;
+        }
+
         API.Call('Projects/VerifyProjectName', { name })
-          .then(() => resolve(null))
+          .then(() => resolve())
           .catch(err => err.response ? resolve(err.response.data.detail) : reject(err));
       });
     }

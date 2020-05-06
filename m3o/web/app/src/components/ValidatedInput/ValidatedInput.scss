@@ -12,6 +12,14 @@
     border-radius: 0px;
   }
 
+  .error {
+    color: $red;
+    font-size: 9.5pt;
+    font-style: italic;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
   .dot {
     width: 6px;
     height: 6px;
