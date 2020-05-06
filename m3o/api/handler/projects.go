@@ -188,7 +188,7 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 
 	// ensure the user has access to the project
 	if _, err := p.findProject(ctx, req.ProjectId); err != nil {
-		return err
+		return errors.Forbidden(p.name, "Unable to access project")
 	}
 
 	// create the environment
@@ -199,12 +199,12 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 	}
 	eRsp, err := p.environments.Create(ctx, &environments.CreateRequest{Environment: env})
 	if err != nil {
-		return err
+		return errors.BadRequest(p.name, "Unable to create project: %v", err.Error())
 	}
 
 	// create the k8s namespace etc
 	if _, err := p.kubernetes.CreateNamespace(ctx, &kubernetes.CreateNamespaceRequest{Name: eRsp.Environment.Namespace}); err != nil {
-		return err
+		return errors.BadRequest(p.name, "Unable to create k8s namespace: %v", err.Error())
 	}
 
 	// TODO: Load the projects secret (the GH token) and create an image pull secret in the above namespacce
