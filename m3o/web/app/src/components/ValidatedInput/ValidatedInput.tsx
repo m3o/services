@@ -8,6 +8,7 @@ import './ValidatedInput.scss';
 interface Props {
   name: string;
   value: string;
+  autoFocus?: boolean;
   placeholder?: string;
   onChange: (name: string, value: string) => void;
   validate: ((value: string) => string) | ((value: string) => Promise<string>);
@@ -37,6 +38,7 @@ export default class ValidatedInput extends React.Component<Props, State> {
     return <div className='ValidatedInput'>
       <input
         value={this.props.value}
+        autoFocus={this.props.autoFocus}
         onChange={this.onChange.bind(this)}
         placeholder={this.props.placeholder} />
 

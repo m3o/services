@@ -1,66 +1,113 @@
+// Frameworks
 import React from 'react';
+import { connect } from 'react-redux';
+
+// Components
 import PageLayout from '../../components/PageLayout';
+
+// Utils
+import { State as GlobalState } from '../../store';
+import * as API from '../../api'; 
+
+// Styling
 import './Project.scss';
 
 interface Props {
   match: any;
+  history: any;
+  project?: API.Project;
 }
 
-export default class Project extends React.Component<Props> {
+class Project extends React.Component<Props> {
   render(): JSX.Element {
-    // const { project } = this.props.match.params;
+    const { project } = this.props;
+    
+    if(!project) {
+      // this.props.history.push('/not-found');
+      return null
+    }
 
     return <PageLayout className='Project'>
       <div className='center'>
         <div className='header'>
-          <h1>{this.props.match.params.project}</h1>
+          <h1>{project.name}</h1>
         </div>
 
-        <section>
-          <h2>Project Details</h2>
-          <p>These details are only visible to you and collaborators. All M3O projects are private.</p>
+        { project.environments ? null : this.renderFirstEnv() }
+        { this.renderDetails() }
+        { this.renderGithub() }
+        { this.renderCollaborators() }
+     </div>
+    </PageLayout>
+  }
 
-          <form>
-            <div className='row'>
-              <label>Name *</label>
-              <input required type='text' value={this.props.match.params.project} placeholder='My Awesome Project' name='name' />
-            </div>
-            
-            <div className='row'>
-              <label>Description</label>
-              <input type='text' value='Description' placeholder='Description' name='description' />
-            </div>
-          </form>
-        </section>
+  renderFirstEnv(): JSX.Element {
+    const onClick = () => this.props.history.push(`/new/environment/${this.props.project.name}`);
 
-        <section>
-          <h2>GitHub</h2>
-          <p>M3O connects to GitHub and builds your services in your repo, keeping your source and builds firmly in your control. The <a href='https://github.com/micro/actions' target='blank'>micro/actions</a> GitHub action automatically builds your services when any changes are detected and triggers a release. Find our more at our <a href='/todo'>docs</a>.</p>
+    return(
+      <div onClick={onClick.bind(this)} className='first-env'>
+        <h5>Create your first enviroment</h5>
+        <p>You don't have any enviroments setup for {this.props.project.name}. Click here to create your first one.</p>
+      </div>
+    );
+  }
 
-          <form>
-            <div className='row'>
-              <label>Repository</label>
-              <input disabled type='text' value='kytra/backend' name='repository' />
-            </div>
-            <div className='row'>
-              <label>Client ID</label>
-              <input disabled type='text' value='************' name='repository' />
-            </div>
-            <div className='row'>
-              <label>Client Secret</label>
-              <input disabled type='text' value='************************' name='repository' />
-            </div>
-          </form>
+  renderDetails(): JSX.Element {
+    const { project } = this.props;
 
-          <p>Configure the GitHub action using your Client ID and Secret. If you loose your ID/Secret, click the regenerate button below to generate a new set of credentials.</p>
-          <button className='btn warning'>Regenerate Credentials</button>
-        </section>
+    return(
+      <section>
+        <h2>Project Details</h2>
+        <p>These details are only visible to you and collaborators. All M3O projects are private.</p>
 
-        <section>
-          <h2>Collaborators</h2>
-          <p>Collaborators have full access to all enviroments, but only the owner (you) can invite additional collaborators or delete enviroments.</p>
+        <form>
+          <div className='row'>
+            <label>Name *</label>
+            <input disabled required type='text' value={project.name} placeholder='My Awesome Project' name='name' />
+          </div>
+          
+          <div className='row'>
+            <label>Description</label>
+            <input type='text' value={project.description} placeholder='Description' name='description' />
+          </div>
+        </form>
+      </section>
+    );
+  }
 
-          <table>
+  renderGithub(): JSX.Element {
+    return(
+      <section>
+        <h2>GitHub</h2>
+        <p>M3O connects to GitHub and builds your services in your repo, keeping your source and builds firmly in your control. The <a href='https://github.com/micro/actions' target='blank'>micro/actions</a> GitHub action automatically builds your services when any changes are detected and triggers a release. Find our more at our <a href='/todo'>docs</a>.</p>
+
+        <form>
+          <div className='row'>
+            <label>Repository</label>
+            <input disabled type='text' value={this.props.project.repository} name='repository' />
+          </div>
+          <div className='row'>
+            <label>Client ID</label>
+            <input disabled type='text' value='************' name='repository' />
+          </div>
+          <div className='row'>
+            <label>Client Secret</label>
+            <input disabled type='text' value='************************' name='repository' />
+          </div>
+        </form>
+
+        {/* <button className='btn warning'>Regenerate Credentials</button> */}
+      </section>
+    );
+  }
+
+  renderCollaborators(): JSX.Element {
+    return(
+      <section>
+        <h2>Collaborators</h2>
+        <p>Collaborators have full access to all enviroments, but only the owner (you) can invite additional collaborators or delete enviroments.</p>
+
+        <table>
           <thead>
             <tr>
               <th>Name</th>
@@ -109,7 +156,16 @@ export default class Project extends React.Component<Props> {
           <button className='btn'>Send Invite</button>
         </form>
       </section>
-     </div>
-    </PageLayout>
+    );
   }
 }
+
+function mapStateToProps(state: GlobalState, ownProps: Props): any {
+  const { project } = ownProps.match.params;
+
+  return({
+    project: state.project.projects.find(p => p.name === project),
+  });
+}
+
+export default connect(mapStateToProps)(Project)

@@ -60,7 +60,7 @@ class NewProject extends React.Component<Props, State> {
     if(this.state.repos.length > 0) return;
     this.setState({ token: e.target.value, tokenStatus: "Validating token, please wait" });
 
-    API.Call("ProjectService/VerifyGithubToken", { token: e.target.value })
+    API.Call("Projects/VerifyGithubToken", { token: e.target.value })
       .then((res) => this.setState({ tokenStatus: "Token Valid. Please select a repository from the list below.", repos: res.data.repos }))
       .catch((err) => this.setState({ tokenStatus: err.response.data.detail }));
   }
@@ -127,6 +127,7 @@ class NewProject extends React.Component<Props, State> {
             <label>Name *</label>
 
             <ValidatedInput
+              autoFocus
               name='name'
               value={name}
               validate={validateName} 
@@ -254,7 +255,7 @@ class NewProject extends React.Component<Props, State> {
         },
       };
 
-      API.Call("ProjectService/Create", params)
+      API.Call("Projects/Create", params)
         .then(res => {
           this.setState({ 
             project: res.data.project,

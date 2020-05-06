@@ -45,6 +45,9 @@ func (p *Project) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	if len(req.Id) > 0 {
 		rsp.Project, err = p.findProjectByID(req.Id)
 	}
+	if len(req.Name) > 0 {
+		rsp.Project, err = p.findProjectByName(req.Name)
+	}
 	if err != nil {
 		return err
 	}
@@ -243,6 +246,25 @@ func (p *Project) findProjectByID(id string) (*pb.Project, error) {
 	var project *pb.Project
 	err = json.Unmarshal(recs[0].Value, &project)
 	return project, err
+}
+
+func (p *Project) findProjectByName(name string) (*pb.Project, error) {
+	recs, err := p.store.Read(projectsPrefix, store.ReadPrefix())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, r := range recs {
+		var project *pb.Project
+		if err = json.Unmarshal(r.Value, &project); err != nil {
+			return nil, errors.InternalServerError(p.name, "Error unmarsaling json: %v", err)
+		}
+		if project.Name == name {
+			return project, nil
+		}
+	}
+
+	return nil, store.ErrNotFound
 }
 
 // writeProjectToStore marshals a project and writes it to the store under

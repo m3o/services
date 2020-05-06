@@ -1,0 +1,28 @@
+@keyframes grow {
+  0% {
+    transform: scale(1.00);
+  }
+  50% {
+    transform: scale(1.20);
+  }
+  100% {
+    transform: scale(1.00);
+  }
+}
+
+.GettingStarted {
+  .center {
+    display: flex;
+    flex-direction: column;
+  }
+
+  img {
+    height: 200px;
+    width: 200px;
+    margin-top: 100px;
+    animation-name: grow;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+}

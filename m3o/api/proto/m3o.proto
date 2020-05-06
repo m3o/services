@@ -11,6 +11,7 @@ service Accounts {
 
 service Projects {
   rpc VerifyGithubToken(VerifyGithubTokenRequest) returns (VerifyGithubTokenResponse) {};
+  rpc VerifyProjectName(VerifyProjectNameRequest) returns (VerifyProjectNameResponse) {};
   rpc WebhookAPIKey(WebhookAPIKeyRequest) returns (WebhookAPIKeyResponse) {};
 
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {};
@@ -147,3 +148,9 @@ message DeleteEnvironmentRequest {
 }
 
 message DeleteEnvironmentResponse {}
+
+message VerifyProjectNameRequest {
+  string name = 1;
+}
+
+message VerifyProjectNameResponse {}

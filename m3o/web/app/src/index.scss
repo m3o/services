@@ -25,13 +25,13 @@ a, p, h1, h2, h3, h4, h5, h6, tr, th, button, input, label {
 h1 {
   font-weight: 500;
   font-size: 20pt;
-  margin: 20px 0px 40px 0px;
+  margin: 20px 0px 30px 0px;
 }
 
 h2 {
-  font-weight: 500;
-  font-size: 14pt;
-  margin: 30px 0px 30px 0px;
+  font-size: 10.5pt;
+  text-transform: uppercase;
+  color: #9a9a9a;
 }
 
 h3 {
@@ -95,6 +95,11 @@ header {
     font-size: 10pt;
     flex-grow: 1;
     text-align: center;
+  }
+
+  &:disabled {
+    background-color: rgba($color: #000000, $alpha: 0.1);
+    color: rgba($color: #000000, $alpha: 0.3);
   }
 
   &.info {

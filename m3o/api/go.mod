@@ -11,3 +11,5 @@ require (
 	github.com/micro/services/projects/service v0.0.0-20200505140906-ca5cb95fe360
 	github.com/micro/services/users/service v0.0.0-20200505140906-ca5cb95fe360
 )
+
+replace github.com/micro/services/projects/service => ../../projects/service
