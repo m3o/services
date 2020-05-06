@@ -54,7 +54,7 @@ class App extends React.Component<Props, State> {
   }
 
   renderLoading(): JSX.Element {
-    return <div className='loading'>
+    return <div className='Loading'>
       <img src={Logo} alt='M3O' />
     </div>
   }

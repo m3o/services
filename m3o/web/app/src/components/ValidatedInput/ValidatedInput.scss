@@ -18,13 +18,17 @@
     font-style: italic;
     margin-top: auto;
     margin-bottom: auto;
+
+    &.loading {
+      color: $orange;
+    }
   }
 
   .dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: grey;
+    background-color: lightgrey;
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 15px;
@@ -38,7 +42,7 @@
       background-color: $red;
     }
 
-    &.pending {
+    &.loading {
       background-color: $orange;
     }
   }
