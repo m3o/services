@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 // Components
 import PageLayout from '../../components/PageLayout';
+import ValidatedInput from '../../components/ValidatedInput';
 import PaymentMethod from './components/PaymentMethod';
 
 // Utils
@@ -51,8 +52,8 @@ class NewProject extends React.Component<Props, State> {
     paymentMethodDisabled: false,
   };
 
-  onInputChange(e: any): void {
-    this.setState({ project: { ...this.state.project, [e.target.name]: e.target.value } });
+  onInputChange(key: string, value: string): void {
+    this.setState({ project: { ...this.state.project, [key]: value } });
   }
 
   onTokenChange(e: any): void {
@@ -107,6 +108,15 @@ class NewProject extends React.Component<Props, State> {
   renderProjectDetails(): JSX.Element {
     const { name, description } = this.state.project;
 
+    const validateName = (name: string): any => {
+      if(name.length === 0) return 'pending';
+      return 'valid';
+    }
+
+    const validateDescription = (description: string): any => {
+      return 'valid';
+    }
+
     return(
       <section className='complete'>
         <h2>Project Details</h2>
@@ -115,12 +125,24 @@ class NewProject extends React.Component<Props, State> {
         <form>
           <div className='row'>
             <label>Name *</label>
-            <input required type='text' value={name} placeholder='My Awesome Project' name='name' onChange={this.onInputChange.bind(this)} />
+
+            <ValidatedInput
+              name='name'
+              value={name}
+              validate={validateName} 
+              placeholder='helloworld'
+              onChange={this.onInputChange.bind(this)} />
           </div>
           
           <div className='row'>
             <label>Description</label>
-            <input type='text' value={description} placeholder='' name='description'  onChange={this.onInputChange.bind(this)} />
+
+            <ValidatedInput
+              name='description'
+              value={description}
+              validate={validateDescription}
+              placeholder='My Awesome Project'
+              onChange={this.onInputChange.bind(this)}  />
           </div>
         </form>
       </section>
