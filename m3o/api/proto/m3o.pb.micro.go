@@ -153,6 +153,7 @@ func NewProjectsEndpoints() []*api.Endpoint {
 
 type ProjectsService interface {
 	VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error)
+	VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, opts ...client.CallOption) (*VerifyProjectNameResponse, error)
 	WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, opts ...client.CallOption) (*WebhookAPIKeyResponse, error)
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...client.CallOption) (*CreateProjectResponse, error)
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...client.CallOption) (*UpdateProjectResponse, error)
@@ -177,6 +178,16 @@ func NewProjectsService(name string, c client.Client) ProjectsService {
 func (c *projectsService) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error) {
 	req := c.c.NewRequest(c.name, "Projects.VerifyGithubToken", in)
 	out := new(VerifyGithubTokenResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectsService) VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, opts ...client.CallOption) (*VerifyProjectNameResponse, error) {
+	req := c.c.NewRequest(c.name, "Projects.VerifyProjectName", in)
+	out := new(VerifyProjectNameResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -258,6 +269,7 @@ func (c *projectsService) DeleteEnvironment(ctx context.Context, in *DeleteEnvir
 
 type ProjectsHandler interface {
 	VerifyGithubToken(context.Context, *VerifyGithubTokenRequest, *VerifyGithubTokenResponse) error
+	VerifyProjectName(context.Context, *VerifyProjectNameRequest, *VerifyProjectNameResponse) error
 	WebhookAPIKey(context.Context, *WebhookAPIKeyRequest, *WebhookAPIKeyResponse) error
 	CreateProject(context.Context, *CreateProjectRequest, *CreateProjectResponse) error
 	UpdateProject(context.Context, *UpdateProjectRequest, *UpdateProjectResponse) error
@@ -270,6 +282,7 @@ type ProjectsHandler interface {
 func RegisterProjectsHandler(s server.Server, hdlr ProjectsHandler, opts ...server.HandlerOption) error {
 	type projects interface {
 		VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error
+		VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, out *VerifyProjectNameResponse) error
 		WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, out *WebhookAPIKeyResponse) error
 		CreateProject(ctx context.Context, in *CreateProjectRequest, out *CreateProjectResponse) error
 		UpdateProject(ctx context.Context, in *UpdateProjectRequest, out *UpdateProjectResponse) error
@@ -291,6 +304,10 @@ type projectsHandler struct {
 
 func (h *projectsHandler) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error {
 	return h.ProjectsHandler.VerifyGithubToken(ctx, in, out)
+}
+
+func (h *projectsHandler) VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, out *VerifyProjectNameResponse) error {
+	return h.ProjectsHandler.VerifyProjectName(ctx, in, out)
 }
 
 func (h *projectsHandler) WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, out *WebhookAPIKeyResponse) error {

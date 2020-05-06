@@ -153,6 +153,15 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 	return nil
 }
 
+// VerifyProjectName validates a project name to ensure it is unique
+func (p *Projects) VerifyProjectName(ctx context.Context, req *pb.VerifyProjectNameRequest, rsp *pb.VerifyProjectNameResponse) error {
+	_, err := p.projects.Read(ctx, &projects.ReadRequest{Name: req.Name})
+	if err != nil {
+		return errors.BadRequest(p.name, "Name has already been taken")
+	}
+	return nil
+}
+
 // VerifyGithubToken takes a GitHub personal token and returns the repos it has access to
 func (p *Projects) VerifyGithubToken(ctx context.Context, req *pb.VerifyGithubTokenRequest, rsp *pb.VerifyGithubTokenResponse) error {
 	repos, err := p.listGitHubRepos(req.Token)
