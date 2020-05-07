@@ -28,11 +28,14 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: lightgrey;
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 15px;
     margin-right: 15px;
+
+    &.pending {
+      background-color: lightgrey;
+    }
 
     &.valid {
       background-color: $green;

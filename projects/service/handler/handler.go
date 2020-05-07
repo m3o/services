@@ -113,7 +113,6 @@ func (p *Project) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// assign the update params
-	project.Name = req.Project.Name
 	project.Description = req.Project.Description
 
 	// write to the store

@@ -6,14 +6,15 @@ import './ValidatedInput.scss';
 
 
 interface Props {
-  name: string;
+  name?: string;
   value: string;
   disabled?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
+  validateDelay?: number;
 
-  validate?: (value: string) => Promise<string>;
-  onChange: (name: string, value: string) => void;
+  validate?: (value: string) => Promise<void>;
+  onChange?: (name: string, value: string) => void;
   onValid?: () => void;
   onInvalid?: () => void;
 }
@@ -57,13 +58,17 @@ export default class ValidatedInput extends React.Component<Props, State> {
     this.props.onChange(this.props.name, value);
 
     if(!this.props.validate) return;
+    
+    const delay = this.props.validateDelay || 500;
     if(this.state.timer) clearTimeout(this.state.timer);
-    this.setState({ timer: setTimeout(this.validate.bind(this), 500), loading: true });
+    this.setState({ timer: setTimeout(this.validate.bind(this), delay), loading: true });
   }
 
   render(): JSX.Element {
     let status = '';
-    if(!this.props.validate) {
+    if(this.props.disabled) {
+      status = 'disabled';
+    } else if(!this.props.validate) {
       status = 'valid';
     } else if(this.state.loading) {
       status = 'loading';

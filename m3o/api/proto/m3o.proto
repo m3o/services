@@ -59,9 +59,7 @@ message CreateProjectResponse {
 }
 
 message UpdateProjectRequest {
-  string id = 1;
-  string name = 2;
-  string description = 3;
+  Project project = 1;
 }
 
 message UpdateProjectResponse {}

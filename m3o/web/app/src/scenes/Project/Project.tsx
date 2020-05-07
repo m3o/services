@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 // Components
 import PageLayout from '../../components/PageLayout';
+import ValidatedInput from '../../components/ValidatedInput';
 
 // Utils
 import { State as GlobalState } from '../../store';
@@ -12,11 +13,14 @@ import * as API from '../../api';
 // Styling
 import './Project.scss';
 import RefreshIcon from './assets/refresh.png';
+import { updateProject } from '../../store/Project';
 
 interface Props {
   match: any;
   history: any;
+  
   project?: API.Project;
+  updateProject: (project: API.Project) => void;
 }
 
 interface State {
@@ -64,20 +68,38 @@ class Project extends React.Component<Props, State> {
   renderDetails(): JSX.Element {
     const { project } = this.props;
 
+    const onChange = (key: string, value: string): void => {
+      const env = { ...this.props.project, [key]:value };
+      this.props.updateProject(env);
+    }
+
+    const onSave = (): Promise<void> => {
+      return new Promise((resolve: Function, reject: Function) => {
+        API.Call("Projects/UpdateProject", { project: this.props.project })
+          .then(() => resolve())
+          .catch(err => reject(err.response ? err.response.data.detail : err.message));
+      });
+    }
+
     return(
       <section>
         <h2>Project Details</h2>
         <p>These details are only visible to you and collaborators. All M3O projects are private.</p>
-
         <form>
           <div className='row'>
             <label>Name *</label>
-            <input disabled required type='text' value={project.name} placeholder='My Awesome Project' name='name' />
+            <ValidatedInput disabled value={project?.name} />
           </div>
           
           <div className='row'>
             <label>Description</label>
-            <input type='text' value={project.description} placeholder='Description' name='description' />
+            <ValidatedInput
+              name='description'
+              validate={onSave} 
+              onChange={onChange}
+              validateDelay={1000}
+              placeholder='Description'
+              value={project?.description || ''} />
           </div>
         </form>
       </section>
@@ -221,4 +243,10 @@ function mapStateToProps(state: GlobalState, ownProps: Props): any {
   });
 }
 
-export default connect(mapStateToProps)(Project)
+function mapDispatchToProps(dispatch: Function): any {
+  return({
+    updateProject: (project: API.Project) => dispatch(updateProject(project)),
+  });
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Project)

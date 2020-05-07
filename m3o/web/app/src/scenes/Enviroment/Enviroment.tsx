@@ -4,11 +4,12 @@ import { connect } from 'react-redux';
 
 // Utils
 import { State as GlobalState } from '../../store';
-import { deleteEnvironment } from '../../store/Project';
+import { deleteEnvironment, updateEnvironment } from '../../store/Project';
 import * as API from '../../api';
 
 // Components
 import PageLayout from '../../components/PageLayout';
+import ValidatedInput from '../../components/ValidatedInput';
 
 // Styling
 import EditIcon from './assets/edit.png';
@@ -19,6 +20,7 @@ interface Props {
   history: any;
   project?: API.Project;
   environment?: API.Environment;
+  updateEnvironment: (env: API.Environment) => void;
   deleteEnvironment: (env: API.Environment) => void;
 }
 
@@ -26,6 +28,19 @@ class Enviroment extends React.Component<Props> {
   render(): JSX.Element {
     const { project, environment } = this.props;
     const domain = `https://${environment?.namespace}.m3o.app`; 
+
+    const onChange = (key: string, value: string): void => {
+      const env = { ...this.props.environment, [key]:value };
+      this.props.updateEnvironment(env);
+    }
+
+    const onSave = (): Promise<void> => {
+      return new Promise((resolve: Function, reject: Function) => {
+        API.Call("Projects/UpdateEnvironment", { environment: this.props.environment })
+          .then(() => resolve())
+          .catch(err => reject(err.response ? err.response.data.detail : err.message));
+      });
+    }
 
     return <PageLayout className='Enviroment'>
       <div className='center'>
@@ -43,12 +58,18 @@ class Enviroment extends React.Component<Props> {
           <form>
             <div className='row'>
               <label>Name *</label>
-              <input disabled required type='text' value={environment?.name} placeholder='My Awesome Project' name='name' />
+              <ValidatedInput disabled value={environment?.name} />
             </div>
             
             <div className='row'>
               <label>Description</label>
-              <input type='text' value={environment?.description} placeholder='Description' name='description' />
+              <ValidatedInput
+                name='description'
+                validate={onSave} 
+                onChange={onChange}
+                validateDelay={1000}
+                placeholder='Description'
+                value={environment?.description || ''} />
             </div>
           </form>
         </section>
@@ -116,6 +137,7 @@ function mapStateToProps(state: GlobalState, ownProps: Props): any {
 
 function mapDispatchToProps(dispatch: Function): any {
   return ({
+    updateEnvironment: (env: API.Environment) => dispatch(updateEnvironment(env)),
     deleteEnvironment: (env: API.Environment) => dispatch(deleteEnvironment(env)),
   });
 }

@@ -101,7 +101,7 @@ class NewProject extends React.Component<Props, State> {
   renderProjectDetails(): JSX.Element {
     const { id, name, description } = this.state.project;
 
-    const validateName = async (name: string): Promise<string> => {      
+    const validateName = async (name: string): Promise<void> => {      
       return new Promise(async (resolve: Function, reject: Function) => {
         if(name.length < 3) {
           reject("Name must be at least 3 characters long");
@@ -167,7 +167,7 @@ class NewProject extends React.Component<Props, State> {
     const { token, repos } = this.state;
     const { repository } = this.state.project;
 
-    const validateToken = (token: string): Promise<string> => {
+    const validateToken = (token: string): Promise<void> => {
       return new Promise(async (resolve: Function, reject: Function) => {
         API.Call("Projects/ValidateGithubToken", { token })
           .then((res) => {

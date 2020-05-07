@@ -64,7 +64,7 @@ class NewEnvironment extends React.Component<Props, State> {
 
     const { environment, loading, nameValid } = this.state
 
-    const validateName = async (name: string): Promise<string> => {      
+    const validateName = async (name: string): Promise<void> => {      
       return new Promise(async (resolve: Function, reject: Function) => {
         if(name.length < 3) {
           reject("Name must be at least 3 characters long");

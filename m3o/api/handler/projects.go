@@ -106,15 +106,19 @@ func (p *Projects) CreateProject(ctx context.Context, req *pb.CreateProjectReque
 
 // UpdateProject metadata
 func (p *Projects) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest, rsp *pb.UpdateProjectResponse) error {
+	// validate the request
+	if req.Project == nil {
+		return errors.BadRequest(p.name, "Missing project")
+	}
+
 	// find the project
-	proj, err := p.findProject(ctx, req.Id)
+	proj, err := p.findProject(ctx, req.Project.Id)
 	if err != nil {
 		return err
 	}
 
 	// assign the update attributes
-	proj.Name = req.Name
-	proj.Description = req.Description
+	proj.Description = req.Project.Description
 
 	// update the project
 	_, err = p.projects.Update(ctx, &projects.UpdateRequest{Project: proj})
