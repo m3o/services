@@ -54,10 +54,12 @@ message DeleteResponse {
 message ReadRequest {
 	string id = 1;
 	string email = 2;
+	repeated string ids = 3;
 }
 
 message ReadResponse {
 	User user = 1;
+	repeated User users = 2;
 }
 
 message UpdateRequest {

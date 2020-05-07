@@ -87,20 +87,26 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 // Read retirves a user from the store
 func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	var user *pb.User
 	var err error
 
 	if len(req.Email) > 0 {
-		user, err = h.findUserByEmail(req.Email)
-	} else {
-		user, err = h.findUser(req.Id)
-	}
-
-	if err != nil {
+		rsp.User, err = h.findUserByEmail(req.Email)
 		return err
 	}
 
-	rsp.User = user
+	if len(req.Id) > 0 {
+		rsp.User, err = h.findUser(req.Id)
+		return err
+	}
+
+	rsp.Users = make([]*pb.User, len(req.Ids))
+	for i, id := range req.Ids {
+		rsp.Users[i], err = h.findUser(id)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
