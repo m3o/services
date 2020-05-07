@@ -8,6 +8,7 @@ require (
 	github.com/micro/services/kubernetes/service v0.0.0-20200505140906-ca5cb95fe360
 	github.com/micro/services/payments/provider v0.0.0-20200505140906-ca5cb95fe360
 	github.com/micro/services/projects/environments v0.0.0-20200505140906-ca5cb95fe360
+	github.com/micro/services/projects/invite v0.0.0-20200507152129-b87672dd87ae
 	github.com/micro/services/projects/service v0.0.0-20200505140906-ca5cb95fe360
 	github.com/micro/services/users/service v0.0.0-20200505140906-ca5cb95fe360
 )

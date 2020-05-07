@@ -16,6 +16,7 @@ import (
 	kubernetes "github.com/micro/services/kubernetes/service/proto"
 	pb "github.com/micro/services/m3o/api/proto"
 	environments "github.com/micro/services/projects/environments/proto"
+	invites "github.com/micro/services/projects/invite/proto"
 	projects "github.com/micro/services/projects/service/proto"
 	users "github.com/micro/services/users/service/proto"
 )
@@ -37,6 +38,7 @@ type Projects struct {
 	name         string
 	auth         auth.Auth
 	users        users.UsersService
+	invites      invites.InviteService
 	projects     projects.ProjectsService
 	kubernetes   kubernetes.KubernetesService
 	environments environments.EnvironmentsService
@@ -333,6 +335,20 @@ func (p *Projects) DeleteEnvironment(ctx context.Context, req *pb.DeleteEnvironm
 
 	// delete the environment
 	_, err = p.environments.Delete(ctx, &environments.DeleteRequest{Id: env.Id})
+	return err
+}
+
+// Invite someone to a project
+func (p *Projects) Invite(ctx context.Context, req *pb.InviteRequest, rsp *pb.InviteResponse) error {
+	// validate the user has access to the project
+	if _, err := p.findProject(ctx, req.ProjectId); err != nil {
+		return err
+	}
+
+	// send the invite
+	_, err := p.invites.Generate(ctx, &invites.GenerateRequest{
+		ProjectId: req.ProjectId, Name: req.Name, Email: req.Email,
+	})
 	return err
 }
 

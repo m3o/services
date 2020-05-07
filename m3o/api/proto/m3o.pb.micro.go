@@ -162,6 +162,7 @@ type ProjectsService interface {
 	CreateEnvironment(ctx context.Context, in *CreateEnvironmentRequest, opts ...client.CallOption) (*CreateEnvironmentResponse, error)
 	UpdateEnvironment(ctx context.Context, in *UpdateEnvironmentRequest, opts ...client.CallOption) (*UpdateEnvironmentResponse, error)
 	DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, opts ...client.CallOption) (*DeleteEnvironmentRequest, error)
+	Invite(ctx context.Context, in *InviteRequest, opts ...client.CallOption) (*InviteResponse, error)
 }
 
 type projectsService struct {
@@ -276,6 +277,16 @@ func (c *projectsService) DeleteEnvironment(ctx context.Context, in *DeleteEnvir
 	return out, nil
 }
 
+func (c *projectsService) Invite(ctx context.Context, in *InviteRequest, opts ...client.CallOption) (*InviteResponse, error) {
+	req := c.c.NewRequest(c.name, "Projects.Invite", in)
+	out := new(InviteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Projects service
 
 type ProjectsHandler interface {
@@ -289,6 +300,7 @@ type ProjectsHandler interface {
 	CreateEnvironment(context.Context, *CreateEnvironmentRequest, *CreateEnvironmentResponse) error
 	UpdateEnvironment(context.Context, *UpdateEnvironmentRequest, *UpdateEnvironmentResponse) error
 	DeleteEnvironment(context.Context, *DeleteEnvironmentRequest, *DeleteEnvironmentRequest) error
+	Invite(context.Context, *InviteRequest, *InviteResponse) error
 }
 
 func RegisterProjectsHandler(s server.Server, hdlr ProjectsHandler, opts ...server.HandlerOption) error {
@@ -303,6 +315,7 @@ func RegisterProjectsHandler(s server.Server, hdlr ProjectsHandler, opts ...serv
 		CreateEnvironment(ctx context.Context, in *CreateEnvironmentRequest, out *CreateEnvironmentResponse) error
 		UpdateEnvironment(ctx context.Context, in *UpdateEnvironmentRequest, out *UpdateEnvironmentResponse) error
 		DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, out *DeleteEnvironmentRequest) error
+		Invite(ctx context.Context, in *InviteRequest, out *InviteResponse) error
 	}
 	type Projects struct {
 		projects
@@ -353,4 +366,8 @@ func (h *projectsHandler) UpdateEnvironment(ctx context.Context, in *UpdateEnvir
 
 func (h *projectsHandler) DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, out *DeleteEnvironmentRequest) error {
 	return h.ProjectsHandler.DeleteEnvironment(ctx, in, out)
+}
+
+func (h *projectsHandler) Invite(ctx context.Context, in *InviteRequest, out *InviteResponse) error {
+	return h.ProjectsHandler.Invite(ctx, in, out)
 }

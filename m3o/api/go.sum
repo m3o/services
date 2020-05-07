@@ -322,12 +322,15 @@ github.com/micro/go-micro/v2 v2.6.1-0.20200507104143-f062013a7bc6/go.mod h1:60HM
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
+github.com/micro/services v0.0.0-20200507152129-b87672dd87ae h1:LH6YUvJg5Ldp1EH8N1RMPCYcfkUK5y9RQyHU5DCY0vE=
 github.com/micro/services/kubernetes/service v0.0.0-20200505140906-ca5cb95fe360 h1:n8BEDB+9E4kxsoceu1nLMKB1LLNk3+k3tDDaXXhLOcY=
 github.com/micro/services/kubernetes/service v0.0.0-20200505140906-ca5cb95fe360/go.mod h1:1w2r7/wOBBkF/7GfFKa1g627WbH6Pqdo9nMu7eGYp78=
 github.com/micro/services/payments/provider v0.0.0-20200505140906-ca5cb95fe360 h1:KJR6Go7mLuoqNdVuA+q2VimvDiUMLd+FhrMVEr5ySAQ=
 github.com/micro/services/payments/provider v0.0.0-20200505140906-ca5cb95fe360/go.mod h1:eq2Uf+bt1a0VjnyUqz6Yp4HoSIuuBlm9HYuzTC9EzsA=
 github.com/micro/services/projects/environments v0.0.0-20200505140906-ca5cb95fe360 h1:1CJfDCOD0vRo2Z6FUspysiihRkUCX7xd6ne68iBaFWo=
 github.com/micro/services/projects/environments v0.0.0-20200505140906-ca5cb95fe360/go.mod h1:cKsiU3gv+SKVuIGberV/B0/770AsVtsMH5sVdF+WVkc=
+github.com/micro/services/projects/invite v0.0.0-20200507152129-b87672dd87ae h1:odkK4Y86yDVm3hdfORUM5bGCqisz9Uq2VRJV9vo17dc=
+github.com/micro/services/projects/invite v0.0.0-20200507152129-b87672dd87ae/go.mod h1:EbJq5z14FOKtMIHX6XAlSZEPJShAALTjKfumwasI/HQ=
 github.com/micro/services/users/service v0.0.0-20200505140906-ca5cb95fe360 h1:KAONhk6fc6xrZgyUcMCN+XfSi8KA3MTLFSUX0HYCK5w=
 github.com/micro/services/users/service v0.0.0-20200505140906-ca5cb95fe360/go.mod h1:ewcntHhp3VnSaqd2k0eQrcmc0V+PTI1HatpPVTmlK+E=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=

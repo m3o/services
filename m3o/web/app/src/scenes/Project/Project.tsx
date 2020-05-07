@@ -19,18 +19,23 @@ interface Props {
   match: any;
   history: any;
   
+  user: API.User;
   project?: API.Project;
   updateProject: (project: API.Project) => void;
 }
 
 interface State {
-  loadingCreds: boolean;
   clientID?: string;
   clientSecret?: string;
+  credsLoading: boolean;
+
+  inviteName?: string;
+  inviteEmail?: string;
+  inviteLoading: boolean;
 }
 
 class Project extends React.Component<Props, State> {
-  readonly state: State = { loadingCreds: false };
+  readonly state: State = { credsLoading: false, inviteLoading: false };
 
   render(): JSX.Element {
     const { project } = this.props;
@@ -107,23 +112,23 @@ class Project extends React.Component<Props, State> {
   }
 
   renderGithub(): JSX.Element {
-    const { loadingCreds, clientID, clientSecret } = this.state;
+    const { credsLoading, clientID, clientSecret } = this.state;
 
     const refreshCreds = () => {
-      if(this.state.loadingCreds) return;
-      this.setState({ loadingCreds: true });
+      if(this.state.credsLoading) return;
+      this.setState({ credsLoading: true });
 
       API.Call("Projects/WebhookAPIKey", { project_id: this.props.project.id })
         .then((res) => {
           this.setState({
-            loadingCreds: false,
+            credsLoading: false,
             clientID: res.data.client_id,
             clientSecret: res.data.client_secret
           });
         })
         .catch((err) => {
           alert(err.response ? err.response.data.detail : err.message);
-          this.setState({ loadingCreds: false });
+          this.setState({ credsLoading: false });
         });
     }
 
@@ -151,7 +156,7 @@ class Project extends React.Component<Props, State> {
                 src={RefreshIcon}
                 onClick={refreshCreds}
                 alt='Refresh Credentials'
-                className={loadingCreds ? 'loading' : ''} />
+                className={credsLoading ? 'loading' : ''} />
             </div>
           </div>
           <div className='row'>
@@ -168,7 +173,7 @@ class Project extends React.Component<Props, State> {
                 src={RefreshIcon}
                 onClick={refreshCreds}
                 alt='Refresh Credentials'
-                className={loadingCreds ? 'loading' : ''} />
+                className={credsLoading ? 'loading' : ''} />
             </div>
           </div>
         </form>
@@ -177,59 +182,98 @@ class Project extends React.Component<Props, State> {
   }
 
   renderCollaborators(): JSX.Element {
+    // only render collaborators if the current user is the owner
+    // of the project.
+    var isOwner: Boolean;
+    this.props.project?.members?.forEach(u => {
+      if(u.role.toLowerCase() !== 'owner') return;
+      if(u.id !== this.props.user.id) return;
+      isOwner = true;
+    });
+    if(!isOwner) return;
+
+    const onChange = (e: any) => {
+      if(e.target.name === 'name') {
+        this.setState({ inviteName: e.target.value });
+      } else {
+        this.setState({ inviteEmail: e.target.value });
+      }
+    }
+
+    const onSubmit = () => {
+      const { inviteName, inviteEmail, inviteLoading } = this.state;
+      if(!inviteEmail || !inviteName || inviteLoading) return;
+      if(inviteName.length === 0) return;
+      if(inviteEmail.length === 0) return;
+
+      this.setState({ inviteLoading: true });
+      
+      const params = {
+        name: inviteName,
+        email: inviteEmail,
+        project_id: this.props.project.id,
+      };
+
+      API.Call("Projects/Invite", params)
+        .then(() => {
+          alert("Invite sent to " + inviteName);
+          this.setState({ inviteLoading: false, inviteEmail: '', inviteName: '' });
+        })
+        .catch(err => {
+          alert(err.response ? err.response.data.detail : err.message);
+          this.setState({ inviteLoading: false });
+        });
+    }
+
+    const { inviteName, inviteEmail, inviteLoading } = this.state;
+
     return(
       <section>
         <h2>Collaborators</h2>
-        <p>Collaborators have full access to all enviroments, but only the owner (you) can invite additional collaborators or delete enviroments.</p>
+        <p>Collaborators have full access to all enviroments, but only the owner (you) can invite additional collaborators.</p>
 
         <table>
           <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
+              <th>Role</th>
               <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr key={'asim'}>
-              <td>Asim Aslam</td>
-              <td>asim@micro.mu</td>
+            { this.props.project?.members?.map(u => {
+              const currentUser = u.id === this.props.user.id;
+
+              return(
+                <tr key={'asim'}>
+                  <td>{u.first_name} {u.last_name} {currentUser ? '(me)' : ''}</td>
+                  <td>{u.email}</td>
+                  <td>{u.role}</td>
+                  <td>
+                    <button className='danger'>Remove</button>
+                  </td>
+                </tr>
+              );
+            })}
+
+            <tr>
               <td>
-                <button className='danger'>Remove</button>
+                <input required value={inviteName} onChange={onChange} type='text' placeholder='John Doe' name='name' />
               </td>
-            </tr>
-            <tr key={'jake'}>
-              <td>Jake Sanders</td>
-              <td>jake@micro.mu</td>
+
               <td>
-                <button className='danger'>Remove</button>
+                <input required value={inviteEmail} onChange={onChange} type='email' placeholder='john@doe.com' name='email' />
               </td>
-            </tr>
-            <tr key={'ben'}>
-              <td>Ben Toogood</td>
-              <td>ben@micro.mu</td>
+
+              <td>Collaborator</td>
               <td>
-                <button className='danger'>Remove</button>
+                <button onClick={onSubmit} disabled={inviteLoading}>Invite</button>
               </td>
             </tr>
           </tbody>
         </table>
-
-        <p>Invite users to your project. Collaborators will recieve an email invite which is valid for 24 hours. </p>
-        <form>
-          <div className='row'>
-            <label>Name</label>
-            <input required type='text' placeholder='John Doe' name='name' />
-          </div>
-
-          <div className='row'>
-            <label>Email</label>
-            <input required type='email' placeholder='john@doe.com' name='email' />
-          </div>
-
-          <button className='btn'>Send Invite</button>
-        </form>
       </section>
     );
   }
@@ -239,6 +283,7 @@ function mapStateToProps(state: GlobalState, ownProps: Props): any {
   const { project } = ownProps.match.params;
 
   return({
+    user: state.account.user,
     project: state.project.projects.find(p => p.name === project),
   });
 }

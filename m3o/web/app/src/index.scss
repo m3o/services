@@ -200,26 +200,26 @@ table {
 form {
   display: flex;
   flex-direction: column;
+}
 
-  label, input, select {
-    font-size: 10pt;
-  }
+label, input, select {
+  font-size: 10pt;
+}
 
-  label {
-    font-weight: 500;
-    line-height: 30px;
-    margin-bottom: 5px;
-  }
+label {
+  font-weight: 500;
+  line-height: 30px;
+  margin-bottom: 5px;
+}
 
-  input, select {
-    margin: 3px 0px 25px 0px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 5px;
-    border: solid 1px #00000010;
-    outline: none;
-    line-height: 1.6;
-    background-color: transparent;
-    height: 40px;
-  }
+input, select {
+  margin: 3px 0px 25px 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 5px;
+  border: solid 1px #00000010;
+  outline: none;
+  line-height: 1.6;
+  background-color: transparent;
+  height: 40px;
 }

@@ -12,6 +12,7 @@ export interface Project {
   description: string;
   repository?: string;
   environments?: Environment[];
+  members?: User[];
 }
 
 export interface Environment {
@@ -27,5 +28,5 @@ export interface User {
   last_name: string;
   profile_picture_url?: string;
   email: string;
-  roles: string[];
+  role: string;
 }

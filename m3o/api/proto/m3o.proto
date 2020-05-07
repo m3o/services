@@ -22,6 +22,8 @@ service Projects {
   rpc CreateEnvironment(CreateEnvironmentRequest) returns (CreateEnvironmentResponse) {};
   rpc UpdateEnvironment(UpdateEnvironmentRequest) returns (UpdateEnvironmentResponse) {};
   rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (DeleteEnvironmentRequest) {};
+
+  rpc Invite(InviteRequest) returns (InviteResponse) {};
 }
 
 message User {
@@ -170,3 +172,11 @@ message ValidateEnvironmentNameRequest {
 }
 
 message ValidateEnvironmentNameResponse {}
+
+message InviteRequest {
+  string project_id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+message InviteResponse {}
