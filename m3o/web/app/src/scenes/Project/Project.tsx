@@ -11,6 +11,7 @@ import * as API from '../../api';
 
 // Styling
 import './Project.scss';
+import RefreshIcon from './assets/refresh.png';
 
 interface Props {
   match: any;
@@ -18,7 +19,15 @@ interface Props {
   project?: API.Project;
 }
 
-class Project extends React.Component<Props> {
+interface State {
+  loadingCreds: boolean;
+  clientID?: string;
+  clientSecret?: string;
+}
+
+class Project extends React.Component<Props, State> {
+  readonly state: State = { loadingCreds: false };
+
   render(): JSX.Element {
     const { project } = this.props;
     
@@ -76,6 +85,26 @@ class Project extends React.Component<Props> {
   }
 
   renderGithub(): JSX.Element {
+    const { loadingCreds, clientID, clientSecret } = this.state;
+
+    const refreshCreds = () => {
+      if(this.state.loadingCreds) return;
+      this.setState({ loadingCreds: true });
+
+      API.Call("Projects/WebhookAPIKey", { project_id: this.props.project.id })
+        .then((res) => {
+          this.setState({
+            loadingCreds: false,
+            clientID: res.data.client_id,
+            clientSecret: res.data.client_secret
+          });
+        })
+        .catch((err) => {
+          alert(err.response ? err.response.data.detail : err.message);
+          this.setState({ loadingCreds: false });
+        });
+    }
+
     return(
       <section>
         <h2>GitHub</h2>
@@ -88,15 +117,39 @@ class Project extends React.Component<Props> {
           </div>
           <div className='row'>
             <label>Client ID</label>
-            <input disabled type='text' value='************' name='repository' />
+
+            <div className='refresh-input'>
+              <input
+                disabled
+                type='text'
+                value={clientID}
+                placeholder='************' />
+
+              <img
+                src={RefreshIcon}
+                onClick={refreshCreds}
+                alt='Refresh Credentials'
+                className={loadingCreds ? 'loading' : ''} />
+            </div>
           </div>
           <div className='row'>
             <label>Client Secret</label>
-            <input disabled type='text' value='************************' name='repository' />
+
+            <div className='refresh-input'>
+              <input
+                disabled
+                type='text'
+                value={clientSecret}
+                placeholder='************************' />
+
+              <img
+                src={RefreshIcon}
+                onClick={refreshCreds}
+                alt='Refresh Credentials'
+                className={loadingCreds ? 'loading' : ''} />
+            </div>
           </div>
         </form>
-
-        {/* <button className='btn warning'>Regenerate Credentials</button> */}
       </section>
     );
   }

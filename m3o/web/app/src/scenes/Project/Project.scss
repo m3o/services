@@ -1,5 +1,10 @@
 @import "../../global.scss";
 
+@keyframes spin {
+  from {transform:rotate(0deg);}
+  to {transform:rotate(360deg);}
+}
+
 .Project {
   .first-env {
     border: solid 0.5px rgba($color: $green, $alpha: 0.4);
@@ -18,6 +23,36 @@
       color: rgba($color: rgb(0,30,0), $alpha: 0.9);
       font-size: 9.5pt;
       margin: 0px;
+    }
+  }
+
+  .refresh-input {
+    display: flex;
+    border-radius: 5px;
+    border: solid 1px #00000010;
+  
+    input {
+      flex-grow: 1;
+      border: none;
+      border-radius: 0px;
+    }
+
+    img {
+      height: 15px;
+      opacity: 0.2;
+      cursor: pointer;
+      padding: 10px;
+      margin: auto 5px auto 0px;
+
+      &.loading {
+        opacity: 1;
+        filter: $orangeFilter;
+        cursor: default;
+        animation: spin;
+        animation-duration: 1.5s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+      }
     }
   }
 }
