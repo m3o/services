@@ -132,6 +132,7 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 		return err
 	}
 
+	// get the projects the user is a member of
 	tRsp, err := p.projects.ListMemberships(ctx, &projects.ListMembershipsRequest{
 		Member: &projects.Member{Type: "user", Id: userID},
 	})
@@ -141,8 +142,14 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 
 	rsp.Projects = make([]*pb.Project, 0, len(tRsp.Projects))
 	for _, pr := range tRsp.Projects {
-		proj := serializeProject(pr)
+		// lookup the projects metadata and members
+		pRsp, err := p.projects.Read(ctx, &projects.ReadRequest{Id: pr.Id})
+		if err != nil {
+			return err
+		}
+		proj := serializeProject(pRsp.Project)
 
+		// lookup the environments
 		eRsp, err := p.environments.Read(ctx, &environments.ReadRequest{ProjectId: pr.Id})
 		if err == nil {
 			proj.Environments = make([]*pb.Environment, 0, len(eRsp.Environments))
@@ -151,6 +158,34 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 			}
 		}
 
+		// get the ids and roles of the members who are users
+		var userIDs []string
+		var userRoles map[string]projects.Role
+		for _, m := range pRsp.Project.Members {
+			if m.Type != "user" {
+				continue
+			}
+			userIDs = append(userIDs, m.Id)
+			userRoles[m.Id] = m.Role
+		}
+
+		// get the metadata for the members
+		uRsp, err := p.users.Read(ctx, &users.ReadRequest{Ids: userIDs})
+		if err != nil {
+			return err
+		}
+		proj.Members = make([]*pb.Member, 0, len(uRsp.Users))
+		for _, u := range uRsp.Users {
+			proj.Members = append(proj.Members, &pb.Member{
+				Id:        u.Id,
+				FirstName: u.FirstName,
+				LastName:  u.LastName,
+				Email:     u.Email,
+				Role:      userRoles[u.Id].String(),
+			})
+		}
+
+		// add the project to the result
 		rsp.Projects = append(rsp.Projects, proj)
 	}
 

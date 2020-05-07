@@ -12,6 +12,8 @@ require (
 	github.com/micro/services/users/service v0.0.0-20200505140906-ca5cb95fe360
 )
 
+replace github.com/micro/services/users/service => ../../users/service
+
 replace github.com/micro/services/projects/service => ../../projects/service
 
 replace github.com/micro/services/kubernetes/service => ../../kubernetes/service

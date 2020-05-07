@@ -60,12 +60,12 @@ class PageLayout extends React.Component<Props> {
   renderSidebar(): JSX.Element {
     return(
       <div className='sidebar'>
-        { this.props.projects.map(p => <section key={p.id}>
+        { this.props.projects.sort(sortByName).map(p => <section key={p.id}>
           <NavLink exact activeClassName='header active' className='header' to={`/projects/${p.name}`}>
             <p>{p.name}</p>
           </NavLink>
 
-          { p.environments?.map(e => <NavLink key={e.id} to={`/projects/${p.name}/${e.name}`}>
+          { p.environments?.sort(sortByName)?.map(e => <NavLink key={e.id} to={`/projects/${p.name}/${e.name}`}>
             <img src={ProjectIcon} alt={`${p.name}/${e.name}`} />
             <p>{p.name}/{e.name}</p>
           </NavLink> ) }
@@ -101,6 +101,12 @@ class PageLayout extends React.Component<Props> {
       </div>
     );
   }
+}
+
+function sortByName(a: any, b: any): number {
+  if(a.name > b.name) return 1;
+  if(a.name < b.name) return -1;
+  return 0;
 }
 
 function mapStateToProps(state: GlobalState): any {

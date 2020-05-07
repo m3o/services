@@ -45,6 +45,15 @@ message Project {
   string description = 3;
   string repository = 4;
   repeated Environment environments = 5;
+  repeated Member members = 6;
+}
+
+message Member {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string role = 5;
 }
 
 message CreateProjectRequest {
