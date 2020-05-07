@@ -152,9 +152,9 @@ func NewProjectsEndpoints() []*api.Endpoint {
 // Client API for Projects service
 
 type ProjectsService interface {
-	VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error)
-	VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, opts ...client.CallOption) (*VerifyProjectNameResponse, error)
-	VerifyEnvironmentName(ctx context.Context, in *VerifyEnvironmentNameRequest, opts ...client.CallOption) (*VerifyEnvironmentNameResponse, error)
+	ValidateGithubToken(ctx context.Context, in *ValidateGithubTokenRequest, opts ...client.CallOption) (*ValidateGithubTokenResponse, error)
+	ValidateProjectName(ctx context.Context, in *ValidateProjectNameRequest, opts ...client.CallOption) (*ValidateProjectNameResponse, error)
+	ValidateEnvironmentName(ctx context.Context, in *ValidateEnvironmentNameRequest, opts ...client.CallOption) (*ValidateEnvironmentNameResponse, error)
 	WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, opts ...client.CallOption) (*WebhookAPIKeyResponse, error)
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...client.CallOption) (*CreateProjectResponse, error)
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...client.CallOption) (*UpdateProjectResponse, error)
@@ -176,9 +176,9 @@ func NewProjectsService(name string, c client.Client) ProjectsService {
 	}
 }
 
-func (c *projectsService) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, opts ...client.CallOption) (*VerifyGithubTokenResponse, error) {
-	req := c.c.NewRequest(c.name, "Projects.VerifyGithubToken", in)
-	out := new(VerifyGithubTokenResponse)
+func (c *projectsService) ValidateGithubToken(ctx context.Context, in *ValidateGithubTokenRequest, opts ...client.CallOption) (*ValidateGithubTokenResponse, error) {
+	req := c.c.NewRequest(c.name, "Projects.ValidateGithubToken", in)
+	out := new(ValidateGithubTokenResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -186,9 +186,9 @@ func (c *projectsService) VerifyGithubToken(ctx context.Context, in *VerifyGithu
 	return out, nil
 }
 
-func (c *projectsService) VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, opts ...client.CallOption) (*VerifyProjectNameResponse, error) {
-	req := c.c.NewRequest(c.name, "Projects.VerifyProjectName", in)
-	out := new(VerifyProjectNameResponse)
+func (c *projectsService) ValidateProjectName(ctx context.Context, in *ValidateProjectNameRequest, opts ...client.CallOption) (*ValidateProjectNameResponse, error) {
+	req := c.c.NewRequest(c.name, "Projects.ValidateProjectName", in)
+	out := new(ValidateProjectNameResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -196,9 +196,9 @@ func (c *projectsService) VerifyProjectName(ctx context.Context, in *VerifyProje
 	return out, nil
 }
 
-func (c *projectsService) VerifyEnvironmentName(ctx context.Context, in *VerifyEnvironmentNameRequest, opts ...client.CallOption) (*VerifyEnvironmentNameResponse, error) {
-	req := c.c.NewRequest(c.name, "Projects.VerifyEnvironmentName", in)
-	out := new(VerifyEnvironmentNameResponse)
+func (c *projectsService) ValidateEnvironmentName(ctx context.Context, in *ValidateEnvironmentNameRequest, opts ...client.CallOption) (*ValidateEnvironmentNameResponse, error) {
+	req := c.c.NewRequest(c.name, "Projects.ValidateEnvironmentName", in)
+	out := new(ValidateEnvironmentNameResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -279,9 +279,9 @@ func (c *projectsService) DeleteEnvironment(ctx context.Context, in *DeleteEnvir
 // Server API for Projects service
 
 type ProjectsHandler interface {
-	VerifyGithubToken(context.Context, *VerifyGithubTokenRequest, *VerifyGithubTokenResponse) error
-	VerifyProjectName(context.Context, *VerifyProjectNameRequest, *VerifyProjectNameResponse) error
-	VerifyEnvironmentName(context.Context, *VerifyEnvironmentNameRequest, *VerifyEnvironmentNameResponse) error
+	ValidateGithubToken(context.Context, *ValidateGithubTokenRequest, *ValidateGithubTokenResponse) error
+	ValidateProjectName(context.Context, *ValidateProjectNameRequest, *ValidateProjectNameResponse) error
+	ValidateEnvironmentName(context.Context, *ValidateEnvironmentNameRequest, *ValidateEnvironmentNameResponse) error
 	WebhookAPIKey(context.Context, *WebhookAPIKeyRequest, *WebhookAPIKeyResponse) error
 	CreateProject(context.Context, *CreateProjectRequest, *CreateProjectResponse) error
 	UpdateProject(context.Context, *UpdateProjectRequest, *UpdateProjectResponse) error
@@ -293,9 +293,9 @@ type ProjectsHandler interface {
 
 func RegisterProjectsHandler(s server.Server, hdlr ProjectsHandler, opts ...server.HandlerOption) error {
 	type projects interface {
-		VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error
-		VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, out *VerifyProjectNameResponse) error
-		VerifyEnvironmentName(ctx context.Context, in *VerifyEnvironmentNameRequest, out *VerifyEnvironmentNameResponse) error
+		ValidateGithubToken(ctx context.Context, in *ValidateGithubTokenRequest, out *ValidateGithubTokenResponse) error
+		ValidateProjectName(ctx context.Context, in *ValidateProjectNameRequest, out *ValidateProjectNameResponse) error
+		ValidateEnvironmentName(ctx context.Context, in *ValidateEnvironmentNameRequest, out *ValidateEnvironmentNameResponse) error
 		WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, out *WebhookAPIKeyResponse) error
 		CreateProject(ctx context.Context, in *CreateProjectRequest, out *CreateProjectResponse) error
 		UpdateProject(ctx context.Context, in *UpdateProjectRequest, out *UpdateProjectResponse) error
@@ -315,16 +315,16 @@ type projectsHandler struct {
 	ProjectsHandler
 }
 
-func (h *projectsHandler) VerifyGithubToken(ctx context.Context, in *VerifyGithubTokenRequest, out *VerifyGithubTokenResponse) error {
-	return h.ProjectsHandler.VerifyGithubToken(ctx, in, out)
+func (h *projectsHandler) ValidateGithubToken(ctx context.Context, in *ValidateGithubTokenRequest, out *ValidateGithubTokenResponse) error {
+	return h.ProjectsHandler.ValidateGithubToken(ctx, in, out)
 }
 
-func (h *projectsHandler) VerifyProjectName(ctx context.Context, in *VerifyProjectNameRequest, out *VerifyProjectNameResponse) error {
-	return h.ProjectsHandler.VerifyProjectName(ctx, in, out)
+func (h *projectsHandler) ValidateProjectName(ctx context.Context, in *ValidateProjectNameRequest, out *ValidateProjectNameResponse) error {
+	return h.ProjectsHandler.ValidateProjectName(ctx, in, out)
 }
 
-func (h *projectsHandler) VerifyEnvironmentName(ctx context.Context, in *VerifyEnvironmentNameRequest, out *VerifyEnvironmentNameResponse) error {
-	return h.ProjectsHandler.VerifyEnvironmentName(ctx, in, out)
+func (h *projectsHandler) ValidateEnvironmentName(ctx context.Context, in *ValidateEnvironmentNameRequest, out *ValidateEnvironmentNameResponse) error {
+	return h.ProjectsHandler.ValidateEnvironmentName(ctx, in, out)
 }
 
 func (h *projectsHandler) WebhookAPIKey(ctx context.Context, in *WebhookAPIKeyRequest, out *WebhookAPIKeyResponse) error {

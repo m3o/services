@@ -55,7 +55,7 @@ func (p *Projects) CreateProject(ctx context.Context, req *pb.CreateProjectReque
 		return err
 	}
 
-	// verify the user has access to the github repo
+	// Validate the user has access to the github repo
 	repos, err := p.listGitHubRepos(req.GithubToken)
 	if err != nil {
 		return err
@@ -153,8 +153,8 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 	return nil
 }
 
-// VerifyProjectName validates a project name to ensure it is unique
-func (p *Projects) VerifyProjectName(ctx context.Context, req *pb.VerifyProjectNameRequest, rsp *pb.VerifyProjectNameResponse) error {
+// ValidateProjectName validates a project name to ensure it is unique
+func (p *Projects) ValidateProjectName(ctx context.Context, req *pb.ValidateProjectNameRequest, rsp *pb.ValidateProjectNameResponse) error {
 	_, err := p.projects.Read(ctx, &projects.ReadRequest{Name: req.Name})
 	if err == nil {
 		return errors.BadRequest(p.name, "Name has already been taken")
@@ -162,8 +162,8 @@ func (p *Projects) VerifyProjectName(ctx context.Context, req *pb.VerifyProjectN
 	return nil
 }
 
-// VerifyEnvironmentName validates a Environment name to ensure it is unique
-func (p *Projects) VerifyEnvironmentName(ctx context.Context, req *pb.VerifyEnvironmentNameRequest, rsp *pb.VerifyEnvironmentNameResponse) error {
+// ValidateEnvironmentName validates a Environment name to ensure it is unique
+func (p *Projects) ValidateEnvironmentName(ctx context.Context, req *pb.ValidateEnvironmentNameRequest, rsp *pb.ValidateEnvironmentNameResponse) error {
 	project, err := p.findProject(ctx, req.ProjectId)
 	if err != nil {
 		return errors.BadRequest(p.name, "Project not found")
@@ -183,8 +183,8 @@ func (p *Projects) VerifyEnvironmentName(ctx context.Context, req *pb.VerifyEnvi
 	return nil
 }
 
-// VerifyGithubToken takes a GitHub personal token and returns the repos it has access to
-func (p *Projects) VerifyGithubToken(ctx context.Context, req *pb.VerifyGithubTokenRequest, rsp *pb.VerifyGithubTokenResponse) error {
+// ValidateGithubToken takes a GitHub personal token and returns the repos it has access to
+func (p *Projects) ValidateGithubToken(ctx context.Context, req *pb.ValidateGithubTokenRequest, rsp *pb.ValidateGithubTokenResponse) error {
 	repos, err := p.listGitHubRepos(req.Token)
 	if err != nil {
 		return err

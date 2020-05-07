@@ -10,9 +10,9 @@ service Accounts {
 }
 
 service Projects {
-  rpc VerifyGithubToken(VerifyGithubTokenRequest) returns (VerifyGithubTokenResponse) {};
-  rpc VerifyProjectName(VerifyProjectNameRequest) returns (VerifyProjectNameResponse) {};
-  rpc VerifyEnvironmentName(VerifyEnvironmentNameRequest) returns (VerifyEnvironmentNameResponse) {};
+  rpc ValidateGithubToken(ValidateGithubTokenRequest) returns (ValidateGithubTokenResponse) {};
+  rpc ValidateProjectName(ValidateProjectNameRequest) returns (ValidateProjectNameResponse) {};
+  rpc ValidateEnvironmentName(ValidateEnvironmentNameRequest) returns (ValidateEnvironmentNameResponse) {};
   rpc WebhookAPIKey(WebhookAPIKeyRequest) returns (WebhookAPIKeyResponse) {};
 
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {};
@@ -72,11 +72,11 @@ message ListProjectsResponse {
   repeated Project projects = 1;
 }
 
-message VerifyGithubTokenRequest {
+message ValidateGithubTokenRequest {
   string token = 1;
 }
 
-message VerifyGithubTokenResponse {
+message ValidateGithubTokenResponse {
   repeated Repository repos = 1;
 }
 
@@ -150,15 +150,15 @@ message DeleteEnvironmentRequest {
 
 message DeleteEnvironmentResponse {}
 
-message VerifyProjectNameRequest {
+message ValidateProjectNameRequest {
   string name = 1;
 }
 
-message VerifyProjectNameResponse {}
+message ValidateProjectNameResponse {}
 
-message VerifyEnvironmentNameRequest {
+message ValidateEnvironmentNameRequest {
   string project_id = 1;
   string name = 2;
 }
 
-message VerifyEnvironmentNameResponse {}
+message ValidateEnvironmentNameResponse {}
