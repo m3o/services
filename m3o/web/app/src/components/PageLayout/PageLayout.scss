@@ -57,13 +57,17 @@
       width: 320px;
       border-right: solid 2px #00000008;
       overflow: scroll;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
 
       section {
         display: flex;
         flex-direction: column;
         margin-top: 20px;
 
-        &:first-of-type {
+        &.global {
+          margin-top: auto;
           a {
             p {
               text-transform: capitalize;
@@ -165,8 +169,8 @@
       }
 
       .center {
-        width: 100%;
         max-width: 850px;
+        min-width: inherit;
         padding: 50px 50px;
         margin-left: auto;
         margin-right: auto;
@@ -176,7 +180,8 @@
         display: flex;
         flex-direction: row;
         margin-bottom: 50px;
-    
+        margin-top: 20px;
+
         h1 {
           span {
             &:first-of-type {

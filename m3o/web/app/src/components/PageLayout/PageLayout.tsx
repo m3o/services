@@ -60,23 +60,6 @@ class PageLayout extends React.Component<Props> {
   renderSidebar(): JSX.Element {
     return(
       <div className='sidebar'>
-        <section>
-          <NavLink exact to='/'>
-            <img src={NotificationsIcon} alt='Notifications' />
-            <p>{this.props.projects.length === 0 ? 'Getting Started' : 'Notifications'}</p>
-          </NavLink>
-
-          <NavLink exact to='/feedback'>
-            <img src={FeedbackIcon} alt='Feedback' />
-            <p>Feedback</p>
-          </NavLink>
-
-          <NavLink exact to='/docs'>
-            <img src={DocsIcon} alt='Docs' />
-            <p>Docs</p>
-          </NavLink>
-        </section>
-
         { this.props.projects.map(p => <section key={p.id}>
           <NavLink exact activeClassName='header active' className='header' to={`/projects/${p.name}`}>
             <p>{p.name}</p>
@@ -96,6 +79,23 @@ class PageLayout extends React.Component<Props> {
         <section>
           <NavLink exact activeClassName='header active' className='header' to={`/new/project`}>
             <p>New Project</p>
+          </NavLink>
+        </section>
+
+        <section className='global'>
+          <NavLink exact to='/'>
+            <img src={NotificationsIcon} alt='Notifications' />
+            <p>{this.props.projects.length === 0 ? 'Getting Started' : 'Notifications'}</p>
+          </NavLink>
+
+          <NavLink exact to='/feedback'>
+            <img src={FeedbackIcon} alt='Feedback' />
+            <p>Feedback</p>
+          </NavLink>
+
+          <NavLink exact to='/docs'>
+            <img src={DocsIcon} alt='Docs' />
+            <p>Docs</p>
           </NavLink>
         </section>
       </div>
