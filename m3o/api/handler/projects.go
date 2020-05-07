@@ -162,6 +162,27 @@ func (p *Projects) VerifyProjectName(ctx context.Context, req *pb.VerifyProjectN
 	return nil
 }
 
+// VerifyEnvironmentName validates a Environment name to ensure it is unique
+func (p *Projects) VerifyEnvironmentName(ctx context.Context, req *pb.VerifyEnvironmentNameRequest, rsp *pb.VerifyEnvironmentNameResponse) error {
+	project, err := p.findProject(ctx, req.ProjectId)
+	if err != nil {
+		return errors.BadRequest(p.name, "Project not found")
+	}
+
+	eRsp, err := p.environments.Read(ctx, &environments.ReadRequest{Id: project.Id})
+	if err != nil {
+		return err
+	}
+
+	for _, env := range eRsp.Environments {
+		if env.Name == req.Name {
+			return errors.BadRequest(p.name, "Name has already been taken")
+		}
+	}
+
+	return nil
+}
+
 // VerifyGithubToken takes a GitHub personal token and returns the repos it has access to
 func (p *Projects) VerifyGithubToken(ctx context.Context, req *pb.VerifyGithubTokenRequest, rsp *pb.VerifyGithubTokenResponse) error {
 	repos, err := p.listGitHubRepos(req.Token)
