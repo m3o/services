@@ -160,7 +160,7 @@ func (p *Projects) ListProjects(ctx context.Context, req *pb.ListProjectsRequest
 
 		// get the ids and roles of the members who are users
 		var userIDs []string
-		var userRoles map[string]projects.Role
+		userRoles := make(map[string]projects.Role)
 		for _, m := range pRsp.Project.Members {
 			if m.Type != "user" {
 				continue
