@@ -100,7 +100,7 @@ func (p *Projects) CreateProject(ctx context.Context, req *pb.CreateProjectReque
 	rsp.Project = serializeProject(cRsp.Project)
 
 	// generate the auth account for the webhooks
-	rsp.ClientId, rsp.ClientSecret, err = p.generateCreds(cRsp.Project.Id)
+	rsp.ClientId, rsp.ClientSecret, err = p.generateCreds(cRsp.Project.Id, cRsp.Project.Name)
 	return nil
 }
 
@@ -197,7 +197,7 @@ func (p *Projects) WebhookAPIKey(ctx context.Context, req *pb.WebhookAPIKeyReque
 	}
 
 	// generate the auth account
-	rsp.ClientId, rsp.ClientSecret, err = p.generateCreds(proj.Id)
+	rsp.ClientId, rsp.ClientSecret, err = p.generateCreds(proj.Id, proj.Name)
 	return err
 }
 
@@ -297,8 +297,8 @@ func (p *Projects) DeleteEnvironment(ctx context.Context, req *pb.DeleteEnvironm
 	return err
 }
 
-func (p *Projects) generateCreds(projectID string) (string, string, error) {
-	id := fmt.Sprintf("%v-webhook-%v", projectID, time.Now().Unix())
+func (p *Projects) generateCreds(projectID, projectName string) (string, string, error) {
+	id := fmt.Sprintf("%v-webhook-%v", projectName, time.Now().Unix())
 	md := map[string]string{"project-id": projectID}
 
 	acc, err := p.auth.Generate(id, auth.WithRoles("webhook"), auth.WithMetadata(md))
