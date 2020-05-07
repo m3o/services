@@ -164,12 +164,7 @@ func (p *Projects) ValidateProjectName(ctx context.Context, req *pb.ValidateProj
 
 // ValidateEnvironmentName validates a Environment name to ensure it is unique
 func (p *Projects) ValidateEnvironmentName(ctx context.Context, req *pb.ValidateEnvironmentNameRequest, rsp *pb.ValidateEnvironmentNameResponse) error {
-	project, err := p.findProject(ctx, req.ProjectId)
-	if err != nil {
-		return errors.BadRequest(p.name, "Project not found")
-	}
-
-	eRsp, err := p.environments.Read(ctx, &environments.ReadRequest{Id: project.Id})
+	eRsp, err := p.environments.Read(ctx, &environments.ReadRequest{Id: req.ProjectId})
 	if err != nil {
 		return err
 	}
