@@ -41,6 +41,7 @@ func (k *Kubernetes) CreateNamespace(ctx context.Context, req *pb.CreateNamespac
 func (k *Kubernetes) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
 	return k.client.Delete(&k8s.Resource{
 		Kind: "namespace",
+		Name: req.Name,
 		Value: k8s.Namespace{
 			Metadata: &k8s.Metadata{
 				Name: req.Name,

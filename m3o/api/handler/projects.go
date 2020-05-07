@@ -271,10 +271,10 @@ func (p *Projects) DeleteEnvironment(ctx context.Context, req *pb.DeleteEnvironm
 		return err
 	}
 
-	// TODO: delete the k8s namespace once the 403 bug is fixed
-	// if _, err = p.kubernetes.DeleteNamespace(ctx, &kubernetes.DeleteNamespaceRequest{Name: env.Namespace}); err != nil {
-	// 	return err
-	// }
+	// delete the k8s namespace
+	if _, err = p.kubernetes.DeleteNamespace(ctx, &kubernetes.DeleteNamespaceRequest{Name: env.Namespace}); err != nil {
+		return err
+	}
 
 	// delete the environment
 	_, err = p.environments.Delete(ctx, &environments.DeleteRequest{Id: env.Id})
