@@ -113,7 +113,7 @@ class NewProject extends React.Component<Props, State> {
           return;
         }
 
-        API.Call('Projects/VerifyProjectName', { name })
+        API.Call('Projects/ValidateProjectName', { name })
           .then(() => resolve())
           .catch(err => reject(err.response ? err.response.data.detail : err.message));
       });
@@ -169,7 +169,7 @@ class NewProject extends React.Component<Props, State> {
 
     const validateToken = (token: string): Promise<string> => {
       return new Promise(async (resolve: Function, reject: Function) => {
-        API.Call("Projects/VerifyGithubToken", { token })
+        API.Call("Projects/ValidateGithubToken", { token })
           .then((res) => {
             this.setState({ repos: res.data.repos });
             resolve();

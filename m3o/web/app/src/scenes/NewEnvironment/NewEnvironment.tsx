@@ -12,6 +12,7 @@ import PageLayout from '../../components/PageLayout';
 // Styling
 import './NewEnvironment.scss';
 import { createEnvironment } from '../../store/Project';
+import ValidatedInput from '../../components/ValidatedInput';
 
 interface Props {
   match: any;
@@ -22,42 +23,24 @@ interface Props {
 
 interface State {
   environment: API.Environment;
-  error?: string;
   loading: boolean;
+  nameValid: boolean;
 }
 
 // regex to check for specical chars
 var regex = /[^\w]|_/g
 
 class NewEnvironment extends React.Component<Props, State> {
-  readonly state: State = { environment: { name: '', description: '' }, loading: false };
+  readonly state: State = { 
+    loading: false,
+    nameValid: false,
+    environment: { name: '', description: '' },
+  };
 
-  onInputChange(e: any) {
-    // force the name to lowercase
-    if(e.target.name === 'name') e.target.value = e.target.value.toLowerCase();
-
-    // construct the new environment
-    const env: API.Environment = { ...this.state.environment, [e.target.name]: e.target.value };
-
-    // check for errors
-    let error: string = undefined;
-    if(env.name.length > 0 && regex.test(env.name)) {
-      error = "Name cannot contain any special characters, must be URL safe.";
-    } else {
-      (this.props.project.environments || []).forEach(e => {
-        if(e.name.toLowerCase() === env.name.toLowerCase()) {
-          error = `${this.props.project.name}/${env.name} is already taken`;
-        }
-      });
-    }
-
-    // update the state
-    this.setState({ error, environment: env });
-  }
 
   onSubmit(e?: any): void {
     if(e) e.preventDefault();
-    if(this.state.loading || this.state.error) return;
+    if(this.state.loading || !this.state.nameValid) return;
 
     const { name, description } = this.state.environment;
     const { project } = this.props;
@@ -72,17 +55,40 @@ class NewEnvironment extends React.Component<Props, State> {
         this.props.createEnvironment(project.id, res.data.environment);
         this.props.history.push(`/projects/${project.name}/${name}`);
       })
-      .catch((err) => {
-        this.setState({ error: (err.response ? err.response.data.detail : err.message) });
-      })
+      .catch((err) => alert(err.response ? err.response.data.detail : err.message));
   }
 
   render(): JSX.Element {
     const { project } = this.props;
     if(!project) return null;
 
-    const { environment, error, loading } = this.state;
-    const disabled = !!error || loading || environment.name.length === 0;
+    const { environment, loading, nameValid } = this.state
+
+    const validateName = async (name: string): Promise<string> => {      
+      return new Promise(async (resolve: Function, reject: Function) => {
+        if(name.length < 3) {
+          reject("Name must be at least 3 characters long");
+          return
+        }
+
+        if(regex.test(name)) {
+          reject("Name cannot contain any special characters");
+          return;
+        }
+
+        API.Call('Projects/ValidateEnvironmentName', { name, project_id: project.id })
+          .then(() => resolve())
+          .catch(err => reject(err.response ? err.response.data.detail : err.message));
+      });
+    }
+
+    const setNameValid = () => this.setState({ nameValid: true });
+    const setNameInvalid = () => this.setState({ nameValid: false });
+    
+    const onChange = (key: string, value: string) => {
+      if(key === 'name') value = value.toLowerCase();
+      this.setState({ environment: { ...this.state.environment, [key]: value } });
+    };
 
     return (
       <PageLayout className='NewEnvironment'>
@@ -98,17 +104,28 @@ class NewEnvironment extends React.Component<Props, State> {
             <form onSubmit={this.onSubmit.bind(this)}>
               <div className='row'>
                 <label>Name *</label>
-                <input required type='text' value={environment.name} placeholder='production' name='name' onChange={this.onInputChange.bind(this)} />
+
+                <ValidatedInput
+                  name='name'
+                  onChange={onChange}
+                  value={environment.name}
+                  placeholder='production'
+                  validate={validateName}
+                  onValid={setNameValid}
+                  onInvalid={setNameInvalid} />
               </div>
               
               <div className='row'>
                 <label>Description</label>
-                <input type='text' value={environment.description} placeholder={`The ${project.name} production environment`} name='description'  onChange={this.onInputChange.bind(this)} />
+
+                <ValidatedInput
+                  name='description'
+                  onChange={onChange}
+                  value={environment.description}
+                  placeholder={`The ${project.name} production environment`} />
               </div>
 
-              { error ? <p className='error'>{error}</p> : null }
-
-              <button onClick={this.onSubmit.bind(this)} disabled={disabled} className='btn'>Create Environment</button>
+              <button onClick={this.onSubmit.bind(this)} disabled={loading || !nameValid} className='btn'>Create Environment</button>
             </form>
           </section>
         </div>
