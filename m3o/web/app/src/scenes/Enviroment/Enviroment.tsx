@@ -25,7 +25,7 @@ interface Props {
 class Enviroment extends React.Component<Props> {
   render(): JSX.Element {
     const { project, environment } = this.props;
-    const domain = `https://${environment?.name}.${project?.name}.m3o.app`; 
+    const domain = `https://${environment?.namespace}.m3o.app`; 
 
     return <PageLayout className='Enviroment'>
       <div className='center'>
@@ -59,12 +59,12 @@ class Enviroment extends React.Component<Props> {
           <form>
             <div className='row'>
               <label>Web Domain</label>
-              <input type='text' value='' placeholder='myapp.com' name='web_domain' />
+              <input disabled type='text' value='' placeholder='Coming Soon...' name='web_domain' />
             </div>
             
             <div className='row'>
               <label>API Domain</label>
-              <input type='text' value='' placeholder='api.myapp.com' name='api_domain' />
+              <input disabled type='text' value='' placeholder='Coming Soon...' name='api_domain' />
             </div>
           </form>
         </section>
@@ -78,7 +78,7 @@ class Enviroment extends React.Component<Props> {
 
           <p>Once you're logged in, add your enviroment and configure micro to use it with the following commands.</p>
           <p className='code'>
-            micro env add {project?.name}/{environment?.name} {project?.name}.{environment?.name}.proxy.m3o.app
+            micro env add {project?.name}/{environment?.name} {environment?.namespace}.proxy.m3o.app
             <br />
             micro env set {project?.name}/{environment?.name}
           </p>

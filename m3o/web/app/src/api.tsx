@@ -17,6 +17,7 @@ export interface Project {
 export interface Environment {
   id?: string;
   name: string;
+  namespace?: string;
   description: string;
 }
 

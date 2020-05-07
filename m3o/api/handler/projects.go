@@ -336,6 +336,7 @@ func serializeEnvironment(e *environments.Environment) *pb.Environment {
 	return &pb.Environment{
 		Id:          e.Id,
 		Name:        e.Name,
+		Namespace:   e.Namespace,
 		Description: e.Description,
 	}
 }
