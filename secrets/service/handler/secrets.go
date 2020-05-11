@@ -40,7 +40,7 @@ type Handler struct {
 }
 
 // pathJoiner is the character used to join the path when writing to the store
-var pathJoiner = "/"
+const pathJoiner = "/"
 
 // Create a secret
 func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
