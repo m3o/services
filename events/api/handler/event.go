@@ -46,9 +46,6 @@ func New(service micro.Service) *Handler {
 
 // Create a new event
 func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
-	err := h.runtime.Create(&runtime.Service{}, runtime.CreateContext(context.TODO()))
-	return err
-
 	// validate the request
 	if req.Metadata == nil {
 		return errors.BadRequest(h.name, "Missing metadata")

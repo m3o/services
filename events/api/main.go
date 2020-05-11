@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/micro/go-micro/v2"
@@ -29,9 +28,6 @@ func main() {
 		logger.Fatalf("Error generating elevated service account: %v", err)
 	}
 	service.Options().Auth.Init(auth.Credentials(acc.ID, acc.Secret))
-
-	h := handler.New(service)
-	h.Create(context.TODO(), nil, nil)
 
 	// register the handler
 	pb.RegisterEventsHandler(service.Server(), handler.New(service))
