@@ -137,7 +137,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 }
 
 func (h *Handler) encrypt(value string) ([]byte, error) {
-	block, _ := aes.NewCipher([]byte(createHash(h.secret)))
+	block, _ := aes.NewCipher(createHash(h.secret))
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return nil, err
@@ -151,7 +151,7 @@ func (h *Handler) encrypt(value string) ([]byte, error) {
 }
 
 func (h *Handler) decrypt(value []byte) (string, error) {
-	key := []byte(createHash(h.secret))
+	key := createHash(h.secret)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -169,8 +169,8 @@ func (h *Handler) decrypt(value []byte) (string, error) {
 	return string(plaintext), nil
 }
 
-func createHash(key string) string {
+func createHash(key string) []byte {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
-	return hex.EncodeToString(hasher.Sum(nil))
+	return []byte(hex.EncodeToString(hasher.Sum(nil)))
 }
