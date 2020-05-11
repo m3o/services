@@ -296,6 +296,12 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 		return errors.BadRequest(p.name, "Unable to create project: %v", err.Error())
 	}
 
+	// create the k8s namespace
+	if _, err := p.kubernetes.CreateNamespace(ctx, &kubernetes.CreateNamespaceRequest{Name: eRsp.Environment.Namespace}); err != nil {
+		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
+		return errors.BadRequest(p.name, "Unable to create k8s namespace: %v", err.Error())
+	}
+
 	// create the image pull secret the k8s service account will use
 	ipsReq := &kubernetes.CreateImagePullSecretRequest{
 		Name:      imagePullSecretName,
@@ -304,6 +310,7 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 	}
 	if _, err := p.kubernetes.CreateImagePullSecret(ctx, ipsReq); err != nil {
 		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
+		p.kubernetes.DeleteNamespace(ctx, &kubernetes.DeleteNamespaceRequest{Name: eRsp.Environment.Name})
 		return errors.BadRequest(p.name, "Unable to create image pull secret: %v", err.Error())
 	}
 
@@ -314,25 +321,14 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 	}
 	if _, err := p.kubernetes.CreateServiceAccount(ctx, saReq); err != nil {
 		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
+		p.kubernetes.DeleteNamespace(ctx, &kubernetes.DeleteNamespaceRequest{Name: eRsp.Environment.Name})
 		p.kubernetes.DeleteImagePullSecret(ctx, &kubernetes.DeleteImagePullSecretRequest{
 			Name: imagePullSecretName, Namespace: eRsp.Environment.Namespace,
 		})
-
 		return errors.BadRequest(p.name, "Unable to create service account: %v", err.Error())
 	}
 
-	// create the k8s namespace
-	if _, err := p.kubernetes.CreateNamespace(ctx, &kubernetes.CreateNamespaceRequest{Name: eRsp.Environment.Namespace}); err != nil {
-		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
-		p.kubernetes.DeleteImagePullSecret(ctx, &kubernetes.DeleteImagePullSecretRequest{
-			Name: imagePullSecretName, Namespace: eRsp.Environment.Namespace,
-		})
-		p.kubernetes.DeleteServiceAccount(ctx, &kubernetes.DeleteServiceAccountRequest{
-			Namespace: eRsp.Environment.Namespace,
-		})
-
-		return errors.BadRequest(p.name, "Unable to create k8s namespace: %v", err.Error())
-	}
+	// todo: update the namespace to use the service account
 
 	rsp.Environment = serializeEnvironment(eRsp.Environment)
 	return nil
