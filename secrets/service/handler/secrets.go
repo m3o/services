@@ -4,9 +4,8 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base64"
 	"io"
 	"strings"
 
@@ -27,8 +26,9 @@ func New(srv micro.Service) *Handler {
 	}
 
 	return &Handler{
-		name:   srv.Name(),
 		secret: secret,
+		name:   srv.Name(),
+		store:  srv.Options().Store,
 	}
 }
 
@@ -136,41 +136,37 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	return nil
 }
 
-func (h *Handler) encrypt(value string) ([]byte, error) {
-	block, _ := aes.NewCipher(createHash(h.secret))
-	gcm, err := cipher.NewGCM(block)
+func (h *Handler) encrypt(text string) ([]byte, error) {
+	block, err := aes.NewCipher([]byte(h.secret))
 	if err != nil {
 		return nil, err
 	}
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+	b := base64.StdEncoding.EncodeToString([]byte(text))
+	ciphertext := make([]byte, aes.BlockSize+len(b))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return nil, err
 	}
-	ciphertext := gcm.Seal(nonce, nonce, []byte(value), nil)
+	cfb := cipher.NewCFBEncrypter(block, iv)
+	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(b))
 	return ciphertext, nil
 }
 
-func (h *Handler) decrypt(value []byte) (string, error) {
-	key := createHash(h.secret)
-	block, err := aes.NewCipher(key)
+func (h *Handler) decrypt(text []byte) (string, error) {
+	block, err := aes.NewCipher([]byte(h.secret))
 	if err != nil {
 		return "", err
 	}
-	gcm, err := cipher.NewGCM(block)
+	if len(text) < aes.BlockSize {
+		return "", errors.InternalServerError(h.name, "Ciphertext too short")
+	}
+	iv := text[:aes.BlockSize]
+	text = text[aes.BlockSize:]
+	cfb := cipher.NewCFBDecrypter(block, iv)
+	cfb.XORKeyStream(text, text)
+	data, err := base64.StdEncoding.DecodeString(string(text))
 	if err != nil {
 		return "", err
 	}
-	nonceSize := gcm.NonceSize()
-	nonce, ciphertext := value[:nonceSize], value[nonceSize:]
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		return "", err
-	}
-	return string(plaintext), nil
-}
-
-func createHash(key string) []byte {
-	hasher := md5.New()
-	hasher.Write([]byte(key))
-	return []byte(hex.EncodeToString(hasher.Sum(nil)))
+	return string(data), nil
 }
