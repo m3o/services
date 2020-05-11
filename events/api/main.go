@@ -32,7 +32,7 @@ func main() {
 	// register the handler
 	pb.RegisterEventsHandler(service.Server(), handler.New(service))
 
-	// if err := service.Run(); err != nil {
-	// 	logger.Fatal(err)
-	// }
+	if err := service.Run(); err != nil {
+		logger.Fatal(err)
+	}
 }
