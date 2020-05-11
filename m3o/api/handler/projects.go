@@ -12,12 +12,14 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/logger"
 
 	kubernetes "github.com/micro/services/kubernetes/service/proto"
 	pb "github.com/micro/services/m3o/api/proto"
 	environments "github.com/micro/services/projects/environments/proto"
 	invites "github.com/micro/services/projects/invite/proto"
 	projects "github.com/micro/services/projects/service/proto"
+	secrets "github.com/micro/services/secrets/service/proto"
 	users "github.com/micro/services/users/service/proto"
 )
 
@@ -27,6 +29,7 @@ func NewProjects(service micro.Service) *Projects {
 		name:         service.Name(),
 		auth:         service.Options().Auth,
 		users:        users.NewUsersService("go.micro.service.users", service.Client()),
+		secrets:      secrets.NewSecretsService("go.micro.service.secrets", service.Client()),
 		invites:      invites.NewInviteService("go.micro.service.projects.invite", service.Client()),
 		projects:     projects.NewProjectsService("go.micro.service.projects", service.Client()),
 		kubernetes:   kubernetes.NewKubernetesService("go.micro.service.kubernetes", service.Client()),
@@ -39,11 +42,18 @@ type Projects struct {
 	name         string
 	auth         auth.Auth
 	users        users.UsersService
+	secrets      secrets.SecretsService
 	invites      invites.InviteService
 	projects     projects.ProjectsService
 	kubernetes   kubernetes.KubernetesService
 	environments environments.EnvironmentsService
 }
+
+const (
+	// imagePullSecretName is the name of the image pull secrets which contain the github
+	// tokens needed for the runtime to pull the images from GitHub package repos.
+	imagePullSecretName = "github-token"
+)
 
 // CreateProject and the underlying infra
 func (p *Projects) CreateProject(ctx context.Context, req *pb.CreateProjectRequest, rsp *pb.CreateProjectResponse) error {
@@ -96,7 +106,16 @@ func (p *Projects) CreateProject(ctx context.Context, req *pb.CreateProjectReque
 		},
 	})
 	if err != nil {
-		return err
+		logger.Warnf("Error adding user to project: %v", err)
+	}
+
+	// write the github token to the secrets service
+	_, err = p.secrets.Create(ctx, &secrets.CreateRequest{
+		Path:  []string{"project", "token", cRsp.Project.Id},
+		Value: req.GithubToken,
+	})
+	if err != nil {
+		logger.Warnf("Error writing github token: %v", err)
 	}
 
 	// serialize the project
@@ -258,6 +277,14 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 		return errors.Forbidden(p.name, "Unable to access project")
 	}
 
+	// load the github token for the project
+	sRsp, err := p.secrets.Read(ctx, &secrets.ReadRequest{
+		Path: []string{"project", "token", req.ProjectId},
+	})
+	if err != nil {
+		return errors.InternalServerError(p.name, "Error fetching github token: %v", err)
+	}
+
 	// create the environment
 	env := &environments.Environment{
 		ProjectId:   req.ProjectId,
@@ -269,13 +296,44 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 		return errors.BadRequest(p.name, "Unable to create project: %v", err.Error())
 	}
 
-	// create the k8s namespace etc
+	// create the image pull secret the k8s service account will use
+	ipsReq := &kubernetes.CreateImagePullSecretRequest{
+		Name:      imagePullSecretName,
+		Namespace: eRsp.Environment.Name,
+		Token:     sRsp.Value,
+	}
+	if _, err := p.kubernetes.CreateImagePullSecret(ctx, ipsReq); err != nil {
+		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
+		return errors.BadRequest(p.name, "Unable to create image pull secret: %v", err.Error())
+	}
+
+	// create the k8s service account using the github-token secret
+	saReq := &kubernetes.CreateServiceAccountRequest{
+		Namespace:        eRsp.Environment.Name,
+		ImagePullSecrets: []string{imagePullSecretName},
+	}
+	if _, err := p.kubernetes.CreateServiceAccount(ctx, saReq); err != nil {
+		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
+		p.kubernetes.DeleteImagePullSecret(ctx, &kubernetes.DeleteImagePullSecretRequest{
+			Name: imagePullSecretName, Namespace: eRsp.Environment.Namespace,
+		})
+
+		return errors.BadRequest(p.name, "Unable to create service account: %v", err.Error())
+	}
+
+	// create the k8s namespace
 	if _, err := p.kubernetes.CreateNamespace(ctx, &kubernetes.CreateNamespaceRequest{Name: eRsp.Environment.Namespace}); err != nil {
 		p.environments.Delete(ctx, &environments.DeleteRequest{Id: eRsp.Environment.Id})
+		p.kubernetes.DeleteImagePullSecret(ctx, &kubernetes.DeleteImagePullSecretRequest{
+			Name: imagePullSecretName, Namespace: eRsp.Environment.Namespace,
+		})
+		p.kubernetes.DeleteServiceAccount(ctx, &kubernetes.DeleteServiceAccountRequest{
+			Namespace: eRsp.Environment.Namespace,
+		})
+
 		return errors.BadRequest(p.name, "Unable to create k8s namespace: %v", err.Error())
 	}
 
-	// TODO: Load the projects secret (the GH token) and create an image pull secret in the above namespacce
 	rsp.Environment = serializeEnvironment(eRsp.Environment)
 	return nil
 }
@@ -326,6 +384,18 @@ func (p *Projects) DeleteEnvironment(ctx context.Context, req *pb.DeleteEnvironm
 
 	// ensure the user has access to the project
 	if _, err := p.findProject(ctx, env.ProjectId); err != nil {
+		return err
+	}
+
+	// delete the k8s image pull secrets
+	ipsReq := &kubernetes.DeleteImagePullSecretRequest{Name: imagePullSecretName, Namespace: env.Namespace}
+	if _, err := p.kubernetes.DeleteImagePullSecret(ctx, ipsReq); err != nil {
+		return err
+	}
+
+	// delete the k8s service account
+	saReq := &kubernetes.DeleteServiceAccountRequest{Namespace: env.Namespace}
+	if _, err := p.kubernetes.DeleteServiceAccount(ctx, saReq); err != nil {
 		return err
 	}
 
