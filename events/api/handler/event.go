@@ -103,18 +103,14 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			return err
 		}
 
-		go h.updateRuntime(acc, evType, req.Metadata, pRsp.Project, env)
+		go h.updateRuntime(evType, req.Metadata, pRsp.Project, env)
 	}
 
 	return nil
 }
 
-func (h *Handler) updateRuntime(acc *auth.Account, evType event.EventType, md map[string]string, project *project.Project, env *environments.Environment) {
-	// update the runtime. We create a blank context
-	// with the account so that the downstream services
-	// (e.g. the runtime) will use the namespace only
-	// from the account
-	ctx := auth.ContextWithAccount(context.Background(), acc)
+func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, project *project.Project, env *environments.Environment) {
+	ctx := context.Background()
 
 	// we only care about these two events with regards to the runtime
 	if evType != event.EventType_BuildFinished && evType != event.EventType_SourceDeleted {
