@@ -328,8 +328,6 @@ func (p *Projects) CreateEnvironment(ctx context.Context, req *pb.CreateEnvironm
 		return errors.BadRequest(p.name, "Unable to create service account: %v", err.Error())
 	}
 
-	// todo: update the namespace to use the service account
-
 	rsp.Environment = serializeEnvironment(eRsp.Environment)
 	return nil
 }
