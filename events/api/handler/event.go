@@ -37,7 +37,7 @@ func New(service micro.Service) *Handler {
 	return &Handler{
 		name:         service.Name(),
 		auth:         service.Options().Auth,
-		runtime:      runtime.DefaultRuntime,
+		runtime:      service.Options().Runtime,
 		event:        event.NewEventsService("go.micro.service.events", service.Client()),
 		project:      project.NewProjectsService("go.micro.service.projects", service.Client()),
 		environments: environments.NewEnvironmentsService("go.micro.service.projects.environments", service.Client()),
@@ -46,6 +46,9 @@ func New(service micro.Service) *Handler {
 
 // Create a new event
 func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+	err := h.runtime.Create(&runtime.Service{}, runtime.CreateContext(context.TODO()))
+	return err
+
 	// validate the request
 	if req.Metadata == nil {
 		return errors.BadRequest(h.name, "Missing metadata")
@@ -110,8 +113,6 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, project *project.Project, env *environments.Environment) {
-	ctx := context.Background()
-
 	// we only care about these two events with regards to the runtime
 	if evType != event.EventType_BuildFinished && evType != event.EventType_SourceDeleted {
 		return
@@ -134,7 +135,6 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 	// if the service was deleted, remove it from the runtime
 	if evType == event.EventType_SourceDeleted {
 		opts := []runtime.DeleteOption{
-			runtime.DeleteContext(ctx),
 			runtime.DeleteNamespace(env.Namespace),
 		}
 
@@ -149,7 +149,6 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 
 	// check if the service is already running, if it is we'll just update it
 	srvs, err := h.runtime.Read(
-		runtime.ReadContext(ctx),
 		runtime.ReadService(service.Name),
 		runtime.ReadNamespace(env.Namespace),
 	)
@@ -159,7 +158,6 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 	}
 	if len(srvs) > 0 {
 		opts := []runtime.UpdateOption{
-			runtime.UpdateContext(ctx),
 			runtime.UpdateNamespace(env.Namespace),
 		}
 
@@ -176,7 +174,6 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 	opts := []runtime.CreateOption{
 		runtime.CreateType(typeFromServiceName(srvName)),
 		runtime.CreateImage(path.Join(githubPkgBase, project.Repository, srvName)),
-		runtime.CreateContext(ctx),
 		runtime.CreateNamespace(env.Namespace),
 	}
 	if err := h.runtime.Create(service, opts...); err != nil {

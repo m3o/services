@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/micro/go-micro/v2"
@@ -29,10 +30,13 @@ func main() {
 	}
 	service.Options().Auth.Init(auth.Credentials(acc.ID, acc.Secret))
 
+	h := handler.New(service)
+	h.Create(context.TODO(), nil, nil)
+
 	// register the handler
 	pb.RegisterEventsHandler(service.Server(), handler.New(service))
 
-	if err := service.Run(); err != nil {
-		logger.Fatal(err)
-	}
+	// if err := service.Run(); err != nil {
+	// 	logger.Fatal(err)
+	// }
 }
