@@ -19,14 +19,14 @@ enum EventType {
 
 message Event {
   string id = 1;
-  string project_id = 2;
+  string environment_id = 2;
   EventType type = 3;
   int64 created = 4;
   map<string, string> metadata = 5;
 }
 
 message CreateRequest {
-  string project_id = 1;
+  string environment_id = 1;
   EventType type = 2;
   map<string, string> metadata = 3;
 }
@@ -35,7 +35,7 @@ message CreateResponse {}
 
 message ReadRequest {
   string event_id = 1;
-  string project_id = 2;
+  string environment_id = 2;
 }
 
 message ReadResponse {

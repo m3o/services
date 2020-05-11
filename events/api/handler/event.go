@@ -13,6 +13,7 @@ import (
 
 	pb "github.com/micro/services/events/api/proto"
 	event "github.com/micro/services/events/service/proto"
+	environments "github.com/micro/services/projects/environments/proto"
 	project "github.com/micro/services/projects/service/proto"
 )
 
@@ -23,21 +24,23 @@ const (
 
 // Handler implements the event api interface
 type Handler struct {
-	name    string
-	auth    auth.Auth
-	runtime runtime.Runtime
-	event   event.EventsService
-	project project.ProjectsService
+	name         string
+	auth         auth.Auth
+	runtime      runtime.Runtime
+	event        event.EventsService
+	project      project.ProjectsService
+	environments environments.EnvironmentsService
 }
 
 // New returns an initialised handler
 func New(service micro.Service) *Handler {
 	return &Handler{
-		name:    service.Name(),
-		auth:    service.Options().Auth,
-		runtime: runtime.DefaultRuntime,
-		event:   event.NewEventsService("go.micro.service.events", service.Client()),
-		project: project.NewProjectsService("go.micro.service.projects", service.Client()),
+		name:         service.Name(),
+		auth:         service.Options().Auth,
+		runtime:      runtime.DefaultRuntime,
+		event:        event.NewEventsService("go.micro.service.events", service.Client()),
+		project:      project.NewProjectsService("go.micro.service.projects", service.Client()),
+		environments: environments.NewEnvironmentsService("go.micro.service.projects.environments", service.Client()),
 	}
 }
 
@@ -49,50 +52,64 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// determine the event type
-	// var evType event.EventType
-	// switch req.Type {
-	// case "build_started":
-	// 	evType = event.EventType_BuildStarted
-	// case "build_finished":
-	// 	evType = event.EventType_BuildFinished
-	// case "build_failed":
-	// 	evType = event.EventType_BuildFailed
-	// case "source_created":
-	// 	evType = event.EventType_SourceCreated
-	// case "source_updated":
-	// 	evType = event.EventType_SourceUpdated
-	// case "source_deleted":
-	// 	evType = event.EventType_SourceDeleted
-	// default:
-	// 	return errors.BadRequest(h.name, "Invalid type")
-	// }
+	var evType event.EventType
+	switch req.Type {
+	case "build_started":
+		evType = event.EventType_BuildStarted
+	case "build_finished":
+		evType = event.EventType_BuildFinished
+	case "build_failed":
+		evType = event.EventType_BuildFailed
+	case "source_created":
+		evType = event.EventType_SourceCreated
+	case "source_updated":
+		evType = event.EventType_SourceUpdated
+	case "source_deleted":
+		evType = event.EventType_SourceDeleted
+	default:
+		return errors.BadRequest(h.name, "Invalid type")
+	}
 
 	// lookup the account
-	// acc, ok := auth.AccountFromContext(ctx)
-	// if !ok {
-	// 	return errors.Unauthorized(h.name, "account not found")
-	// }
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized(h.name, "account not found")
+	}
+	if acc.Metadata == nil || len(acc.Metadata["project-id"]) == 0 {
+		return errors.Unauthorized(h.name, "Invalid account used, missing project-id metadata")
+	}
 
-	// find the namespace the account belongs to
-	// pRsp, err := h.project.Read(ctx, &project.ReadRequest{Namespace: acc.Namespace})
-	// if err != nil {
-	// 	return err
-	// }
+	// find the project the account belongs to
+	pRsp, err := h.project.Read(ctx, &project.ReadRequest{Id: acc.Metadata["project-id"]})
+	if err != nil {
+		return err
+	}
+
+	// get the projects environments
+	eRsp, err := h.environments.Read(ctx, &environments.ReadRequest{ProjectId: acc.Metadata["project-id"]})
+	if err != nil {
+		return err
+	}
 
 	// update the runtime
-	// go h.updateRuntime(acc, evType, req.Metadata, pRsp.Project)
+	for _, env := range eRsp.Environments {
+		// create the event
+		_, err = h.event.Create(ctx, &event.CreateRequest{
+			EnvironmentId: env.Id,
+			Metadata:      req.Metadata,
+			Type:          evType,
+		})
+		if err != nil {
+			return err
+		}
 
-	// create the event
-	// _, err = h.event.Create(ctx, &event.CreateRequest{
-	// 	ProjectId: pRsp.Project.Id,
-	// 	Metadata:  req.Metadata,
-	// 	Type:      evType,
-	// })
-	// return err
+		go h.updateRuntime(acc, evType, req.Metadata, pRsp.Project, env)
+	}
+
 	return nil
 }
 
-func (h *Handler) updateRuntime(acc *auth.Account, evType event.EventType, md map[string]string, project *project.Project) {
+func (h *Handler) updateRuntime(acc *auth.Account, evType event.EventType, md map[string]string, project *project.Project, env *environments.Environment) {
 	// update the runtime. We create a blank context
 	// with the account so that the downstream services
 	// (e.g. the runtime) will use the namespace only
@@ -120,29 +137,41 @@ func (h *Handler) updateRuntime(acc *auth.Account, evType event.EventType, md ma
 
 	// if the service was deleted, remove it from the runtime
 	if evType == event.EventType_SourceDeleted {
-		if err := h.runtime.Delete(service, runtime.DeleteContext(ctx)); err != nil {
-			logger.Warnf("Failed to delete service %v/%v: %v", acc.Namespace, srvName, err)
-		} else {
-			logger.Infof("Successfully deleted service %v/%v: %v", acc.Namespace, srvName, err)
+		opts := []runtime.DeleteOption{
+			runtime.DeleteContext(ctx),
+			runtime.DeleteNamespace(env.Namespace),
 		}
+
+		if err := h.runtime.Delete(service, opts...); err != nil {
+			logger.Warnf("Failed to delete service %v/%v: %v", env.Namespace, srvName, err)
+		} else {
+			logger.Infof("Successfully deleted service %v/%v: %v", env.Namespace, srvName, err)
+		}
+
 		return
 	}
 
 	// check if the service is already running, if it is we'll just update it
 	srvs, err := h.runtime.Read(
-		runtime.ReadService(service.Name),
 		runtime.ReadContext(ctx),
+		runtime.ReadService(service.Name),
+		runtime.ReadNamespace(env.Namespace),
 	)
 	if err != nil {
-		logger.Warnf("Failed to read service %v/%v: %v", acc.Namespace, srvName, err)
+		logger.Warnf("Failed to read service %v/%v: %v", env.Namespace, srvName, err)
 		return
 	}
 	if len(srvs) > 0 {
+		opts := []runtime.UpdateOption{
+			runtime.UpdateContext(ctx),
+			runtime.UpdateNamespace(env.Namespace),
+		}
+
 		// the service already exists, we just need to update it
-		if err := h.runtime.Update(service, runtime.UpdateContext(ctx)); err != nil {
-			logger.Warnf("Failed to update service %v/%v: %v", acc.Namespace, srvName, err)
+		if err := h.runtime.Update(service, opts...); err != nil {
+			logger.Warnf("Failed to update service %v/%v: %v", env.Namespace, srvName, err)
 		} else {
-			logger.Warnf("Successfully updated service %v/%v", acc.Namespace, srvName)
+			logger.Warnf("Successfully updated service %v/%v", env.Namespace, srvName)
 		}
 		return
 	}
@@ -152,11 +181,12 @@ func (h *Handler) updateRuntime(acc *auth.Account, evType event.EventType, md ma
 		runtime.CreateType(typeFromServiceName(srvName)),
 		runtime.CreateImage(path.Join(githubPkgBase, project.Repository, srvName)),
 		runtime.CreateContext(ctx),
+		runtime.CreateNamespace(env.Namespace),
 	}
 	if err := h.runtime.Create(service, opts...); err != nil {
-		logger.Warnf("Failed to create service %v/%v: %v", acc.Namespace, srvName, err)
+		logger.Warnf("Failed to create service %v/%v: %v", env.Namespace, srvName, err)
 	} else {
-		logger.Warnf("Successfully created service %v/%v", acc.Namespace, srvName)
+		logger.Warnf("Successfully created service %v/%v", env.Namespace, srvName)
 	}
 }
 

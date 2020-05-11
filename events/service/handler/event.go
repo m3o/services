@@ -33,17 +33,17 @@ func (e *Events) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	if req.Type == pb.EventType_Unknown {
 		return errors.BadRequest(e.name, "Missing type")
 	}
-	if len(req.ProjectId) == 0 {
-		return errors.BadRequest(e.name, "Missing project id")
+	if len(req.EnvironmentId) == 0 {
+		return errors.BadRequest(e.name, "Missing environment id")
 	}
 
 	// construct the event
 	event := &pb.Event{
-		Id:        uuid.New().String(),
-		Type:      req.Type,
-		ProjectId: req.ProjectId,
-		Created:   time.Now().Unix(),
-		Metadata:  req.Metadata,
+		Id:            uuid.New().String(),
+		Type:          req.Type,
+		EnvironmentId: req.EnvironmentId,
+		Created:       time.Now().Unix(),
+		Metadata:      req.Metadata,
 	}
 
 	// write the event to the store
@@ -51,7 +51,7 @@ func (e *Events) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	if err != nil {
 		return errors.InternalServerError(e.name, "Error marshaling json: %v", err)
 	}
-	key := event.ProjectId + "/" + event.Id
+	key := event.EnvironmentId + "/" + event.Id
 	if err := e.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(e.name, "Error writing to the store: %v", err)
 	}
@@ -62,13 +62,13 @@ func (e *Events) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 // Read events
 func (e *Events) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	// validate the request
-	if len(req.ProjectId) == 0 {
-		return errors.BadRequest(e.name, "Missing project id")
+	if len(req.EnvironmentId) == 0 {
+		return errors.BadRequest(e.name, "Missing environment id")
 	}
 
-	// lookup the projects matching this prefix, if the event
-	// id is blank all the projects events will be returned
-	prefix := req.ProjectId + "/" + req.EventId
+	// lookup the environments matching this prefix, if the event
+	// id is blank all the environments events will be returned
+	prefix := req.EnvironmentId + "/" + req.EventId
 	recs, err := e.store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError(e.name, "Error reading from the store: %v", err)
