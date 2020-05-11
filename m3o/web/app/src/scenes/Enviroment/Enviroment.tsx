@@ -92,16 +92,16 @@ class Enviroment extends React.Component<Props> {
 
         <section>
           <h2>CLI</h2>
-          <p>Configure your CLI to use the {project?.name}/{environment?.name} enviroment. Firstly, all calls made to your enviroment are authenticated so if you aren't already, login using the following command and a token you can get at <a href='/todo'>this link</a>.</p>
-          <p className='code'>
-            micro login [token]
-          </p>
-
-          <p>Once you're logged in, add your enviroment and configure micro to use it with the following commands.</p>
+          <p>Configure your CLI to use the {project?.name}/{environment?.name} enviroment. Add your enviroment and configure micro to use it with the following commands:</p>
           <p className='code'>
             micro env add {project?.name}/{environment?.name} {environment?.namespace}.proxy.m3o.app
             <br />
             micro env set {project?.name}/{environment?.name}
+          </p>
+          
+          <p>All calls made to your enviroment are authenticated. Login using the following command and a token you can get <a href='https://account.micro.mu/settings' target='blank'>here</a>.</p>
+          <p className='code'>
+            micro login --token=[token]
           </p>
         </section>
 
