@@ -115,7 +115,7 @@ func (k *Kubernetes) CreateServiceAccount(ctx context.Context, req *pb.CreateSer
 			},
 			ImagePullSecrets: secrets,
 		},
-	})
+	}, k8s.CreateNamespace(req.Namespace))
 }
 
 // DeleteServiceAccount in k8s. Note, the service accounts are always named the same
@@ -129,5 +129,5 @@ func (k *Kubernetes) DeleteServiceAccount(ctx context.Context, req *pb.DeleteSer
 				Name: req.Namespace,
 			},
 		},
-	})
+	}, k8s.DeleteNamespace(req.Namespace))
 }
