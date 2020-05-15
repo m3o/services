@@ -558,44 +558,71 @@ addresses these issues with a pluggable foundation and strongly defined apis to 
 
 <p>The runtime is composed of the following features:</p>
 
+<h3 id="clients">Clients</h3>
+
+<p>Clients are entrypoints into the system. They enable access to your services through known access points.</p>
+
 <ul>
   <li>
-    <p><strong>api:</strong> An api gateway. A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable
-microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing
-via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.</p>
+    <p><strong>api:</strong> An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery.</p>
+  </li>
+  <li>
+    <p><strong>bot:</strong> A slack bot which enables you to query and interact with Micro directly from within slack. It’s great for ChatOps.</p>
+  </li>
+  <li>
+    <p><strong>cli:</strong> Access services via the terminal. Every good developer tool needs a CLI as a defacto standard for operating a system.</p>
+  </li>
+  <li>
+    <p><strong>proxy:</strong> An identity away proxy built which allows you to access remote environments without painful configuration or vpn.</p>
+  </li>
+  <li>
+    <p><strong>web:</strong> The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even
+query them directly.</p>
+  </li>
+</ul>
+
+<h3 id="services">Services</h3>
+
+<p>Services are the core services that makeup the runtime. They provide a programmable abstraction layer for distributed systems infrastructure.</p>
+
+<ul>
+  <li>
+    <p><strong>auth:</strong> Authentication and authorization is a core requirement for any production ready platform. Micro builds in an auth service 
+for managing service to service and user to service authentication.</p>
   </li>
   <li>
     <p><strong>broker:</strong> A message broker allowing for async messaging. Microservices are event driven architectures and should provide messaging as a first
 class citizen. Notify other services of events without needing to worry about a response.</p>
   </li>
   <li>
-    <p><strong>network:</strong> Build multi-cloud networks with the micro network service. Simply drop-in and connect the network services across any environment
-and create a single flat network to route globally. The micro network dynamically builds routes based on your local registry in each datacenter
-ensuring queries are routed based on locality.</p>
+    <p><strong>config:</strong> Manage dynamic config in a centralised location for your services to access. Has the ability to load config from multiple 
+sources and enables you to update config without needing to restart services.</p>
   </li>
   <li>
-    <p><strong>new:</strong> A service template generator. Create new service templates to get started quickly. Micro provides predefined templates for writing micro services.
-Always start in the same way, build identical services to be more productive.</p>
+    <p><strong>debug:</strong> Built in aggregation of stats, logs and tracing info for debugging. The debug service scrapes all services for their info to 
+help understand the overall scope of the system from one location.</p>
   </li>
   <li>
-    <p><strong>proxy:</strong> A transparent service proxy built on <a href="https://github.com/micro/go-micro">Go Micro</a>. Offload service discovery, load balancing,
-fault tolerance, message encoding, middleware, monitoring and more to a single a location. Run it standalone or alongside your service.</p>
+    <p><strong>network:</strong> A drop in service to service networking solution. Offload service discovery, load balancing and fault tolerance to the network.
+The micro network dynamically builds a latency based routing table based on the local registry. It includes support for multi-cloud networking.</p>
   </li>
   <li>
     <p><strong>registry:</strong> The registry provides service discovery to locate other services, store feature rich metadata and endpoint information. It’s a
 service explorer which lets you centrally and dynamically store this info at runtime.</p>
   </li>
   <li>
+    <p><strong>runtime:</strong> A service runtime which manages the lifecycle of your service, from source to running. The runtime service can natively locally 
+or on kubernetes, providing a seamless abstraction across both.</p>
+  </li>
+  <li>
     <p><strong>store:</strong> State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared
 between services or offload long term to keep microservices stateless and horizontally scalable.</p>
   </li>
-  <li>
-    <p><strong>web:</strong> The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even
-query them directly. The dashboard also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.</p>
-  </li>
 </ul>
 
-<p>Additionally micro provides a Go development framework:</p>
+<h3 id="framework">Framework</h3>
+
+<p>To write applications which run on Micro you can use the framework Go Micro.</p>
 
 <ul>
   <li><strong>go-micro:</strong> Leverage the powerful <a href="https://github.com/micro/go-micro">Go Micro</a> framework to develop microservices easily and quickly.
@@ -607,9 +634,9 @@ Go Micro abstracts away the complexity of distributed systems and provides simpl
 <ul>
   <li><strong>Framework</strong> - Start writing services using the <a href="framework.html">go-micro</a> framework.</li>
   <li><strong>Runtime</strong> - Manage your services using the <a href="runtime.html">micro</a> runtime.</li>
-  <li><strong>Network</strong> - Publicly share and host your services on the <a href="network.html">network</a>.</li>
+  <li><strong>Platform</strong> - Host and collaborate on your services on the <a href="platform.html">platform</a>.</li>
   <li><strong>Examples</strong> - Learn by example with real code <a href="https://github.com/micro/examples">examples</a></li>
-  <li><strong>Community</strong> - Join the the community and start collaborating on <a href="https://micro.mu/community">slack</a></li>
+  <li><strong>Community</strong> - Join the the community and start collaborating on <a href="https://slack.micro.mu">slack</a></li>
 </ul>
 
 
@@ -634,7 +661,7 @@ Go Micro abstracts away the complexity of distributed systems and provides simpl
             <div class="row">
                 <div class="col-lg-12 footer">
                &copy; 2020 Micro Services, Inc.<br />
- Last generated: May 14, 2020 <br />
+ Last generated: May 15, 2020 <br />
                 </div>
             </div>
 </footer>
