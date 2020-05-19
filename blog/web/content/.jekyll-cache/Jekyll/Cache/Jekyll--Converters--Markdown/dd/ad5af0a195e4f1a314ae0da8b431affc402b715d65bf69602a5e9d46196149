@@ -1,4 +1,0 @@
-I"&<p><br />
-In this post we’re going to discuss using <a href="https://github.com/micro/micro"><strong>Micro</strong></a> on <a href="http://nats.io/"><strong>NATS</strong></a>. 
-It includes discussion around service discovery, synchronous and asynchronous communication for microservices.</p>
-:ET

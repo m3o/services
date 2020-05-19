@@ -1,4 +1,0 @@
-I"R<p><br />
-Today we’re announcing support for Connect-Native Go Micro services via a slim initialisation library called <a href="https://github.com/micro/go-proxy">Go Proxy</a>. 
-This will provide <a href="https://github.com/micro/go-micro">Go Micro</a> with the ability to do authorized and secure service-to-service communication.</p>
-:ET

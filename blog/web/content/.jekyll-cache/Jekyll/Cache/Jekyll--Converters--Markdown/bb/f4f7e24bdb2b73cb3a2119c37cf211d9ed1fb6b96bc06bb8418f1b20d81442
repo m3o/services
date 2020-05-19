@@ -1,5 +1,0 @@
-I"/<p><a href="https://github.com/micro/micro"><strong>Micro</strong></a> is an open source project focused on simplifying microservices development. 
-It started life as <a href="https://github.com/micro/go-micro"><strong>go-micro</strong></a> - a Go framework for microservice development. But even 
-before then, go-micro, was a hacked up tiny library created to enable the development of a “kubernetes as a service” 
-project way back when in 2014 (see the first commit <a href="https://gist.github.com/asim/a035820aec2d8cba5d73b5be12c6e707">here</a>).</p>
-:ET
