@@ -12,7 +12,7 @@ export class User {
   first_name: string;
   last_name: string;
   email: string;
-  roles: string[];
+  scopes: string[];
   invite_code: string;
   invite_verified: boolean;
 
@@ -21,13 +21,13 @@ export class User {
     this.first_name = args.first_name || '';
     this.last_name = args.last_name || '';
     this.email = args.email || '';
-    this.roles = args.roles || [];
+    this.scopes = args.scopes || [];
     this.invite_code = args.invite_code;
     this.invite_verified = args.invite_verified;
   }
 
   requiresOnboarding():boolean {
-    if(this.roles.includes('admin')) return false;
+    if(this.scopes.includes('admin')) return false;
     return !this.profileCompleted()
   }
 

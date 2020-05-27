@@ -91,21 +91,8 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	// Check to see if the user is part of the micro team
-	isPartOfTeam, err := h.getGithubTeamStatus(profile, token)
-	if err != nil {
-		h.handleError(w, req, err.Error())
-		return
-	}
-
-	// Setup the roles
-	roles := []string{"user", "user.developer"}
-	if isPartOfTeam {
-		roles = append(roles, "user.collaborator")
-	}
-
 	// Create an auth account
-	acc, err := h.auth.Generate(profile.Email, auth.WithRoles(roles...), auth.WithProvider("oauth/github"))
+	acc, err := h.auth.Generate(profile.Email, auth.WithType("user"), auth.WithProvider("oauth/github"))
 	if err != nil {
 		h.handleError(w, req, "Error creating auth account: %v", err)
 		return
@@ -223,19 +210,4 @@ func (h *Handler) getGithubProfile(token string) (*githubProfile, error) {
 	}
 
 	return profile, err
-}
-
-func (h *Handler) getGithubTeamStatus(profile *githubProfile, token string) (bool, error) {
-	url := fmt.Sprintf("https://api.github.com/teams/%v/memberships/%v", h.githubTeamID, profile.Username)
-
-	r, _ := http.NewRequest("GET", url, nil)
-	r.Header.Add("Authorization", "Bearer "+token)
-	client := &http.Client{}
-	resp, err := client.Do(r)
-
-	if err != nil {
-		return false, fmt.Errorf("Error getting user team membership from GitHub: %v", err)
-	}
-
-	return resp.StatusCode == http.StatusOK, nil
 }

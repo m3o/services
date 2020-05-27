@@ -28,7 +28,7 @@ func main() {
 	// this is a temporaty solution until identity is setup then we'll need to pass a set of creds
 	// as arguments.
 	name := fmt.Sprintf("bootstrap-%v", srv.Options().Server.Options().Id)
-	acc, err := srv.Options().Auth.Generate(name, auth.WithRoles("admin"))
+	acc, err := srv.Options().Auth.Generate(name, auth.WithScopes("admin"))
 	if err != nil {
 		logger.Fatal(err)
 	}

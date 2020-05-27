@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/micro/go-micro/v2/auth/provider"
@@ -97,14 +96,8 @@ func (h *Handler) HandleGoogleOauthVerify(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	// Setup the roles
-	roles := []string{"user", "user.developer"}
-	if strings.HasSuffix(profile.Email, "@micro.mu") {
-		roles = append(roles, "admin", "user.collaborator")
-	}
-
 	// Create an auth account
-	acc, err := h.auth.Generate(profile.Email, auth.WithRoles(roles...), auth.WithProvider("oauth/google"))
+	acc, err := h.auth.Generate(profile.Email, auth.WithType("user"), auth.WithProvider("oauth/google"))
 	if err != nil {
 		h.handleError(w, req, "Error creating auth account: %v", err)
 		return

@@ -23,7 +23,7 @@ func main() {
 	// it can interact with the runtime and override the contexts
 	// namespace. TODO: refactor once identity has been released.
 	accName := fmt.Sprintf("%v-%v", service.Name(), service.Server().Options().Id)
-	acc, err := service.Options().Auth.Generate(accName, auth.WithRoles("admin", "service"))
+	acc, err := service.Options().Auth.Generate(accName, auth.WithScopes("admin", "service"))
 	if err != nil {
 		logger.Fatalf("Error generating elevated service account: %v", err)
 	}

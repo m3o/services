@@ -62,7 +62,7 @@ message User {
 	string first_name = 4;
 	string last_name = 5;
 	string email = 6;
-	repeated string roles = 7;
+	repeated string scopes = 7;
 	string invite_code = 8;
 	bool invite_verified = 9;	
 }

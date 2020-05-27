@@ -27,7 +27,7 @@ func (h *Handler) ReadUser(ctx context.Context, req *pb.ReadUserRequest, rsp *pb
 
 	// Serialize the User
 	rsp.User = serializeUser(user)
-	rsp.User.Roles = acc.Roles
+	rsp.User.Scopes = acc.Scopes
 	return nil
 }
 

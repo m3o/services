@@ -68,7 +68,7 @@ func (h *Handler) Signup(ctx context.Context, req *pb.SignupRequest, rsp *pb.Sig
 	}
 
 	// Generate an account and token
-	acc, err := h.auth.Generate(req.Email, auth.WithRoles("user"), auth.WithSecret(req.Password))
+	acc, err := h.auth.Generate(req.Email, auth.WithType("user"), auth.WithSecret(req.Password))
 	if err != nil {
 		return err
 	}
