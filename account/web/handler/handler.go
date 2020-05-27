@@ -159,9 +159,9 @@ func (h *Handler) handleError(w http.ResponseWriter, req *http.Request, format s
 
 func (h *Handler) loginUser(w http.ResponseWriter, req *http.Request, tok *auth.Token) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   auth.TokenCookieName,
-		Value:  tok.AccessToken,
+		Name:   "micro-token",
 		Domain: "micro.mu",
+		Value:  tok.AccessToken,
 		Path:   "/",
 	})
 
