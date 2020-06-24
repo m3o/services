@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/micro/go-micro/v2/config"
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 
@@ -18,8 +19,9 @@ import (
 )
 
 type tokenToEmail struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
+	Email      string `json:"email"`
+	Token      string `json:"token"`
+	IsVerified bool   `json:"is_verified"`
 }
 
 type Onboarding struct {
@@ -30,10 +32,22 @@ type Onboarding struct {
 }
 
 func NewOnboarding(paymentService paymentsproto.ProviderService,
-	store store.Store) *Onboarding {
+	store store.Store,
+	config config.Config) *Onboarding {
+	apiKey := config.Get("micro", "onboarding", "sendgrid", "api_key").String("")
+	templateID := config.Get("micro", "onboarding", "sendgrid", "template_id").String("")
+
+	if len(apiKey) == 0 {
+		logger.Error("No sendgrid API key provided")
+	}
+	if len(templateID) == 0 {
+		logger.Error("No sendgrid template ID provided")
+	}
 	return &Onboarding{
-		paymentService: paymentService,
-		store:          store,
+		paymentService:     paymentService,
+		store:              store,
+		sendgridAPIKey:     apiKey,
+		sendgridTemplateID: templateID,
 	}
 }
 
@@ -67,7 +81,7 @@ func (e *Onboarding) SendVerificationEmail(ctx context.Context,
 		return err
 	}
 
-	if err := e.store.Write(&store.Record{Key: token, Value: bytes}); err != nil {
+	if err := e.store.Write(&store.Record{Key: req.Email, Value: bytes}); err != nil {
 		return err
 	}
 

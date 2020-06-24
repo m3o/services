@@ -24,6 +24,7 @@ func main() {
 	onboarding.RegisterOnboardingHandler(service.Server(), handler.NewOnboarding(
 		paymentsproto.NewProviderService("go.micro.payment.service.stripe", service.Options().Client),
 		service.Options().Store,
+		service.Options().Config,
 	))
 
 	// Register Struct as Subscriber
