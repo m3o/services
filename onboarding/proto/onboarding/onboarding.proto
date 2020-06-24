@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package go.micro.service.onboarding;
+
+service Onboarding {
+   rpc SendVerificationEmail(SendVerificationEmailRequest) returns (SendVerificationEmailResponse);
+   rpc Verify(VerifyRequest) returns (VerifyResponse);
+   // Creates a subscription and an account
+   rpc FinishOnboarding(FinishOnboardingRequest) returns (FinishOnboardingResponse);
+}
+
+message SendVerificationEmailRequest {
+	string email = 1;
+}
+
+message SendVerificationEmailResponse {
+}
+
+message VerifyRequest {
+	string email = 1;
+	string token = 2;
+}
+
+message VerifyResponse {}
+
+message FinishOnboardingRequest {
+	string email = 1;
+	// This payment ID is the one we got back from Stripe on the frontend (ie. `m3o.com/subscribe.html`)
+	string paymentId = 2;
+}
+
+message FinishOnboardingResponse {
+	string token = 1;
+	string nameSpace = 2;
+}
