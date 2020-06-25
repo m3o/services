@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/config"
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
@@ -17,6 +19,8 @@ import (
 
 	paymentsproto "github.com/micro/services/payments/provider/proto"
 )
+
+const storePrefixAccountSecrets = "secrets/"
 
 type tokenToEmail struct {
 	Email      string `json:"email"`
@@ -27,15 +31,19 @@ type tokenToEmail struct {
 type Onboarding struct {
 	paymentService     paymentsproto.ProviderService
 	store              store.Store
+	auth               auth.Auth
 	sendgridTemplateID string
 	sendgridAPIKey     string
+	planID             string
 }
 
 func NewOnboarding(paymentService paymentsproto.ProviderService,
 	store store.Store,
-	config config.Config) *Onboarding {
+	config config.Config,
+	auth auth.Auth) *Onboarding {
 	apiKey := config.Get("micro", "onboarding", "sendgrid", "api_key").String("")
 	templateID := config.Get("micro", "onboarding", "sendgrid", "template_id").String("")
+	planID := config.Get("micro", "onboarding", "plan_id").String("")
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -46,8 +54,10 @@ func NewOnboarding(paymentService paymentsproto.ProviderService,
 	return &Onboarding{
 		paymentService:     paymentService,
 		store:              store,
+		auth:               auth,
 		sendgridAPIKey:     apiKey,
 		sendgridTemplateID: templateID,
+		planID:             planID,
 	}
 }
 
@@ -57,17 +67,6 @@ func (e *Onboarding) SendVerificationEmail(ctx context.Context,
 	req *onboarding.SendVerificationEmailRequest,
 	rsp *onboarding.SendVerificationEmailResponse) error {
 	logger.Info("Received Onboarding.SendVerificationEmail request")
-
-	// Create a Stripe customer and send a verification email.
-	_, err := e.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
-		Customer: &paymentsproto.Customer{
-			Id:   req.Email,
-			Type: "user",
-		},
-	})
-	if err != nil {
-		return err
-	}
 
 	// Save token
 	// @todo maybe use something nicer.
@@ -86,6 +85,8 @@ func (e *Onboarding) SendVerificationEmail(ctx context.Context,
 	}
 
 	// Send email
+	// @todo send different emails based on if the account already exists
+	// ie. registration vs login email.
 	err = e.sendEmail(req.Email, token)
 	if err != nil {
 		return err
@@ -142,12 +143,112 @@ func (e *Onboarding) Verify(ctx context.Context,
 	req *onboarding.VerifyRequest,
 	rsp *onboarding.VerifyResponse) error {
 	logger.Info("Received Onboarding.Verify request")
-	return nil
+
+	recs, err := e.store.Read(req.Email)
+	if err == store.ErrNotFound {
+		return errors.New("Can't verify: record not found")
+	} else if err != nil {
+		return err
+	}
+
+	tok := &tokenToEmail{}
+	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
+		return err
+	}
+	if tok.Token != req.Token {
+		return errors.New("Invalid token")
+	}
+
+	// If the user is verified, we are going to log her in and the
+	// flow stops here. We return the auth token to be used for further calls.
+	if tok.IsVerified {
+		secret, err := e.getAccountSecret(req.Email)
+		if err != nil {
+			return err
+		}
+		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret))
+		if err != nil {
+			return err
+		}
+		// @todo Is this correct?
+		rsp.AuthToken = token.RefreshToken
+		return nil
+	}
+	_, err = e.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
+		Customer: &paymentsproto.Customer{
+			Id:   req.Email,
+			Type: "user",
+		},
+	})
+	return err
 }
 
 func (e *Onboarding) FinishOnboarding(ctx context.Context,
 	req *onboarding.FinishOnboardingRequest,
 	rsp *onboarding.FinishOnboardingResponse) error {
 	logger.Info("Received Onboarding.FinishOnboarding request")
+
+	recs, err := e.store.Read(req.Email)
+	if err == store.ErrNotFound {
+		return errors.New("Can't verify: record not found")
+	} else if err != nil {
+		return err
+	}
+
+	tok := &tokenToEmail{}
+	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
+		return err
+	}
+	if tok.Token != req.Token {
+		return errors.New("Invalid token")
+	}
+
+	_, err = e.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
+		CustomerId:   req.Email,
+		CustomerType: "user",
+		Id:           req.PaymentMethodId,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+		CustomerId:   req.Email,
+		CustomerType: "user",
+		PlanId:       e.planID,
+	})
+	if err != nil {
+		return err
+	}
+	secret := uuid.New().String()
+	err = e.setAccountSecret(req.Email, secret)
+	if err != nil {
+		return err
+	}
+	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret))
+	if err != nil {
+		return err
+	}
+	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret))
+	if err != nil {
+		return err
+	}
+	// @todo correct thing to use here?
+	rsp.AuthToken = t.RefreshToken
 	return nil
+}
+
+// lifted from https://github.com/micro/services/blob/550220a6eff2604b3e6d58d09db2b4489967019c/account/web/handler/handler.go#L114
+func (e *Onboarding) setAccountSecret(id, secret string) error {
+	key := storePrefixAccountSecrets + id
+	return e.store.Write(&store.Record{Key: key, Value: []byte(secret)})
+}
+
+func (e *Onboarding) getAccountSecret(id string) (string, error) {
+	key := storePrefixAccountSecrets + id
+	recs, err := e.store.Read(key)
+	if err != nil {
+		return "", err
+	}
+	return string(recs[0].Value), nil
 }

@@ -25,6 +25,7 @@ func main() {
 		paymentsproto.NewProviderService("go.micro.payment.service.stripe", service.Options().Client),
 		service.Options().Store,
 		service.Options().Config,
+		service.Options().Auth,
 	))
 
 	// Register Struct as Subscriber
