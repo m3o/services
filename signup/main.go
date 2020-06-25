@@ -6,8 +6,8 @@ import (
 	"github.com/micro/services/signup/handler"
 	"github.com/micro/services/signup/subscriber"
 
-	signup "github.com/micro/services/signup/proto/signup"
 	paymentsproto "github.com/micro/services/payments/provider/proto"
+	signup "github.com/micro/services/signup/proto/signup"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 
 	// Register Handler
 	signup.RegisterSignupHandler(service.Server(), handler.NewSignup(
-		paymentsproto.NewProviderService("go.micro.payment.service.stripe", service.Options().Client),
+		paymentsproto.NewProviderService("go.micro.service.payment.stripe", service.Options().Client),
 		service.Options().Store,
 		service.Options().Config,
 		service.Options().Auth,

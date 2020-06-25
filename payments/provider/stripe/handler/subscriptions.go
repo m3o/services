@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/logger"
 	pb "github.com/micro/services/payments/provider/proto"
 	stripe "github.com/stripe/stripe-go"
 )
@@ -30,6 +31,7 @@ func (h *Handler) CreateSubscription(ctx context.Context, req *pb.CreateSubscrip
 	// Handle the error
 	switch err.(*stripe.Error).Code {
 	case stripe.ErrorCodeParameterInvalidEmpty:
+		logger.Errorf("Error creating subscription: %v", err)
 		return errors.BadRequest("go.micro.service.payment.stripe", "missing arguments")
 	default:
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)

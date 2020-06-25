@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -49,6 +50,9 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	}
 	if len(templateID) == 0 {
 		logger.Error("No sendgrid template ID provided")
+	}
+	if len(planID) == 0 {
+		logger.Error("No stripe plan id")
 	}
 	return &Signup{
 		paymentService:     paymentService,
@@ -98,15 +102,18 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
 func (e *Signup) sendEmail(email, token string) error {
+	logger.Infof("Sending email to address '%v'", email)
+
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": e.sendgridTemplateID,
 		"from": map[string]string{
-			"email": "Micro <support@micro.mu>",
+			"email": "Janos Dobronszki <dobronszki@gmail.com>",
 		},
 		"personalizations": []interface{}{
 			map[string]interface{}{
 				"to": []map[string]string{
 					{
+						"name":  "Janos",
 						"email": email,
 					},
 				},
@@ -121,17 +128,18 @@ func (e *Signup) sendEmail(email, token string) error {
 	if err != nil {
 		return err
 	}
+
 	req.Header.Set("Authorization", "Bearer "+e.sendgridAPIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	if rsp, err := new(http.Client).Do(req); err != nil {
-		logger.Info("Could not send email to %v, error: %v", email, err)
+		logger.Infof("Could not send email to %v, error: %v", email, err)
 	} else if rsp.StatusCode != 202 {
 		bytes, err := ioutil.ReadAll(rsp.Body)
 		if err != nil {
 			return err
 		}
-		logger.Info("Could not send email to %v, error: %v", email, string(bytes))
+		logger.Infof("Could not send email to %v, error: %v", email, string(bytes))
 	}
 	return nil
 }
@@ -145,7 +153,7 @@ func (e *Signup) Verify(ctx context.Context,
 	if err == store.ErrNotFound {
 		return errors.New("Can't verify: record not found")
 	} else if err != nil {
-		return err
+		return fmt.Errorf("Email verification error: %v", err)
 	}
 
 	tok := &tokenToEmail{}
@@ -160,8 +168,8 @@ func (e *Signup) Verify(ctx context.Context,
 	// flow stops here. We return the auth token to be used for further calls.
 	if tok.IsVerified {
 		secret, err := e.getAccountSecret(req.Email)
-		if err != nil {
-			return err
+		if err != store.ErrNotFound && err != nil {
+			return fmt.Errorf("Can't get account secret: %v", err)
 		}
 		// This is the case of account being verified but signup not finished.
 		if len(secret) == 0 {
@@ -223,7 +231,16 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 	_, err = e.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
 		CustomerId:   req.Email,
 		CustomerType: "user",
-		Id:           req.PaymentMethodId,
+		Id:           req.PaymentMethodID,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = e.paymentService.SetDefaultPaymentMethod(ctx, &paymentsproto.SetDefaultPaymentMethodRequest{
+		CustomerId:      req.Email,
+		CustomerType:    "user",
+		PaymentMethodId: req.PaymentMethodID,
 	})
 	if err != nil {
 		return err

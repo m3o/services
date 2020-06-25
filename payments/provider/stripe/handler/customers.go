@@ -38,7 +38,7 @@ func (h *Handler) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequ
 	// If the Customer already exists, update using the existing attrbutes
 	if len(stripeID) > 0 {
 		if _, err := h.client.Customers.Update(stripeID, &params); err != nil {
-			return errors.InternalServerError(h.name, "Unexepcted stripe update error: %v", err)
+			return errors.InternalServerError(h.name, "Unexpected stripe update error: %v", err)
 		}
 		return nil
 	}
@@ -46,7 +46,7 @@ func (h *Handler) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequ
 	// Create the Customer in stripe
 	c, err := h.client.Customers.New(&params)
 	if err != nil {
-		return errors.InternalServerError(h.name, "Unexepcted stripe create error: %v", err)
+		return errors.InternalServerError(h.name, "Unexpected stripe create error: %v", err)
 	}
 
 	// Write the ID to the database
