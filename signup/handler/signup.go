@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
@@ -108,8 +107,6 @@ func (e *Signup) sendEmail(email, token string) error {
 			map[string]interface{}{
 				"to": []map[string]string{
 					{
-						// @todo consider using proper name
-						"name":  strings.Split(email, "@")[0],
 						"email": email,
 					},
 				},
@@ -166,14 +163,34 @@ func (e *Signup) Verify(ctx context.Context,
 		if err != nil {
 			return err
 		}
+		// This is the case of account being verified but signup not finished.
+		if len(secret) == 0 {
+			return nil
+		}
 		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret))
 		if err != nil {
 			return err
 		}
-		// @todo Is this correct?
-		rsp.AuthToken = token.RefreshToken
+		rsp.AuthToken = &signup.AuthToken{
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+			Expiry:       token.Expiry.Unix(),
+			Created:      token.Created.Unix(),
+		}
 		return nil
 	}
+
+	// Mark entry as verified
+	tok.IsVerified = true
+	bytes, err := json.Marshal(tok)
+	if err != nil {
+		return err
+	}
+	e.store.Write(&store.Record{
+		Key:   tok.Email,
+		Value: bytes,
+	})
+
 	_, err = e.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
 		Customer: &paymentsproto.Customer{
 			Id:   req.Email,
@@ -183,10 +200,10 @@ func (e *Signup) Verify(ctx context.Context,
 	return err
 }
 
-func (e *Signup) FinishSignup(ctx context.Context,
-	req *signup.FinishSignupRequest,
-	rsp *signup.FinishSignupResponse) error {
-	logger.Info("Received Signup.FinishSignup request")
+func (e *Signup) CompleteSignup(ctx context.Context,
+	req *signup.CompleteSignupRequest,
+	rsp *signup.CompleteSignupResponse) error {
+	logger.Info("Received Signup.CompleteSignup request")
 
 	recs, err := e.store.Read(req.Email)
 	if err == store.ErrNotFound {
@@ -233,8 +250,12 @@ func (e *Signup) FinishSignup(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	// @todo correct thing to use here?
-	rsp.AuthToken = t.RefreshToken
+	rsp.AuthToken = &signup.AuthToken{
+		AccessToken:  t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		Expiry:       t.Expiry.Unix(),
+		Created:      t.Created.Unix(),
+	}
 	return nil
 }
 

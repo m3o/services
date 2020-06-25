@@ -45,7 +45,7 @@ type SignupService interface {
 	SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, opts ...client.CallOption) (*SendVerificationEmailResponse, error)
 	Verify(ctx context.Context, in *VerifyRequest, opts ...client.CallOption) (*VerifyResponse, error)
 	// Creates a subscription and an account
-	FinishSignup(ctx context.Context, in *FinishSignupRequest, opts ...client.CallOption) (*FinishSignupResponse, error)
+	CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error)
 }
 
 type signupService struct {
@@ -80,9 +80,9 @@ func (c *signupService) Verify(ctx context.Context, in *VerifyRequest, opts ...c
 	return out, nil
 }
 
-func (c *signupService) FinishSignup(ctx context.Context, in *FinishSignupRequest, opts ...client.CallOption) (*FinishSignupResponse, error) {
-	req := c.c.NewRequest(c.name, "Signup.FinishSignup", in)
-	out := new(FinishSignupResponse)
+func (c *signupService) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error) {
+	req := c.c.NewRequest(c.name, "Signup.CompleteSignup", in)
+	out := new(CompleteSignupResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,14 +96,14 @@ type SignupHandler interface {
 	SendVerificationEmail(context.Context, *SendVerificationEmailRequest, *SendVerificationEmailResponse) error
 	Verify(context.Context, *VerifyRequest, *VerifyResponse) error
 	// Creates a subscription and an account
-	FinishSignup(context.Context, *FinishSignupRequest, *FinishSignupResponse) error
+	CompleteSignup(context.Context, *CompleteSignupRequest, *CompleteSignupResponse) error
 }
 
 func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.HandlerOption) error {
 	type signup interface {
 		SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, out *SendVerificationEmailResponse) error
 		Verify(ctx context.Context, in *VerifyRequest, out *VerifyResponse) error
-		FinishSignup(ctx context.Context, in *FinishSignupRequest, out *FinishSignupResponse) error
+		CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error
 	}
 	type Signup struct {
 		signup
@@ -124,6 +124,6 @@ func (h *signupHandler) Verify(ctx context.Context, in *VerifyRequest, out *Veri
 	return h.SignupHandler.Verify(ctx, in, out)
 }
 
-func (h *signupHandler) FinishSignup(ctx context.Context, in *FinishSignupRequest, out *FinishSignupResponse) error {
-	return h.SignupHandler.FinishSignup(ctx, in, out)
+func (h *signupHandler) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error {
+	return h.SignupHandler.CompleteSignup(ctx, in, out)
 }

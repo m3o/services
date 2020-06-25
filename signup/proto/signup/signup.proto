@@ -6,7 +6,7 @@ service Signup {
    rpc SendVerificationEmail(SendVerificationEmailRequest) returns (SendVerificationEmailResponse);
    rpc Verify(VerifyRequest) returns (VerifyResponse);
    // Creates a subscription and an account
-   rpc FinishSignup(FinishSignupRequest) returns (FinishSignupResponse);
+   rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
 }
 
 message SendVerificationEmailRequest {
@@ -28,10 +28,10 @@ message VerifyResponse {
 	// the flow stops here.
 	// For users who are yet to be registered
 	// the token will be acquired in the `FinishSignup` step.
-	string authToken = 1;
+	AuthToken authToken = 1;
 }
 
-message FinishSignupRequest {
+message CompleteSignupRequest {
 	string email = 1;
 	// The token has to be passed here too for identification purposes.
 	string token = 2;
@@ -39,7 +39,15 @@ message FinishSignupRequest {
 	string paymentMethodId = 3;
 }
 
-message FinishSignupResponse {
-	string authToken = 1;
+message CompleteSignupResponse {
+	AuthToken authToken = 1;
 	string nameSpace = 2;
+}
+
+// lifted from https://github.com/micro/go-micro/blob/master/auth/service/proto/auth.proto
+message AuthToken {
+	string access_token = 1;
+	string refresh_token = 2;
+	int64 created = 3;
+	int64 expiry = 4;
 }
