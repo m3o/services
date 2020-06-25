@@ -1,4 +1,4 @@
-module github.com/micro/services/onboarding
+module github.com/micro/services/signup
 
 go 1.13
 

@@ -15,7 +15,7 @@ import (
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 
-	onboarding "github.com/micro/services/onboarding/proto/onboarding"
+	signup "github.com/micro/services/signup/proto/signup"
 
 	paymentsproto "github.com/micro/services/payments/provider/proto"
 )
@@ -28,7 +28,7 @@ type tokenToEmail struct {
 	IsVerified bool   `json:"is_verified"`
 }
 
-type Onboarding struct {
+type Signup struct {
 	paymentService     paymentsproto.ProviderService
 	store              store.Store
 	auth               auth.Auth
@@ -37,13 +37,13 @@ type Onboarding struct {
 	planID             string
 }
 
-func NewOnboarding(paymentService paymentsproto.ProviderService,
+func NewSignup(paymentService paymentsproto.ProviderService,
 	store store.Store,
 	config config.Config,
-	auth auth.Auth) *Onboarding {
-	apiKey := config.Get("micro", "onboarding", "sendgrid", "api_key").String("")
-	templateID := config.Get("micro", "onboarding", "sendgrid", "template_id").String("")
-	planID := config.Get("micro", "onboarding", "plan_id").String("")
+	auth auth.Auth) *Signup {
+	apiKey := config.Get("micro", "signup", "sendgrid", "api_key").String("")
+	templateID := config.Get("micro", "signup", "sendgrid", "template_id").String("")
+	planID := config.Get("micro", "signup", "plan_id").String("")
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -51,7 +51,7 @@ func NewOnboarding(paymentService paymentsproto.ProviderService,
 	if len(templateID) == 0 {
 		logger.Error("No sendgrid template ID provided")
 	}
-	return &Onboarding{
+	return &Signup{
 		paymentService:     paymentService,
 		store:              store,
 		auth:               auth,
@@ -61,12 +61,12 @@ func NewOnboarding(paymentService paymentsproto.ProviderService,
 	}
 }
 
-// SendVerificationEmail is the first step in the onboarding flow.SendVerificationEmail
+// SendVerificationEmail is the first step in the signup flow.SendVerificationEmail
 // A stripe customer and a verification token will be created and an email sent.
-func (e *Onboarding) SendVerificationEmail(ctx context.Context,
-	req *onboarding.SendVerificationEmailRequest,
-	rsp *onboarding.SendVerificationEmailResponse) error {
-	logger.Info("Received Onboarding.SendVerificationEmail request")
+func (e *Signup) SendVerificationEmail(ctx context.Context,
+	req *signup.SendVerificationEmailRequest,
+	rsp *signup.SendVerificationEmailResponse) error {
+	logger.Info("Received Signup.SendVerificationEmail request")
 
 	// Save token
 	// @todo maybe use something nicer.
@@ -98,7 +98,7 @@ func (e *Onboarding) SendVerificationEmail(ctx context.Context,
 // Lifted  from the invite service https://github.com/micro/services/blob/master/projects/invite/handler/invite.go#L187
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
-func (e *Onboarding) sendEmail(email, token string) error {
+func (e *Signup) sendEmail(email, token string) error {
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": e.sendgridTemplateID,
 		"from": map[string]string{
@@ -139,10 +139,10 @@ func (e *Onboarding) sendEmail(email, token string) error {
 	return nil
 }
 
-func (e *Onboarding) Verify(ctx context.Context,
-	req *onboarding.VerifyRequest,
-	rsp *onboarding.VerifyResponse) error {
-	logger.Info("Received Onboarding.Verify request")
+func (e *Signup) Verify(ctx context.Context,
+	req *signup.VerifyRequest,
+	rsp *signup.VerifyResponse) error {
+	logger.Info("Received Signup.Verify request")
 
 	recs, err := e.store.Read(req.Email)
 	if err == store.ErrNotFound {
@@ -183,10 +183,10 @@ func (e *Onboarding) Verify(ctx context.Context,
 	return err
 }
 
-func (e *Onboarding) FinishOnboarding(ctx context.Context,
-	req *onboarding.FinishOnboardingRequest,
-	rsp *onboarding.FinishOnboardingResponse) error {
-	logger.Info("Received Onboarding.FinishOnboarding request")
+func (e *Signup) FinishSignup(ctx context.Context,
+	req *signup.FinishSignupRequest,
+	rsp *signup.FinishSignupResponse) error {
+	logger.Info("Received Signup.FinishSignup request")
 
 	recs, err := e.store.Read(req.Email)
 	if err == store.ErrNotFound {
@@ -239,12 +239,12 @@ func (e *Onboarding) FinishOnboarding(ctx context.Context,
 }
 
 // lifted from https://github.com/micro/services/blob/550220a6eff2604b3e6d58d09db2b4489967019c/account/web/handler/handler.go#L114
-func (e *Onboarding) setAccountSecret(id, secret string) error {
+func (e *Signup) setAccountSecret(id, secret string) error {
 	key := storePrefixAccountSecrets + id
 	return e.store.Write(&store.Record{Key: key, Value: []byte(secret)})
 }
 
-func (e *Onboarding) getAccountSecret(id string) (string, error) {
+func (e *Signup) getAccountSecret(id string) (string, error) {
 	key := storePrefixAccountSecrets + id
 	recs, err := e.store.Read(key)
 	if err != nil {

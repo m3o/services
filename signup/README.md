@@ -1,11 +1,11 @@
-# Onboarding Service
+# Signup Service
 
-This is the Onboarding service
+This is the Signup service
 
 Generated with
 
 ```
-micro new --namespace=go.micro --type=service onboarding
+micro new --namespace=go.micro --type=service signup
 ```
 
 ## Getting Started
@@ -16,9 +16,9 @@ micro new --namespace=go.micro --type=service onboarding
 
 ## Configuration
 
-- FQDN: go.micro.service.onboarding
+- FQDN: go.micro.service.signup
 - Type: service
-- Alias: onboarding
+- Alias: signup
 
 ## Dependencies
 
@@ -46,7 +46,7 @@ make build
 
 Run the service
 ```
-./onboarding-service
+./signup-service
 ```
 
 Build a docker image
