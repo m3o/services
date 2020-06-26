@@ -23,9 +23,8 @@ import (
 const storePrefixAccountSecrets = "secrets/"
 
 type tokenToEmail struct {
-	Email      string `json:"email"`
-	Token      string `json:"token"`
-	IsVerified bool   `json:"is_verified"`
+	Email string `json:"email"`
+	Token string `json:"token"`
 }
 
 type Signup struct {
@@ -164,17 +163,13 @@ func (e *Signup) Verify(ctx context.Context,
 		return errors.New("Invalid token")
 	}
 
-	// If the user is verified, we are going to log her in and the
-	// flow stops here. We return the auth token to be used for further calls.
-	if tok.IsVerified {
-		secret, err := e.getAccountSecret(req.Email)
-		if err != store.ErrNotFound && err != nil {
-			return fmt.Errorf("Can't get account secret: %v", err)
-		}
-		// This is the case of account being verified but signup not finished.
-		if len(secret) == 0 {
-			return nil
-		}
+	secret, err := e.getAccountSecret(req.Email)
+	if err != store.ErrNotFound && err != nil {
+		return fmt.Errorf("Can't get account secret: %v", err)
+	}
+	// If the user has a secret it means the account is ready
+	// to be used, so we log them in.
+	if len(secret) > 0 {
 		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret))
 		if err != nil {
 			return err
@@ -187,17 +182,6 @@ func (e *Signup) Verify(ctx context.Context,
 		}
 		return nil
 	}
-
-	// Mark entry as verified
-	tok.IsVerified = true
-	bytes, err := json.Marshal(tok)
-	if err != nil {
-		return err
-	}
-	e.store.Write(&store.Record{
-		Key:   tok.Email,
-		Value: bytes,
-	})
 
 	_, err = e.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
 		Customer: &paymentsproto.Customer{
