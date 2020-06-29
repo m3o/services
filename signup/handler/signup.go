@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -15,8 +16,6 @@ import (
 	"github.com/micro/go-micro/v2/config"
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 
 	signup "github.com/micro/services/signup/proto/signup"
 
@@ -50,6 +49,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	store store.Store,
 	config config.Config,
 	auth auth.Auth) *Signup {
+
 	apiKey := config.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := config.Get("micro", "signup", "sendgrid", "template_id").String("")
 	planID := config.Get("micro", "signup", "plan_id").String("")
@@ -83,6 +83,34 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	}
 }
 
+// taken from https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+var src = rand.NewSource(time.Now().UnixNano())
+
+func randStringBytesMaskImprSrc(n int) string {
+	b := make([]byte, n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return string(b)
+}
+
 // SendVerificationEmail is the first step in the signup flow.SendVerificationEmail
 // A stripe customer and a verification token will be created and an email sent.
 func (e *Signup) SendVerificationEmail(ctx context.Context,
@@ -90,16 +118,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
-	// Save token
-	k, err := totp.GenerateCodeCustom(e.key, time.Now(), totp.ValidateOpts{
-		Period:    300,
-		Skew:      1,
-		Digits:    otp.DigitsSix,
-		Algorithm: otp.AlgorithmSHA1,
-	})
-	if err != nil {
-		return err
-	}
+	k := randStringBytesMaskImprSrc(8)
 	tok := &tokenToEmail{
 		Token: k,
 		Email: req.Email,
@@ -191,16 +210,6 @@ func (e *Signup) Verify(ctx context.Context,
 
 	if tok.Token != req.Token {
 		return errors.New("Invalid token")
-	}
-	// validate the otp
-	ok, err := totp.ValidateCustom(req.Token, e.key, time.Now(), totp.ValidateOpts{
-		Period:    300,
-		Skew:      1,
-		Digits:    otp.DigitsSix,
-		Algorithm: otp.AlgorithmSHA1,
-	})
-	if !ok {
-		return errors.New("Invalid OTP token")
 	}
 
 	secret, err := e.getAccountSecret(req.Email)
