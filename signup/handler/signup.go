@@ -173,6 +173,7 @@ func (e *Signup) sendEmail(email, token string) error {
 	} else if rsp.StatusCode != 202 {
 		bytes, err := ioutil.ReadAll(rsp.Body)
 		if err != nil {
+			logger.Infof("Could not send email to %v, error: %v", email, string(bytes))
 			return err
 		}
 	}
