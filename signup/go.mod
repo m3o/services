@@ -11,5 +11,6 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/micro/go-micro/v2 v2.9.1-0.20200618113919-8c7c27c573f5
 	github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2
+	github.com/pquerna/otp v1.2.0
 	google.golang.org/protobuf v1.25.0
 )

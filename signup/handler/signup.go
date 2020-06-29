@@ -8,19 +8,25 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/config"
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 
 	signup "github.com/micro/services/signup/proto/signup"
 
 	paymentsproto "github.com/micro/services/payments/provider/proto"
 )
 
-const storePrefixAccountSecrets = "secrets/"
+const (
+	storePrefixAccountSecrets = "secrets/"
+	expiryDuration            = 5 * time.Minute
+)
 
 type tokenToEmail struct {
 	Email string `json:"email"`
@@ -34,6 +40,10 @@ type Signup struct {
 	sendgridTemplateID string
 	sendgridAPIKey     string
 	planID             string
+	// storage encryption key used for state
+	dkey string
+	// outbound encryption key used for tokens
+	key string
 }
 
 func NewSignup(paymentService paymentsproto.ProviderService,
@@ -43,6 +53,8 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	apiKey := config.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := config.Get("micro", "signup", "sendgrid", "template_id").String("")
 	planID := config.Get("micro", "signup", "plan_id").String("")
+	key := config.Get("micro", "signup", "key").String("")
+	dkey := config.Get("micro", "signup", "dkey").String("")
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -53,6 +65,12 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	if len(planID) == 0 {
 		logger.Error("No stripe plan id")
 	}
+	if len(key) == 0 {
+		logger.Error("Missing outbound encryption key")
+	}
+	if len(dkey) == 0 {
+		logger.Error("Missing storage encryption key")
+	}
 	return &Signup{
 		paymentService:     paymentService,
 		store:              store,
@@ -60,6 +78,8 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		sendgridAPIKey:     apiKey,
 		sendgridTemplateID: templateID,
 		planID:             planID,
+		key:                key,
+		dkey:               dkey,
 	}
 }
 
@@ -71,10 +91,17 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	logger.Info("Received Signup.SendVerificationEmail request")
 
 	// Save token
-	// @todo maybe use something nicer.
-	token := uuid.New().String()
+	k, err := totp.GenerateCodeCustom(e.key, time.Now(), totp.ValidateOpts{
+		Period:    300,
+		Skew:      1,
+		Digits:    otp.DigitsSix,
+		Algorithm: otp.AlgorithmSHA1,
+	})
+	if err != nil {
+		return err
+	}
 	tok := &tokenToEmail{
-		Token: token,
+		Token: k,
 		Email: req.Email,
 	}
 	bytes, err := json.Marshal(tok)
@@ -82,14 +109,16 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return err
 	}
 
-	if err := e.store.Write(&store.Record{Key: req.Email, Value: bytes}); err != nil {
+	if err := e.store.Write(&store.Record{
+		Key:   req.Email,
+		Value: bytes}, store.WriteExpiry(time.Now().Add(expiryDuration))); err != nil {
 		return err
 	}
 
 	// Send email
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
-	err = e.sendEmail(req.Email, token)
+	err = e.sendEmail(req.Email, k)
 	if err != nil {
 		return err
 	}
@@ -159,8 +188,19 @@ func (e *Signup) Verify(ctx context.Context,
 	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
 		return err
 	}
+
 	if tok.Token != req.Token {
 		return errors.New("Invalid token")
+	}
+	// validate the otp
+	ok, err := totp.ValidateCustom(req.Token, e.key, time.Now(), totp.ValidateOpts{
+		Period:    300,
+		Skew:      1,
+		Digits:    otp.DigitsSix,
+		Algorithm: otp.AlgorithmSHA1,
+	})
+	if !ok {
+		return errors.New("Invalid OTP token")
 	}
 
 	secret, err := e.getAccountSecret(req.Email)

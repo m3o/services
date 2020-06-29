@@ -1,5 +1,16 @@
 # Signup Service
 
+To run the whole signup/onboarding flow you will need the following configs:
+
+```
+micro config set micro.payments.stripe.api_key ...
+micro config set micro.signup.sendgrid.api_key ...
+micro config set micro.signup.sendgrid.template_id ...
+micro config set micro.signup.plan_id ...
+micro config set micro.signup.key PFTTQOLVJRJTA4JROVETKSCOIU======    # random base32 encoded string
+micro config set micro.signup.dkey LB3DM5JWKFHVQTRRINSXSU2DPE======   # random base32 encoded string
+```
+
 This is the Signup service
 
 Generated with
