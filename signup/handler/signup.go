@@ -39,6 +39,7 @@ type Signup struct {
 	sendgridTemplateID string
 	sendgridAPIKey     string
 	planID             string
+	emailFrom          string
 }
 
 func NewSignup(paymentService paymentsproto.ProviderService,
@@ -49,6 +50,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	apiKey := config.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := config.Get("micro", "signup", "sendgrid", "template_id").String("")
 	planID := config.Get("micro", "signup", "plan_id").String("")
+	emailFrom := config.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -66,6 +68,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		sendgridAPIKey:     apiKey,
 		sendgridTemplateID: templateID,
 		planID:             planID,
+		emailFrom:          emailFrom,
 	}
 }
 
@@ -140,7 +143,7 @@ func (e *Signup) sendEmail(email, token string) error {
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": e.sendgridTemplateID,
 		"from": map[string]string{
-			"email": "Micro Team <support@micro.mu>",
+			"email": e.emailFrom,
 		},
 		"personalizations": []interface{}{
 			map[string]interface{}{
