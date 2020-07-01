@@ -6,5 +6,5 @@ require (
 	github.com/golang/protobuf v1.4.0
 	github.com/google/uuid v1.1.1
 	github.com/micro/go-micro v1.18.0
-	github.com/micro/go-micro/v2 v2.9.1-0.20200618113919-8c7c27c573f5
+	github.com/micro/go-micro/v2 v2.9.1-0.20200630164038-dcf01ebbf033
 )

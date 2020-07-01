@@ -40,6 +40,7 @@ type Signup struct {
 	sendgridAPIKey     string
 	planID             string
 	emailFrom          string
+	testMode           bool
 }
 
 func NewSignup(paymentService paymentsproto.ProviderService,
@@ -51,6 +52,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	templateID := config.Get("micro", "signup", "sendgrid", "template_id").String("")
 	planID := config.Get("micro", "signup", "plan_id").String("")
 	emailFrom := config.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
+	testMode := config.Get("micro", "signup", "test_env").Bool(false)
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -69,6 +71,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		sendgridTemplateID: templateID,
 		planID:             planID,
 		emailFrom:          emailFrom,
+		testMode:           testMode,
 	}
 }
 
@@ -121,6 +124,10 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		Key:   req.Email,
 		Value: bytes}, store.WriteExpiry(time.Now().Add(expiryDuration))); err != nil {
 		return err
+	}
+
+	if e.testMode {
+		logger.Infof("Sending verification token '%v'", k)
 	}
 
 	// Send email
