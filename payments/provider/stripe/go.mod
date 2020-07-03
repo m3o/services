@@ -10,3 +10,5 @@ require (
 )
 
 replace github.com/micro/services/payments/provider => ../
+
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
