@@ -47,6 +47,7 @@ type Signup struct {
 }
 
 func NewSignup(paymentService paymentsproto.ProviderService,
+	inviteService inviteproto.InviteService,
 	store store.Store,
 	config config.Config,
 	auth auth.Auth) *Signup {
@@ -68,6 +69,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	}
 	return &Signup{
 		paymentService:     paymentService,
+		inviteService:      inviteService,
 		store:              store,
 		auth:               auth,
 		sendgridAPIKey:     apiKey,
@@ -114,7 +116,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	logger.Info("Received Signup.SendVerificationEmail request")
 
 	if !e.isAllowedToSignup(ctx, req.Email) {
-		return merrors.Forbidden("go.micro.signup.notallowed", "user has not been invited to sign up")
+		return merrors.Forbidden("go.micro.service.signup.notallowed", "user has not been invited to sign up")
 	}
 
 	k := randStringBytesMaskImprSrc(8)
@@ -134,7 +136,8 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 
 	if e.testMode {
-		logger.Infof("Sending verification token '%v'", k)
+		logger.Infof("Test mode enabled, skipping send. Verification token is '%v'", k)
+		return nil
 	}
 
 	// Send email
@@ -187,16 +190,21 @@ func (e *Signup) sendEmail(email, token string) error {
 
 	req.Header.Set("Authorization", "Bearer "+e.sendgridAPIKey)
 	req.Header.Set("Content-Type", "application/json")
-
-	if rsp, err := new(http.Client).Do(req); err != nil {
+	rsp, err := new(http.Client).Do(req)
+	if err != nil {
 		logger.Infof("Could not send email to %v, error: %v", email, err)
 		return err
-	} else if rsp.StatusCode != 202 {
+	}
+	defer rsp.Body.Close()
+
+	if rsp.StatusCode < 200 || rsp.StatusCode > 299 {
 		bytes, err := ioutil.ReadAll(rsp.Body)
 		if err != nil {
-			logger.Infof("Could not send email to %v, error: %v", email, string(bytes))
+			logger.Errorf("Could not send email to %v, error: %v", email, err.Error())
 			return err
 		}
+		logger.Errorf("Could not send email to %v, error: %v", email, string(bytes))
+		return merrors.InternalServerError("go.micro.service.signup.sendemail", "error sending email")
 	}
 	return nil
 }
