@@ -14,11 +14,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/config"
+	merrors "github.com/micro/go-micro/v2/errors"
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 
 	signup "github.com/micro/services/signup/proto/signup"
 
+	inviteproto "github.com/micro/services/account/invite/proto"
 	paymentsproto "github.com/micro/services/payments/provider/proto"
 )
 
@@ -34,6 +36,7 @@ type tokenToEmail struct {
 
 type Signup struct {
 	paymentService     paymentsproto.ProviderService
+	inviteService      inviteproto.InviteService
 	store              store.Store
 	auth               auth.Auth
 	sendgridTemplateID string
@@ -110,6 +113,10 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
+	if !e.isAllowedToSignup(ctx, req.Email) {
+		return merrors.Forbidden("go.micro.signup.notallowed", "user has not been invited to sign up")
+	}
+
 	k := randStringBytesMaskImprSrc(8)
 	tok := &tokenToEmail{
 		Token: k,
@@ -139,6 +146,13 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 
 	return nil
+}
+
+func (e *Signup) isAllowedToSignup(ctx context.Context, email string) bool {
+	// for now we're checking the invite service before allowing signup
+	// TODO check for a valid invite code rather than just the email
+	_, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email})
+	return err == nil
 }
 
 // Lifted  from the invite service https://github.com/micro/services/blob/master/projects/invite/handler/invite.go#L187

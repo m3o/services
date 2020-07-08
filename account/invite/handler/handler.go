@@ -2,8 +2,6 @@ package handler
 
 import (
 	"context"
-	"math/rand"
-	"strconv"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
@@ -27,21 +25,20 @@ type Handler struct {
 
 // Create an invite
 func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
-	// generate a six digit code
-	for i := 0; i < 6; i++ {
-		rsp.Code = rsp.Code + strconv.Itoa(rand.Intn(8)+1)
-	}
+	// TODO maybe send an email or something
 
-	// write the code to the store
-	return h.store.Write(&store.Record{Key: rsp.Code})
+	// write the email to the store
+	return h.store.Write(&store.Record{
+		Key: req.Email,
+	})
 }
 
 // Validate an invite
 func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
-	// check if the code exists in the store
-	_, err := h.store.Read(req.Code)
+	// check if the email exists in the store
+	_, err := h.store.Read(req.Email)
 	if err == store.ErrNotFound {
-		return errors.BadRequest(h.name, "Invalid invite code")
+		return errors.BadRequest(h.name, "Invalid email")
 	}
 	return err
 }
