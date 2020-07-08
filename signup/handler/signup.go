@@ -136,8 +136,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 
 	if e.testMode {
-		logger.Infof("Test mode enabled, skipping send. Verification token is '%v'", k)
-		return nil
+		logger.Infof("Sending verification token '%v'", k)
 	}
 
 	// Send email
