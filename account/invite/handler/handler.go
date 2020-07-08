@@ -55,7 +55,7 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 	// check if the email exists in the store
 	values, err := h.store.Read(req.Email)
 	if err == store.ErrNotFound {
-		return errors.BadRequest(h.name, "Invalid email")
+		return errors.BadRequest(h.name, "invalid email")
 	} else if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 		return err
 	}
 	if invite.Deleted {
-		return errors.BadRequest(h.name, "Invalid email")
+		return errors.BadRequest(h.name, "invalid email")
 	}
 	return nil
 }

@@ -216,9 +216,9 @@ func (e *Signup) Verify(ctx context.Context,
 
 	recs, err := e.store.Read(req.Email)
 	if err == store.ErrNotFound {
-		return errors.New("Can't verify: record not found")
+		return errors.New("can't verify: record not found")
 	} else if err != nil {
-		return fmt.Errorf("Email verification error: %v", err)
+		return fmt.Errorf("email verification error: %v", err)
 	}
 
 	tok := &tokenToEmail{}
@@ -232,7 +232,7 @@ func (e *Signup) Verify(ctx context.Context,
 
 	secret, err := e.getAccountSecret(req.Email)
 	if err != store.ErrNotFound && err != nil {
-		return fmt.Errorf("Can't get account secret: %v", err)
+		return fmt.Errorf("can't get account secret: %v", err)
 	}
 	// If the user has a secret it means the account is ready
 	// to be used, so we log them in.
@@ -266,7 +266,7 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 
 	recs, err := e.store.Read(req.Email)
 	if err == store.ErrNotFound {
-		return errors.New("Can't verify: record not found")
+		return errors.New("can't verify: record not found")
 	} else if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 		return err
 	}
 	if tok.Token != req.Token {
-		return errors.New("Invalid token")
+		return errors.New("invalid token")
 	}
 
 	_, err = e.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
