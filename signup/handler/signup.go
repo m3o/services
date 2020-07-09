@@ -119,7 +119,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return merrors.Forbidden("go.micro.service.signup.notallowed", "user has not been invited to sign up")
 	}
 
-	k := randStringBytesMaskImprSrc(8)
+	k := randStringBytesMaskImprSrc(10)
 	tok := &tokenToEmail{
 		Token: k,
 		Email: req.Email,
