@@ -21,13 +21,14 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: services
-        ref: envvar_m3o_tests
     
     - name: Check out code
       uses: actions/checkout@v2
       with:
         repository: 'micro/micro'
         path: 'micro'
+        ref: envvar_m3o_tests
+
 
     - name: Install micro
       working-directory: micro
