@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,15 +18,18 @@ import (
 	merrors "github.com/micro/go-micro/v2/errors"
 	logger "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/sethvargo/go-diceware/diceware"
 
 	signup "github.com/micro/services/signup/proto/signup"
 
 	inviteproto "github.com/micro/services/account/invite/proto"
+	k8sproto "github.com/micro/services/kubernetes/service/proto"
 	paymentsproto "github.com/micro/services/payments/provider/proto"
 )
 
 const (
 	storePrefixAccountSecrets = "secrets/"
+	storePrefixNamesapce      = "namespaces/"
 	expiryDuration            = 5 * time.Minute
 )
 
@@ -37,6 +41,7 @@ type tokenToEmail struct {
 type Signup struct {
 	paymentService     paymentsproto.ProviderService
 	inviteService      inviteproto.InviteService
+	k8sService         k8sproto.KubernetesService
 	store              store.Store
 	auth               auth.Auth
 	sendgridTemplateID string
@@ -48,6 +53,7 @@ type Signup struct {
 
 func NewSignup(paymentService paymentsproto.ProviderService,
 	inviteService inviteproto.InviteService,
+	k8sService k8sproto.KubernetesService,
 	store store.Store,
 	config config.Config,
 	auth auth.Auth) *Signup {
@@ -70,6 +76,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	return &Signup{
 		paymentService:     paymentService,
 		inviteService:      inviteService,
+		k8sService:         k8sService,
 		store:              store,
 		auth:               auth,
 		sendgridAPIKey:     apiKey,
@@ -124,6 +131,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		Token: k,
 		Email: req.Email,
 	}
+
 	bytes, err := json.Marshal(tok)
 	if err != nil {
 		return err
@@ -246,9 +254,16 @@ func (e *Signup) Verify(ctx context.Context,
 			Expiry:       token.Expiry.Unix(),
 			Created:      token.Created.Unix(),
 		}
+		ns, err := e.getNamespace(req.Email)
+		if err != store.ErrNotFound {
+			return err
+		}
+		// @todo what to do if namespace is not found?
+		rsp.Namespace = ns
 		return nil
 	}
 
+	// Otherwisewe just return without an error but with no token
 	_, err = e.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
 		Customer: &paymentsproto.Customer{
 			Id:   req.Email,
@@ -256,6 +271,20 @@ func (e *Signup) Verify(ctx context.Context,
 		},
 	})
 	return err
+}
+
+func (e *Signup) getNamespace(email string) (string, error) {
+	key := storePrefixNamesapce + email
+	recs, err := e.store.Read(key)
+	if err != nil {
+		return "", err
+	}
+	return string(recs[0].Value), nil
+}
+
+func (e *Signup) saveNamespace(email, namespace string) error {
+	key := storePrefixNamesapce + email
+	return e.store.Write(&store.Record{Key: key, Value: []byte(namespace)})
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context,
@@ -323,6 +352,11 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 		Expiry:       t.Expiry.Unix(),
 		Created:      t.Created.Unix(),
 	}
+	ns, err := e.createNamespace(ctx)
+	if err != nil {
+		return err
+	}
+	rsp.Namespace = ns
 	return nil
 }
 
@@ -339,4 +373,18 @@ func (e *Signup) getAccountSecret(id string) (string, error) {
 		return "", err
 	}
 	return string(recs[0].Value), nil
+}
+
+func (e *Signup) createNamespace(ctx context.Context) (string, error) {
+	list, err := diceware.Generate(3)
+	if err != nil {
+		return "", err
+	}
+	ns := strings.Join(list, "_")
+	if !e.testMode {
+		_, err = e.k8sService.CreateNamespace(ctx, &k8sproto.CreateNamespaceRequest{
+			Name: ns,
+		})
+	}
+	return ns, err
 }

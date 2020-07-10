@@ -310,6 +310,10 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200618113919-8c7c27c573f5/go.mod h1:x55Z
 github.com/micro/go-micro/v2 v2.9.1-0.20200630164038-dcf01ebbf033 h1:Itx8Ojsx9J+lbXUXfGvmqXddEG7lkSoLzvMRYwSTQcA=
 github.com/micro/go-micro/v2 v2.9.1-0.20200630164038-dcf01ebbf033/go.mod h1:hSdOM6jb6aGswjBpCeB9wJ0yVH+CugevRm/CX7NlSrQ=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
+github.com/micro/services/account/invite v0.0.0-20200710073512-dddfec6bfdcd h1:WtG+f5TFGRl1VEzgSGXSpjk3CJ78jJ5n3IchIPfv1Bc=
+github.com/micro/services/account/invite v0.0.0-20200710073512-dddfec6bfdcd/go.mod h1:IRHRiCdfNCVm9O0dDHCq5sz3ZE29Tkeft/ocHSFSvfs=
+github.com/micro/services/kubernetes/service v0.0.0-20200710073512-dddfec6bfdcd h1:mZtmrwc0lKgJEVlB/cmXMPVxn4Xw+a0dZk029yT92Ag=
+github.com/micro/services/kubernetes/service v0.0.0-20200710073512-dddfec6bfdcd/go.mod h1:4+LTHVitfyqb1OQWy363wOVasDPshstwUDItdgzDsiw=
 github.com/micro/services/payments/provider v0.0.0-20200327173731-ae7aead341ae/go.mod h1:L1yXll1hvfpDjNgM1CaNRZdx+VGj+kPOVroT/QWpcrA=
 github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2 h1:Zm3Zv0NNWfQkBrwFCSXSUO9OZElKeHLN7bugsGojM4E=
 github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2/go.mod h1:mwSahcMJ6Bof7hY3M6gzzY8JN7XSHmMIBg8wXtb47j8=
@@ -422,6 +426,8 @@ github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdh
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0 h1:we8PVUC3FE2uYfodKH/nBHMSetSfHDR6scGdBi+erh0=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
+github.com/sethvargo/go-diceware v0.2.0 h1:3QzXGqUe0UR9y1XYSz1dxGS+fKtXOxRqqKjy+cG1yTI=
+github.com/sethvargo/go-diceware v0.2.0/go.mod h1:II+37A5sTGAtg3zd/JqyVQ8qqAjSm/2r2X6qkVZDjyg=
 github.com/shurcooL/sanitized_anchor_name v1.0.0 h1:PdmoCO6wvbs+7yrJyMORt4/BmY5IYyJwS/kOiWx8mHo=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=

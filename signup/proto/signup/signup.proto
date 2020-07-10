@@ -31,7 +31,10 @@ message VerifyResponse {
 	AuthToken authToken = 1;
 	// Payment provider custommer id that can be used to
 	// acquire a payment method, see `micro login` flow for more.
+	// @todo this is likely not needed
 	string customerID = 2;
+	// Namesp
+	string namespace = 3;
 }
 
 message CompleteSignupRequest {
@@ -44,7 +47,7 @@ message CompleteSignupRequest {
 
 message CompleteSignupResponse {
 	AuthToken authToken = 1;
-	string nameSpace = 2;
+	string namespace = 2;
 }
 
 // lifted from https://github.com/micro/go-micro/blob/master/auth/service/proto/auth.proto
