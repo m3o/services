@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 
 	pb "github.com/micro/services/projects/service/proto"

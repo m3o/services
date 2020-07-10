@@ -25,6 +25,24 @@ func (t testprovider) CreateCustomer(ctx context.Context, req *pb.CreateCustomer
 func (t testprovider) CreateSubscription(ctx context.Context, req *pb.CreateSubscriptionRequest, rsp *pb.CreateSubscriptionResponse) error {
 	return nil
 }
+func (t testprovider) CreatePaymentMethod(ctx context.Context, req *pb.CreatePaymentMethodRequest, rsp *pb.CreatePaymentMethodResponse) error {
+	return nil
+}
+func (t testprovider) DeletePaymentMethod(ctx context.Context, req *pb.DeletePaymentMethodRequest, rsp *pb.DeletePaymentMethodResponse) error {
+	return nil
+}
+func (t testprovider) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMethodsRequest, rsp *pb.ListPaymentMethodsResponse) error {
+	return nil
+}
+func (t testprovider) ListPlans(ctx context.Context, req *pb.ListPlansRequest, rsp *pb.ListPlansResponse) error {
+	return nil
+}
+func (t testprovider) ListSubscriptions(ctx context.Context, req *pb.ListSubscriptionsRequest, rsp *pb.ListSubscriptionsResponse) error {
+	return nil
+}
+func (t testprovider) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefaultPaymentMethodRequest, rsp *pb.SetDefaultPaymentMethodResponse) error {
+	return nil
+}
 
 func TestNewProvider(t *testing.T) {
 	// test the provider returns ErrNotFound when not registered
