@@ -338,7 +338,16 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret))
+	ns, err := e.createNamespace(ctx)
+	if err != nil {
+		return err
+	}
+	err = e.saveNamespace(req.Email, ns)
+	if err != nil {
+		return err
+	}
+	rsp.Namespace = ns
+	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.Issuer(strings.Replace(ns, "_", "-")))
 	if err != nil {
 		return err
 	}
@@ -352,15 +361,6 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 		Expiry:       t.Expiry.Unix(),
 		Created:      t.Created.Unix(),
 	}
-	ns, err := e.createNamespace(ctx)
-	if err != nil {
-		return err
-	}
-	err = e.saveNamespace(req.Email, ns)
-	if err != nil {
-		return err
-	}
-	rsp.Namespace = ns
 	return nil
 }
 
