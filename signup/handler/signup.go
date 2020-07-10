@@ -347,7 +347,7 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 		return err
 	}
 	rsp.Namespace = ns
-	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.Issuer(strings.Replace(ns, "_", "-")))
+	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.Issuer(strings.ReplaceAll(ns, "_", "-")))
 	if err != nil {
 		return err
 	}
