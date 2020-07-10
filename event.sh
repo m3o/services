@@ -5,9 +5,9 @@ EVENT=$1
 # build is the build number to be used at $REPO/actions/runs/$BUILD
 BUILD=$2
 # the url to send events to
-LIVE=https://web.micro.mu/platform/v1/github/events
+LIVE=https://api.m3o.com/v1/platform/events
 # the staging url to send events to
-STAGING=https://web.m3o.dev/platform/v1/github/events
+STAGING=https://api.m3o.dev/v1/platform/events
 
 sendEvent() {
 	URL=$1
@@ -20,8 +20,8 @@ sendEvent() {
 	-H "Micro-Event: $EVENT"
 }
 
+## TODO: uncomment when we revive auto updates
 ## send event to live
-## TODO: only on releases
-sendEvent $LIVE
+#sendEvent $LIVE
 ## sent event to staging
-sendEvent $STAGING
+#sendEvent $STAGING

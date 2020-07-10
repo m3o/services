@@ -51,4 +51,4 @@ git commit --signoff 'Signed-off-by: John Doe <john@example.com>`
 ## License
 
 See [LICENSE](LICENSE) which makes use of [Polyform Strict](https://polyformproject.org/licenses/strict/1.0.0/). 
-For commercial use please email [contact@micro.mu](mailto:contact@micro.mu). 
+For commercial use please email [contact@m3o.com](mailto:contact@m3o.com). 
