@@ -356,6 +356,10 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 	if err != nil {
 		return err
 	}
+	err = e.saveNamespace(req.Email, ns)
+	if err != nil {
+		return err
+	}
 	rsp.Namespace = ns
 	return nil
 }
