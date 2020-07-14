@@ -347,7 +347,8 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 		return err
 	}
 	rsp.Namespace = ns
-	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.WithIssuer(strings.ReplaceAll(ns, "_", "-")))
+
+	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.WithIssuer(ns))
 	if err != nil {
 		return err
 	}
@@ -384,7 +385,7 @@ func (e *Signup) createNamespace(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ns := strings.Join(list, "_")
+	ns := strings.Join(list, "-")
 	if !e.testMode {
 		_, err = e.k8sService.CreateNamespace(ctx, &k8sproto.CreateNamespaceRequest{
 			Name: ns,
