@@ -244,7 +244,11 @@ func (e *Signup) Verify(ctx context.Context,
 	// If the user has a secret it means the account is ready
 	// to be used, so we log them in.
 	if len(secret) > 0 {
-		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret))
+		ns, err := e.getNamespace(req.Email)
+		if err != store.ErrNotFound {
+			return err
+		}
+		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
 		if err != nil {
 			return err
 		}
@@ -253,10 +257,6 @@ func (e *Signup) Verify(ctx context.Context,
 			RefreshToken: token.RefreshToken,
 			Expiry:       token.Expiry.Unix(),
 			Created:      token.Created.Unix(),
-		}
-		ns, err := e.getNamespace(req.Email)
-		if err != store.ErrNotFound {
-			return err
 		}
 		// @todo what to do if namespace is not found?
 		rsp.Namespace = ns
@@ -352,7 +352,7 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret))
+	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(req.Email))
 	if err != nil {
 		return err
 	}
