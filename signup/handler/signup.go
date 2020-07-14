@@ -352,7 +352,7 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(req.Email))
+	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
 	if err != nil {
 		return err
 	}
