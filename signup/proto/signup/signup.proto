@@ -43,6 +43,8 @@ message CompleteSignupRequest {
 	string token = 2;
 	// This payment method ID is the one we got back from Stripe on the frontend (ie. `m3o.com/subscribe.html`)
 	string paymentMethodID = 3;
+	// The secret/password to use for the account
+	string secret = 4;
 }
 
 message CompleteSignupResponse {

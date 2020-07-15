@@ -287,9 +287,7 @@ func (e *Signup) saveNamespace(email, namespace string) error {
 	return e.store.Write(&store.Record{Key: key, Value: []byte(namespace)})
 }
 
-func (e *Signup) CompleteSignup(ctx context.Context,
-	req *signup.CompleteSignupRequest,
-	rsp *signup.CompleteSignupResponse) error {
+func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
 
 	recs, err := e.store.Read(req.Email)
@@ -333,7 +331,15 @@ func (e *Signup) CompleteSignup(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	secret := uuid.New().String()
+
+	// take secret from the request
+	secret := req.Secret
+
+	// generate a random secret
+	if len(req.Secret) == 0 {
+		secret = uuid.New().String()
+	}
+
 	err = e.setAccountSecret(req.Email, secret)
 	if err != nil {
 		return err
