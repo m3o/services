@@ -248,7 +248,7 @@ func (e *Signup) Verify(ctx context.Context,
 	if len(secret) > 0 {
 		ns, err := e.getNamespace(req.Email)
 		logger.Infof("Retrieving namespace for %s %s %s", req.Email, ns, err)
-		if err != store.ErrNotFound {
+		if err != nil && err != store.ErrNotFound {
 			return err
 		}
 		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
