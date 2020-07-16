@@ -260,6 +260,7 @@ func (e *Signup) Verify(ctx context.Context,
 		}
 		// @todo what to do if namespace is not found?
 		rsp.Namespace = ns
+		logger.Infof("Secret found. Returning a token for %s", req.Email)
 		return nil
 	}
 
@@ -379,10 +380,13 @@ func (e *Signup) setAccountSecret(id, secret string) error {
 
 func (e *Signup) getAccountSecret(id string) (string, error) {
 	key := storePrefixAccountSecrets + id
+	logger.Infof("Retrieving account secret for %s", key)
 	recs, err := e.store.Read(key)
 	if err != nil {
+		logger.Errorf("Error retrieving account secret for %s, %s", id, err)
 		return "", err
 	}
+	logger.Infof("Returning account secret for %s, %d", id, len(recs), recs[0].Key, len(recs[0].Value))
 	return string(recs[0].Value), nil
 }
 
