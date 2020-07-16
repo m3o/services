@@ -241,18 +241,15 @@ func (e *Signup) Verify(ctx context.Context,
 	if err != store.ErrNotFound && err != nil {
 		return fmt.Errorf("can't get account secret: %v", err)
 	}
-	logger.Infof("Secret returned for %s %d", req.Email, len(secret))
 
 	// If the user has a secret it means the account is ready
 	// to be used, so we log them in.
 	if len(secret) > 0 {
 		ns, err := e.getNamespace(req.Email)
-		logger.Infof("Retrieving namespace for %s %s %s", req.Email, ns, err)
 		if err != nil && err != store.ErrNotFound {
 			return err
 		}
 		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
-		logger.Infof("Retrieving token for %s %s %s", req.Email, token.Expiry, err)
 		if err != nil {
 			return err
 		}
@@ -264,7 +261,6 @@ func (e *Signup) Verify(ctx context.Context,
 		}
 		// @todo what to do if namespace is not found?
 		rsp.Namespace = ns
-		logger.Infof("Secret found. Returning a token for %s", req.Email)
 		return nil
 	}
 
@@ -384,13 +380,10 @@ func (e *Signup) setAccountSecret(id, secret string) error {
 
 func (e *Signup) getAccountSecret(id string) (string, error) {
 	key := storePrefixAccountSecrets + id
-	logger.Infof("Retrieving account secret for %s", key)
 	recs, err := e.store.Read(key)
 	if err != nil {
-		logger.Errorf("Error retrieving account secret for %s, %s", id, err)
 		return "", err
 	}
-	logger.Infof("Returning account secret for %s, %d %d %d", id, len(recs), recs[0].Key, len(recs[0].Value), len(string(recs[0].Value)))
 	return string(recs[0].Value), nil
 }
 
