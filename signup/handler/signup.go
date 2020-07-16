@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config"
 	merrors "github.com/micro/go-micro/v2/errors"
 	logger "github.com/micro/go-micro/v2/logger"
@@ -328,7 +329,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		CustomerId:   req.Email,
 		CustomerType: "user",
 		PlanId:       e.planID,
-	})
+	}, client.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		return err
 	}
@@ -396,7 +397,7 @@ func (e *Signup) createNamespace(ctx context.Context) (string, error) {
 	if !e.testMode {
 		_, err = e.k8sService.CreateNamespace(ctx, &k8sproto.CreateNamespaceRequest{
 			Name: ns,
-		})
+		}, client.WithRequestTimeout(10*time.Second))
 	}
 	return ns, err
 }
