@@ -3,14 +3,16 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	api "github.com/micro/go-micro/v2/api/proto"
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
+	status "github.com/micro/services/status/proto/status"
 )
 
 var (
-	services = []string{
+	defaultServices = []string{
 		"go.micro.api", // If this is down then this wouldn't even get routed to...
 		"go.micro.auth",
 		"go.micro.broker",
@@ -24,15 +26,26 @@ var (
 	}
 )
 
-type Status struct{}
+type statusHandler struct {
+	monitoredServices []string
+}
+
+// NewStatusHandler returns a status handler configured to report the status of the given services
+func NewStatusHandler(services []string) status.StatusHandler {
+	svcs := defaultServices
+	if len(services) > 0 {
+		svcs = services
+	}
+	return &statusHandler{monitoredServices: svcs}
+}
 
 // Call is called by the API as /status/call with post body {"name": "foo"}
-func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
+func (e *statusHandler) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
 	response := map[string]string{}
 	overallOK := true
 
 	// Are the services up?
-	for _, serverName := range services {
+	for _, serverName := range e.monitoredServices {
 		req := client.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
 		rsp := &proto.HealthResponse{}
 
@@ -40,6 +53,12 @@ func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) 
 		status := "OK"
 		if err != nil || rsp.Status != "ok" {
 			status = "NOT_HEALTHY"
+			if rsp != nil && rsp.Status != "" {
+				status = rsp.Status
+			}
+			if err != nil {
+				status = fmt.Sprintf("%s %s", status, err.Error())
+			}
 			overallOK = false
 		}
 		response[serverName] = status

@@ -16,9 +16,11 @@ func main() {
 
 	// Initialise service
 	service.Init()
-
+	// grab services to monitor
+	svcs := service.Options().Config.Get("micro", "status", "services").StringSlice(nil)
+	log.Infof("Services to monitor %+v", svcs)
 	// Register Handler
-	status.RegisterStatusHandler(service.Server(), new(handler.Status))
+	status.RegisterStatusHandler(service.Server(), handler.NewStatusHandler(svcs))
 
 	// Run service
 	if err := service.Run(); err != nil {
