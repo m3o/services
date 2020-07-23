@@ -4,11 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/micro/go-micro/v2/client"
-
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
-
 	api "github.com/micro/go-micro/v2/api/proto"
+	"github.com/micro/go-micro/v2/client"
+	proto "github.com/micro/go-micro/v2/debug/service/proto"
 )
 
 var (
@@ -27,16 +25,6 @@ var (
 )
 
 type Status struct{}
-
-func extractValue(pair *api.Pair) string {
-	if pair == nil {
-		return ""
-	}
-	if len(pair.Values) == 0 {
-		return ""
-	}
-	return pair.Values[0]
-}
 
 // Call is called by the API as /status/call with post body {"name": "foo"}
 func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
