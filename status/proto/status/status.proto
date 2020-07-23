@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package api.status;
+
+import "proto/imports/api.proto";
+
+service Status {
+	rpc Call(go.api.Request) returns (go.api.Response) {}
+}
