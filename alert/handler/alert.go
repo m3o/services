@@ -80,6 +80,6 @@ func (e *Alert) saveEvent(ev *event) error {
 	}
 
 	return e.store.Write(&store.Record{
-		Key:   storePrefixEvents,
+		Key:   storePrefixEvents + ev.ID,
 		Value: bytes})
 }
