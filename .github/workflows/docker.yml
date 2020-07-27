@@ -23,7 +23,7 @@ jobs:
      steps:
        - uses: actions/checkout@v2
          name: Check out repository
-       - uses: elgohr/Publish-Docker-Github-Action@2.12
+       - uses: elgohr/Publish-Docker-Github-Action@2.18
          name: Build and Push Docker Image
          with:
            name: micro/cockroach-backup
