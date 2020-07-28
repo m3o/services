@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: default
+  name: cockroach-restore
+spec:
+  containers:
+  - name: cockroach-restore
+    image: micro/cockroach-restore
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: cockroachdb-client-certs
+      mountPath: "/certs"
+    - name: s3-config
+      mountPath: "/s3-config"
+    env:
+      - name: S3_BUCKET
+        valueFrom:
+          configMapKeyRef:
+            name: s3-config
+            key: bucket
+  restartPolicy: OnFailure
+  volumes:
+  - name: cockroachdb-client-certs
+    secret:
+      secretName: cockroachdb-client-certs
+      defaultMode: 0600
+  - name: s3-config
+    secret:
+      secretName: s3-config
+      defaultMode: 0600
+  
