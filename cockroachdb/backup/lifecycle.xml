@@ -1,6 +1,6 @@
 <LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
     <Rule>
-        <ID>expire-old-staging-dumps</ID>
+        <ID>expire-old-dumps</ID>
         <Filter>
            <Prefix></Prefix>
         </Filter>
