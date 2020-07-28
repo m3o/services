@@ -1,0 +1,12 @@
+<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+    <Rule>
+        <ID>expire-old-staging-dumps</ID>
+        <Filter>
+           <Prefix></Prefix>
+        </Filter>
+        <NoncurrentVersionExpiration>
+            <NoncurrentDays>1</NoncurrentDays>
+        </NoncurrentVersionExpiration>
+        <Status>Enabled</Status>
+    </Rule>
+</LifecycleConfiguration>
