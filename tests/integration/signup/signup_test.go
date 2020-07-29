@@ -113,7 +113,7 @@ func testM3oSignupFlow(t *test.T) {
 		t.Fatal(err)
 	}
 	wg.Wait()
-	if t.failed {
+	if t.Failed() {
 		return
 	}
 
@@ -153,7 +153,7 @@ func testM3oSignupFlow(t *test.T) {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
 			return
 		}
-		t.t.Logf("Namespace set is %v", ns)
+		t.T().Logf("Namespace set is %v", ns)
 		test.Try("Find account", t, func() ([]byte, error) {
 			outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "list", "accounts").CombinedOutput()
 			if err != nil {
@@ -236,7 +236,7 @@ func testM3oSignupFlow(t *test.T) {
 
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
-	if t.failed {
+	if t.Failed() {
 		return
 	}
 	wg.Wait()
