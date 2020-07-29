@@ -26,7 +26,7 @@ func TestM3oSignupFlow(t *testing.T) {
 	test.TrySuite(t, testM3oSignupFlow, 2)
 }
 
-func testM3oSignupFlow(t *t) {
+func testM3oSignupFlow(t *test.T) {
 	t.Parallel()
 
 	serv := test.NewServer(t)
