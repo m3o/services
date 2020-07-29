@@ -18,8 +18,12 @@ import (
 	stripe_client "github.com/stripe/stripe-go/v71/client"
 )
 
+const (
+	retryCount = 2
+)
+
 func TestM3oSignupFlow(t *testing.T) {
-	test.TrySuite(t, testM3oSignupFlow, retryCount)
+	test.TrySuite(t, testM3oSignupFlow, 2)
 }
 
 func testM3oSignupFlow(t *t) {
@@ -163,7 +167,8 @@ func testM3oSignupFlow(t *t) {
 			}
 			return outp, nil
 		}, 5*time.Second)
-		login(serv, t, "dobronszki@gmail.com", password)
+
+		test.Login(serv, t, "dobronszki@gmail.com", password)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
