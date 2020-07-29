@@ -38,8 +38,8 @@ jobs:
       run: |
         bash scripts/test-docker.sh
 
-    - name: Test micro server
-      working-directory: micro/test
+    - name: Test M3O services
+      working-directory: services/tests
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
