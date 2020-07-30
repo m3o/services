@@ -55,6 +55,9 @@ func testM3oSignupFlow(t *test.T) {
 		}
 	}
 
+	outp, _ := exec.Command("micro", serv.EnvFlag(), "config", "get", "micro").CombinedOutput()
+	t.Log(string(outp))
+
 	outp, err := exec.Command("micro", serv.EnvFlag(), "run", "--env_vars", "MICRO_CONFIG=service", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
@@ -74,7 +77,7 @@ func testM3oSignupFlow(t *test.T) {
 	}
 
 	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
-		outp, _ := exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
+		outp, _ := exec.Command("micro", serv.EnvFlag(), "logs", "payments/provider/stripe").CombinedOutput()
 		t.Log(string(outp))
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
