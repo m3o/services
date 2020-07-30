@@ -74,6 +74,8 @@ func testM3oSignupFlow(t *test.T) {
 	}
 
 	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
+		outp, _ := exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
+		t.Log(outp)
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
