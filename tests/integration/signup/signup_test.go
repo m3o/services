@@ -29,7 +29,7 @@ func TestM3oSignupFlow(t *testing.T) {
 func testM3oSignupFlow(t *test.T) {
 	t.Parallel()
 
-	serv := test.NewServer(t)
+	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
