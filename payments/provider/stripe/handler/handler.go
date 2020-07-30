@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/config"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 
@@ -21,7 +22,7 @@ type Handler struct {
 // NewHandler returns an initialised Handler, it will error if any of
 // the required enviroment variables are not set
 func NewHandler(srv micro.Service) *Handler {
-	apiKey := srv.Options().Config.Get("micro", "payments", "stripe", "api_key").String("")
+	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
 	if len(apiKey) == 0 {
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
 	}
