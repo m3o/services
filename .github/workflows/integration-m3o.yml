@@ -52,7 +52,7 @@ jobs:
         MICRO_STRIPE_PLAN_ID: ${{ secrets.MICRO_STRIPE_PLAN_ID }}
         MICRO_EMAIL_FROM: ${{ secrets.MICRO_EMAIL_FROM }}
         MICRO_TEST_ENV: ${{ secrets.MICRO_TEST_ENV }}
-        M3O_STRIPE_SVC: ../../services/payments/provider/stripe
-        M3O_SIGNUP_SVC: ../../services/signup
-        M3O_INVITE_SVC: ../../services/account/invite
+        M3O_STRIPE_SVC: ../payments/provider/stripe
+        M3O_SIGNUP_SVC: ../signup
+        M3O_INVITE_SVC: ../account/invite
         
