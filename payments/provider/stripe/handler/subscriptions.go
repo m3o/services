@@ -4,8 +4,8 @@ import (
 	"context"
 
 	pb "github.com/m3o/services/payments/provider/proto"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/logger"
 	stripe "github.com/stripe/stripe-go"
 )
 

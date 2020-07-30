@@ -1,34 +1,31 @@
 package main
 
 import (
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/server"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/server"
 
 	"github.com/m3o/services/payments/provider"
 	pb "github.com/m3o/services/payments/provider/proto"
 	"github.com/m3o/services/payments/provider/stripe/handler"
+	"github.com/micro/micro/v3/service"
 )
 
 func main() {
 	// Setup the service
-	service := micro.NewService(
-		micro.Name(provider.ServicePrefix+"stripe"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name(provider.ServicePrefix+"stripe"),
+		service.Version("latest"),
 	)
 
-	// Initialise the servicwe
-	service.Init()
-
 	// Register the provider
-	h := handler.NewHandler(service)
-	pb.RegisterProviderHandler(service.Server(), h)
+	h := handler.NewHandler(srv)
+	pb.RegisterProviderHandler(h)
 
 	// Consume events from the users service
-	micro.RegisterSubscriber("go.micro.service.users", service.Server(), h.HandleUserEvent, server.SubscriberQueue("queue.stripe"))
+	service.RegisterSubscriber("go.micro.service.users", h.HandleUserEvent, server.SubscriberQueue("queue.stripe"))
 
 	// Run the service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatalf("Error running service: %v", err)
 	}
 }

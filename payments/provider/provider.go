@@ -3,8 +3,9 @@ package provider
 import (
 	"errors"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/registry"
+	mregistry "github.com/micro/micro/v3/service/registry"
 
 	pb "github.com/m3o/services/payments/provider/proto"
 )
@@ -29,7 +30,7 @@ func NewProvider(name string, client client.Client) (pb.ProviderService, error) 
 	srvName := ServicePrefix + name
 
 	// Check the service exists in the registry (ensuring we fail fast if not)
-	srvs, err := registry.DefaultRegistry.GetService(srvName)
+	srvs, err := mregistry.DefaultRegistry.GetService(srvName)
 	if len(srvs) == 0 || err == registry.ErrNotFound {
 		return nil, ErrNotFound
 	} else if err != nil {
@@ -37,6 +38,6 @@ func NewProvider(name string, client client.Client) (pb.ProviderService, error) 
 	}
 
 	// Return an initialized provider service
-	srv := pb.NewProviderService(srvName, client)
+	srv := pb.NewProviderService(srvName)
 	return srv, nil
 }
