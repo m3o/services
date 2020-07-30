@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/test"
 	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/test"
 	"github.com/stripe/stripe-go/v71"
 	stripe_client "github.com/stripe/stripe-go/v71/client"
 )
@@ -55,19 +55,19 @@ func testM3oSignupFlow(t *test.T) {
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.EnvFlag(), "run", "--env_vars", "MICRO_CONFIG=service", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "run", "--env_vars", "MICRO_CONFIG=service", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "run", "--env_vars", "MICRO_CONFIG=service", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
