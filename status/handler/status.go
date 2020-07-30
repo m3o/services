@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	status "github.com/m3o/services/status/proto/status"
-	api "github.com/micro/go-micro/v2/api/proto"
-	"github.com/micro/go-micro/v2/client"
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
+	api "github.com/micro/go-micro/v3/api/proto"
+	proto "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/micro/v3/service/client"
 )
 
 var (

@@ -2,27 +2,25 @@ package main
 
 import (
 	"github.com/m3o/services/alert/handler"
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
 
 	alert "github.com/m3o/services/alert/proto/alert"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/store"
 )
 
 func main() {
 	// New Service
-	service := micro.NewService(
-		micro.Name("alert"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("alert"),
+		service.Version("latest"),
 	)
 
-	// Initialise service
-	service.Init()
-
 	// Register Handler
-	alert.RegisterAlertHandler(service.Server(), handler.NewAlert(service.Options().Store))
+	alert.RegisterAlertHandler(handler.NewAlert(store.DefaultStore))
 
 	// Run service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
