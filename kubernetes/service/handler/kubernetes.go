@@ -5,10 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/micro/go-micro/v2"
-	k8s "github.com/micro/go-micro/v2/util/kubernetes/client"
+	k8s "github.com/micro/go-micro/v3/util/kubernetes/client"
 
 	pb "github.com/m3o/services/kubernetes/service/proto"
+	"github.com/micro/micro/v3/service"
 )
 
 // Kubernetes implements the kubernetes service interface
@@ -18,7 +18,7 @@ type Kubernetes struct {
 }
 
 // New returns an initialised kubernetes handler
-func New(service micro.Service) *Kubernetes {
+func New(service *service.Service) *Kubernetes {
 	return &Kubernetes{
 		name:   service.Name(),
 		client: k8s.NewClusterClient(),

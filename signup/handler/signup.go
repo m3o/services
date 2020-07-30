@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config"
-	merrors "github.com/micro/go-micro/v2/errors"
-	logger "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/config"
+	merrors "github.com/micro/go-micro/v3/errors"
+	logger "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/sethvargo/go-diceware/diceware"
 
 	signup "github.com/m3o/services/signup/proto/signup"
