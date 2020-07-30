@@ -55,19 +55,19 @@ func testM3oSignupFlow(t *test.T) {
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_INVITE_SVC", "../../../account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "../../../signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_STRIPE_SVC", "../../../payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -182,7 +182,7 @@ func testM3oSignupFlow(t *test.T) {
 
 	code := ""
 	if err := test.Try("Find verification token in logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.EnvFlag(), "logs", "-n", "100", "m3o/services/signup")
+		psCmd := exec.Command("micro", serv.EnvFlag(), "logs", "-n", "100", "signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
