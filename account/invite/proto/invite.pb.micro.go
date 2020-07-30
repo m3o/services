@@ -11,9 +11,11 @@ import (
 
 import (
 	context "context"
-	api "github.com/micro/go-micro/v2/api"
-	client "github.com/micro/go-micro/v2/client"
-	server "github.com/micro/go-micro/v2/server"
+	api "github.com/micro/go-micro/v3/api"
+	client "github.com/micro/go-micro/v3/client"
+	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -32,6 +34,8 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Invite service
 
@@ -51,21 +55,17 @@ type InviteService interface {
 }
 
 type inviteService struct {
-	c    client.Client
 	name string
 }
 
-func NewInviteService(name string, c client.Client) InviteService {
-	return &inviteService{
-		c:    c,
-		name: name,
-	}
+func NewInviteService(name string) InviteService {
+	return &inviteService{name: name}
 }
 
 func (c *inviteService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := c.c.NewRequest(c.name, "Invite.Create", in)
+	req := microClient.NewRequest(c.name, "Invite.Create", in)
 	out := new(CreateResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +73,9 @@ func (c *inviteService) Create(ctx context.Context, in *CreateRequest, opts ...c
 }
 
 func (c *inviteService) Delete(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := c.c.NewRequest(c.name, "Invite.Delete", in)
+	req := microClient.NewRequest(c.name, "Invite.Delete", in)
 	out := new(CreateResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +83,9 @@ func (c *inviteService) Delete(ctx context.Context, in *CreateRequest, opts ...c
 }
 
 func (c *inviteService) Validate(ctx context.Context, in *ValidateRequest, opts ...client.CallOption) (*ValidateResponse, error) {
-	req := c.c.NewRequest(c.name, "Invite.Validate", in)
+	req := microClient.NewRequest(c.name, "Invite.Validate", in)
 	out := new(ValidateResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ type InviteHandler interface {
 	Validate(context.Context, *ValidateRequest, *ValidateResponse) error
 }
 
-func RegisterInviteHandler(s server.Server, hdlr InviteHandler, opts ...server.HandlerOption) error {
+func RegisterInviteHandler(hdlr InviteHandler, opts ...server.HandlerOption) error {
 	type invite interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Delete(ctx context.Context, in *CreateRequest, out *CreateResponse) error
@@ -113,7 +113,7 @@ func RegisterInviteHandler(s server.Server, hdlr InviteHandler, opts ...server.H
 		invite
 	}
 	h := &inviteHandler{hdlr}
-	return s.Handle(s.NewHandler(&Invite{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Invite{h}, opts...))
 }
 
 type inviteHandler struct {

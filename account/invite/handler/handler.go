@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 
 	pb "github.com/m3o/services/account/invite/proto"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mstore "github.com/micro/micro/v3/service/store"
 )
 
 type invite struct {
@@ -16,10 +17,10 @@ type invite struct {
 }
 
 // NewHandler returns an initialised handler
-func NewHandler(srv micro.Service) *Handler {
+func NewHandler(srv *service.Service) *Handler {
 	return &Handler{
 		name:  srv.Name(),
-		store: srv.Options().Store,
+		store: mstore.DefaultStore,
 	}
 }
 
