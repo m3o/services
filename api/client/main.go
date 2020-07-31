@@ -4,22 +4,19 @@ import (
 	"github.com/m3o/services/api/client/handler"
 	client "github.com/m3o/services/api/client/proto/client"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/api"
-	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/api"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
 )
 
 func main() {
 	// New Service
-	service := micro.NewService(
-		micro.Name("go.micro.api.client"),
+	srv := service.New(
+		service.Name("go.micro.api.client"),
 	)
 
-	// Initialise service
-	service.Init()
-
 	// Register Handler
-	client.RegisterClientHandler(service.Server(), &handler.Client{service.Client()}, api.WithEndpoint(
+	client.RegisterClientHandler(&handler.Client{srv.Client()}, api.WithEndpoint(
 		// TODO: remove when api supports Call method as default for /foo singular paths
 		&api.Endpoint{
 			Name:    "Client.Call",
@@ -30,7 +27,7 @@ func main() {
 	))
 
 	// Run service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

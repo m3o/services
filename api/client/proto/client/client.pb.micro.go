@@ -11,9 +11,11 @@ import (
 
 import (
 	context "context"
-	api "github.com/micro/go-micro/v2/api"
-	client "github.com/micro/go-micro/v2/client"
-	server "github.com/micro/go-micro/v2/server"
+	api "github.com/micro/go-micro/v3/api"
+	client "github.com/micro/go-micro/v3/client"
+	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -32,6 +34,8 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Client service
 
@@ -49,21 +53,17 @@ type ClientService interface {
 }
 
 type clientService struct {
-	c    client.Client
 	name string
 }
 
-func NewClientService(name string, c client.Client) ClientService {
-	return &clientService{
-		c:    c,
-		name: name,
-	}
+func NewClientService(name string) ClientService {
+	return &clientService{name: name}
 }
 
 func (c *clientService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := c.c.NewRequest(c.name, "Client.Call", in)
+	req := microClient.NewRequest(c.name, "Client.Call", in)
 	out := new(Response)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,8 +71,8 @@ func (c *clientService) Call(ctx context.Context, in *Request, opts ...client.Ca
 }
 
 func (c *clientService) Stream(ctx context.Context, opts ...client.CallOption) (Client_StreamService, error) {
-	req := c.c.NewRequest(c.name, "Client.Stream", &Request{})
-	stream, err := c.c.Stream(ctx, req, opts...)
+	req := microClient.NewRequest(c.name, "Client.Stream", &Request{})
+	stream, err := microClient.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ type ClientHandler interface {
 	Stream(context.Context, Client_StreamStream) error
 }
 
-func RegisterClientHandler(s server.Server, hdlr ClientHandler, opts ...server.HandlerOption) error {
+func RegisterClientHandler(hdlr ClientHandler, opts ...server.HandlerOption) error {
 	type client interface {
 		Call(ctx context.Context, in *Request, out *Response) error
 		Stream(ctx context.Context, stream server.Stream) error
@@ -139,7 +139,7 @@ func RegisterClientHandler(s server.Server, hdlr ClientHandler, opts ...server.H
 		client
 	}
 	h := &clientHandler{hdlr}
-	return s.Handle(s.NewHandler(&Client{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Client{h}, opts...))
 }
 
 type clientHandler struct {
