@@ -15,10 +15,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
 	merrors "github.com/micro/go-micro/v3/errors"
 	logger "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
+	mconfig "github.com/micro/micro/v3/service/config"
+	mstore "github.com/micro/micro/v3/service/store"
 	"github.com/sethvargo/go-diceware/diceware"
 
 	signup "github.com/m3o/services/signup/proto/signup"
@@ -43,7 +44,6 @@ type Signup struct {
 	paymentService     paymentsproto.ProviderService
 	inviteService      inviteproto.InviteService
 	k8sService         k8sproto.KubernetesService
-	store              store.Store
 	auth               auth.Auth
 	sendgridTemplateID string
 	sendgridAPIKey     string
@@ -54,16 +54,13 @@ type Signup struct {
 
 func NewSignup(paymentService paymentsproto.ProviderService,
 	inviteService inviteproto.InviteService,
-	k8sService k8sproto.KubernetesService,
-	store store.Store,
-	config config.Config,
-	auth auth.Auth) *Signup {
+	k8sService k8sproto.KubernetesService, auth auth.Auth) *Signup {
 
-	apiKey := config.Get("micro", "signup", "sendgrid", "api_key").String("")
-	templateID := config.Get("micro", "signup", "sendgrid", "template_id").String("")
-	planID := config.Get("micro", "signup", "plan_id").String("")
-	emailFrom := config.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
-	testMode := config.Get("micro", "signup", "test_env").Bool(false)
+	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
+	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
+	planID := mconfig.Get("micro", "signup", "plan_id").String("")
+	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
+	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -78,7 +75,6 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		paymentService:     paymentService,
 		inviteService:      inviteService,
 		k8sService:         k8sService,
-		store:              store,
 		auth:               auth,
 		sendgridAPIKey:     apiKey,
 		sendgridTemplateID: templateID,
@@ -138,7 +134,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return err
 	}
 
-	if err := e.store.Write(&store.Record{
+	if err := mstore.Write(&store.Record{
 		Key:   req.Email,
 		Value: bytes}, store.WriteExpiry(time.Now().Add(expiryDuration))); err != nil {
 		return err
@@ -222,7 +218,7 @@ func (e *Signup) Verify(ctx context.Context,
 	rsp *signup.VerifyResponse) error {
 	logger.Info("Received Signup.Verify request")
 
-	recs, err := e.store.Read(req.Email)
+	recs, err := mstore.Read(req.Email)
 	if err == store.ErrNotFound {
 		return errors.New("can't verify: record not found")
 	} else if err != nil {
@@ -250,6 +246,7 @@ func (e *Signup) Verify(ctx context.Context,
 		if err != nil && err != store.ErrNotFound {
 			return err
 		}
+
 		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
 		if err != nil {
 			return err
@@ -277,7 +274,7 @@ func (e *Signup) Verify(ctx context.Context,
 
 func (e *Signup) getNamespace(email string) (string, error) {
 	key := storePrefixNamesapce + email
-	recs, err := e.store.Read(key)
+	recs, err := mstore.Read(key)
 	if err != nil {
 		return "", err
 	}
@@ -286,13 +283,13 @@ func (e *Signup) getNamespace(email string) (string, error) {
 
 func (e *Signup) saveNamespace(email, namespace string) error {
 	key := storePrefixNamesapce + email
-	return e.store.Write(&store.Record{Key: key, Value: []byte(namespace)})
+	return mstore.Write(&store.Record{Key: key, Value: []byte(namespace)})
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
 
-	recs, err := e.store.Read(req.Email)
+	recs, err := mstore.Read(req.Email)
 	if err == store.ErrNotFound {
 		return errors.New("can't verify: record not found")
 	} else if err != nil {
@@ -360,6 +357,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	if err != nil {
 		return err
 	}
+
 	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
 	if err != nil {
 		return err
@@ -376,12 +374,12 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 // lifted from https://github.com/m3o/services/blob/550220a6eff2604b3e6d58d09db2b4489967019c/account/web/handler/handler.go#L114
 func (e *Signup) setAccountSecret(id, secret string) error {
 	key := storePrefixAccountSecrets + id
-	return e.store.Write(&store.Record{Key: key, Value: []byte(secret)})
+	return mstore.Write(&store.Record{Key: key, Value: []byte(secret)})
 }
 
 func (e *Signup) getAccountSecret(id string) (string, error) {
 	key := storePrefixAccountSecrets + id
-	recs, err := e.store.Read(key)
+	recs, err := mstore.Read(key)
 	if err != nil {
 		return "", err
 	}
