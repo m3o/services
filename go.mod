@@ -12,7 +12,6 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/stripe/stripe-go v70.15.0+incompatible
 	github.com/stripe/stripe-go/v71 v71.28.0
-	go.etcd.io/etcd v3.3.22+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	google.golang.org/protobuf v1.25.0
 )
