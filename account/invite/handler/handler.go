@@ -19,15 +19,13 @@ type invite struct {
 // NewHandler returns an initialised handler
 func NewHandler(srv *service.Service) *Handler {
 	return &Handler{
-		name:  srv.Name(),
-		store: mstore.DefaultStore,
+		name: srv.Name(),
 	}
 }
 
 // Handler implements the invite service inteface
 type Handler struct {
-	name  string
-	store store.Store
+	name string
 }
 
 // Create an invite
@@ -35,7 +33,7 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	// TODO maybe send an email or something
 	b, _ := json.Marshal(invite{Email: req.Email, Deleted: false})
 	// write the email to the store
-	return h.store.Write(&store.Record{
+	return mstore.Write(&store.Record{
 		Key:   req.Email,
 		Value: b,
 	})
@@ -45,7 +43,7 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 func (h *Handler) Delete(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// soft delete by marking as deleted. Note, assumes email was present, doesn't error in case it was never created
 	b, _ := json.Marshal(invite{Email: req.Email, Deleted: true})
-	return h.store.Write(&store.Record{
+	return mstore.Write(&store.Record{
 		Key:   req.Email,
 		Value: b,
 	})
@@ -54,7 +52,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 // Validate an invite
 func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
 	// check if the email exists in the store
-	values, err := h.store.Read(req.Email)
+	values, err := mstore.Read(req.Email)
 	if err == store.ErrNotFound {
 		return errors.BadRequest(h.name, "invalid email")
 	} else if err != nil {
