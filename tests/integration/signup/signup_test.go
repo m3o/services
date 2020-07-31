@@ -78,8 +78,6 @@ func testM3oSignupFlow(t *test.T) {
 		if err != nil {
 			return outp, err
 		}
-		outp, err = exec.Command("micro", serv.EnvFlag(), "logs", "signup").CombinedOutput()
-		t.Log(string(outp))
 		if !strings.Contains(string(outp), "stripe") || !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "invite") {
 			return outp, errors.New("Can't find signup or stripe or invite in list")
 		}
