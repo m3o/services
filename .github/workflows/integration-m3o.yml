@@ -27,7 +27,6 @@ jobs:
       with:
         repository: 'micro/micro'
         path: 'micro'
-        ref: c9a81fcbb742fecab58f3d9a07a83233afbe6c19
 
     - name: Install micro
       working-directory: micro

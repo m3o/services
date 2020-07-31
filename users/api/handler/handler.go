@@ -5,9 +5,10 @@ import (
 
 	pb "github.com/m3o/services/users/api/proto"
 	users "github.com/m3o/services/users/service/proto"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
+
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service"
 )
 
 // Handler implements the users api interface
@@ -16,9 +17,9 @@ type Handler struct {
 }
 
 // NewHandler returns an initialised handler
-func NewHandler(srv micro.Service) *Handler {
+func NewHandler(srv *service.Service) *Handler {
 	return &Handler{
-		users: users.NewUsersService("go.micro.service.users", srv.Client()),
+		users: users.NewUsersService("go.micro.service.users"),
 	}
 }
 

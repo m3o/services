@@ -3,36 +3,35 @@ package main
 import (
 	"fmt"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
+	mauth "github.com/micro/micro/v3/service/auth"
 
 	"github.com/m3o/services/events/api/handler"
 	pb "github.com/m3o/services/events/api/proto"
 )
 
 func main() {
-	service := micro.NewService(
-		micro.Name("go.micro.api.events"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("go.micro.api.events"),
+		service.Version("latest"),
 	)
-
-	service.Init()
 
 	// generate an elevated service account for the events api so
 	// it can interact with the runtime and override the contexts
 	// namespace. TODO: refactor once identity has been released.
-	accName := fmt.Sprintf("%v-%v", service.Name(), service.Server().Options().Id)
-	acc, err := service.Options().Auth.Generate(accName, auth.WithScopes("admin", "service"))
+	accName := fmt.Sprintf("%v-%v", srv.Name(), srv.Server().Options().Id)
+	acc, err := mauth.Generate(accName, auth.WithScopes("admin", "service"))
 	if err != nil {
 		logger.Fatalf("Error generating elevated service account: %v", err)
 	}
-	service.Options().Auth.Init(auth.Credentials(acc.ID, acc.Secret))
+	mauth.DefaultAuth.Init(auth.Credentials(acc.ID, acc.Secret))
 
 	// register the handler
-	pb.RegisterEventsHandler(service.Server(), handler.New(service))
+	pb.RegisterEventsHandler(handler.New(srv))
 
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
 	}
 }

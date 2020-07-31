@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"os"
 
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/web"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/web"
 )
 
 func main() {

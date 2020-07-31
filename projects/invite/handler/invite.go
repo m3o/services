@@ -8,18 +8,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/micro/go-micro/v2/errors"
-
-	"github.com/micro/go-micro/v2/auth"
-
-	"github.com/google/uuid"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
-
 	pb "github.com/m3o/services/projects/invite/proto"
 	project "github.com/m3o/services/projects/service/proto"
 	users "github.com/m3o/services/users/service/proto"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mconfig "github.com/micro/micro/v3/service/config"
+	mstore "github.com/micro/micro/v3/service/store"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -38,7 +38,6 @@ type invite struct {
 // Invites implements the invites service interface
 type Invites struct {
 	name               string
-	store              store.Store
 	sendgridAPIKey     string
 	sendgridTemplateID string
 	users              users.UsersService
@@ -46,24 +45,23 @@ type Invites struct {
 }
 
 // New returns an initialised handler
-func New(service micro.Service) *Invites {
-	sendgridAPIKey := service.Options().Config.Get("sendgrid-api-key").String("")
+func New(service *service.Service) *Invites {
+	sendgridAPIKey := mconfig.Get("sendgrid-api-key").String("")
 	if len(sendgridAPIKey) == 0 {
 		logger.Warn("Missing required config: 'sendgrid-api-key'")
 	}
 
-	sendgridTemplateID := service.Options().Config.Get("sendgrid-template-id").String("")
+	sendgridTemplateID := mconfig.Get("sendgrid-template-id").String("")
 	if len(sendgridAPIKey) == 0 {
 		logger.Warn("Missing required config: 'sendgrid-template-id'")
 	}
 
 	return &Invites{
 		name:               service.Name(),
-		store:              service.Options().Store,
 		sendgridAPIKey:     sendgridAPIKey,
 		sendgridTemplateID: sendgridTemplateID,
-		users:              users.NewUsersService("go.micro.service.users", service.Client()),
-		projects:           project.NewProjectsService("go.micro.service.projects", service.Client()),
+		users:              users.NewUsersService("go.micro.service.users"),
+		projects:           project.NewProjectsService("go.micro.service.projects"),
 	}
 }
 
@@ -107,7 +105,7 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 		return errors.InternalServerError(i.name, "Error mashaling json: %v", err)
 	}
 	rec := &store.Record{Key: code, Value: bytes, Expiry: inviteTTL}
-	if err := i.store.Write(rec); err != nil {
+	if err := mstore.Write(rec); err != nil {
 		return errors.InternalServerError(i.name, "Error writing to the store: %v", err)
 	}
 
@@ -121,7 +119,7 @@ func (i *Invites) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 // email before they create a profile.
 func (i *Invites) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.VerifyResponse) error {
 	// lookup the invite
-	recs, err := i.store.Read(req.Code)
+	recs, err := mstore.Read(req.Code)
 	if err == store.ErrNotFound {
 		return errors.BadRequest(i.name, "Invalid invite code")
 	} else if err != nil {
@@ -146,7 +144,7 @@ func (i *Invites) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.Ver
 // the email of the user redeeming the token.
 func (i *Invites) Redeem(ctx context.Context, req *pb.RedeemRequest, rsp *pb.RedeemResponse) error {
 	// lookup the invite
-	recs, err := i.store.Read(req.Code)
+	recs, err := mstore.Read(req.Code)
 	if err == store.ErrNotFound {
 		return errors.BadRequest(i.name, "Invalid invite code")
 	} else if err != nil {

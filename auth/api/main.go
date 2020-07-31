@@ -4,36 +4,33 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
+	mauth "github.com/micro/micro/v3/service/auth"
 
 	pb "github.com/m3o/services/auth/api/proto"
 )
 
 func main() {
-	service := micro.NewService(
-		micro.Name("go.micro.api.auth"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("go.micro.api.auth"),
+		service.Version("latest"),
 	)
 
-	service.Init()
+	pb.RegisterAuthHandler(new(Handler))
 
-	handler := &Handler{auth: service.Options().Auth}
-	pb.RegisterAuthHandler(service.Server(), handler)
-
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
 	}
 }
 
 type Handler struct {
-	auth auth.Auth
 }
 
 // Login exchanges auth credentials for a short lived token to be used when calling other apis
 func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest, rsp *pb.LoginResponse) error {
-	token, err := h.auth.Token(
+	token, err := mauth.Token(
 		auth.WithCredentials(req.Id, req.Secret),
 		auth.WithExpiry(time.Minute*5),
 	)

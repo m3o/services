@@ -6,9 +6,10 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mstore "github.com/micro/micro/v3/service/store"
 
 	pb "github.com/m3o/services/login/service/proto/login"
 	users "github.com/m3o/services/users/service/proto"
@@ -16,15 +17,13 @@ import (
 
 // Handler implements the login service interface
 type Handler struct {
-	name  string
-	store store.Store
+	name string
 }
 
 // NewHandler returns an initialise handler
-func NewHandler(srv micro.Service) *Handler {
+func NewHandler(srv *service.Service) *Handler {
 	return &Handler{
-		name:  srv.Name(),
-		store: srv.Options().Store,
+		name: srv.Name(),
 	}
 }
 
@@ -32,7 +31,7 @@ func NewHandler(srv micro.Service) *Handler {
 func (h *Handler) HandleUserEvent(ctx context.Context, event *users.Event) error {
 	switch event.Type {
 	case users.EventType_UserDeleted:
-		err := h.store.Delete(event.User.Email)
+		err := mstore.Delete(event.User.Email)
 		if err != nil && err != store.ErrNotFound {
 			return err
 		}
@@ -51,7 +50,7 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.CreateLoginRequest, r
 	}
 
 	// Validate credentials don't exist for this email already
-	if _, err := h.store.Read(req.Email); err != nil && err != store.ErrNotFound {
+	if _, err := mstore.Read(req.Email); err != nil && err != store.ErrNotFound {
 		return errors.InternalServerError(h.name, "Unable to read from store: %v", err)
 	}
 
@@ -91,7 +90,7 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.CreateLoginRequest, r
 	}
 
 	// Write to the store
-	err = h.store.Write(&store.Record{
+	err = mstore.Write(&store.Record{
 		Key:   req.Email,
 		Value: bytes,
 	})
@@ -105,7 +104,7 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.CreateLoginRequest, r
 // VerifyLogin validates a set of credentials
 func (h *Handler) VerifyLogin(ctx context.Context, req *pb.VerifyLoginRequest, rsp *pb.VerifyLoginResponse) error {
 	// Look up the user
-	recs, err := h.store.Read(req.Email)
+	recs, err := mstore.Read(req.Email)
 	if err == store.ErrNotFound {
 		return errors.BadRequest(h.name, "Invalid Email")
 	} else if err != nil {
@@ -131,7 +130,7 @@ func (h *Handler) VerifyLogin(ctx context.Context, req *pb.VerifyLoginRequest, r
 // UpdateEmail changes the users email, deleting the old key and writing to the new one
 func (h *Handler) UpdateEmail(ctx context.Context, req *pb.UpdateEmailRequest, rsp *pb.UpdateEmailResponse) error {
 	// Look up the user
-	recs, err := h.store.Read(req.OldEmail)
+	recs, err := mstore.Read(req.OldEmail)
 	if err == store.ErrNotFound {
 		return nil
 	} else if err != nil {
@@ -139,13 +138,13 @@ func (h *Handler) UpdateEmail(ctx context.Context, req *pb.UpdateEmailRequest, r
 	}
 
 	// Delete the old key
-	if err := h.store.Delete(req.OldEmail); err != nil {
+	if err := mstore.Delete(req.OldEmail); err != nil {
 		return errors.InternalServerError(h.name, "Unable to delete from store: %v", err)
 	}
 
 	// Write the new key
 	record := store.Record{Key: req.NewEmail, Value: recs[0].Value}
-	if err := h.store.Write(&record); err != nil {
+	if err := mstore.Write(&record); err != nil {
 		return errors.InternalServerError(h.name, "Unable to write to store: %v", err)
 	}
 

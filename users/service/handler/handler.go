@@ -11,9 +11,10 @@ import (
 	"github.com/google/uuid"
 
 	pb "github.com/m3o/services/users/service/proto"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mstore "github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -23,17 +24,12 @@ var (
 
 // Handler implements the users service interface
 type Handler struct {
-	store     store.Store
-	publisher micro.Publisher
+	name string
 }
 
 // NewHandler returns an initialised handler
-func NewHandler(srv micro.Service) (*Handler, error) {
-	// Return the initialised store
-	return &Handler{
-		store:     srv.Options().Store,
-		publisher: micro.NewPublisher(srv.Name(), srv.Client()),
-	}, nil
+func NewHandler(srv *service.Service) (*Handler, error) {
+	return &Handler{name: srv.Name()}, nil
 }
 
 // Create inserts a new user into the the store
@@ -70,12 +66,13 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// Write to the store
-	if err := h.store.Write(&store.Record{Key: user.Id, Value: bytes}); err != nil {
+	if err := mstore.Write(&store.Record{Key: user.Id, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.service.users", "Could not write to store: %v", err)
 	}
 
 	// Publish the event
-	go h.publisher.Publish(ctx, &pb.Event{
+
+	go service.NewEvent(h.name).Publish(ctx, &pb.Event{
 		Type: pb.EventType_UserCreated,
 		User: &user,
 	})
@@ -141,12 +138,12 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// Write to the store
-	if err := h.store.Write(&store.Record{Key: user.Id, Value: bytes}); err != nil {
+	if err := mstore.Write(&store.Record{Key: user.Id, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.service.users", "Could not write to store: %v", err)
 	}
 
 	// Publish the event
-	go h.publisher.Publish(ctx, &pb.Event{
+	go service.NewEvent(h.name).Publish(ctx, &pb.Event{
 		Type: pb.EventType_UserUpdated,
 		User: user,
 	})
@@ -165,12 +162,12 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// Delete from the store
-	if err := h.store.Delete(user.Id); err != nil {
+	if err := mstore.Delete(user.Id); err != nil {
 		return errors.InternalServerError("go.micro.service.users", "Could not write to store: %v", err)
 	}
 
 	// Publish the event
-	go h.publisher.Publish(ctx, &pb.Event{
+	go service.NewEvent(h.name).Publish(ctx, &pb.Event{
 		Type: pb.EventType_UserDeleted,
 		User: user,
 	})
@@ -181,7 +178,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 // Search the users in th store, using full name
 func (h *Handler) Search(ctx context.Context, req *pb.SearchRequest, rsp *pb.SearchResponse) error {
 	// List all the records
-	recs, err := h.store.Read("", store.ReadPrefix())
+	recs, err := mstore.Read("", store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}
@@ -215,7 +212,7 @@ func (h *Handler) findUser(id string) (*pb.User, error) {
 	}
 
 	// Get the records
-	recs, err := h.store.Read(id)
+	recs, err := mstore.Read(id)
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}
@@ -243,7 +240,7 @@ func (h *Handler) findUserByEmail(email string) (*pb.User, error) {
 	}
 
 	// Get the records
-	recs, err := h.store.Read("", store.ReadPrefix())
+	recs, err := mstore.Read("", store.ReadPrefix())
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.service.users", "Could not read from store: %v", err)
 	}

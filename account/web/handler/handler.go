@@ -9,10 +9,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/m3o/services/account/web/provider"
 	"github.com/m3o/services/account/web/provider/oauth"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/store"
+	mconfig "github.com/micro/micro/v3/service/config"
+	mstore "github.com/micro/micro/v3/service/store"
 
 	login "github.com/m3o/services/login/service/proto/login"
 	invite "github.com/m3o/services/projects/invite/proto"
@@ -20,37 +21,35 @@ import (
 )
 
 // NewHandler returns an initialised handler
-func NewHandler(srv micro.Service) *Handler {
+func NewHandler() *Handler {
 	googleProv := oauth.NewProvider(
 		provider.Credentials(
-			getConfigString(srv, "google", "client_id"),
-			getConfigString(srv, "google", "client_secret"),
+			getConfigString("google", "client_id"),
+			getConfigString("google", "client_secret"),
 		),
-		provider.Redirect(getConfigString(srv, "google", "redirect")),
-		provider.Endpoint(getConfigString(srv, "google", "endpoint")),
-		provider.Scope(getConfigString(srv, "google", "scope")),
+		provider.Redirect(getConfigString("google", "redirect")),
+		provider.Endpoint(getConfigString("google", "endpoint")),
+		provider.Scope(getConfigString("google", "scope")),
 	)
 
 	githubProv := oauth.NewProvider(
 		provider.Credentials(
-			getConfigString(srv, "github", "client_id"),
-			getConfigString(srv, "github", "client_secret"),
+			getConfigString("github", "client_id"),
+			getConfigString("github", "client_secret"),
 		),
-		provider.Redirect(getConfigString(srv, "github", "redirect")),
-		provider.Endpoint(getConfigString(srv, "github", "endpoint")),
-		provider.Scope(getConfigString(srv, "github", "scope")),
+		provider.Redirect(getConfigString("github", "redirect")),
+		provider.Endpoint(getConfigString("github", "endpoint")),
+		provider.Scope(getConfigString("github", "scope")),
 	)
 
 	return &Handler{
 		google:       googleProv,
 		github:       githubProv,
-		githubOrgID:  getConfigInt(srv, "github", "org_id"),
-		githubTeamID: getConfigInt(srv, "github", "team_id"),
-		auth:         srv.Options().Auth,
-		store:        srv.Options().Store,
-		users:        users.NewUsersService("go.micro.service.users", srv.Client()),
-		login:        login.NewLoginService("go.micro.service.login", srv.Client()),
-		invite:       invite.NewInviteService("go.micro.service.projects.invite", srv.Client()),
+		githubOrgID:  getConfigInt("github", "org_id"),
+		githubTeamID: getConfigInt("github", "team_id"),
+		users:        users.NewUsersService("go.micro.service.users"),
+		login:        login.NewLoginService("go.micro.service.login"),
+		invite:       invite.NewInviteService("go.micro.service.projects.invite"),
 	}
 }
 
@@ -58,7 +57,6 @@ func NewHandler(srv micro.Service) *Handler {
 type Handler struct {
 	githubOrgID  int
 	githubTeamID int
-	auth         auth.Auth
 	users        users.UsersService
 	login        login.LoginService
 	invite       invite.InviteService
@@ -74,7 +72,7 @@ type Handler struct {
 const storePrefixInviteCode = "invite/"
 
 func (h *Handler) setInviteCode(state, code string) error {
-	return h.store.Write(&store.Record{
+	return mstore.Write(&store.Record{
 		Key:    storePrefixInviteCode + state,
 		Expiry: time.Minute * 5,
 		Value:  []byte(code),
@@ -82,7 +80,7 @@ func (h *Handler) setInviteCode(state, code string) error {
 }
 
 func (h *Handler) getInviteCode(state string) (string, error) {
-	recs, err := h.store.Read(storePrefixInviteCode + state)
+	recs, err := mstore.Read(storePrefixInviteCode + state)
 	if err != nil {
 		return "", err
 	}
@@ -98,11 +96,11 @@ const storePrefixOauthState = "state/"
 func (h *Handler) generateOauthState() (string, error) {
 	code := uuid.New().String()
 	record := &store.Record{Key: storePrefixOauthState + code, Expiry: time.Minute * 5}
-	return code, h.store.Write(record)
+	return code, mstore.Write(record)
 }
 
 func (h *Handler) validateOauthState(code string) (bool, error) {
-	_, err := h.store.Read(storePrefixOauthState + code)
+	_, err := mstore.Read(storePrefixOauthState + code)
 	if err == nil {
 		return true, nil
 	} else if err == store.ErrNotFound {
@@ -120,12 +118,12 @@ const storePrefixAccountSecrets = "secrets/"
 func (h *Handler) setAccountSecret(id, secret string) error {
 	key := storePrefixAccountSecrets + id
 	fmt.Printf("setAccountSecret: %v = %v\n", id, secret)
-	return h.store.Write(&store.Record{Key: key, Value: []byte(secret)})
+	return mstore.Write(&store.Record{Key: key, Value: []byte(secret)})
 }
 
 func (h *Handler) getAccountSecret(id string) (string, error) {
 	key := storePrefixAccountSecrets + id
-	recs, err := h.store.Read(key)
+	recs, err := mstore.Read(key)
 	if err != nil {
 		return "", err
 	}
@@ -137,14 +135,14 @@ func (h *Handler) getAccountSecret(id string) (string, error) {
 // Helper methods for getting config
 //
 
-func getConfigString(srv micro.Service, keys ...string) string {
+func getConfigString(keys ...string) string {
 	path := append([]string{"micro", "oauth"}, keys...)
-	return srv.Options().Config.Get(path...).String("")
+	return mconfig.Get(path...).String("")
 }
 
-func getConfigInt(srv micro.Service, keys ...string) int {
+func getConfigInt(keys ...string) int {
 	path := append([]string{"micro", "oauth"}, keys...)
-	return srv.Options().Config.Get(path...).Int(0)
+	return mconfig.Get(path...).Int(0)
 }
 
 //

@@ -12,7 +12,8 @@ import (
 	"github.com/m3o/services/account/web/provider"
 	invite "github.com/m3o/services/projects/invite/proto"
 	users "github.com/m3o/services/users/service/proto"
-	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v3/auth"
+	mauth "github.com/micro/micro/v3/service/auth"
 )
 
 // HandleGithubOauthLogin redirects the user to begin the oauth flow
@@ -71,7 +72,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 		}
 
 		// create a token
-		tok, err := h.auth.Token(auth.WithCredentials(profile.Email, secret), auth.WithExpiry(time.Hour*24))
+		tok, err := mauth.Token(auth.WithCredentials(profile.Email, secret), auth.WithExpiry(time.Hour*24))
 		if err != nil {
 			h.handleError(w, req, err.Error())
 			return
@@ -92,7 +93,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Create an auth account
-	acc, err := h.auth.Generate(profile.Email, auth.WithType("user"), auth.WithProvider("oauth/github"))
+	acc, err := mauth.Generate(profile.Email, auth.WithType("user"), auth.WithProvider("oauth/github"))
 	if err != nil {
 		h.handleError(w, req, "Error creating auth account: %v", err)
 		return
@@ -103,7 +104,7 @@ func (h *Handler) HandleGithubOauthVerify(w http.ResponseWriter, req *http.Reque
 	}
 
 	// Generate a token
-	tok, err := h.auth.Token(auth.WithCredentials(profile.Email, acc.Secret), auth.WithExpiry(time.Hour*24))
+	tok, err := mauth.Token(auth.WithCredentials(profile.Email, acc.Secret), auth.WithExpiry(time.Hour*24))
 	if err != nil {
 		h.handleError(w, req, err.Error())
 		return

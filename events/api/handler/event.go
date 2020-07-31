@@ -5,11 +5,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service"
+	mruntime "github.com/micro/micro/v3/service/runtime"
 
 	pb "github.com/m3o/services/events/api/proto"
 	event "github.com/m3o/services/events/service/proto"
@@ -25,22 +26,18 @@ const (
 // Handler implements the event api interface
 type Handler struct {
 	name         string
-	auth         auth.Auth
-	runtime      runtime.Runtime
 	event        event.EventsService
 	project      project.ProjectsService
 	environments environments.EnvironmentsService
 }
 
 // New returns an initialised handler
-func New(service micro.Service) *Handler {
+func New(service *service.Service) *Handler {
 	return &Handler{
 		name:         service.Name(),
-		auth:         service.Options().Auth,
-		runtime:      service.Options().Runtime,
-		event:        event.NewEventsService("go.micro.service.events", service.Client()),
-		project:      project.NewProjectsService("go.micro.service.projects", service.Client()),
-		environments: environments.NewEnvironmentsService("go.micro.service.projects.environments", service.Client()),
+		event:        event.NewEventsService("go.micro.service.events"),
+		project:      project.NewProjectsService("go.micro.service.projects"),
+		environments: environments.NewEnvironmentsService("go.micro.service.projects.environments"),
 	}
 }
 
@@ -137,7 +134,7 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 			runtime.DeleteNamespace(env.Namespace),
 		}
 
-		if err := h.runtime.Delete(service, opts...); err != nil {
+		if err := mruntime.Delete(service, opts...); err != nil {
 			logger.Warnf("Failed to delete service %v/%v: %v", env.Namespace, srvName, err)
 			return err
 		}
@@ -145,7 +142,7 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 	}
 
 	// check if the service is already running, if it is we'll just update it
-	srvs, err := h.runtime.Read(
+	srvs, err := mruntime.Read(
 		runtime.ReadService(service.Name),
 		runtime.ReadNamespace(env.Namespace),
 	)
@@ -159,7 +156,7 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 		}
 
 		// the service already exists, we just need to update it
-		if err := h.runtime.Update(service, opts...); err != nil {
+		if err := mruntime.Update(service, opts...); err != nil {
 			logger.Warnf("Failed to update service %v/%v: %v", env.Namespace, srvName, err)
 			return err
 		}
@@ -175,7 +172,7 @@ func (h *Handler) updateRuntime(evType event.EventType, md map[string]string, pr
 		runtime.CreateType(typeFromServiceName(srvName)),
 		runtime.CreateNamespace(env.Namespace),
 	}
-	if err := h.runtime.Create(service, opts...); err != nil {
+	if err := mruntime.Create(service, opts...); err != nil {
 		logger.Warnf("Failed to create service %v/%v: %v", env.Namespace, srvName, err)
 		return err
 	}

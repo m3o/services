@@ -6,24 +6,23 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mstore "github.com/micro/micro/v3/service/store"
 
 	pb "github.com/m3o/services/events/service/proto"
 )
 
 // Events implement the event service interface
 type Events struct {
-	name  string
-	store store.Store
+	name string
 }
 
 // New returns an initialised event handler
-func New(service micro.Service) *Events {
+func New(service *service.Service) *Events {
 	return &Events{
-		name:  service.Name(),
-		store: service.Options().Store,
+		name: service.Name(),
 	}
 }
 
@@ -52,7 +51,7 @@ func (e *Events) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 		return errors.InternalServerError(e.name, "Error marshaling json: %v", err)
 	}
 	key := event.EnvironmentId + "/" + event.Id
-	if err := e.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(e.name, "Error writing to the store: %v", err)
 	}
 
@@ -69,7 +68,7 @@ func (e *Events) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	// lookup the environments matching this prefix, if the event
 	// id is blank all the environments events will be returned
 	prefix := req.EnvironmentId + "/" + req.EventId
-	recs, err := e.store.Read(prefix, store.ReadPrefix())
+	recs, err := mstore.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError(e.name, "Error reading from the store: %v", err)
 	}

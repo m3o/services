@@ -3,32 +3,29 @@ package main
 import (
 	"github.com/m3o/services/login/service/handler"
 
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/server"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service"
 
 	pb "github.com/m3o/services/login/service/proto/login"
 )
 
 func main() {
 	// New Service
-	service := micro.NewService(
-		micro.Name("go.micro.service.login"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("go.micro.service.login"),
+		service.Version("latest"),
 	)
 
-	// Initialise service
-	service.Init()
-
 	// Register Handler
-	h := handler.NewHandler(service)
-	pb.RegisterLoginHandler(service.Server(), h)
+	h := handler.NewHandler(srv)
+	pb.RegisterLoginHandler(h)
 
 	// Subscribe to user update events
-	micro.RegisterSubscriber("go.micro.service.users", service.Server(), h.HandleUserEvent, server.SubscriberQueue("queue.login"))
+	service.RegisterSubscriber("go.micro.service.users", h.HandleUserEvent, server.SubscriberQueue("queue.login"))
 
 	// Run service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

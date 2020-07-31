@@ -6,27 +6,26 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mstore "github.com/micro/micro/v3/service/store"
 
 	pb "github.com/m3o/services/projects/environments/proto"
 	projects "github.com/m3o/services/projects/service/proto"
 )
 
 // NewEnvironments returns an initialised Environments handler
-func NewEnvironments(srv micro.Service) *Environments {
+func NewEnvironments(srv *service.Service) *Environments {
 	return &Environments{
 		name:     srv.Name(),
-		store:    srv.Options().Store,
-		projects: projects.NewProjectsService("go.micro.service.projects", srv.Client()),
+		projects: projects.NewProjectsService("go.micro.service.projects"),
 	}
 }
 
 // Environments implements the proto service interface
 type Environments struct {
 	name     string
-	store    store.Store
 	projects projects.ProjectsService
 }
 
@@ -67,7 +66,7 @@ func (e *Environments) Create(ctx context.Context, req *pb.CreateRequest, rsp *p
 		return errors.InternalServerError(e.name, "Error marshaling record: %v", err)
 	}
 	key := req.Environment.ProjectId + "/" + req.Environment.Id
-	if err := e.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(e.name, "Error writing to store: %v", err)
 	}
 
@@ -132,7 +131,7 @@ func (e *Environments) Update(ctx context.Context, req *pb.UpdateRequest, rsp *p
 		return errors.InternalServerError(e.name, "Error marshaling record: %v", err)
 	}
 	key := env.ProjectId + "/" + env.Id
-	if err := e.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(e.name, "Error writing to store: %v", err)
 	}
 	return nil
@@ -150,14 +149,14 @@ func (e *Environments) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *p
 
 	// delete from the store
 	key := env.ProjectId + "/" + env.Id
-	if err := e.store.Delete(key); err != nil {
+	if err := mstore.Delete(key); err != nil {
 		return errors.InternalServerError(e.name, "Error deleting from store: %v", err)
 	}
 	return nil
 }
 
 func (e *Environments) findEnvironmentsForProject(id string) ([]*pb.Environment, error) {
-	recs, err := e.store.Read(id+"/", store.ReadPrefix())
+	recs, err := mstore.Read(id+"/", store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +174,7 @@ func (e *Environments) findEnvironmentsForProject(id string) ([]*pb.Environment,
 }
 
 func (e *Environments) findEnvironmentByID(id string) (*pb.Environment, error) {
-	keys, err := e.store.List()
+	keys, err := mstore.List()
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +190,7 @@ func (e *Environments) findEnvironmentByID(id string) (*pb.Environment, error) {
 		return nil, store.ErrNotFound
 	}
 
-	recs, err := e.store.Read(envKey)
+	recs, err := mstore.Read(envKey)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +203,7 @@ func (e *Environments) findEnvironmentByID(id string) (*pb.Environment, error) {
 }
 
 func (e *Environments) findEnvironmentByNamespace(ns string) (*pb.Environment, error) {
-	recs, err := e.store.Read("", store.ReadPrefix())
+	recs, err := mstore.Read("", store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}

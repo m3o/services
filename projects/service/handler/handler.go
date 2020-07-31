@@ -7,24 +7,23 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mstore "github.com/micro/micro/v3/service/store"
 
 	pb "github.com/m3o/services/projects/service/proto"
 )
 
 // Project implements the project service interface
 type Project struct {
-	name  string
-	store store.Store
+	name string
 }
 
 // New returns an initialized project handler
-func New(service micro.Service) *Project {
+func New(service *service.Service) *Project {
 	return &Project{
-		name:  service.Name(),
-		store: service.Options().Store,
+		name: service.Name(),
 	}
 }
 
@@ -53,7 +52,7 @@ func (p *Project) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// lookup the project members
-	recs, err := p.store.Read(membersPrefix+rsp.Project.Id+"/", store.ReadPrefix())
+	recs, err := mstore.Read(membersPrefix+rsp.Project.Id+"/", store.ReadPrefix())
 	if err != nil {
 		return nil
 	}
@@ -131,7 +130,7 @@ func (p *Project) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 // List all the projects (does not return membership)
 func (p *Project) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
 	// get the records with the project prefix
-	recs, err := p.store.Read(projectsPrefix, store.ReadPrefix())
+	recs, err := mstore.Read(projectsPrefix, store.ReadPrefix())
 	if err != nil {
 		return err
 	}
@@ -185,7 +184,7 @@ func (p *Project) AddMember(ctx context.Context, req *pb.AddMemberRequest, rsp *
 	}
 
 	// write the membership to the store
-	return p.store.Write(&store.Record{Key: m.Key(), Value: m.Bytes()})
+	return mstore.Write(&store.Record{Key: m.Key(), Value: m.Bytes()})
 }
 
 // RemoveMember from a project
@@ -203,7 +202,7 @@ func (p *Project) RemoveMember(ctx context.Context, req *pb.RemoveMemberRequest,
 		MemberType: req.Member.Type,
 	}
 
-	return p.store.Delete(m.Key())
+	return mstore.Delete(m.Key())
 }
 
 // ListMemberships returns all the projects a member belongs to
@@ -215,7 +214,7 @@ func (p *Project) ListMemberships(ctx context.Context, req *pb.ListMembershipsRe
 
 	// member id is the last component of the key, so list all
 	// the keys in the store which relate to memberships
-	keys, err := p.store.List(store.ListPrefix(membersPrefix))
+	keys, err := mstore.List(store.ListPrefix(membersPrefix))
 	if err != nil {
 		return err
 	}
@@ -242,7 +241,7 @@ func (p *Project) ListMemberships(ctx context.Context, req *pb.ListMembershipsRe
 }
 
 func (p *Project) findProjectByID(id string) (*pb.Project, error) {
-	recs, err := p.store.Read(projectsPrefix + id)
+	recs, err := mstore.Read(projectsPrefix + id)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +252,7 @@ func (p *Project) findProjectByID(id string) (*pb.Project, error) {
 }
 
 func (p *Project) findProjectByName(name string) (*pb.Project, error) {
-	recs, err := p.store.Read(projectsPrefix, store.ReadPrefix())
+	recs, err := mstore.Read(projectsPrefix, store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +279,7 @@ func (p *Project) writeProjectToStore(project *pb.Project) error {
 	}
 
 	key := projectsPrefix + project.Id
-	if err := p.store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError(p.name, "Error writing to the store: %v", err)
 	}
 

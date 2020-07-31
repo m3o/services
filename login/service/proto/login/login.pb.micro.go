@@ -11,8 +11,11 @@ import (
 
 import (
 	context "context"
-	client "github.com/micro/go-micro/v2/client"
-	server "github.com/micro/go-micro/v2/server"
+	api "github.com/micro/go-micro/v3/api"
+	client "github.com/micro/go-micro/v3/client"
+	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -27,9 +30,18 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Reference imports to suppress errors if they are not otherwise used.
+var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
+
+// Api Endpoints for Login service
+
+func NewLoginEndpoints() []*api.Endpoint {
+	return []*api.Endpoint{}
+}
 
 // Client API for Login service
 
@@ -42,21 +54,17 @@ type LoginService interface {
 }
 
 type loginService struct {
-	c    client.Client
 	name string
 }
 
-func NewLoginService(name string, c client.Client) LoginService {
-	return &loginService{
-		c:    c,
-		name: name,
-	}
+func NewLoginService(name string) LoginService {
+	return &loginService{name: name}
 }
 
 func (c *loginService) CreateLogin(ctx context.Context, in *CreateLoginRequest, opts ...client.CallOption) (*CreateLoginResponse, error) {
-	req := c.c.NewRequest(c.name, "Login.CreateLogin", in)
+	req := microClient.NewRequest(c.name, "Login.CreateLogin", in)
 	out := new(CreateLoginResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +72,9 @@ func (c *loginService) CreateLogin(ctx context.Context, in *CreateLoginRequest, 
 }
 
 func (c *loginService) VerifyLogin(ctx context.Context, in *VerifyLoginRequest, opts ...client.CallOption) (*VerifyLoginResponse, error) {
-	req := c.c.NewRequest(c.name, "Login.VerifyLogin", in)
+	req := microClient.NewRequest(c.name, "Login.VerifyLogin", in)
 	out := new(VerifyLoginResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,9 +82,9 @@ func (c *loginService) VerifyLogin(ctx context.Context, in *VerifyLoginRequest, 
 }
 
 func (c *loginService) UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...client.CallOption) (*UpdateEmailResponse, error) {
-	req := c.c.NewRequest(c.name, "Login.UpdateEmail", in)
+	req := microClient.NewRequest(c.name, "Login.UpdateEmail", in)
 	out := new(UpdateEmailResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +101,7 @@ type LoginHandler interface {
 	UpdateEmail(context.Context, *UpdateEmailRequest, *UpdateEmailResponse) error
 }
 
-func RegisterLoginHandler(s server.Server, hdlr LoginHandler, opts ...server.HandlerOption) error {
+func RegisterLoginHandler(hdlr LoginHandler, opts ...server.HandlerOption) error {
 	type login interface {
 		CreateLogin(ctx context.Context, in *CreateLoginRequest, out *CreateLoginResponse) error
 		VerifyLogin(ctx context.Context, in *VerifyLoginRequest, out *VerifyLoginResponse) error
@@ -103,7 +111,7 @@ func RegisterLoginHandler(s server.Server, hdlr LoginHandler, opts ...server.Han
 		login
 	}
 	h := &loginHandler{hdlr}
-	return s.Handle(s.NewHandler(&Login{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Login{h}, opts...))
 }
 
 type loginHandler struct {

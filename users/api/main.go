@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
 
 	"github.com/m3o/services/users/api/handler"
 	pb "github.com/m3o/services/users/api/proto"
@@ -11,21 +10,17 @@ import (
 
 func main() {
 	// New Service
-	service := micro.NewService(
-		micro.Name("go.micro.api.users"),
-		micro.Version("latest"),
-		micro.Auth(auth.DefaultAuth),
+	srv := service.New(
+		service.Name("go.micro.api.users"),
+		service.Version("latest"),
 	)
 
-	// Initialise service
-	service.Init()
-
 	// Register Handler
-	h := handler.NewHandler(service)
-	pb.RegisterUsersHandler(service.Server(), h)
+	h := handler.NewHandler(srv)
+	pb.RegisterUsersHandler(h)
 
 	// Run service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

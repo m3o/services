@@ -6,8 +6,8 @@ import (
 
 	"github.com/m3o/services/account/web/handler"
 
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/web"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/web"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// Handle the redirect from google when oauth completes
-	h := handler.NewHandler(service.Options().Service)
+	h := handler.NewHandler()
 	service.HandleFunc("/oauth/google/login", h.HandleGoogleOauthLogin)
 	service.HandleFunc("/oauth/google/verify", h.HandleGoogleOauthVerify)
 	service.HandleFunc("/oauth/github/login", h.HandleGithubOauthLogin)

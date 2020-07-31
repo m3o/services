@@ -1,24 +1,22 @@
 package main
 
 import (
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
 
 	"github.com/m3o/services/projects/service/handler"
 	pb "github.com/m3o/services/projects/service/proto"
 )
 
 func main() {
-	service := micro.NewService(
-		micro.Name("go.micro.service.projects"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("go.micro.service.projects"),
+		service.Version("latest"),
 	)
 
-	service.Init()
+	pb.RegisterProjectsHandler(handler.New(srv))
 
-	pb.RegisterProjectsHandler(service.Server(), handler.New(service))
-
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
