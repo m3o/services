@@ -5,8 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/micro/v3/service"
 
 	pb "github.com/m3o/services/payments/provider/proto"
 )
@@ -47,7 +46,7 @@ func (t testprovider) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDe
 func TestNewProvider(t *testing.T) {
 	// test the provider returns ErrNotFound when not registered
 	t.Run("no provider set", func(t *testing.T) {
-		_, err := NewProvider("test", client.NewClient())
+		_, err := NewProvider("test")
 		if err != ErrNotFound {
 			t.Errorf("Expected ErrNotFound, got %v", err)
 		}
@@ -55,8 +54,8 @@ func TestNewProvider(t *testing.T) {
 
 	// test the provider returns a provider when one is registered
 	t.Run("provider set", func(t *testing.T) {
-		testSrv := micro.NewService(micro.Name(ServicePrefix + "test"))
-		if err := pb.RegisterProviderHandler(testSrv.Server(), new(testprovider)); err != nil {
+		testSrv := service.New(service.Name(ServicePrefix + "test"))
+		if err := pb.RegisterProviderHandler(new(testprovider)); err != nil {
 			t.Fatalf("Error registering test handler: %v", err)
 		}
 		go testSrv.Run()
@@ -65,7 +64,7 @@ func TestNewProvider(t *testing.T) {
 		// and the testSrv is stopped at the end of the function
 		time.Sleep(200 * time.Millisecond)
 
-		_, err := NewProvider("test", client.NewClient())
+		_, err := NewProvider("test")
 		if err != nil {
 			t.Errorf("Expected no error, got %v", err)
 		}

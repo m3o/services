@@ -9,18 +9,20 @@ import (
 	"io"
 	"strings"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
+	mconfig "github.com/micro/micro/v3/service/config"
+	mstore "github.com/micro/micro/v3/service/store"
 
 	pb "github.com/m3o/services/secrets/service/proto"
 )
 
 // New returns an initialised handler
-func New(srv micro.Service) *Handler {
+func New(srv *service.Service) *Handler {
 	// todo: debug why explicity setting service name is required
-	secret := srv.Options().Config.Get("go", "micro", "service", "secrets", "secret").String("")
+	secret := mconfig.Get("go", "micro", "service", "secrets", "secret").String("")
 	if len(secret) == 0 {
 		logger.Fatal("Missing required config: secret")
 	}
@@ -28,7 +30,6 @@ func New(srv micro.Service) *Handler {
 	return &Handler{
 		secret: secret,
 		name:   srv.Name(),
-		store:  srv.Options().Store,
 	}
 }
 
@@ -36,7 +37,6 @@ func New(srv micro.Service) *Handler {
 type Handler struct {
 	name   string
 	secret string
-	store  store.Store
 }
 
 // pathJoiner is the character used to join the path when writing to the store
@@ -60,7 +60,7 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	// write to the store
 	key := strings.Join(req.Path, pathJoiner)
-	if err := h.store.Write(&store.Record{Key: key, Value: secret}); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: secret}); err != nil {
 		return errors.InternalServerError(h.name, "Error writing to the store: %v", err)
 	}
 
@@ -75,7 +75,7 @@ func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// read from the store
-	recs, err := h.store.Read(strings.Join(req.Path, pathJoiner))
+	recs, err := mstore.Read(strings.Join(req.Path, pathJoiner))
 	if err == store.ErrNotFound {
 		return errors.NotFound(h.name, "Secret not found")
 	} else if err != nil {
@@ -110,7 +110,7 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	// write to the store
 	key := strings.Join(req.Path, pathJoiner)
-	if err := h.store.Write(&store.Record{Key: key, Value: secret}); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: secret}); err != nil {
 		return errors.InternalServerError(h.name, "Error writing to the store: %v", err)
 	}
 
@@ -126,7 +126,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// deletre from the store
 	key := strings.Join(req.Path, pathJoiner)
-	err := h.store.Delete(key)
+	err := mstore.Delete(key)
 	if err == store.ErrNotFound {
 		return errors.NotFound(h.name, "Secret not found")
 	} else if err != nil {

@@ -4,17 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/store"
+	mstore "github.com/micro/micro/v3/service/store"
 )
-
-var (
-	st store.Store
-)
-
-// Init the package
-func Init(store store.Store) {
-	st = store
-}
 
 const (
 	prefixNotificationsBySubscriber = "notif:%s:"                            // notif:subscriberID:
@@ -37,7 +29,7 @@ func writeObj(obj interface{}, key string) error {
 		return err
 	}
 
-	if err := st.Write(&store.Record{
+	if err := mstore.Write(&store.Record{
 		Key:   key,
 		Value: b,
 	}); err != nil {
@@ -48,7 +40,7 @@ func writeObj(obj interface{}, key string) error {
 
 // ListNotificationsForSubscriber returns a list of all notifications for the given subscriber
 func ListNotificationsForSubscriber(subscriberID string) ([]*Notification, error) {
-	entries, err := st.Read(fmt.Sprintf(prefixNotificationsBySubscriber, subscriberID), store.ReadPrefix())
+	entries, err := mstore.Read(fmt.Sprintf(prefixNotificationsBySubscriber, subscriberID), store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +62,7 @@ func UpdateNotification(notif *Notification) error {
 
 // ReadNotification returns the notification with the given ID
 func ReadNotification(subscriberID, notifID string) (*Notification, error) {
-	entries, err := st.Read(fmt.Sprintf(keyNotificationsBySubscriber, subscriberID, notifID))
+	entries, err := mstore.Read(fmt.Sprintf(keyNotificationsBySubscriber, subscriberID, notifID))
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +85,7 @@ func CreateSubscription(sub *Subscription) error {
 
 // ListSubscriptionsForResource returns the subscriptions for a resource
 func ListSubscriptionsForResource(resourceType, resourceID string) ([]*Subscription, error) {
-	entries, err := st.Read(fmt.Sprintf(prefixSubscriptionsByResource, resourceType, resourceID), store.ReadPrefix())
+	entries, err := mstore.Read(fmt.Sprintf(prefixSubscriptionsByResource, resourceType, resourceID), store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}
@@ -111,15 +103,15 @@ func ListSubscriptionsForResource(resourceType, resourceID string) ([]*Subscript
 // DeleteSubscription removes the subscription from the store
 func DeleteSubscription(subscriptionID, subscriberID, resourceType, resourceID string) error {
 	// Normally we'd have a deleted timestamp rather than deleting from the DB but we don't really need an audit trail here
-	if err := st.Delete(fmt.Sprintf(keySubscriptionsByResource, resourceType, resourceID, subscriberID)); err != nil {
+	if err := mstore.Delete(fmt.Sprintf(keySubscriptionsByResource, resourceType, resourceID, subscriberID)); err != nil {
 		return err
 	}
-	return st.Delete(fmt.Sprintf(keySubscriptionsBySubscriber, subscriberID, subscriptionID))
+	return mstore.Delete(fmt.Sprintf(keySubscriptionsBySubscriber, subscriberID, subscriptionID))
 }
 
 // ReadSubscription returns a subscription for the given params
 func ReadSubscription(subscriberID, resourceType, resourceID string) (*Subscription, error) {
-	entries, err := st.Read(fmt.Sprintf(keySubscriptionsByResource, resourceType, resourceID, subscriberID))
+	entries, err := mstore.Read(fmt.Sprintf(keySubscriptionsByResource, resourceType, resourceID, subscriberID))
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +125,7 @@ func ReadSubscription(subscriberID, resourceType, resourceID string) (*Subscript
 
 // ListSubscriptionsForSubscriber returns the list of subscriptions for this subscriber
 func ListSubscriptionsForSubscriber(subscriberID string) ([]*Subscription, error) {
-	entries, err := st.Read(fmt.Sprintf(prefixSubscriptionsBySubscriber, subscriberID), store.ReadPrefix())
+	entries, err := mstore.Read(fmt.Sprintf(prefixSubscriptionsBySubscriber, subscriberID), store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}

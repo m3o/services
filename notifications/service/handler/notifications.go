@@ -7,13 +7,12 @@ import (
 
 	"github.com/m3o/services/notifications/service/dao"
 	nproto "github.com/m3o/services/notifications/service/proto/notifications"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
 )
 
 type Notifications struct {
-	// auth auth.Auth
 }
 
 // Subscribe subscribes the user to notifications for the given resource

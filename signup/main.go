@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/m3o/services/signup/handler"
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
 
 	inviteproto "github.com/m3o/services/account/invite/proto"
 	k8sproto "github.com/m3o/services/kubernetes/service/proto"

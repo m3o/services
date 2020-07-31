@@ -1,33 +1,29 @@
 package main
 
 import (
-	"github.com/m3o/services/notifications/service/dao"
 	"github.com/m3o/services/notifications/service/handler"
 	"github.com/m3o/services/notifications/service/subscriber"
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
 
 	notifications "github.com/m3o/services/notifications/service/proto/notifications"
 )
 
 func main() {
 	// New Service
-	service := micro.NewService(
-		micro.Name("go.micro.service.notifications"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("go.micro.service.notifications"),
+		service.Version("latest"),
 	)
 
-	// Initialise service
-	service.Init()
-	dao.Init(service.Options().Store)
 	// Register Handler
-	notifications.RegisterNotificationsHandler(service.Server(), new(handler.Notifications))
+	notifications.RegisterNotificationsHandler(new(handler.Notifications))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("go.micro.service.notifications", service.Server(), new(subscriber.Subscriber))
+	service.RegisterSubscriber("go.micro.service.notifications", new(subscriber.Subscriber))
 
 	// Run service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

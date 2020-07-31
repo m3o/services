@@ -11,9 +11,11 @@ import (
 
 import (
 	context "context"
-	api "github.com/micro/go-micro/v2/api"
-	client "github.com/micro/go-micro/v2/client"
-	server "github.com/micro/go-micro/v2/server"
+	api "github.com/micro/go-micro/v3/api"
+	client "github.com/micro/go-micro/v3/client"
+	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -32,6 +34,8 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Notifications service
 
@@ -51,21 +55,17 @@ type NotificationsService interface {
 }
 
 type notificationsService struct {
-	c    client.Client
 	name string
 }
 
-func NewNotificationsService(name string, c client.Client) NotificationsService {
-	return &notificationsService{
-		c:    c,
-		name: name,
-	}
+func NewNotificationsService(name string) NotificationsService {
+	return &notificationsService{name: name}
 }
 
 func (c *notificationsService) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (*SubscribeResponse, error) {
-	req := c.c.NewRequest(c.name, "Notifications.Subscribe", in)
+	req := microClient.NewRequest(c.name, "Notifications.Subscribe", in)
 	out := new(SubscribeResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +73,9 @@ func (c *notificationsService) Subscribe(ctx context.Context, in *SubscribeReque
 }
 
 func (c *notificationsService) Unsubscribe(ctx context.Context, in *UnsubscribeRequest, opts ...client.CallOption) (*UnsubscribeResponse, error) {
-	req := c.c.NewRequest(c.name, "Notifications.Unsubscribe", in)
+	req := microClient.NewRequest(c.name, "Notifications.Unsubscribe", in)
 	out := new(UnsubscribeResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +83,9 @@ func (c *notificationsService) Unsubscribe(ctx context.Context, in *UnsubscribeR
 }
 
 func (c *notificationsService) MarkAsRead(ctx context.Context, in *MarkAsReadRequest, opts ...client.CallOption) (*MarkAsReadResponse, error) {
-	req := c.c.NewRequest(c.name, "Notifications.MarkAsRead", in)
+	req := microClient.NewRequest(c.name, "Notifications.MarkAsRead", in)
 	out := new(MarkAsReadResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +93,9 @@ func (c *notificationsService) MarkAsRead(ctx context.Context, in *MarkAsReadReq
 }
 
 func (c *notificationsService) Notify(ctx context.Context, in *NotifyRequest, opts ...client.CallOption) (*NotifyResponse, error) {
-	req := c.c.NewRequest(c.name, "Notifications.Notify", in)
+	req := microClient.NewRequest(c.name, "Notifications.Notify", in)
 	out := new(NotifyResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,9 +103,9 @@ func (c *notificationsService) Notify(ctx context.Context, in *NotifyRequest, op
 }
 
 func (c *notificationsService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "Notifications.List", in)
+	req := microClient.NewRequest(c.name, "Notifications.List", in)
 	out := new(ListResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +113,9 @@ func (c *notificationsService) List(ctx context.Context, in *ListRequest, opts .
 }
 
 func (c *notificationsService) ListSubscriptions(ctx context.Context, in *ListSubscribptionsRequest, opts ...client.CallOption) (*ListSubscriptionsResponse, error) {
-	req := c.c.NewRequest(c.name, "Notifications.ListSubscriptions", in)
+	req := microClient.NewRequest(c.name, "Notifications.ListSubscriptions", in)
 	out := new(ListSubscriptionsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ type NotificationsHandler interface {
 	ListSubscriptions(context.Context, *ListSubscribptionsRequest, *ListSubscriptionsResponse) error
 }
 
-func RegisterNotificationsHandler(s server.Server, hdlr NotificationsHandler, opts ...server.HandlerOption) error {
+func RegisterNotificationsHandler(hdlr NotificationsHandler, opts ...server.HandlerOption) error {
 	type notifications interface {
 		Subscribe(ctx context.Context, in *SubscribeRequest, out *SubscribeResponse) error
 		Unsubscribe(ctx context.Context, in *UnsubscribeRequest, out *UnsubscribeResponse) error
@@ -146,7 +146,7 @@ func RegisterNotificationsHandler(s server.Server, hdlr NotificationsHandler, op
 		notifications
 	}
 	h := &notificationsHandler{hdlr}
-	return s.Handle(s.NewHandler(&Notifications{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Notifications{h}, opts...))
 }
 
 type notificationsHandler struct {

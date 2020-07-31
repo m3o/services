@@ -6,10 +6,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service"
+	mauth "github.com/micro/micro/v3/service/auth"
+	mruntime "github.com/micro/micro/v3/service/runtime"
 )
 
 const (
@@ -20,28 +22,27 @@ const (
 )
 
 func main() {
-	srv := micro.NewService()
-	srv.Init()
-	logger.Infof("Using %v runtime", srv.Options().Runtime)
+	srv := service.New()
+	logger.Infof("Using %v runtime", mruntime.DefaultRuntime)
 
 	// setup an admin account for the service to use (required to run services in a custom namespace)
 	// this is a temporaty solution until identity is setup then we'll need to pass a set of creds
 	// as arguments.
-	name := fmt.Sprintf("bootstrap-%v", srv.Options().Server.Options().Id)
-	acc, err := srv.Options().Auth.Generate(name, auth.WithScopes("admin"))
+	name := fmt.Sprintf("bootstrap-%v", srv.Server().Options().Id)
+	acc, err := mauth.Generate(name, auth.WithScopes("admin"))
 	if err != nil {
 		logger.Fatal(err)
 	}
-	tok, err := srv.Options().Auth.Token(auth.WithCredentials(acc.ID, acc.Secret))
+	tok, err := mauth.Token(auth.WithCredentials(acc.ID, acc.Secret))
 	if err != nil {
 		logger.Fatal(err)
 	}
-	srv.Options().Auth.Init(auth.ClientToken(tok))
+	mauth.DefaultAuth.Init(auth.ClientToken(tok))
 
 	for _, name := range listServices() {
 		logger.Infof("Creating %v", name)
 
-		err := srv.Options().Runtime.Create(
+		err := mruntime.Create(
 			&runtime.Service{Name: name, Source: source},
 			runtime.CreateNamespace("platform"),
 			runtime.CreateImage("docker.pkg.github.com/m3o/services/"+strings.ReplaceAll(name, "/", "-")),
