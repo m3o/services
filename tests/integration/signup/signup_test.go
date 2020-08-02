@@ -55,7 +55,7 @@ func testM3oSignupFlow(t *test.T) {
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_INVITE_SVC", "../../../account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_INVITE_SVC", "../../../invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -117,7 +117,7 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}

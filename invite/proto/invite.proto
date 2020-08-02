@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package go.micro.service.invite;
+
+service Invite {
+	// Create an invite
+	rpc Create(CreateRequest) returns (CreateResponse) {};
+	// Delete an invite 
+	rpc Delete(CreateRequest) returns (CreateResponse) {};
+	// Validate an email
+	rpc Validate(ValidateRequest) returns (ValidateResponse) {};
+}
+
+message CreateRequest {
+  string email = 1;
+}
+
+message CreateResponse {
+}
+
+message DeleteRequest {
+  string email = 1;
+}
+
+message DeleteResponse {
+}
+
+message ValidateRequest {
+  string email = 1;
+}
+
+message ValidateResponse {}

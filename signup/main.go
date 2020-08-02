@@ -4,7 +4,7 @@ import (
 	"github.com/m3o/services/signup/handler"
 	log "github.com/micro/go-micro/v3/logger"
 
-	inviteproto "github.com/m3o/services/account/invite/proto"
+	inviteproto "github.com/m3o/services/invite/proto"
 	k8sproto "github.com/m3o/services/kubernetes/service/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	signup "github.com/m3o/services/signup/proto/signup"
@@ -16,7 +16,6 @@ func main() {
 	// New Service
 	srv := service.New(
 		service.Name("go.micro.service.signup"),
-		service.Version("latest"),
 	)
 
 	// passing in auth because the DefaultAuth is the one used to set up the service
@@ -25,10 +24,11 @@ func main() {
 	// Register Handler
 	signup.RegisterSignupHandler(handler.NewSignup(
 		paymentsproto.NewProviderService("go.micro.service.payment.stripe"),
-		inviteproto.NewInviteService("go.micro.service.account.invite"),
+		inviteproto.NewInviteService("go.micro.service.invite"),
 		k8sproto.NewKubernetesService("go.micro.service.kubernetes"),
 		auth,
 	))
+
 	// Run service
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
