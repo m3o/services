@@ -4,9 +4,7 @@ package signup
 
 import (
 	"errors"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -149,12 +147,7 @@ func testM3oSignupFlow(t *test.T) {
 			return
 		}
 
-		if b, err := ioutil.ReadFile(serv.Command().Config); err == nil {
-			fmt.Println("dumping config", serv.Command().Config)
-			fmt.Println(string(b))
-		}
-
-		outp, err = serv.Command().Exec("user", "namespace")
+		outp, err = serv.Command().Exec("user", "config", "namespaces", serv.Env(), "current")
 		if err != nil {
 			t.Fatalf("Error getting namespace: %v", err)
 			return
