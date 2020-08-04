@@ -146,13 +146,13 @@ func testM3oSignupFlow(t *test.T) {
 			t.Fatal(string(outp))
 			return
 		}
-		ns, err := namespace.Get(serv.EnvName())
+		ns, err := namespace.Get(serv.Env())
 		if err != nil {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
 		defer func() {
-			namespace.Remove(ns, serv.EnvName())
+			namespace.Remove(ns, serv.Env())
 		}()
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
@@ -160,7 +160,7 @@ func testM3oSignupFlow(t *test.T) {
 		}
 		t.T().Logf("Namespace set is %v", ns)
 		test.Try("Find account", t, func() ([]byte, error) {
-			outp, err = serv.Command().Exec("auth", "list", "accounts").CombinedOutput()
+			outp, err = serv.Command().Exec("auth", "list", "accounts")
 			if err != nil {
 				return outp, err
 			}
