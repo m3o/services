@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/test"
 	"github.com/stripe/stripe-go/v71"
 	stripe_client "github.com/stripe/stripe-go/v71/client"
@@ -148,7 +147,7 @@ func testM3oSignupFlow(t *test.T) {
 			return
 		}
 
-		outp, err := serv.Command().Exec("user", "namespace")
+		outp, err = serv.Command().Exec("user", "namespace")
 		if err != nil {
 			t.Fatalf("Error getting namespace: %v", err)
 			return
