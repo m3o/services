@@ -147,7 +147,7 @@ func testM3oSignupFlow(t *test.T) {
 			return
 		}
 
-		outp, err = serv.Command().Exec("user", "config", "namespaces", serv.Env(), "current")
+		outp, err = serv.Command().Exec("user", "config", "get", "namespaces", serv.Env(), "current")
 		if err != nil {
 			t.Fatalf("Error getting namespace: %v", err)
 			return
