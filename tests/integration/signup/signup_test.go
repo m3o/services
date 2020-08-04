@@ -147,6 +147,11 @@ func testM3oSignupFlow(t *test.T) {
 			return
 		}
 
+		if b, err := ioutil.ReadFile(serv.Command().Config); err == nil {
+			fmt.Println("dumping config", serv.Command().Config)
+			fmt.Println(string(b))
+		}
+
 		outp, err = serv.Command().Exec("user", "namespace")
 		if err != nil {
 			t.Fatalf("Error getting namespace: %v", err)
