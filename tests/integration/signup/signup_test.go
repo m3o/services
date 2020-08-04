@@ -49,32 +49,32 @@ func testM3oSignupFlow(t *test.T) {
 		if len(val) == 0 {
 			t.Fatalf("'%v' flag is missing", envKey)
 		}
-		outp, err := serv.Command().Exec("config", "set", configKey, val).CombinedOutput()
+		outp, err := serv.Command().Exec("config", "set", configKey, val)
 		if err != nil {
 			t.Fatal(string(outp))
 		}
 	}
 
-	outp, err := serv.Command().Exec("run", getSrcString("M3O_INVITE_SVC", "../../../invite")).CombinedOutput()
+	outp, err := serv.Command().Exec("run", getSrcString("M3O_INVITE_SVC", "../../../invite"))
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_SIGNUP_SVC", "../../../signup")).CombinedOutput()
+	outp, err = serv.Command().Exec("run", getSrcString("M3O_SIGNUP_SVC", "../../../signup"))
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_STRIPE_SVC", "../../../payments/provider/stripe")).CombinedOutput()
+	outp, err = serv.Command().Exec("run", getSrcString("M3O_STRIPE_SVC", "../../../payments/provider/stripe"))
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
 	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
-		outp, err := serv.Command().Exec("services").CombinedOutput()
+		outp, err := serv.Command().Exec("services")
 		if err != nil {
 			return outp, err
 		}
@@ -121,14 +121,14 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	outp, err = serv.Command().Exec("call", "go.micro.service.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
+	outp, err = serv.Command().Exec("call", "go.micro.service.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`)
 	if err != nil {
 		t.Fatal(string(outp))
 	}
 
 	password := "PassWord1@"
 
-	cmd = serv.Command("micro", envFlag, confFlag, "signup", "--password", password)
+	cmd = exec.Command("micro", envFlag, confFlag, "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
 		t.Fatal(err)
