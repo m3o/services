@@ -10,7 +10,7 @@ import (
 )
 
 // CreatePaymentMethod via the Stripe API, e.g. "Add payment method pm_s93483932 to John Doe"
-func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePaymentMethodRequest, rsp *pb.CreatePaymentMethodResponse) error {
+func (h *Provider) CreatePaymentMethod(ctx context.Context, req *pb.CreatePaymentMethodRequest, rsp *pb.CreatePaymentMethodResponse) error {
 	if len(req.Id) == 0 {
 		return errors.BadRequest(h.name, "ID required")
 	}
@@ -44,7 +44,7 @@ func (h *Handler) CreatePaymentMethod(ctx context.Context, req *pb.CreatePayment
 }
 
 // DeletePaymentMethod via the Stripe API, e.g. "Remove payment method pm_s93483932"
-func (h *Handler) DeletePaymentMethod(ctx context.Context, req *pb.DeletePaymentMethodRequest, rsp *pb.DeletePaymentMethodResponse) error {
+func (h *Provider) DeletePaymentMethod(ctx context.Context, req *pb.DeletePaymentMethodRequest, rsp *pb.DeletePaymentMethodResponse) error {
 	if len(req.Id) == 0 {
 		return errors.BadRequest(h.name, "ID required")
 	}
@@ -58,7 +58,7 @@ func (h *Handler) DeletePaymentMethod(ctx context.Context, req *pb.DeletePayment
 }
 
 // ListPaymentMethods via the Stripe API, e.g. "List payment methods for John Doe"
-func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMethodsRequest, rsp *pb.ListPaymentMethodsResponse) error {
+func (h *Provider) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMethodsRequest, rsp *pb.ListPaymentMethodsResponse) error {
 	if len(req.CustomerType) == 0 {
 		return errors.BadRequest(h.name, "Customer Type required")
 	}
@@ -112,7 +112,7 @@ func (h *Handler) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMet
 }
 
 // SetDefaultPaymentMethod sets the users default payment method
-func (h *Handler) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefaultPaymentMethodRequest, rsp *pb.SetDefaultPaymentMethodResponse) error {
+func (h *Provider) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefaultPaymentMethodRequest, rsp *pb.SetDefaultPaymentMethodResponse) error {
 	// Check to see if the user has already been created
 	stripeID, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {

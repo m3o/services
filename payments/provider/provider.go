@@ -3,6 +3,7 @@ package provider
 import (
 	"errors"
 
+	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/registry"
 	mregistry "github.com/micro/micro/v3/service/registry"
 
@@ -24,7 +25,7 @@ var (
 // NewProvider returns an initialized client with the name provided,
 // e.g. "stripe" will return a payment provider with the service name
 // "go.micro.service.payments.stripe"
-func NewProvider(name string) (pb.ProviderService, error) {
+func NewProvider(name string, c client.Client) (pb.ProviderService, error) {
 	// Construct the service name
 	srvName := ServicePrefix + name
 
@@ -37,6 +38,6 @@ func NewProvider(name string) (pb.ProviderService, error) {
 	}
 
 	// Return an initialized provider service
-	srv := pb.NewProviderService(srvName)
+	srv := pb.NewProviderService(srvName, c)
 	return srv, nil
 }

@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -34,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Kubernetes service
 
@@ -55,17 +51,21 @@ type KubernetesService interface {
 }
 
 type kubernetesService struct {
+	c    client.Client
 	name string
 }
 
-func NewKubernetesService(name string) KubernetesService {
-	return &kubernetesService{name: name}
+func NewKubernetesService(name string, c client.Client) KubernetesService {
+	return &kubernetesService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *kubernetesService) CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...client.CallOption) (*CreateNamespaceResponse, error) {
-	req := microClient.NewRequest(c.name, "Kubernetes.CreateNamespace", in)
+	req := c.c.NewRequest(c.name, "Kubernetes.CreateNamespace", in)
 	out := new(CreateNamespaceResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +73,9 @@ func (c *kubernetesService) CreateNamespace(ctx context.Context, in *CreateNames
 }
 
 func (c *kubernetesService) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...client.CallOption) (*DeleteNamespaceResponse, error) {
-	req := microClient.NewRequest(c.name, "Kubernetes.DeleteNamespace", in)
+	req := c.c.NewRequest(c.name, "Kubernetes.DeleteNamespace", in)
 	out := new(DeleteNamespaceResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +83,9 @@ func (c *kubernetesService) DeleteNamespace(ctx context.Context, in *DeleteNames
 }
 
 func (c *kubernetesService) CreateImagePullSecret(ctx context.Context, in *CreateImagePullSecretRequest, opts ...client.CallOption) (*CreateImagePullSecretResponse, error) {
-	req := microClient.NewRequest(c.name, "Kubernetes.CreateImagePullSecret", in)
+	req := c.c.NewRequest(c.name, "Kubernetes.CreateImagePullSecret", in)
 	out := new(CreateImagePullSecretResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +93,9 @@ func (c *kubernetesService) CreateImagePullSecret(ctx context.Context, in *Creat
 }
 
 func (c *kubernetesService) DeleteImagePullSecret(ctx context.Context, in *DeleteImagePullSecretRequest, opts ...client.CallOption) (*DeleteImagePullSecretResponse, error) {
-	req := microClient.NewRequest(c.name, "Kubernetes.DeleteImagePullSecret", in)
+	req := c.c.NewRequest(c.name, "Kubernetes.DeleteImagePullSecret", in)
 	out := new(DeleteImagePullSecretResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,9 +103,9 @@ func (c *kubernetesService) DeleteImagePullSecret(ctx context.Context, in *Delet
 }
 
 func (c *kubernetesService) CreateServiceAccount(ctx context.Context, in *CreateServiceAccountRequest, opts ...client.CallOption) (*CreateServiceAccountResponse, error) {
-	req := microClient.NewRequest(c.name, "Kubernetes.CreateServiceAccount", in)
+	req := c.c.NewRequest(c.name, "Kubernetes.CreateServiceAccount", in)
 	out := new(CreateServiceAccountResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +113,9 @@ func (c *kubernetesService) CreateServiceAccount(ctx context.Context, in *Create
 }
 
 func (c *kubernetesService) DeleteServiceAccount(ctx context.Context, in *DeleteServiceAccountRequest, opts ...client.CallOption) (*DeleteServiceAccountResponse, error) {
-	req := microClient.NewRequest(c.name, "Kubernetes.DeleteServiceAccount", in)
+	req := c.c.NewRequest(c.name, "Kubernetes.DeleteServiceAccount", in)
 	out := new(DeleteServiceAccountResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ type KubernetesHandler interface {
 	DeleteServiceAccount(context.Context, *DeleteServiceAccountRequest, *DeleteServiceAccountResponse) error
 }
 
-func RegisterKubernetesHandler(hdlr KubernetesHandler, opts ...server.HandlerOption) error {
+func RegisterKubernetesHandler(s server.Server, hdlr KubernetesHandler, opts ...server.HandlerOption) error {
 	type kubernetes interface {
 		CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, out *CreateNamespaceResponse) error
 		DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error
@@ -146,7 +146,7 @@ func RegisterKubernetesHandler(hdlr KubernetesHandler, opts ...server.HandlerOpt
 		kubernetes
 	}
 	h := &kubernetesHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Kubernetes{h}, opts...))
+	return s.Handle(s.NewHandler(&Kubernetes{h}, opts...))
 }
 
 type kubernetesHandler struct {

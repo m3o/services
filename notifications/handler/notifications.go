@@ -12,8 +12,7 @@ import (
 	"github.com/micro/go-micro/v3/store"
 )
 
-type Notifications struct {
-}
+type Notifications struct{}
 
 // Subscribe subscribes the user to notifications for the given resource
 func (n *Notifications) Subscribe(ctx context.Context, req *nproto.SubscribeRequest, rsp *nproto.SubscribeResponse) error {

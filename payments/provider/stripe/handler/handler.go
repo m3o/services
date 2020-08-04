@@ -13,23 +13,23 @@ import (
 	"github.com/stripe/stripe-go/client"
 )
 
-// Handler implements the payments provider interface for stripe
-type Handler struct {
+// Provider implements the payments provider interface for stripe
+type Provider struct {
 	name   string      // name of the service
 	store  store.Store // go-micro store (key/value)
 	client *client.API // stripe api client
 }
 
-// NewHandler returns an initialised Handler, it will error if any of
+// NewProvider returns an initialised Provider, it will error if any of
 // the required enviroment variables are not set
-func NewHandler(srv *service.Service) *Handler {
+func New(srv *service.Service) *Provider {
 	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
 
 	if len(apiKey) == 0 {
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
 	}
 
-	return &Handler{
+	return &Provider{
 		name:   srv.Name(),
 		client: client.New(apiKey, nil),
 	}
@@ -41,7 +41,7 @@ type Customer struct {
 }
 
 // getStripeIDForCustomer returns the stripe ID from the store for the given customer
-func (h *Handler) getStripeIDForCustomer(customerType, customerID string) (string, error) {
+func (h *Provider) getStripeIDForCustomer(customerType, customerID string) (string, error) {
 	recs, err := mstore.Read(customerType + "/" + customerID)
 	if err == store.ErrNotFound {
 		return "", nil
@@ -58,7 +58,7 @@ func (h *Handler) getStripeIDForCustomer(customerType, customerID string) (strin
 }
 
 // setStripeIDForCustomer writes the stripe ID to the store for the given customer
-func (h *Handler) setStripeIDForCustomer(stripeID, customerType, customerID string) error {
+func (h *Provider) setStripeIDForCustomer(stripeID, customerType, customerID string) error {
 	bytes, err := json.Marshal(&Customer{StripeID: stripeID})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Could not marshal json: %v", err)

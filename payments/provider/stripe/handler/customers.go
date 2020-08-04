@@ -9,7 +9,7 @@ import (
 )
 
 // CreateCustomer via the Stripe API, e.g. "John Doe"
-func (h *Handler) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequest, rsp *pb.CreateCustomerResponse) error {
+func (h *Provider) CreateCustomer(ctx context.Context, req *pb.CreateCustomerRequest, rsp *pb.CreateCustomerResponse) error {
 	if req.Customer == nil {
 		return errors.BadRequest(h.name, "Customer required")
 	}

@@ -16,7 +16,7 @@ func main() {
 	)
 
 	// Register Handler
-	client.RegisterClientHandler(&handler.Client{srv.Client()}, api.WithEndpoint(
+	client.RegisterClientHandler(srv.Server(), &handler.Client{srv.Client()}, api.WithEndpoint(
 		// TODO: remove when api supports Call method as default for /foo singular paths
 		&api.Endpoint{
 			Name:    "Client.Call",

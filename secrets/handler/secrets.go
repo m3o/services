@@ -20,21 +20,21 @@ import (
 )
 
 // New returns an initialised handler
-func New(srv *service.Service) *Handler {
+func New(srv *service.Service) *Secrets {
 	// todo: debug why explicity setting service name is required
 	secret := mconfig.Get("go", "micro", "service", "secrets", "secret").String("")
 	if len(secret) == 0 {
 		logger.Fatal("Missing required config: secret")
 	}
 
-	return &Handler{
+	return &Secrets{
 		secret: secret,
 		name:   srv.Name(),
 	}
 }
 
-// Handler implements the secrets service interface
-type Handler struct {
+// Secrets implements the secrets service interface
+type Secrets struct {
 	name   string
 	secret string
 }
@@ -43,7 +43,7 @@ type Handler struct {
 const pathJoiner = "/"
 
 // Create a secret
-func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (h *Secrets) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// validate the request
 	if req.Path == nil || len(req.Path) == 0 {
 		return errors.BadRequest(h.name, "Missing path")
@@ -68,7 +68,7 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 // Read a secret
-func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+func (h *Secrets) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	// validate the request
 	if req.Path == nil || len(req.Path) == 0 {
 		return errors.BadRequest(h.name, "Missing path")
@@ -93,7 +93,7 @@ func (h *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 }
 
 // Update a secret
-func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
+func (h *Secrets) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	// validate the request
 	if req.Path == nil || len(req.Path) == 0 {
 		return errors.BadRequest(h.name, "Missing path")
@@ -118,7 +118,7 @@ func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 }
 
 // Delete a secret
-func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+func (h *Secrets) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// validate the request
 	if req.Path == nil || len(req.Path) == 0 {
 		return errors.BadRequest(h.name, "Missing path")
@@ -136,7 +136,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	return nil
 }
 
-func (h *Handler) encrypt(text string) ([]byte, error) {
+func (h *Secrets) encrypt(text string) ([]byte, error) {
 	block, err := aes.NewCipher([]byte(h.secret))
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (h *Handler) encrypt(text string) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func (h *Handler) decrypt(text []byte) (string, error) {
+func (h *Secrets) decrypt(text []byte) (string, error) {
 	block, err := aes.NewCipher([]byte(h.secret))
 	if err != nil {
 		return "", err

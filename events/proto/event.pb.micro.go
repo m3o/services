@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -34,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Events service
 
@@ -51,17 +47,21 @@ type EventsService interface {
 }
 
 type eventsService struct {
+	c    client.Client
 	name string
 }
 
-func NewEventsService(name string) EventsService {
-	return &eventsService{name: name}
+func NewEventsService(name string, c client.Client) EventsService {
+	return &eventsService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *eventsService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := microClient.NewRequest(c.name, "Events.Create", in)
+	req := c.c.NewRequest(c.name, "Events.Create", in)
 	out := new(CreateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -69,9 +69,9 @@ func (c *eventsService) Create(ctx context.Context, in *CreateRequest, opts ...c
 }
 
 func (c *eventsService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Events.Read", in)
+	req := c.c.NewRequest(c.name, "Events.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ type EventsHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
 }
 
-func RegisterEventsHandler(hdlr EventsHandler, opts ...server.HandlerOption) error {
+func RegisterEventsHandler(s server.Server, hdlr EventsHandler, opts ...server.HandlerOption) error {
 	type events interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
@@ -94,7 +94,7 @@ func RegisterEventsHandler(hdlr EventsHandler, opts ...server.HandlerOption) err
 		events
 	}
 	h := &eventsHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Events{h}, opts...))
+	return s.Handle(s.NewHandler(&Events{h}, opts...))
 }
 
 type eventsHandler struct {

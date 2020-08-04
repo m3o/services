@@ -26,7 +26,7 @@ var (
 	}
 )
 
-type statusHandler struct {
+type Status struct {
 	monitoredServices []string
 }
 
@@ -36,11 +36,11 @@ func NewStatusHandler(services []string) status.StatusHandler {
 	if len(services) > 0 {
 		svcs = services
 	}
-	return &statusHandler{monitoredServices: svcs}
+	return &Status{monitoredServices: svcs}
 }
 
 // Call is called by the API as /status/call with post body {"name": "foo"}
-func (e *statusHandler) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
+func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
 	response := map[string]string{}
 	overallOK := true
 

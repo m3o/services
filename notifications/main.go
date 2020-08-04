@@ -4,8 +4,6 @@ import (
 	"github.com/m3o/services/notifications/handler"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
-
-	notifications "github.com/m3o/services/notifications/proto/notifications"
 )
 
 func main() {
@@ -15,7 +13,7 @@ func main() {
 	)
 
 	// Register Handler
-	notifications.RegisterNotificationsHandler(new(handler.Notifications))
+	srv.Handle(new(handler.Notifications))
 
 	// Run service
 	if err := srv.Run(); err != nil {
