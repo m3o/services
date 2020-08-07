@@ -10,7 +10,7 @@ import (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.status"),
+		service.Name("status"),
 	)
 
 	// grab services to monitor

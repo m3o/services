@@ -12,7 +12,7 @@ import (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.api.client"),
+		service.Name("client"),
 	)
 
 	// Register Handler
