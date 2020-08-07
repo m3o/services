@@ -8,7 +8,7 @@ import (
 
 func main() {
 	srv := service.New(
-		service.Name("go.micro.service.kubernetes"),
+		service.Name("kubernetes"),
 	)
 
 	srv.Handle(handler.New(srv))

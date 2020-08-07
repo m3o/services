@@ -126,7 +126,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	logger.Info("Received Signup.SendVerificationEmail request")
 
 	if !e.isAllowedToSignup(ctx, req.Email) {
-		return merrors.Forbidden("go.micro.service.signup.notallowed", "user has not been invited to sign up")
+		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
 	}
 
 	k := randStringBytesMaskImprSrc(8)
@@ -214,7 +214,7 @@ func (e *Signup) sendEmail(email, token string) error {
 			return err
 		}
 		logger.Errorf("Could not send email to %v, error: %v", email, string(bytes))
-		return merrors.InternalServerError("go.micro.service.signup.sendemail", "error sending email")
+		return merrors.InternalServerError("signup.sendemail", "error sending email")
 	}
 	return nil
 }

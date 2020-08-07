@@ -9,7 +9,7 @@ import (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.service.notifications"),
+		service.Name("notifications"),
 	)
 
 	// Register Handler

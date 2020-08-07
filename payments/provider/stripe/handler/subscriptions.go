@@ -32,7 +32,7 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 	switch err.(*stripe.Error).Code {
 	case stripe.ErrorCodeParameterInvalidEmpty:
 		logger.Errorf("Error creating subscription: %v", err)
-		return errors.BadRequest("go.micro.service.payment.stripe", "missing arguments")
+		return errors.BadRequest("payment.stripe", "missing arguments")
 	default:
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
 	}

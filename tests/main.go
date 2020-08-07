@@ -8,7 +8,7 @@ import (
 
 func main() {
 	service := service.New(
-		service.Name("go.micro.service.tests"),
+		service.Name("tests"),
 	)
 
 	service.Handle(new(handler.Tests))
