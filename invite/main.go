@@ -8,7 +8,7 @@ import (
 
 func main() {
 	srv := service.New(
-		service.Name("go.micro.service.invite"),
+		service.Name("invite"),
 	)
 
 	srv.Handle(handler.New(srv))

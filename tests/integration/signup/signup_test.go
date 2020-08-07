@@ -85,10 +85,9 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-
 	// flags
-	envFlag := "-e="+serv.Env()
-	confFlag := "-c="+serv.Command().Config
+	envFlag := "-e=" + serv.Env()
+	confFlag := "-c=" + serv.Command().Config
 
 	time.Sleep(5 * time.Second)
 
@@ -121,7 +120,7 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	outp, err = serv.Command().Exec("call", "go.micro.service.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`)
+	outp, err = serv.Command().Exec("call", "invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`)
 	if err != nil {
 		t.Fatal(string(outp))
 	}
@@ -147,7 +146,7 @@ func testM3oSignupFlow(t *test.T) {
 			return
 		}
 
-		outp, err = serv.Command().Exec("user", "config", "get", "namespaces." + serv.Env() + ".current")
+		outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 		if err != nil {
 			t.Fatalf("Error getting namespace: %v", err)
 			return

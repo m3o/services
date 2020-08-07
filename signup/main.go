@@ -13,7 +13,7 @@ import (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.service.signup"),
+		service.Name("signup"),
 	)
 
 	// passing in auth because the DefaultAuth is the one used to set up the service
@@ -21,9 +21,9 @@ func main() {
 
 	// Register Handler
 	srv.Handle(handler.NewSignup(
-		paymentsproto.NewProviderService("go.micro.service.payment.stripe", srv.Client()),
-		inviteproto.NewInviteService("go.micro.service.invite", srv.Client()),
-		k8sproto.NewKubernetesService("go.micro.service.kubernetes", srv.Client()),
+		paymentsproto.NewProviderService("payment.stripe", srv.Client()),
+		inviteproto.NewInviteService("invite", srv.Client()),
+		k8sproto.NewKubernetesService("kubernetes", srv.Client()),
 		auth,
 	))
 

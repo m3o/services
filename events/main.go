@@ -8,7 +8,7 @@ import (
 
 func main() {
 	srv := service.New(
-		service.Name("go.micro.service.events"),
+		service.Name("events"),
 	)
 
 	srv.Handle(handler.New(srv))
