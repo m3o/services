@@ -8,6 +8,7 @@ import (
 	status "github.com/m3o/services/status/proto/status"
 	api "github.com/micro/go-micro/v3/api/proto"
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/service/client"
 )
 
@@ -65,11 +66,12 @@ func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) 
 	}
 
 	b, _ := json.Marshal(response)
-	statusCode := 200
 	if !overallOK {
-		statusCode = 500
+		rsp.StatusCode = 500
+		rsp.Body = string(b)
+		return errors.New("status.error", rsp.Body, rsp.StatusCode)
 	}
-	rsp.StatusCode = int32(statusCode)
+	rsp.StatusCode = 200
 	rsp.Body = string(b)
 
 	return nil
