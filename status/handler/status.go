@@ -13,16 +13,16 @@ import (
 
 var (
 	defaultServices = []string{
-		"go.micro.api", // If this is down then this wouldn't even get routed to...
-		"go.micro.auth",
-		"go.micro.broker",
-		"go.micro.config",
-		"go.micro.debug",
-		"go.micro.network",
-		"go.micro.proxy",
-		"go.micro.registry",
-		"go.micro.runtime",
-		"go.micro.store",
+		"api", // If this is down then this wouldn't even get routed to...
+		"auth",
+		"broker",
+		"config",
+		"debug",
+		"network",
+		"proxy",
+		"registry",
+		"runtime",
+		"store",
 	}
 )
 
