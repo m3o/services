@@ -164,7 +164,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 func (e *Signup) isAllowedToSignup(ctx context.Context, email string) bool {
 	// for now we're checking the invite service before allowing signup
 	// TODO check for a valid invite code rather than just the email
-	_, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email})
+	_, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email}, client.WithAuthToken())
 	return err == nil
 }
 
@@ -278,7 +278,7 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 			Id:   req.Email,
 			Type: "user",
 		},
-	})
+	}, client.WithAuthToken())
 	return err
 }
 
@@ -318,7 +318,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		CustomerId:   req.Email,
 		CustomerType: "user",
 		Id:           req.PaymentMethodID,
-	})
+	}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -327,7 +327,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		CustomerId:      req.Email,
 		CustomerType:    "user",
 		PaymentMethodId: req.PaymentMethodID,
-	})
+	}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -336,7 +336,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		CustomerId:   req.Email,
 		CustomerType: "user",
 		PlanId:       e.planID,
-	}, client.WithRequestTimeout(10*time.Second))
+	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func (e *Signup) createNamespace(ctx context.Context) (string, error) {
 	if !e.testMode {
 		_, err = e.k8sService.CreateNamespace(ctx, &k8sproto.CreateNamespaceRequest{
 			Name: ns,
-		}, client.WithRequestTimeout(10*time.Second))
+		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	}
 	return ns, err
 }

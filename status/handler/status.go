@@ -7,6 +7,7 @@ import (
 
 	status "github.com/m3o/services/status/proto/status"
 	api "github.com/micro/go-micro/v3/api/proto"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/service/debug/proto"
@@ -50,7 +51,7 @@ func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) 
 		req := client.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
 		rsp := &proto.HealthResponse{}
 
-		err := client.Call(context.TODO(), req, rsp)
+		err := client.Call(context.TODO(), req, rsp, goclient.WithAuthToken())
 		status := "OK"
 		if err != nil || rsp.Status != "ok" {
 			status = "NOT_HEALTHY"
