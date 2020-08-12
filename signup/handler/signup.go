@@ -56,7 +56,7 @@ type Signup struct {
 var (
 	// TODO: move this message to a better location
 	// Message is a predefined message returned during signup
-	Message = "Please go to https://m3o.com/subscribe?email=%s and paste the acquired payment method id here: "
+	Message = "Please complete signup at https://m3o.com/subscribe?email=%s and enter the generated token ID: "
 )
 
 func NewSignup(paymentService paymentsproto.ProviderService,
