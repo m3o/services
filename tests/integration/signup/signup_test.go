@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	retryCount = 2
+	retryCount          = 2
+	signupSuccessString = "Signup complete"
 )
 
 func TestM3oSignupFlow(t *testing.T) {
@@ -141,7 +142,7 @@ func testM3oSignupFlow(t *test.T) {
 			t.Fatal(string(outp), err)
 			return
 		}
-		if !strings.Contains(string(outp), "Success") {
+		if !strings.Contains(string(outp), signupSuccessString) {
 			t.Fatal(string(outp))
 			return
 		}
