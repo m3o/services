@@ -280,6 +280,9 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		Customer: &paymentsproto.Customer{
 			Id:   req.Email,
 			Type: "user",
+			Metadata: map[string]string{
+				"email": req.Email,
+			},
 		},
 	}, client.WithAuthToken())
 	return err
