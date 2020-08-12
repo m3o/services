@@ -241,34 +241,6 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		return errors.New("Invalid token")
 	}
 
-	secret, err := e.getAccountSecret(req.Email)
-	if err != store.ErrNotFound && err != nil {
-		return fmt.Errorf("can't get account secret: %v", err)
-	}
-
-	// If the user has a secret it means the account is ready
-	// to be used, so we log them in.
-	if len(secret) > 0 {
-		ns, err := e.getNamespace(req.Email)
-		if err != nil && err != store.ErrNotFound {
-			return err
-		}
-
-		token, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
-		if err != nil {
-			return err
-		}
-		rsp.AuthToken = &signup.AuthToken{
-			AccessToken:  token.AccessToken,
-			RefreshToken: token.RefreshToken,
-			Expiry:       token.Expiry.Unix(),
-			Created:      token.Created.Unix(),
-		}
-		// @todo what to do if namespace is not found?
-		rsp.Namespace = ns
-		return nil
-	}
-
 	// set the response message
 	rsp.Message = fmt.Sprintf(e.paymentMessage, req.Email)
 	// we require payment for any signup
@@ -352,10 +324,6 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		secret = uuid.New().String()
 	}
 
-	err = e.setAccountSecret(req.Email, secret)
-	if err != nil {
-		return err
-	}
 	ns, err := e.createNamespace(ctx)
 	if err != nil {
 		return err
@@ -382,21 +350,6 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		Created:      t.Created.Unix(),
 	}
 	return nil
-}
-
-// lifted from https://github.com/m3o/services/blob/550220a6eff2604b3e6d58d09db2b4489967019c/account/web/handler/handler.go#L114
-func (e *Signup) setAccountSecret(id, secret string) error {
-	key := storePrefixAccountSecrets + id
-	return mstore.Write(&store.Record{Key: key, Value: []byte(secret)})
-}
-
-func (e *Signup) getAccountSecret(id string) (string, error) {
-	key := storePrefixAccountSecrets + id
-	recs, err := mstore.Read(key)
-	if err != nil {
-		return "", err
-	}
-	return string(recs[0].Value), nil
 }
 
 func (e *Signup) createNamespace(ctx context.Context) (string, error) {
