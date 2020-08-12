@@ -27,10 +27,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: kubernetes-srv
+  namespace: micro
 subjects:
 - kind: ServiceAccount
   name: kubernetes-srv
-  namespace: default
+  namespace: micro
 roleRef:
   kind: ClusterRole
   name: kubernetes-srv
@@ -40,6 +41,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kubernetes-srv
+  namespace: micro
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
