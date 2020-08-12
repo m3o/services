@@ -49,6 +49,7 @@ type Signup struct {
 	sendgridAPIKey     string
 	planID             string
 	emailFrom          string
+	paymentMessage     string
 	testMode           bool
 }
 
@@ -67,6 +68,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	planID := mconfig.Get("micro", "signup", "plan_id").String("")
 	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
+	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
 
 	if len(apiKey) == 0 {
 		logger.Error("No sendgrid API key provided")
@@ -87,6 +89,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		planID:             planID,
 		emailFrom:          emailFrom,
 		testMode:           testMode,
+		paymentMessage:     paymentMessage,
 	}
 }
 
@@ -267,7 +270,7 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	}
 
 	// set the response message
-	rsp.Message = fmt.Sprintf(Message, req.Email)
+	rsp.Message = fmt.Sprintf(e.paymentMessage, req.Email)
 	// we require payment for any signup
 	// if not set the CLI will try complete signup without payment id
 	rsp.PaymentRequired = true
