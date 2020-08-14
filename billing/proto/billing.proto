@@ -11,5 +11,5 @@ service Billing {
 message PortalRequest {}
 
 message PortalResponse {
-	string portal_url = 1;
+	string url = 1;
 }

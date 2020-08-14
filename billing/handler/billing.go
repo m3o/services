@@ -55,6 +55,6 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 	if err != nil {
 		return errors.InternalServerError("billing.Portal", "Could not create billing portal session: %v", err)
 	}
-	rsp.PortalUrl = sess.URL
+	rsp.Url = sess.URL
 	return nil
 }
