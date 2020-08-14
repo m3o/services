@@ -2,13 +2,11 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	billing "github.com/m3o/services/billing/proto"
 	"github.com/micro/go-micro/config"
 	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/service"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/stripe/stripe-go/v71"
 	"github.com/stripe/stripe-go/v71/client"
@@ -18,7 +16,7 @@ type Billing struct {
 	stripeClient *client.API // stripe api client
 }
 
-func NewBilling(srv *service.Service) *Billing {
+func NewBilling() *Billing {
 	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
 	if len(apiKey) == 0 {
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
@@ -38,7 +36,6 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 		Email: &acc.ID,
 	}
 	params.Filters.AddFilter("limit", "", "3")
-	fmt.Println("customers client nil?", b.stripeClient.Customers)
 	customerIter := b.stripeClient.Customers.List(params)
 
 	customerID := ""

@@ -15,7 +15,7 @@ func main() {
 	)
 
 	// Register handler
-	srv.Handle(new(handler.Billing))
+	srv.Handle(handler.NewBilling())
 
 	// Run service
 	if err := srv.Run(); err != nil {
