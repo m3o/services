@@ -4,7 +4,7 @@ metadata:
   namespace: default
   name: cockroach-backup
 spec:
-  schedule: "0 * * * *"
+  schedule: "0 */2 * * *"
   jobTemplate:
     spec:
       template:

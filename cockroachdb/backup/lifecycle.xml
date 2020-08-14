@@ -4,9 +4,9 @@
         <Filter>
            <Prefix></Prefix>
         </Filter>
-        <NoncurrentVersionExpiration>
-            <NoncurrentDays>1</NoncurrentDays>
-        </NoncurrentVersionExpiration>
+        <Expiration>
+            <Days>2</Days>
+        </Expiration>
         <Status>Enabled</Status>
     </Rule>
 </LifecycleConfiguration>
