@@ -23,8 +23,9 @@ do
 
 done < <(echo "show databases;" | cockroach sql --certs-dir=crts --host cockroachdb-cluster --format tsv)
 
+dump_name=dumps-$(date +%s).tar.gz
 # compress
-tar -czf dumps.tar.gz dumps
+tar -czf $dump_name dumps
 
 # send to s3
-s3cmd put -c /s3-config/s3cfg dumps.tar.gz s3://$S3_BUCKET/
+s3cmd put -c /s3-config/s3cfg $dump_name s3://$S3_BUCKET/
