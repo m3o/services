@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	billing "github.com/m3o/services/billing/proto"
@@ -37,6 +38,7 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 		Email: &acc.ID,
 	}
 	params.Filters.AddFilter("limit", "", "3")
+	fmt.Println("customers client nil?", b.stripeClient.Customers)
 	customerIter := b.stripeClient.Customers.List(params)
 
 	customerID := ""
