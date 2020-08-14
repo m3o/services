@@ -1,14 +1,22 @@
 # Services
 
-This is the home of the Micro Services Network.
+This is the home of the Micro Services Platform aka (M3O).
 
 ## Overview
 
-This repository serves as the home for the Micro platform and related services. Those invited to develop the platform will be added to the team and have the ability to create and modify services here. We'll build additional value add services here to be consumed by users of the platform.
+This repository serves as the home for the M3O platform and related services. Those invited to develop the platform will be added to the team and have the ability to create and modify services here. We'll build additional value add services here to be consumed by users of the platform.
+
+## Dependencies
+
+We depend on Micro using the "platform" profile. It runs on kubernetes with of the resources below:
+
+- Etcd
+- NATS
+- CockroachDB
 
 ## Design
 
-All services are Micro services written using the Go Micro framework without exception.
+All services are Micro services written using the Micro framework without exception.
 
 - Services speak to each other via RPC
 - Messages are used for async eventing
