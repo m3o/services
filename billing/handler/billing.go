@@ -5,9 +5,9 @@ import (
 	"log"
 
 	billing "github.com/m3o/services/billing/proto"
-	"github.com/micro/go-micro/config"
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/config"
 	"github.com/stripe/stripe-go/v71"
 	"github.com/stripe/stripe-go/v71/client"
 )
