@@ -44,6 +44,9 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 		customerID = c.ID
 		break
 	}
+	if len(customerID) == 0 {
+		return errors.BadRequest("billing.Portal", "No stripe customer found for account %v", acc.ID)
+	}
 
 	billParams := &stripe.BillingPortalSessionParams{
 		Customer: stripe.String(customerID),
