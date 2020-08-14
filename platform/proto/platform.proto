@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package go.micro.service.kubernetes;
+package platform;
 
-service Kubernetes {
+service Platform {
 	rpc CreateNamespace (CreateNamespaceRequest) returns (CreateNamespaceResponse) {};
 	rpc DeleteNamespace (DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {};
 

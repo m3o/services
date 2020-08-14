@@ -25,7 +25,7 @@ import (
 	signup "github.com/m3o/services/signup/proto/signup"
 
 	inviteproto "github.com/m3o/services/invite/proto"
-	k8sproto "github.com/m3o/services/kubernetes/proto"
+	plproto "github.com/m3o/services/platform/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 )
 
@@ -43,7 +43,7 @@ type tokenToEmail struct {
 type Signup struct {
 	paymentService     paymentsproto.ProviderService
 	inviteService      inviteproto.InviteService
-	k8sService         k8sproto.KubernetesService
+	platformService         plproto.PlatformService
 	auth               auth.Auth
 	sendgridTemplateID string
 	sendgridAPIKey     string
@@ -61,7 +61,7 @@ var (
 
 func NewSignup(paymentService paymentsproto.ProviderService,
 	inviteService inviteproto.InviteService,
-	k8sService k8sproto.KubernetesService, auth auth.Auth) *Signup {
+	platformService plproto.PlatformService, auth auth.Auth) *Signup {
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
@@ -82,7 +82,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	return &Signup{
 		paymentService:     paymentService,
 		inviteService:      inviteService,
-		k8sService:         k8sService,
+		platformService:         platformService,
 		auth:               auth,
 		sendgridAPIKey:     apiKey,
 		sendgridTemplateID: templateID,
@@ -362,7 +362,7 @@ func (e *Signup) createNamespace(ctx context.Context) (string, error) {
 	}
 	ns := strings.Join(list, "-")
 	if !e.testMode {
-		_, err = e.k8sService.CreateNamespace(ctx, &k8sproto.CreateNamespaceRequest{
+		_, err = e.platformService.CreateNamespace(ctx, &plproto.CreateNamespaceRequest{
 			Name: ns,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	}
