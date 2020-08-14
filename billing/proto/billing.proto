@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package billing;
+
+option go_package = "proto;billing";
+
+service Billing {
+	rpc Portal(PortalRequest) returns (PortalResponse) {}
+}
+
+message PortalRequest {}
+
+message PortalResponse {
+	string portal_url = 1;
+}
