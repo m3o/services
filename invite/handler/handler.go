@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	pb "github.com/m3o/services/invite/proto"
+	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
@@ -12,8 +13,9 @@ import (
 )
 
 type invite struct {
-	Email   string
-	Deleted bool
+	Email      string
+	Deleted    bool
+	Namespaces []string
 }
 
 // New returns an initialised handler
@@ -30,8 +32,17 @@ type Invite struct {
 
 // Create an invite
 func (h *Invite) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+	account, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.BadRequest(h.name, "Unauthorized request")
+	}
+
 	// TODO maybe send an email or something
-	b, _ := json.Marshal(invite{Email: req.Email, Deleted: false})
+	b, _ := json.Marshal(invite{
+		Email:      req.Email,
+		Deleted:    false,
+		Namespaces: []string{account.Issuer},
+	})
 	// write the email to the store
 	return mstore.Write(&store.Record{
 		Key:   req.Email,
@@ -65,5 +76,6 @@ func (h *Invite) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.
 	if invite.Deleted {
 		return errors.BadRequest(h.name, "invalid email")
 	}
+	rsp.Namespaces = invite.Namespaces
 	return nil
 }

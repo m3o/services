@@ -128,7 +128,8 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
-	if !e.isAllowedToSignup(ctx, req.Email) {
+	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	if !isAllowed {
 		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
 	}
 
@@ -160,15 +161,16 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	if err != nil {
 		return err
 	}
-
+	// Returning namespace(s) here to give the user the choice early in their flow
+	rsp.Namespaces = namespaces
 	return nil
 }
 
-func (e *Signup) isAllowedToSignup(ctx context.Context, email string) bool {
+func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string, bool) {
 	// for now we're checking the invite service before allowing signup
 	// TODO check for a valid invite code rather than just the email
-	_, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email}, client.WithAuthToken())
-	return err == nil
+	rsp, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email}, client.WithAuthToken())
+	return rsp.Namespaces, err == nil
 }
 
 // Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187
@@ -277,6 +279,11 @@ func (e *Signup) saveNamespace(email, namespace string) error {
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
 
+	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	if !isAllowed {
+		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
+	}
+
 	recs, err := mstore.Read(req.Email)
 	if err == store.ErrNotFound {
 		return errors.New("can't verify: record not found")
@@ -327,14 +334,21 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		secret = uuid.New().String()
 	}
 
-	ns, err := e.createNamespace(ctx)
-	if err != nil {
-		return err
+	ns := ""
+	if len(namespaces) > 0 && len(req.Namespace) > 0 && namespaces[0] == req.Namespace {
+		ns = namespaces[0]
+	} else {
+		var err error
+		ns, err = e.createNamespace(ctx)
+		if err != nil {
+			return err
+		}
 	}
 	err = e.saveNamespace(req.Email, ns)
 	if err != nil {
 		return err
 	}
+
 	rsp.Namespace = ns
 
 	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.WithIssuer(ns))
