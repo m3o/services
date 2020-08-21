@@ -92,7 +92,7 @@ func testM3oSignupFlow(t *test.T) {
 
 	time.Sleep(5 * time.Second)
 
-	cmd := exec.Command("micro", envFlag, confFlag, "login", "--otp")
+	cmd := exec.Command("micro", envFlag, confFlag, "signup")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		t.Fatal(err)
