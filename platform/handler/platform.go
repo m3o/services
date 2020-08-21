@@ -5,27 +5,27 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	pb "github.com/m3o/services/kubernetes/proto"
+	pb "github.com/m3o/services/platform/proto"
 	k8s "github.com/micro/go-micro/v3/util/kubernetes/client"
 	"github.com/micro/micro/v3/service"
 )
 
-// Kubernetes implements the kubernetes service interface
-type Kubernetes struct {
+// Platform implements the platform service interface
+type Platform struct {
 	name   string
 	client k8s.Client
 }
 
-// New returns an initialised kubernetes handler
-func New(service *service.Service) *Kubernetes {
-	return &Kubernetes{
+// New returns an initialised platform handler
+func New(service *service.Service) *Platform {
+	return &Platform{
 		name:   service.Name(),
 		client: k8s.NewClusterClient(),
 	}
 }
 
 // CreateNamespace in k8s
-func (k *Kubernetes) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceRequest, rsp *pb.CreateNamespaceResponse) error {
+func (k *Platform) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceRequest, rsp *pb.CreateNamespaceResponse) error {
 	return k.client.Create(&k8s.Resource{
 		Kind: "namespace",
 		Value: k8s.Namespace{
@@ -37,7 +37,7 @@ func (k *Kubernetes) CreateNamespace(ctx context.Context, req *pb.CreateNamespac
 }
 
 // DeleteNamespace in k8s
-func (k *Kubernetes) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
+func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
 	return k.client.Delete(&k8s.Resource{
 		Kind: "namespace",
 		Name: req.Name,
@@ -50,7 +50,7 @@ func (k *Kubernetes) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespac
 }
 
 // CreateImagePullSecret in k8s
-func (k *Kubernetes) CreateImagePullSecret(ctx context.Context, req *pb.CreateImagePullSecretRequest, rsp *pb.CreateImagePullSecretResponse) error {
+func (k *Platform) CreateImagePullSecret(ctx context.Context, req *pb.CreateImagePullSecretRequest, rsp *pb.CreateImagePullSecretResponse) error {
 	// the secret structure required for img pull secrets
 	secret := map[string]interface{}{
 		"auths": map[string]interface{}{
@@ -82,7 +82,7 @@ func (k *Kubernetes) CreateImagePullSecret(ctx context.Context, req *pb.CreateIm
 }
 
 // DeleteImagePullSecret in k8s
-func (k *Kubernetes) DeleteImagePullSecret(ctx context.Context, req *pb.DeleteImagePullSecretRequest, rsp *pb.DeleteImagePullSecretResponse) error {
+func (k *Platform) DeleteImagePullSecret(ctx context.Context, req *pb.DeleteImagePullSecretRequest, rsp *pb.DeleteImagePullSecretResponse) error {
 	return k.client.Delete(&k8s.Resource{
 		Name: req.Name,
 		Kind: "secret",
@@ -96,7 +96,7 @@ func (k *Kubernetes) DeleteImagePullSecret(ctx context.Context, req *pb.DeleteIm
 
 // CreateServiceAccount in k8s. Note, the service accounts are always named the same
 // as the namespace so there is no name attribute in the request.
-func (k *Kubernetes) CreateServiceAccount(ctx context.Context, req *pb.CreateServiceAccountRequest, rsp *pb.CreateServiceAccountResponse) error {
+func (k *Platform) CreateServiceAccount(ctx context.Context, req *pb.CreateServiceAccountRequest, rsp *pb.CreateServiceAccountResponse) error {
 	var secrets []k8s.ImagePullSecret
 	if req.ImagePullSecrets != nil {
 		for _, s := range req.ImagePullSecrets {
@@ -120,7 +120,7 @@ func (k *Kubernetes) CreateServiceAccount(ctx context.Context, req *pb.CreateSer
 
 // DeleteServiceAccount in k8s. Note, the service accounts are always named the same
 // as the namespace so there is no name attribute in the request.
-func (k *Kubernetes) DeleteServiceAccount(ctx context.Context, req *pb.DeleteServiceAccountRequest, rsp *pb.DeleteServiceAccountResponse) error {
+func (k *Platform) DeleteServiceAccount(ctx context.Context, req *pb.DeleteServiceAccountRequest, rsp *pb.DeleteServiceAccountResponse) error {
 	return k.client.Delete(&k8s.Resource{
 		Name: req.Namespace,
 		Kind: "serviceaccount",

@@ -1,20 +1,20 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kubernetes-service-latest
+  name: platform-service-latest
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
       micro: service
-      name: kubernetes-service
+      name: platform-service
       version: latest
   template:
     metadata:
       labels:
         micro: service
-        name: kubernetes-service
+        name: platform-service
         version: latest
     spec:
       containers:
@@ -55,9 +55,9 @@ spec:
           value: service
         - name: MICRO_LOG_LEVEL
           value: trace
-        image: docker.pkg.github.com/m3o/services/kubernetes-service
+        image: docker.pkg.github.com/m3o/services/platform-service
         imagePullPolicy: Always
-        name: kubernetes-service
+        name: platform-service
         ports:
         - containerPort: 8080
           name: service-port
