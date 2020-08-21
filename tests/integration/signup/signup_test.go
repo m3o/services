@@ -123,19 +123,25 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	outp, err = serv.Command().Exec("call", "invite", "Invite.Create", `{"email":"`+email+`"}`)
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("call", "invite", "Invite.Create", `{"email":"`+email+`"}`)
+	}, 5*time.Second)
+
+	// Adjust rules before we signup into a non admin account
+	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:create\"", "invitecreatepublic")
 	if err != nil {
-		t.Fatal(string(outp))
+		t.Fatalf("Error setting up rules: %v", err)
+		return
 	}
 
 	password := "PassWord1@"
-	signup(serv, t, email, password)
+	signup(serv, t, email, password, false, false)
 	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
 		t.Fatalf("Error getting namespace: %v", err)
 		return
 	}
-	ns := string(outp)
+	ns := strings.TrimSpace(string(outp))
 
 	if strings.Count(ns, "-") != 2 {
 		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
@@ -158,10 +164,39 @@ func testM3oSignupFlow(t *test.T) {
 		return outp, nil
 	}, 5*time.Second)
 
+	newEmail := "dobronszki+1@gmail.com"
+
 	test.Login(serv, t, email, password)
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("call", "invite", "Invite.Create", `{"email":"`+newEmail+`","namespace":"`+ns+`"}`)
+	}, 7*time.Second)
+
+	// Log out and switch namespace back to micro
+	outp, err = exec.Command("micro", envFlag, confFlag, "user", "config", "set", "micro.auth."+serv.Env()).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+	outp, err = exec.Command("micro", envFlag, confFlag, "user", "config", "set", "namespaces."+serv.Env()+".current").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	signup(serv, t, newEmail, password, true, true)
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	newNs := strings.TrimSpace(string(outp))
+	if newNs != ns {
+		t.Fatalf("Namespaces should match, old: %v, new: %v", ns, newNs)
+	}
+
+	t.T().Logf("Namespace joined: %v", string(outp))
 }
 
-func signup(serv test.Server, t *test.T, email, password string) {
+func signup(serv test.Server, t *test.T, email, password string, isInvited, shouldJoin bool) {
 	envFlag := "-e=" + serv.Env()
 	confFlag := "-c=" + serv.Command().Config
 
@@ -223,6 +258,19 @@ func signup(serv test.Server, t *test.T, email, password string) {
 	if err != nil {
 		t.Fatal(err)
 		return
+	}
+
+	if isInvited {
+		time.Sleep(2 * time.Second)
+		answer := "own"
+		if shouldJoin {
+			answer = "join"
+		}
+		_, err = io.WriteString(stdin, answer+"\n")
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
 	}
 
 	time.Sleep(5 * time.Second)
