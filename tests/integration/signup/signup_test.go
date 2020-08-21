@@ -135,6 +135,9 @@ func testM3oSignupFlow(t *test.T) {
 	}
 	wg = sync.WaitGroup{}
 	wg.Add(1)
+
+	originalNamespace := ""
+
 	go func() {
 		defer wg.Done()
 		outp, err := cmd.CombinedOutput()
@@ -153,6 +156,7 @@ func testM3oSignupFlow(t *test.T) {
 			return
 		}
 		ns := string(outp)
+		originalNamespace = ns
 
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)

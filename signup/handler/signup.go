@@ -128,7 +128,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
-	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	_, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
 		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
 	}
@@ -163,8 +163,6 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	// Returning namespace(s) here to give the user the choice early in their flow
-	rsp.Namespaces = namespaces
 	return nil
 }
 
@@ -264,7 +262,17 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 			},
 		},
 	}, client.WithAuthToken())
-	return err
+	if err != nil {
+		return err
+	}
+
+	// At this point the user should be allowed, only making this call to return namespaces
+	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	if !isAllowed {
+		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
+	}
+	rsp.Namespaces = namespaces
+	return nil
 }
 
 func (e *Signup) getNamespace(email string) (string, error) {

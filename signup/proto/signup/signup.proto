@@ -15,11 +15,7 @@ message SendVerificationEmailRequest {
 	string email = 1;
 }
 
-message SendVerificationEmailResponse {
-	// Namespaces one has access to based on previous invites
-	// Currently only 1 is supported
-	repeated string namespaces = 1;
-}
+message SendVerificationEmailResponse {}
 
 message VerifyRequest {
 	string email = 1;
@@ -45,6 +41,9 @@ message VerifyResponse {
 	string message = 4;
 	// Whether payment is required or not
 	bool payment_required = 5;
+	// Namespaces one has access to based on previous invites
+	// Currently only 1 is supported
+	repeated string namespaces = 6;
 }
 
 
