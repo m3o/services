@@ -142,9 +142,7 @@ func (h *Invite) increaseInviteCount(userID string, namespaces []string) error {
 		}
 	}
 	userCount.Count++
-	// TODO maybe send an email or something
 	b, _ := json.Marshal(userCount)
-	// write the email to the store
 	err = mstore.Write(&store.Record{
 		Key:   path.Join(userCountPrefix, userID),
 		Value: b,
@@ -168,9 +166,7 @@ func (h *Invite) increaseInviteCount(userID string, namespaces []string) error {
 		}
 	}
 	namespaceCount.Count++
-	// TODO maybe send an email or something
 	b, _ = json.Marshal(namespaceCount)
-	// write the email to the store
 	err = mstore.Write(&store.Record{
 		Key:   path.Join(namespaceCountPrefix, namespaces[0]),
 		Value: b,
