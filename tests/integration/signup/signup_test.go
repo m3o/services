@@ -90,6 +90,8 @@ func testM3oSignupFlow(t *test.T) {
 	envFlag := "-e=" + serv.Env()
 	confFlag := "-c=" + serv.Command().Config
 
+	email := "dobronszki@gmail.com"
+
 	time.Sleep(5 * time.Second)
 
 	cmd := exec.Command("micro", envFlag, confFlag, "signup")
@@ -112,7 +114,7 @@ func testM3oSignupFlow(t *test.T) {
 		time.Sleep(20 * time.Second)
 		cmd.Process.Kill()
 	}()
-	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
+	_, err = io.WriteString(stdin, email+"\n")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,23 +123,55 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	outp, err = serv.Command().Exec("call", "invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`)
+	outp, err = serv.Command().Exec("call", "invite", "Invite.Create", `{"email":"`+email+`"}`)
 	if err != nil {
 		t.Fatal(string(outp))
 	}
 
 	password := "PassWord1@"
+	signup(serv, t, email, password)
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	ns := string(outp)
 
-	cmd = exec.Command("micro", envFlag, confFlag, "signup", "--password", password)
-	stdin, err = cmd.StdinPipe()
+	if strings.Count(ns, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	t.T().Logf("Namespace set is %v", ns)
+
+	test.Try("Find account", t, func() ([]byte, error) {
+		outp, err = serv.Command().Exec("auth", "list", "accounts")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), email) {
+			return outp, errors.New("Account not found")
+		}
+		if strings.Contains(string(outp), "default") {
+			return outp, errors.New("Default account should not be present in the namespace")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	test.Login(serv, t, email, password)
+}
+
+func signup(serv test.Server, t *test.T, email, password string) {
+	envFlag := "-e=" + serv.Env()
+	confFlag := "-c=" + serv.Command().Config
+
+	cmd := exec.Command("micro", envFlag, confFlag, "signup", "--password", password)
+	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		t.Fatal(err)
 	}
-	wg = sync.WaitGroup{}
+	wg := sync.WaitGroup{}
 	wg.Add(1)
-
-	originalNamespace := ""
-
 	go func() {
 		defer wg.Done()
 		outp, err := cmd.CombinedOutput()
@@ -149,44 +183,13 @@ func testM3oSignupFlow(t *test.T) {
 			t.Fatal(string(outp))
 			return
 		}
-
-		outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
-		if err != nil {
-			t.Fatalf("Error getting namespace: %v", err)
-			return
-		}
-		ns := string(outp)
-		originalNamespace = ns
-
-		if strings.Count(ns, "-") != 2 {
-			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
-			return
-		}
-
-		t.T().Logf("Namespace set is %v", ns)
-
-		test.Try("Find account", t, func() ([]byte, error) {
-			outp, err = serv.Command().Exec("auth", "list", "accounts")
-			if err != nil {
-				return outp, err
-			}
-			if !strings.Contains(string(outp), "dobronszki@gmail.com") {
-				return outp, errors.New("Account not found")
-			}
-			if strings.Contains(string(outp), "default") {
-				return outp, errors.New("Default account should not be present in the namespace")
-			}
-			return outp, nil
-		}, 5*time.Second)
-
-		test.Login(serv, t, "dobronszki@gmail.com", password)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
 		cmd.Process.Kill()
 	}()
 
-	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
+	_, err = io.WriteString(stdin, email+"\n")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -194,7 +197,7 @@ func testM3oSignupFlow(t *test.T) {
 	code := ""
 	if err := test.Try("Find verification token in logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", envFlag, confFlag, "logs", "-n", "100", "signup")
-		outp, err = psCmd.CombinedOutput()
+		outp, err := psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
