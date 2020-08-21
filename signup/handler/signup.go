@@ -144,8 +144,9 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 
 	if err := mstore.Write(&store.Record{
-		Key:   req.Email,
-		Value: bytes}, store.WriteExpiry(time.Now().Add(expiryDuration))); err != nil {
+		Key:    req.Email,
+		Value:  bytes,
+		Expiry: expiryDuration}); err != nil {
 		return err
 	}
 
