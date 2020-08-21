@@ -172,7 +172,10 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 	// for now we're checking the invite service before allowing signup
 	// TODO check for a valid invite code rather than just the email
 	rsp, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email}, client.WithAuthToken())
-	return rsp.Namespaces, err == nil
+	if err != nil {
+		return nil, false
+	}
+	return rsp.Namespaces, true
 }
 
 // Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187

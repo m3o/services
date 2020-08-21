@@ -17,3 +17,7 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+
+replace github.com/micro/micro/v3 => github.com/micro/micro/v3 v3.0.0-beta.0.20200821123950-a4768072bebb
+
+replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.0.20200821123909-a116f3be3215
