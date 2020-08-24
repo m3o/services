@@ -196,6 +196,11 @@ func (e *Signup) sendEmail(email, token string) error {
 				},
 			},
 		},
+		"mail_settings": map[string]interface{}{
+			"sandbox_mode": map[string]bool{
+				"enable": e.testMode,
+			},
+		},
 	})
 
 	req, err := http.NewRequest("POST", "https://api.sendgrid.com/v3/mail/send", bytes.NewBuffer(reqBody))
