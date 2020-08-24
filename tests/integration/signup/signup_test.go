@@ -139,6 +139,9 @@ func testM3oSignupFlow(t *test.T) {
 		defer wg.Done()
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
+			outp, _ = serv.Command().Exec("logs", "signup")
+			t.Logf("Logs %s", string(outp))
+
 			t.Fatal(string(outp), err)
 			return
 		}
