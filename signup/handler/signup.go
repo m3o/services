@@ -348,7 +348,6 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	ns := ""
-	fmt.Println("namespaces", namespaces)
 	if len(namespaces) > 0 && len(req.Namespace) > 0 && namespaces[0] == req.Namespace {
 		ns = namespaces[0]
 	} else {
