@@ -25,8 +25,8 @@ import (
 	signup "github.com/m3o/services/signup/proto/signup"
 
 	inviteproto "github.com/m3o/services/invite/proto"
-	plproto "github.com/m3o/services/platform/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
+	plproto "github.com/m3o/services/platform/proto"
 )
 
 const (
@@ -43,7 +43,7 @@ type tokenToEmail struct {
 type Signup struct {
 	paymentService     paymentsproto.ProviderService
 	inviteService      inviteproto.InviteService
-	platformService         plproto.PlatformService
+	platformService    plproto.PlatformService
 	auth               auth.Auth
 	sendgridTemplateID string
 	sendgridAPIKey     string
@@ -82,7 +82,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	return &Signup{
 		paymentService:     paymentService,
 		inviteService:      inviteService,
-		platformService:         platformService,
+		platformService:    platformService,
 		auth:               auth,
 		sendgridAPIKey:     apiKey,
 		sendgridTemplateID: templateID,
@@ -144,8 +144,10 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 
 	if err := mstore.Write(&store.Record{
-		Key:   req.Email,
-		Value: bytes}, store.WriteExpiry(time.Now().Add(expiryDuration))); err != nil {
+		Key:    req.Email,
+		Value:  bytes,
+		Expiry: expiryDuration,
+	}); err != nil {
 		return err
 	}
 
