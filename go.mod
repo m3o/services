@@ -6,7 +6,7 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200821083553-1ae825032c5f
-	github.com/micro/micro/v3 v3.0.0-beta.0.20200821093142-42f6ae5d1212
+	github.com/micro/micro/v3 v3.0.0-beta.0.20200823205926-34486b8ea66f
 	github.com/micro/services v0.10.0 // indirect
 	github.com/sethvargo/go-diceware v0.2.0
 	github.com/slack-go/slack v0.6.5
