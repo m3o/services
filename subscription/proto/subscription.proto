@@ -16,7 +16,7 @@ message CreateRequest {
 }
 
 message CreateResponse {
-	Subscription subscription = 1;
+	SubscriptionMessage subscription = 1;
 }
 
 message SubscriptionMessage {

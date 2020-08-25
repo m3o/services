@@ -1,32 +1,29 @@
 package handler
 
-import (
-	"context"
-	namespace "namespace/proto"
-)
+import "context"
 
 type Namespace struct{}
 
-func (n Namespace) Create(ctx context.Context, in *namespace.CreateRequest, opts ...interface{}) (*namespace.CreateResponse, error) {
+func (n Namespace) Create(ctx context.Context, request *namespace.CreateRequest, response *namespace.CreateResponse) error {
 	panic("implement me")
 }
 
-func (n Namespace) Read(ctx context.Context, in *namespace.ReadRequest, opts ...interface{}) (*namespace.ReadResponse, error) {
+func (n Namespace) Read(ctx context.Context, request *namespace.ReadRequest, response *namespace.ReadResponse) error {
 	panic("implement me")
 }
 
-func (n Namespace) Delete(ctx context.Context, in *namespace.DeleteRequest, opts ...interface{}) (*namespace.DeleteResponse, error) {
+func (n Namespace) Delete(ctx context.Context, request *namespace.DeleteRequest, response *namespace.DeleteResponse) error {
 	panic("implement me")
 }
 
-func (n Namespace) List(ctx context.Context, in *namespace.ListRequest, opts ...interface{}) (*namespace.ListResponse, error) {
+func (n Namespace) List(ctx context.Context, request *namespace.ListRequest, response *namespace.ListResponse) error {
 	panic("implement me")
 }
 
-func (n Namespace) AddUser(ctx context.Context, in *namespace.AddUserRequest, opts ...interface{}) (*namespace.AddUserResponse, error) {
+func (n Namespace) AddUser(ctx context.Context, request *namespace.AddUserRequest, response *namespace.AddUserResponse) error {
 	panic("implement me")
 }
 
-func (n Namespace) RemoveUser(ctx context.Context, in *namespace.RemoveUserRequest, opts ...interface{}) (*namespace.RemoveUserResponse, error) {
+func (n Namespace) RemoveUser(ctx context.Context, request *namespace.RemoveUserRequest, response *namespace.RemoveUserResponse) error {
 	panic("implement me")
 }

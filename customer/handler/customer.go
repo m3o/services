@@ -7,18 +7,18 @@ import (
 
 type Customer struct{}
 
-func (c Customer) Create(ctx context.Context, in *customer.CreateRequest, opts ...interface{}) (*customer.CreateResponse, error) {
+func (c Customer) Create(ctx context.Context, request *customer.CreateRequest, response *customer.CreateResponse) error {
 	panic("implement me")
 }
 
-func (c Customer) MarkVerified(ctx context.Context, in *customer.MarkVerifiedRequest, opts ...interface{}) (*customer.MarkVerifiedResponse, error) {
+func (c Customer) MarkVerified(ctx context.Context, request *customer.MarkVerifiedRequest, response *customer.MarkVerifiedResponse) error {
 	panic("implement me")
 }
 
-func (c Customer) Read(ctx context.Context, in *customer.ReadRequest, opts ...interface{}) (*customer.ReadResponse, error) {
+func (c Customer) Read(ctx context.Context, request *customer.ReadRequest, response *customer.ReadResponse) error {
 	panic("implement me")
 }
 
-func (c Customer) Delete(ctx context.Context, in *customer.DeleteRequest, opts ...interface{}) (*customer.DeleteResponse, error) {
+func (c Customer) Delete(ctx context.Context, request *customer.DeleteRequest, response *customer.DeleteResponse) error {
 	panic("implement me")
 }

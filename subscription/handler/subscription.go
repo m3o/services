@@ -2,20 +2,19 @@ package handler
 
 import (
 	"context"
-
 	subscription "subscription/proto"
 )
 
 type Subscription struct{}
 
-func (s Subscription) Create(ctx context.Context, in *subscription.CreateRequest, opts ...interface{}) (*subscription.CreateResponse, error) {
+func (s Subscription) Create(ctx context.Context, request *subscription.CreateRequest, response *subscription.CreateResponse) error {
 	panic("implement me")
 }
 
-func (s Subscription) Cancel(ctx context.Context, in *subscription.CancelRequest, opts ...interface{}) (*subscription.CancelResponse, error) {
+func (s Subscription) Cancel(ctx context.Context, request *subscription.CancelRequest, response *subscription.CancelResponse) error {
 	panic("implement me")
 }
 
-func (s Subscription) List(ctx context.Context, in *subscription.ListRequest, opts ...interface{}) (*subscription.ListResponse, error) {
+func (s Subscription) List(ctx context.Context, request *subscription.ListRequest, response *subscription.ListResponse) error {
 	panic("implement me")
 }

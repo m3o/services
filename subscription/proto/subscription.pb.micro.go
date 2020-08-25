@@ -33,13 +33,13 @@ var _ context.Context
 var _ client.Option
 var _ server.Option
 
-// Api Endpoints for SubscriptionService service
+// Api Endpoints for Subscription service
 
-func NewSubscriptionServiceEndpoints() []*api.Endpoint {
+func NewSubscriptionEndpoints() []*api.Endpoint {
 	return []*api.Endpoint{}
 }
 
-// Client API for SubscriptionService service
+// Client API for Subscription service
 
 type SubscriptionService interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error)
@@ -60,7 +60,7 @@ func NewSubscriptionService(name string, c client.Client) SubscriptionService {
 }
 
 func (c *subscriptionService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := c.c.NewRequest(c.name, "SubscriptionService.Create", in)
+	req := c.c.NewRequest(c.name, "Subscription.Create", in)
 	out := new(CreateResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *subscriptionService) Create(ctx context.Context, in *CreateRequest, opt
 }
 
 func (c *subscriptionService) Cancel(ctx context.Context, in *CancelRequest, opts ...client.CallOption) (*CancelResponse, error) {
-	req := c.c.NewRequest(c.name, "SubscriptionService.Cancel", in)
+	req := c.c.NewRequest(c.name, "Subscription.Cancel", in)
 	out := new(CancelResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -80,7 +80,7 @@ func (c *subscriptionService) Cancel(ctx context.Context, in *CancelRequest, opt
 }
 
 func (c *subscriptionService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "SubscriptionService.List", in)
+	req := c.c.NewRequest(c.name, "Subscription.List", in)
 	out := new(ListResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -89,39 +89,39 @@ func (c *subscriptionService) List(ctx context.Context, in *ListRequest, opts ..
 	return out, nil
 }
 
-// Server API for SubscriptionService service
+// Server API for Subscription service
 
-type SubscriptionServiceHandler interface {
+type SubscriptionHandler interface {
 	Create(context.Context, *CreateRequest, *CreateResponse) error
 	Cancel(context.Context, *CancelRequest, *CancelResponse) error
 	List(context.Context, *ListRequest, *ListResponse) error
 }
 
-func RegisterSubscriptionServiceHandler(s server.Server, hdlr SubscriptionServiceHandler, opts ...server.HandlerOption) error {
-	type subscriptionService interface {
+func RegisterSubscriptionHandler(s server.Server, hdlr SubscriptionHandler, opts ...server.HandlerOption) error {
+	type subscription interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Cancel(ctx context.Context, in *CancelRequest, out *CancelResponse) error
 		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 	}
-	type SubscriptionService struct {
-		subscriptionService
+	type Subscription struct {
+		subscription
 	}
-	h := &subscriptionServiceHandler{hdlr}
-	return s.Handle(s.NewHandler(&SubscriptionService{h}, opts...))
+	h := &subscriptionHandler{hdlr}
+	return s.Handle(s.NewHandler(&Subscription{h}, opts...))
 }
 
-type subscriptionServiceHandler struct {
-	SubscriptionServiceHandler
+type subscriptionHandler struct {
+	SubscriptionHandler
 }
 
-func (h *subscriptionServiceHandler) Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error {
-	return h.SubscriptionServiceHandler.Create(ctx, in, out)
+func (h *subscriptionHandler) Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error {
+	return h.SubscriptionHandler.Create(ctx, in, out)
 }
 
-func (h *subscriptionServiceHandler) Cancel(ctx context.Context, in *CancelRequest, out *CancelResponse) error {
-	return h.SubscriptionServiceHandler.Cancel(ctx, in, out)
+func (h *subscriptionHandler) Cancel(ctx context.Context, in *CancelRequest, out *CancelResponse) error {
+	return h.SubscriptionHandler.Cancel(ctx, in, out)
 }
 
-func (h *subscriptionServiceHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
-	return h.SubscriptionServiceHandler.List(ctx, in, out)
+func (h *subscriptionHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
+	return h.SubscriptionHandler.List(ctx, in, out)
 }
