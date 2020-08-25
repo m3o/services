@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package customer;
+
+option go_package = "proto;customer";
+
+service Customer {
+	// Creates a new, unverified customer
+	rpc Create(CreateRequest) returns (CreateResponse) {}
+	// Mark the customer as verified
+	rpc MarkVerified(MarkVerifiedRequest) returns (MarkVerifiedResponse) {}
+	// Retrieve a customer
+	rpc Read(ReadRequest) returns (ReadResponse) {}
+	// Marks a customer as inactive
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+
+}
+
+
+message CreateRequest {
+	string id = 1;
+}
+
+message CreateResponse {
+	CustomerMessage customer = 1;
+}
+
+message CustomerMessage {
+	string id = 1;
+	string status = 2; // awaiting_verification, verified, active, inactive
+	int64 created = 3;
+	Subscription subscription = 4;
+	repeated string namespaces = 5;
+}
+
+message Subscription {
+	string id = 1;
+	string customerID = 2;
+	string type = 3;
+	int64 created = 4;
+	int64 expires = 5; // blank unless the customer has cancelled their subscription
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+
+message DeleteResponse {
+}
+
+message ReadRequest {
+	string id = 1;
+}
+
+message ReadResponse {
+	CustomerMessage customer = 1;
+}
+
+message MarkVerifiedRequest {
+	string id = 1;
+}
+
+message MarkVerifiedResponse {}
