@@ -153,6 +153,7 @@ func testM3oSignupFlow(t *test.T) {
 	}
 
 	t.T().Logf("Namespace set is %v", ns)
+	t.T().Logf("")
 
 	test.Try("Find account", t, func() ([]byte, error) {
 		outp, err = serv.Command().Exec("auth", "list", "accounts")
@@ -169,9 +170,16 @@ func testM3oSignupFlow(t *test.T) {
 	}, 5*time.Second)
 
 	newEmail := "dobronszki+1@gmail.com"
+	newEmail2 := "dobronszki+2@gmail.com"
 
 	test.Login(serv, t, email, password)
 
+	if err := test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "create", "--email="+newEmail, "--namespace="+ns)
+	}, 7*time.Second); err != nil {
+		t.Fatal(err)
+		return
+	}
 	if err := test.Try("Send invite", t, func() ([]byte, error) {
 		return serv.Command().Exec("invite", "create", "--email="+newEmail, "--namespace="+ns)
 	}, 7*time.Second); err != nil {
@@ -208,6 +216,30 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 	newNs := strings.TrimSpace(string(outp))
+	if newNs != ns {
+		t.Fatalf("Namespaces should match, old: %v, new: %v", ns, newNs)
+		return
+	}
+
+	t.T().Logf("Namespace joined: %v", string(outp))
+
+	// @todo: only needed because of logging endpoint etc not being open by default.
+	// should create open rules instead
+	err = test.Login(serv, t, "admin", "micro")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	signup(serv, t, newEmail2, password, true, true)
+	if t.Failed() {
+		return
+	}
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	newNs = strings.TrimSpace(string(outp))
 	if newNs != ns {
 		t.Fatalf("Namespaces should match, old: %v, new: %v", ns, newNs)
 		return
