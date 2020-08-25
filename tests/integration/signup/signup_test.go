@@ -153,7 +153,6 @@ func testM3oSignupFlow(t *test.T) {
 	}
 
 	t.T().Logf("Namespace set is %v", ns)
-	t.T().Logf("")
 
 	test.Try("Find account", t, func() ([]byte, error) {
 		outp, err = serv.Command().Exec("auth", "list", "accounts")
@@ -198,7 +197,6 @@ func testM3oSignupFlow(t *test.T) {
 		t.Fatal(string(outp))
 		return
 	}
-
 	// @todo: only needed because of logging endpoint etc not being open by default.
 	// should create open rules instead
 	err = test.Login(serv, t, "admin", "micro")
@@ -206,6 +204,7 @@ func testM3oSignupFlow(t *test.T) {
 		t.Fatal(err)
 		return
 	}
+
 	signup(serv, t, newEmail, password, true, true)
 	if t.Failed() {
 		return
@@ -223,6 +222,17 @@ func testM3oSignupFlow(t *test.T) {
 
 	t.T().Logf("Namespace joined: %v", string(outp))
 
+	// Log out and switch namespace back to micro
+	outp, err = serv.Command().Exec("user", "config", "set", "micro.auth."+serv.Env())
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	outp, err = serv.Command().Exec("user", "config", "set", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
 	// @todo: only needed because of logging endpoint etc not being open by default.
 	// should create open rules instead
 	err = test.Login(serv, t, "admin", "micro")
@@ -230,6 +240,7 @@ func testM3oSignupFlow(t *test.T) {
 		t.Fatal(err)
 		return
 	}
+
 	signup(serv, t, newEmail2, password, true, true)
 	if t.Failed() {
 		return
