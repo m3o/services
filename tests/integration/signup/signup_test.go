@@ -125,7 +125,7 @@ func testM3oSignupFlow(t *test.T) {
 	}
 
 	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "create", "--email="+email)
+		return serv.Command().Exec("invite", "user", "--email="+email)
 	}, 5*time.Second)
 
 	// Adjust rules before we signup into a non admin account
