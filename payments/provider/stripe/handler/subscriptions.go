@@ -20,7 +20,8 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 		Customer: stripe.String(id),
 		Items: []*stripe.SubscriptionItemsParams{
 			{
-				Plan: stripe.String(req.PlanId),
+				Plan:     stripe.String(req.PlanId),
+				Quantity: stripe.Int64(req.Quantity),
 			},
 		},
 	})
@@ -61,6 +62,36 @@ func (h *Provider) ListSubscriptions(ctx context.Context, req *pb.ListSubscripti
 	}
 
 	return nil
+}
+
+// CreateSubscription via the Stripe API, e.g. "Subscribe John Doe to Notes Gold"
+func (h *Provider) UpdateSubscription(ctx context.Context, req *pb.UpdateSubscriptionRequest, rsp *pb.UpdateSubscriptionResponse) error {
+	id, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
+	if err != nil {
+		return err
+	}
+
+	_, err = h.client.Subscriptions.Update(req.SubscriptionId, &stripe.SubscriptionParams{
+		Customer: stripe.String(id),
+		Items: []*stripe.SubscriptionItemsParams{
+			{
+				Plan:     stripe.String(req.PlanId),
+				Quantity: stripe.Int64(req.Quantity),
+			},
+		},
+	})
+	if err == nil {
+		return nil
+	}
+
+	// Handle the error
+	switch err.(*stripe.Error).Code {
+	case stripe.ErrorCodeParameterInvalidEmpty:
+		logger.Errorf("Error updating subscription: %v", err)
+		return errors.BadRequest("payment.stripe", "missing arguments")
+	default:
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
 }
 
 func serializeSubscription(pm *stripe.Subscription) *pb.Subscription {
