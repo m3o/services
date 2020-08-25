@@ -1,7 +1,7 @@
 package main
 
 import (
-	"customer/handler"
+	"github.com/m3o/services/customer/handler"
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"

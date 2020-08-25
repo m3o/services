@@ -1,6 +1,9 @@
 package handler
 
-import "context"
+import (
+	"context"
+	namespace "namespace/proto"
+)
 
 type Namespace struct{}
 

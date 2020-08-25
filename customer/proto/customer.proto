@@ -57,7 +57,7 @@ message ReadResponse {
 }
 
 message MarkVerifiedRequest {
-	string id = 1;
+	required string id = 1;
 }
 
 message MarkVerifiedResponse {}
