@@ -174,13 +174,13 @@ func testM3oSignupFlow(t *test.T) {
 	test.Login(serv, t, email, password)
 
 	if err := test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "create", "--email="+newEmail, "--namespace="+ns)
+		return serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace="+ns)
 	}, 7*time.Second); err != nil {
 		t.Fatal(err)
 		return
 	}
 	if err := test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "create", "--email="+newEmail, "--namespace="+ns)
+		return serv.Command().Exec("invite", "user", "--email="+newEmail2, "--namespace="+ns)
 	}, 7*time.Second); err != nil {
 		t.Fatal(err)
 		return

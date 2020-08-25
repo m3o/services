@@ -3,8 +3,8 @@ syntax = "proto3";
 package go.micro.service.invite;
 
 service Invite {
-	// Create an invite
-	rpc Create(CreateRequest) returns (CreateResponse) {};
+	// Invite a user
+	rpc User(CreateRequest) returns (CreateResponse) {};
 	// Delete an invite 
 	rpc Delete(CreateRequest) returns (CreateResponse) {};
 	// Validate an email

@@ -42,8 +42,8 @@ func NewInviteEndpoints() []*api.Endpoint {
 // Client API for Invite service
 
 type InviteService interface {
-	// Create an invite
-	Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error)
+	// Invite a user
+	User(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error)
 	// Delete an invite
 	Delete(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error)
 	// Validate an email
@@ -62,8 +62,8 @@ func NewInviteService(name string, c client.Client) InviteService {
 	}
 }
 
-func (c *inviteService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := c.c.NewRequest(c.name, "Invite.Create", in)
+func (c *inviteService) User(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
+	req := c.c.NewRequest(c.name, "Invite.User", in)
 	out := new(CreateResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -95,8 +95,8 @@ func (c *inviteService) Validate(ctx context.Context, in *ValidateRequest, opts 
 // Server API for Invite service
 
 type InviteHandler interface {
-	// Create an invite
-	Create(context.Context, *CreateRequest, *CreateResponse) error
+	// Invite a user
+	User(context.Context, *CreateRequest, *CreateResponse) error
 	// Delete an invite
 	Delete(context.Context, *CreateRequest, *CreateResponse) error
 	// Validate an email
@@ -105,7 +105,7 @@ type InviteHandler interface {
 
 func RegisterInviteHandler(s server.Server, hdlr InviteHandler, opts ...server.HandlerOption) error {
 	type invite interface {
-		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
+		User(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Delete(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Validate(ctx context.Context, in *ValidateRequest, out *ValidateResponse) error
 	}
@@ -120,8 +120,8 @@ type inviteHandler struct {
 	InviteHandler
 }
 
-func (h *inviteHandler) Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error {
-	return h.InviteHandler.Create(ctx, in, out)
+func (h *inviteHandler) User(ctx context.Context, in *CreateRequest, out *CreateResponse) error {
+	return h.InviteHandler.User(ctx, in, out)
 }
 
 func (h *inviteHandler) Delete(ctx context.Context, in *CreateRequest, out *CreateResponse) error {

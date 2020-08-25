@@ -46,12 +46,12 @@ type Invite struct {
 	name string
 }
 
-// Create an invite
+// Invite a user
 // Some cases to think about with this function:
 // - a micro admin invites someone to enable signup
 // - a user invites a user without sharing namespace ie "hey join micro"
 // - a user invites a user to share a namespace ie "hey join my namespace on micro"
-func (h *Invite) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	account, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return errors.Unauthorized(h.name, "Unauthorized request")
