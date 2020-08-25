@@ -32,6 +32,7 @@ import (
 const (
 	storePrefixAccountSecrets = "secrets/"
 	storePrefixNamesapce      = "namespaces/"
+	storePrefixOwner          = "owner/"
 	expiryDuration            = 5 * time.Minute
 )
 
@@ -50,10 +51,10 @@ type Signup struct {
 	// M3O Platform Subscription plan id
 	planID string
 	// M3O Addition Users plan id
-	additionUsersPlanID string
-	emailFrom           string
-	paymentMessage      string
-	testMode            bool
+	additionUsersPriceID string
+	emailFrom            string
+	paymentMessage       string
+	testMode             bool
 }
 
 var (
@@ -69,7 +70,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
 	planID := mconfig.Get("micro", "signup", "plan_id").String("")
-	additionUsersPlanID := mconfig.Get("micro", "signup", "additional_users_plan_id").String("")
+	additionUsersPriceID := mconfig.Get("micro", "signup", "additional_users_price_id").String("")
 	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
@@ -83,21 +84,21 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	if len(planID) == 0 {
 		logger.Error("No stripe plan id")
 	}
-	if len(additionUsersPlanID) == 0 {
+	if len(additionUsersPriceID) == 0 {
 		logger.Error("No addition user plan id")
 	}
 	return &Signup{
-		paymentService:      paymentService,
-		inviteService:       inviteService,
-		platformService:     platformService,
-		auth:                auth,
-		sendgridAPIKey:      apiKey,
-		sendgridTemplateID:  templateID,
-		planID:              planID,
-		additionUsersPlanID: additionUsersPlanID,
-		emailFrom:           emailFrom,
-		testMode:            testMode,
-		paymentMessage:      paymentMessage,
+		paymentService:       paymentService,
+		inviteService:        inviteService,
+		platformService:      platformService,
+		auth:                 auth,
+		sendgridAPIKey:       apiKey,
+		sendgridTemplateID:   templateID,
+		planID:               planID,
+		additionUsersPriceID: additionUsersPriceID,
+		emailFrom:            emailFrom,
+		testMode:             testMode,
+		paymentMessage:       paymentMessage,
 	}
 }
 
@@ -302,6 +303,20 @@ func (e *Signup) saveNamespace(email, namespace string) error {
 	return mstore.Write(&store.Record{Key: key, Value: []byte(namespace)})
 }
 
+func (e *Signup) getOwner(namespace string) (string, error) {
+	key := storePrefixOwner + namespace
+	recs, err := mstore.Read(key)
+	if err != nil {
+		return "", err
+	}
+	return string(recs[0].Value), nil
+}
+
+func (e *Signup) saveOwner(email, namespace string) error {
+	key := storePrefixOwner + namespace
+	return mstore.Write(&store.Record{Key: key, Value: []byte(email)})
+}
+
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
 
@@ -331,30 +346,37 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	if isJoining {
+		ownerEmail, err := e.getOwner(ns)
+		if err != nil {
+			return err
+		}
 		subs, err := e.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
-			CustomerId: req.Email,
+			CustomerId:   ownerEmail,
+			CustomerType: "user",
 		}, client.WithAuthToken())
 		if err != nil {
 			return merrors.InternalServerError("signup", "Error listing subscriptions: %v", err)
 		}
 		var addUserPlan *paymentsproto.Plan
 		for _, sub := range subs.Subscriptions {
-			if sub.Plan.Id == e.additionUsersPlanID {
+			if sub.Plan.Id == e.additionUsersPriceID {
 				addUserPlan = sub.Plan
 			}
 		}
 		if addUserPlan == nil {
+			logger.Info("reating with quantity 1")
 			_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-				CustomerId:   req.Email,
+				CustomerId:   ownerEmail,
 				CustomerType: "user",
-				PlanId:       e.additionUsersPlanID,
+				PriceId:      e.additionUsersPriceID,
 				Quantity:     1,
 			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 		} else {
-			_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-				CustomerId:   req.Email,
+			logger.Info("increasing quantity")
+			_, err = e.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
+				CustomerId:   ownerEmail,
 				CustomerType: "user",
-				PlanId:       e.additionUsersPlanID,
+				PriceId:      e.additionUsersPriceID,
 				Quantity:     addUserPlan.Quantity + 1,
 			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 		}
@@ -391,6 +413,10 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 
 		var err error
 		ns, err = e.createNamespace(ctx)
+		if err != nil {
+			return err
+		}
+		err = e.saveOwner(req.Email, ns)
 		if err != nil {
 			return err
 		}

@@ -69,9 +69,11 @@ message CreateCustomerResponse {}
 message CreateSubscriptionRequest {
   string customer_id = 1;
   string customer_type = 2;
+  // plans and prices are mutually exclusive
   string plan_id = 3;
-  // plan quantity
-  int64 quantity = 4;
+  string price_id = 4;
+  // price quantity
+  int64 quantity = 5;
 }
 
 message CreateSubscriptionResponse {}
@@ -81,7 +83,8 @@ message UpdateSubscriptionRequest {
   string customer_id = 2;
   string customer_type = 3;
   string plan_id = 4;
-  int64 quantity = 5;
+  string price_id = 5;
+  int64 quantity = 6;
 }
 
 message UpdateSubscriptionResponse{}
@@ -90,6 +93,7 @@ message ListSubscriptionsRequest {
   string customer_id = 1;
   string customer_type = 2;
   string plan_id = 3;
+  string price_id = 4;
 }
 
 message Subscription {

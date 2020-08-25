@@ -36,12 +36,13 @@ func testM3oSignupFlow(t *test.T) {
 	}
 
 	envToConfigKey := map[string]string{
-		"MICRO_STRIPE_API_KEY":       "micro.payments.stripe.api_key",
-		"MICRO_SENDGRID_API_KEY":     "micro.signup.sendgrid.api_key",
-		"MICRO_SENDGRID_TEMPLATE_ID": "micro.signup.sendgrid.template_id",
-		"MICRO_STRIPE_PLAN_ID":       "micro.signup.plan_id",
-		"MICRO_EMAIL_FROM":           "micro.signup.email_from",
-		"MICRO_TEST_ENV":             "micro.signup.test_env",
+		"MICRO_STRIPE_API_KEY":                   "micro.payments.stripe.api_key",
+		"MICRO_SENDGRID_API_KEY":                 "micro.signup.sendgrid.api_key",
+		"MICRO_SENDGRID_TEMPLATE_ID":             "micro.signup.sendgrid.template_id",
+		"MICRO_STRIPE_PLAN_ID":                   "micro.signup.plan_id",
+		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID": "micro.signup.additional_users_price_id",
+		"MICRO_EMAIL_FROM":                       "micro.signup.email_from",
+		"MICRO_TEST_ENV":                         "micro.signup.test_env",
 	}
 
 	for envKey, configKey := range envToConfigKey {
@@ -230,9 +231,6 @@ func signup(serv test.Server, t *test.T, email, password string, isInvited, shou
 		defer wg.Done()
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
-			outp, _ = serv.Command().Exec("logs", "signup")
-			t.Logf("Logs for email %s %s", email, string(outp))
-
 			t.Fatal(string(outp), err)
 			return
 		}
@@ -242,7 +240,7 @@ func signup(serv test.Server, t *test.T, email, password string, isInvited, shou
 		}
 	}()
 	go func() {
-		time.Sleep(25 * time.Second)
+		time.Sleep(40 * time.Second)
 		cmd.Process.Kill()
 	}()
 
@@ -311,27 +309,28 @@ func signup(serv test.Server, t *test.T, email, password string, isInvited, shou
 		}
 	}
 
-	time.Sleep(5 * time.Second)
+	if !shouldJoin {
+		time.Sleep(5 * time.Second)
+		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
+		pm, err := sc.PaymentMethods.New(
+			&stripe.PaymentMethodParams{
+				Card: &stripe.PaymentMethodCardParams{
+					Number:   stripe.String("4242424242424242"),
+					ExpMonth: stripe.String("7"),
+					ExpYear:  stripe.String("2021"),
+					CVC:      stripe.String("314"),
+				},
+				Type: stripe.String("card"),
+			})
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
 
-	sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
-	pm, err := sc.PaymentMethods.New(
-		&stripe.PaymentMethodParams{
-			Card: &stripe.PaymentMethodCardParams{
-				Number:   stripe.String("4242424242424242"),
-				ExpMonth: stripe.String("7"),
-				ExpYear:  stripe.String("2021"),
-				CVC:      stripe.String("314"),
-			},
-			Type: stripe.String("card"),
-		})
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	_, err = io.WriteString(stdin, pm.ID+"\n")
-	if err != nil {
-		t.Fatal(err)
+		_, err = io.WriteString(stdin, pm.ID+"\n")
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	// Don't wait if a test is already failed, this is a quirk of the

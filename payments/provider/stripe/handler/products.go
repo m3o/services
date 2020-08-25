@@ -6,7 +6,7 @@ import (
 
 	pb "github.com/m3o/services/payments/provider/proto"
 	"github.com/micro/go-micro/v3/errors"
-	stripe "github.com/stripe/stripe-go"
+	stripe "github.com/stripe/stripe-go/v71"
 )
 
 // CreateProduct via the Stripe API, e.g. "Notes"
