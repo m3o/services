@@ -45,7 +45,6 @@ message Plan {
   string currency = 4;
   PlanInterval interval = 5;
   string product_id = 6;
-  int64 quantity = 7;
 }
 
 message CreatePlanRequest {
@@ -100,6 +99,7 @@ message Subscription {
   string id = 1;
   Plan plan = 2;
   Product product = 3;
+  int64 quantity = 4;
 }
 
 message ListSubscriptionsResponse {

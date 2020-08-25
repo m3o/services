@@ -357,15 +357,13 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		if err != nil {
 			return merrors.InternalServerError("signup", "Error listing subscriptions: %v", err)
 		}
-		var addUserPlan *paymentsproto.Plan
-		var subID string
+		var subscription *paymentsproto.Subscription
 		for _, sub := range subs.Subscriptions {
 			if sub.Plan.Id == e.additionUsersPriceID {
-				addUserPlan = sub.Plan
-				subID = sub.Id
+				subscription = sub
 			}
 		}
-		if addUserPlan == nil {
+		if subscription == nil {
 			logger.Info("Creating subscription with quantity 1")
 			_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
 				CustomerId:   ownerEmail,
@@ -376,11 +374,11 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		} else {
 			logger.Info("Increasing subscription quantity")
 			_, err = e.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
-				SubscriptionId: subID,
+				SubscriptionId: subscription.Id,
 				CustomerId:     ownerEmail,
 				CustomerType:   "user",
 				PriceId:        e.additionUsersPriceID,
-				Quantity:       addUserPlan.Quantity + 1,
+				Quantity:       subscription.Quantity + 1,
 			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 		}
 		if err != nil {
@@ -406,6 +404,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		}
 
 		_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+			Quantity:     1,
 			CustomerId:   req.Email,
 			CustomerType: "user",
 			PlanId:       e.planID,
