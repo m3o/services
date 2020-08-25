@@ -230,7 +230,10 @@ func signup(serv test.Server, t *test.T, email, password string, isInvited, shou
 		defer wg.Done()
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
-			t.Fatal(email+": "+string(outp), err)
+			outp, _ = serv.Command().Exec("logs", "signup")
+			t.Logf("Logs for email %s %s", email, string(outp))
+
+			t.Fatal(string(outp), err)
 			return
 		}
 		if !strings.Contains(string(outp), signupSuccessString) {

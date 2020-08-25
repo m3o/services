@@ -2,7 +2,7 @@ package main
 
 import (
 	inviteproto "github.com/m3o/services/invite/proto"
-	k8sproto "github.com/m3o/services/kubernetes/proto"
+	plproto "github.com/m3o/services/platform/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	"github.com/m3o/services/signup/handler"
 	log "github.com/micro/go-micro/v3/logger"
@@ -23,7 +23,7 @@ func main() {
 	srv.Handle(handler.NewSignup(
 		paymentsproto.NewProviderService("payment.stripe", srv.Client()),
 		inviteproto.NewInviteService("invite", srv.Client()),
-		k8sproto.NewKubernetesService("kubernetes", srv.Client()),
+		plproto.NewPlatformService("platform", srv.Client()),
 		auth,
 	))
 

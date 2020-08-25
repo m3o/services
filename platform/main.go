@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/m3o/services/kubernetes/handler"
+	"github.com/m3o/services/platform/handler"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
 )
 
 func main() {
 	srv := service.New(
-		service.Name("kubernetes"),
+		service.Name("platform"),
 	)
 
 	srv.Handle(handler.New(srv))

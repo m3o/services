@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package platform;
+
+service Platform {
+	rpc CreateNamespace (CreateNamespaceRequest) returns (CreateNamespaceResponse) {};
+	rpc DeleteNamespace (DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {};
+}
+
+message CreateNamespaceRequest {
+  string name = 1;
+}
+
+message CreateNamespaceResponse {}
+
+message DeleteNamespaceRequest {
+  string name = 1;
+}
+
+message DeleteNamespaceResponse {}
