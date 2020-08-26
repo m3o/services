@@ -1,9 +1,10 @@
 package main
 
 import (
+	customersproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
-	plproto "github.com/m3o/services/platform/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
+	plproto "github.com/m3o/services/platform/proto"
 	"github.com/m3o/services/signup/handler"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
@@ -24,6 +25,7 @@ func main() {
 		paymentsproto.NewProviderService("payment.stripe", srv.Client()),
 		inviteproto.NewInviteService("invite", srv.Client()),
 		plproto.NewPlatformService("platform", srv.Client()),
+		customersproto.NewCustomersService("customers", srv.Client()),
 		auth,
 	))
 

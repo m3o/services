@@ -24,6 +24,7 @@ import (
 
 	signup "github.com/m3o/services/signup/proto/signup"
 
+	cproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	plproto "github.com/m3o/services/platform/proto"
@@ -45,6 +46,7 @@ type Signup struct {
 	paymentService     paymentsproto.ProviderService
 	inviteService      inviteproto.InviteService
 	platformService    plproto.PlatformService
+	customerService    cproto.CustomersService
 	auth               auth.Auth
 	sendgridTemplateID string
 	sendgridAPIKey     string
@@ -65,7 +67,9 @@ var (
 
 func NewSignup(paymentService paymentsproto.ProviderService,
 	inviteService inviteproto.InviteService,
-	platformService plproto.PlatformService, auth auth.Auth) *Signup {
+	platformService plproto.PlatformService,
+	customerService cproto.CustomersService,
+	auth auth.Auth) *Signup {
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
@@ -91,6 +95,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		paymentService:       paymentService,
 		inviteService:        inviteService,
 		platformService:      platformService,
+		customerService:      customerService,
 		auth:                 auth,
 		sendgridAPIKey:       apiKey,
 		sendgridTemplateID:   templateID,
@@ -161,6 +166,11 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return err
 	}
 
+	if _, err := e.customerService.Create(ctx, &cproto.CreateRequest{
+		Id: req.Email,
+	}, client.WithAuthToken()); err != nil {
+		return err
+	}
 	if e.testMode {
 		logger.Infof("Sending verification token '%v'", k)
 	}
@@ -277,6 +287,12 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		},
 	}, client.WithAuthToken())
 	if err != nil {
+		return err
+	}
+
+	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{
+		Id: req.Email,
+	}, client.WithAuthToken()); err != nil {
 		return err
 	}
 

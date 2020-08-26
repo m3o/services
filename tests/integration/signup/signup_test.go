@@ -77,12 +77,33 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
+	outp, err = serv.Command().Exec("run", getSrcString("M3O_CUSTOMERS_SVC", "../../../customers"))
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	outp, err = serv.Command().Exec("run", getSrcString("M3O_NAMESPACES_SVC", "../../../namespaces"))
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	outp, err = serv.Command().Exec("run", getSrcString("M3O_SUBSCRIPTIONS_SVC", "../../../subscriptions"))
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
 	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
 		outp, err := serv.Command().Exec("services")
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "stripe") || !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "invite") {
+		if !strings.Contains(string(outp), "stripe") ||
+			!strings.Contains(string(outp), "signup") ||
+			!strings.Contains(string(outp), "invite") ||
+			!strings.Contains(string(outp), "customers") {
 			return outp, errors.New("Can't find signup or stripe or invite in list")
 		}
 		return outp, err
