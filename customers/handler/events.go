@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/micro/go-micro/v3/events"
 	"github.com/micro/go-micro/v3/logger"
@@ -14,9 +15,18 @@ type CustomerEvent struct {
 }
 
 func init() {
-	events, err := mevents.Subscribe("subscriptions")
-	if err != nil {
-		logger.Fatalf("Failed to subscribe to payments event stream %s", err)
+	var events <-chan events.Event
+	start := time.Now()
+	for {
+		var err error
+		events, err = mevents.Subscribe("subscriptions")
+		if err == nil {
+			break
+		}
+		if time.Since(start) > 2*time.Minute {
+			logger.Fatalf("Failed to subscribe to subscriptions topic %s", err)
+		}
+		time.Sleep(20 * time.Second)
 	}
 	go processSubscriptionEvents(events)
 	// TODO
