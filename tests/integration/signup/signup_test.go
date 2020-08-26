@@ -97,7 +97,7 @@ func testM3oSignupFlow(t *test.T) {
 
 	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
 
-		outp, _ := serv.Command().Exec("status")
+		outp, _ := serv.Command().Exec("logs", "customers")
 		t.Logf(string(outp))
 		outp, err := serv.Command().Exec("services")
 		if err != nil {
