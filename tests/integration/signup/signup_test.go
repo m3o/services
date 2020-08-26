@@ -59,46 +59,28 @@ func testM3oSignupFlow(t *test.T) {
 		}
 	}
 
-	outp, err := serv.Command().Exec("run", getSrcString("M3O_INVITE_SVC", "../../../invite"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
+	services := []struct {
+		envVar string
+		deflt  string
+	}{
+		{envVar: "M3O_INVITE_SVC", deflt: "../../../invite"},
+		{envVar: "M3O_SIGNUP_SVC", deflt: "../../../signup"},
+		{envVar: "M3O_STRIPE_SVC", deflt: "../../../payments/provider/stripe"},
+		{envVar: "M3O_CUSTOMERS_SVC", deflt: "../../../customers"},
+		{envVar: "M3O_NAMESPACES_SVC", deflt: "../../../namespaces"},
+		{envVar: "M3O_SUBSCRIPTIONS_SVC", deflt: "../../../subscriptions"},
+		{envVar: "M3O_PLATFORM_SVC", deflt: "../../../platform"},
 	}
 
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_SIGNUP_SVC", "../../../signup"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_STRIPE_SVC", "../../../payments/provider/stripe"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_CUSTOMERS_SVC", "../../../customers"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_NAMESPACES_SVC", "../../../namespaces"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_SUBSCRIPTIONS_SVC", "../../../subscriptions"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
+	for _, v := range services {
+		outp, err := serv.Command().Exec("run", getSrcString(v.envVar, v.deflt))
+		if err != nil {
+			t.Fatal(string(outp))
+			return
+		}
 	}
 
 	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
-
-		outp, _ := serv.Command().Exec("logs", "customers")
-		t.Logf(string(outp))
 		outp, err := serv.Command().Exec("services")
 		if err != nil {
 			return outp, err
@@ -156,7 +138,7 @@ func testM3oSignupFlow(t *test.T) {
 	}, 5*time.Second)
 
 	// Adjust rules before we signup into a non admin account
-	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:create\"", "invitecreatepublic")
+	outp, err := serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:create\"", "invitecreatepublic")
 	if err != nil {
 		t.Fatalf("Error setting up rules: %v", err)
 		return

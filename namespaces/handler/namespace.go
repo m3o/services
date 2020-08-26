@@ -66,7 +66,7 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 		id = strings.Join(list, "-")
 	}
 	ns := &NamespaceModel{
-		ID:      request.Id,
+		ID:      id,
 		Owners:  request.Owners,
 		Users:   request.Owners,
 		Created: time.Now().Unix(),
