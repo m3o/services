@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"time"
 
+	merrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/events"
+	"github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 
 	"github.com/micro/go-micro/v3/errors"
@@ -31,7 +33,8 @@ type Subscriptions struct {
 }
 
 type SubscriptionType struct {
-	PlanID string
+	PlanID  string
+	PriceID string
 }
 
 type TypeMap map[string]SubscriptionType
@@ -41,7 +44,6 @@ func New(paySvc paymentsproto.ProviderService) *Subscriptions {
 	if err := mconfig.Get("micro", "subscriptions", "types").Scan(&typeMap); err != nil {
 		log.Fatalf("Failed to retrieve subscription type map %s", err)
 	}
-
 	return &Subscriptions{
 		paymentService: paySvc,
 		typeMap:        typeMap,
@@ -141,6 +143,41 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 	return errors.InternalServerError("notimplemented", "not implemented")
 }
 
-func (s Subscriptions) List(ctx context.Context, request *subscription.ListRequest, response *subscription.ListResponse) error {
-	return errors.InternalServerError("notimplemented", "not implemented")
+func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUserRequest, response *subscription.AddUserResponse) error {
+	priceID := s.typeMap["developer_additional_user"].PriceID
+	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
+		CustomerId:   request.OwnerID,
+		CustomerType: "user",
+		PriceId:      priceID,
+	}, client.WithAuthToken())
+	if err != nil {
+		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding subscription: %v", err)
+	}
+	var subscription *paymentsproto.Subscription
+	if len(subs.Subscriptions) > 0 {
+		subscription = subs.Subscriptions[0]
+	}
+
+	if subscription == nil {
+		logger.Info("Creating subscription with quantity 1")
+		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+			CustomerId:   request.OwnerID,
+			CustomerType: "user",
+			PriceId:      priceID,
+			Quantity:     1,
+		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+	} else {
+		logger.Info("Increasing subscription quantity")
+		_, err = s.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
+			SubscriptionId: subscription.Id,
+			CustomerId:     request.OwnerID,
+			CustomerType:   "user",
+			PriceId:        priceID,
+			Quantity:       subscription.Quantity + 1,
+		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+	}
+	if err != nil {
+		return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
+	}
+	return nil
 }

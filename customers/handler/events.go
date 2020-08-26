@@ -25,7 +25,7 @@ func init() {
 		}
 		// TODO fix me
 		if time.Since(start) > 5*time.Minute {
-			logger.Fatalf("Failed to subscribe to subscriptions topic %s", err)
+			logger.Errorf("Failed to subscribe to subscriptions topic %s", err) // TODO should be fatal
 		}
 		time.Sleep(20 * time.Second)
 	}

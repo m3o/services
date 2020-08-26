@@ -44,7 +44,8 @@ func NewSubscriptionsEndpoints() []*api.Endpoint {
 type SubscriptionsService interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error)
 	Cancel(ctx context.Context, in *CancelRequest, opts ...client.CallOption) (*CancelResponse, error)
-	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
+	// Add user to an existing subscription
+	AddUser(ctx context.Context, in *AddUserRequest, opts ...client.CallOption) (*AddUserResponse, error)
 }
 
 type subscriptionsService struct {
@@ -79,9 +80,9 @@ func (c *subscriptionsService) Cancel(ctx context.Context, in *CancelRequest, op
 	return out, nil
 }
 
-func (c *subscriptionsService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "Subscriptions.List", in)
-	out := new(ListResponse)
+func (c *subscriptionsService) AddUser(ctx context.Context, in *AddUserRequest, opts ...client.CallOption) (*AddUserResponse, error) {
+	req := c.c.NewRequest(c.name, "Subscriptions.AddUser", in)
+	out := new(AddUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -94,14 +95,15 @@ func (c *subscriptionsService) List(ctx context.Context, in *ListRequest, opts .
 type SubscriptionsHandler interface {
 	Create(context.Context, *CreateRequest, *CreateResponse) error
 	Cancel(context.Context, *CancelRequest, *CancelResponse) error
-	List(context.Context, *ListRequest, *ListResponse) error
+	// Add user to an existing subscription
+	AddUser(context.Context, *AddUserRequest, *AddUserResponse) error
 }
 
 func RegisterSubscriptionsHandler(s server.Server, hdlr SubscriptionsHandler, opts ...server.HandlerOption) error {
 	type subscriptions interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Cancel(ctx context.Context, in *CancelRequest, out *CancelResponse) error
-		List(ctx context.Context, in *ListRequest, out *ListResponse) error
+		AddUser(ctx context.Context, in *AddUserRequest, out *AddUserResponse) error
 	}
 	type Subscriptions struct {
 		subscriptions
@@ -122,6 +124,6 @@ func (h *subscriptionsHandler) Cancel(ctx context.Context, in *CancelRequest, ou
 	return h.SubscriptionsHandler.Cancel(ctx, in, out)
 }
 
-func (h *subscriptionsHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
-	return h.SubscriptionsHandler.List(ctx, in, out)
+func (h *subscriptionsHandler) AddUser(ctx context.Context, in *AddUserRequest, out *AddUserResponse) error {
+	return h.SubscriptionsHandler.AddUser(ctx, in, out)
 }

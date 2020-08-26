@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,21 +19,19 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	mconfig "github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
-	"github.com/sethvargo/go-diceware/diceware"
 
 	signup "github.com/m3o/services/signup/proto/signup"
 
 	cproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
+	nproto "github.com/m3o/services/namespaces/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	plproto "github.com/m3o/services/platform/proto"
+	sproto "github.com/m3o/services/subscriptions/proto"
 )
 
 const (
-	storePrefixAccountSecrets = "secrets/"
-	storePrefixNamesapce      = "namespaces/"
-	storePrefixOwner          = "owner/"
-	expiryDuration            = 5 * time.Minute
+	expiryDuration = 5 * time.Minute
 )
 
 type tokenToEmail struct {
@@ -43,13 +40,15 @@ type tokenToEmail struct {
 }
 
 type Signup struct {
-	paymentService     paymentsproto.ProviderService
-	inviteService      inviteproto.InviteService
-	platformService    plproto.PlatformService
-	customerService    cproto.CustomersService
-	auth               auth.Auth
-	sendgridTemplateID string
-	sendgridAPIKey     string
+	paymentService      paymentsproto.ProviderService
+	inviteService       inviteproto.InviteService
+	platformService     plproto.PlatformService
+	customerService     cproto.CustomersService
+	namespaceService    nproto.NamespacesService
+	subscriptionService sproto.SubscriptionsService
+	auth                auth.Auth
+	sendgridTemplateID  string
+	sendgridAPIKey      string
 	// M3O Platform Subscription plan id
 	planID string
 	// M3O Addition Users plan id
@@ -69,6 +68,8 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	inviteService inviteproto.InviteService,
 	platformService plproto.PlatformService,
 	customerService cproto.CustomersService,
+	namespaceService nproto.NamespacesService,
+	subscriptionService sproto.SubscriptionsService,
 	auth auth.Auth) *Signup {
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
@@ -96,6 +97,8 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 		inviteService:        inviteService,
 		platformService:      platformService,
 		customerService:      customerService,
+		namespaceService:     namespaceService,
+		subscriptionService:  subscriptionService,
 		auth:                 auth,
 		sendgridAPIKey:       apiKey,
 		sendgridTemplateID:   templateID,
@@ -276,20 +279,6 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	// if not set the CLI will try complete signup without payment id
 	rsp.PaymentRequired = true
 
-	// Otherwisewe just return without an error but with no token
-	_, err = e.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
-		Customer: &paymentsproto.Customer{
-			Id:   req.Email,
-			Type: "user",
-			Metadata: map[string]string{
-				"email": req.Email,
-			},
-		},
-	}, client.WithAuthToken())
-	if err != nil {
-		return err
-	}
-
 	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{
 		Id: req.Email,
 	}, client.WithAuthToken()); err != nil {
@@ -303,34 +292,6 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	}
 	rsp.Namespaces = namespaces
 	return nil
-}
-
-func (e *Signup) getNamespace(email string) (string, error) {
-	key := storePrefixNamesapce + email
-	recs, err := mstore.Read(key)
-	if err != nil {
-		return "", err
-	}
-	return string(recs[0].Value), nil
-}
-
-func (e *Signup) saveNamespace(email, namespace string) error {
-	key := storePrefixNamesapce + email
-	return mstore.Write(&store.Record{Key: key, Value: []byte(namespace)})
-}
-
-func (e *Signup) getOwner(namespace string) (string, error) {
-	key := storePrefixOwner + namespace
-	recs, err := mstore.Read(key)
-	if err != nil {
-		return "", err
-	}
-	return string(recs[0].Value), nil
-}
-
-func (e *Signup) saveOwner(email, namespace string) error {
-	key := storePrefixOwner + namespace
-	return mstore.Write(&store.Record{Key: key, Value: []byte(email)})
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
@@ -362,86 +323,15 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	if isJoining {
-		ownerEmail, err := e.getOwner(ns)
-		if err != nil {
+		if err := e.joinNamespace(ctx, req.Email, ns); err != nil {
 			return err
-		}
-		subs, err := e.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
-			CustomerId:   ownerEmail,
-			CustomerType: "user",
-		}, client.WithAuthToken())
-		if err != nil {
-			return merrors.InternalServerError("signup", "Error listing subscriptions: %v", err)
-		}
-		var subscription *paymentsproto.Subscription
-		for _, sub := range subs.Subscriptions {
-			if sub.Plan.Id == e.additionUsersPriceID {
-				subscription = sub
-			}
-		}
-		if subscription == nil {
-			logger.Info("Creating subscription with quantity 1")
-			_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-				CustomerId:   ownerEmail,
-				CustomerType: "user",
-				PriceId:      e.additionUsersPriceID,
-				Quantity:     1,
-			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
-		} else {
-			logger.Info("Increasing subscription quantity")
-			_, err = e.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
-				SubscriptionId: subscription.Id,
-				CustomerId:     ownerEmail,
-				CustomerType:   "user",
-				PriceId:        e.additionUsersPriceID,
-				Quantity:       subscription.Quantity + 1,
-			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
-		}
-		if err != nil {
-			return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
 		}
 	} else {
-		_, err = e.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
-			CustomerId:   req.Email,
-			CustomerType: "user",
-			Id:           req.PaymentMethodID,
-		}, client.WithAuthToken())
+		newNs, err := e.signupWithNewNamespace(ctx, req)
 		if err != nil {
 			return err
 		}
-
-		_, err = e.paymentService.SetDefaultPaymentMethod(ctx, &paymentsproto.SetDefaultPaymentMethodRequest{
-			CustomerId:      req.Email,
-			CustomerType:    "user",
-			PaymentMethodId: req.PaymentMethodID,
-		}, client.WithAuthToken())
-		if err != nil {
-			return err
-		}
-
-		_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-			Quantity:     1,
-			CustomerId:   req.Email,
-			CustomerType: "user",
-			PlanId:       e.planID,
-		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
-		if err != nil {
-			return err
-		}
-
-		var err error
-		ns, err = e.createNamespace(ctx)
-		if err != nil {
-			return err
-		}
-		err = e.saveOwner(req.Email, ns)
-		if err != nil {
-			return err
-		}
-	}
-	err = e.saveNamespace(req.Email, ns)
-	if err != nil {
-		return err
+		ns = newNs
 	}
 
 	rsp.Namespace = ns
@@ -471,16 +361,37 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	return nil
 }
 
-func (e *Signup) createNamespace(ctx context.Context) (string, error) {
-	list, err := diceware.Generate(3)
+func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest) (string, error) {
+	// TODO fix type to be more than just developer
+	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID: req.Email, Type: "developer", PaymentMethodID: req.PaymentMethodID}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
-	ns := strings.Join(list, "-")
-	if !e.testMode {
-		_, err = e.platformService.CreateNamespace(ctx, &plproto.CreateNamespaceRequest{
-			Name: ns,
-		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners: []string{req.Email}}, client.WithAuthToken())
+	if err != nil {
+		return "", err
 	}
-	return ns, err
+	return nsRsp.Namespace.Id, nil
+}
+
+func (e *Signup) joinNamespace(ctx context.Context, email, ns string) error {
+	rsp, err := e.namespaceService.Read(ctx, &nproto.ReadRequest{
+		Id: ns,
+	}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
+	ownerEmail := rsp.Namespace.Owners[0]
+
+	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID: ownerEmail, NewUserID: email}, client.WithAuthToken())
+	if err != nil {
+		return merrors.InternalServerError("signup", "Error adding user to subscription %s", err)
+	}
+
+	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User: email}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

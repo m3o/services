@@ -3,9 +3,11 @@ package main
 import (
 	customersproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
+	nsproto "github.com/m3o/services/namespaces/proto"
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	plproto "github.com/m3o/services/platform/proto"
 	"github.com/m3o/services/signup/handler"
+	subproto "github.com/m3o/services/subscriptions/proto"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
 	mauth "github.com/micro/micro/v3/service/auth/client"
@@ -26,6 +28,8 @@ func main() {
 		inviteproto.NewInviteService("invite", srv.Client()),
 		plproto.NewPlatformService("platform", srv.Client()),
 		customersproto.NewCustomersService("customers", srv.Client()),
+		nsproto.NewNamespacesService("namespaces", srv.Client()),
+		subproto.NewSubscriptionsService("subscriptions", srv.Client()),
 		auth,
 	))
 

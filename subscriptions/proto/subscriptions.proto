@@ -7,7 +7,8 @@ option go_package = "proto;subscriptions";
 service Subscriptions {
 	rpc Create(CreateRequest) returns (CreateResponse) {}
 	rpc Cancel(CancelRequest) returns (CancelResponse) {}
-	rpc List(ListRequest) returns (ListResponse) {}
+	// Add user to an existing subscription
+	rpc AddUser(AddUserRequest) returns (AddUserResponse) {}
 }
 
 message CreateRequest {
@@ -37,10 +38,12 @@ message CancelResponse {
 	Subscription subscription = 1;
 }
 
-message ListRequest {
-	string customerID = 1;
+
+message AddUserRequest {
+	string ownerID = 1;
+	string newUserID = 2;
 }
 
-message ListResponse {
-	repeated Subscription subscriptions = 1;
+message AddUserResponse {
+
 }
