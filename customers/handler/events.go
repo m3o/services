@@ -15,22 +15,26 @@ type CustomerEvent struct {
 }
 
 func init() {
-	var events <-chan events.Event
-	start := time.Now()
-	for {
-		var err error
-		events, err = mevents.Subscribe("subscriptions")
-		if err == nil {
-			break
+	go func() {
+		var events <-chan events.Event
+		start := time.Now()
+		for {
+			var err error
+			events, err = mevents.Subscribe("subscriptions")
+			if err == nil {
+				break
+			}
+			// TODO fix me
+			if time.Since(start) > 5*time.Minute {
+				logger.Errorf("Failed to subscribe to subscriptions topic %s", err) // TODO should be fatal
+			}
+			time.Sleep(20 * time.Second)
 		}
-		// TODO fix me
-		if time.Since(start) > 5*time.Minute {
-			logger.Errorf("Failed to subscribe to subscriptions topic %s", err) // TODO should be fatal
-		}
-		time.Sleep(20 * time.Second)
-	}
-	go processSubscriptionEvents(events)
-	// TODO
+		go processSubscriptionEvents(events)
+		// TODO
+
+	}()
+
 }
 
 type SubscriptionEvent struct {
