@@ -9,7 +9,6 @@ import (
 
 	merrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 
@@ -138,7 +137,8 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		return err
 	}
 	response.Subscription = objToProto(sub)
-	return events.Publish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
+	//return events.Publish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
+	return nil
 }
 
 func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelRequest, response *subscription.CancelResponse) error {

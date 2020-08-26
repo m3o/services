@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/events"
-
 	log "github.com/micro/go-micro/v3/logger"
 
 	namespace "github.com/m3o/services/namespaces/proto"
@@ -15,7 +13,6 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
 
 	"github.com/sethvargo/go-diceware/diceware"
@@ -87,7 +84,8 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 	}
 	response.Namespace = objToProto(ns)
 
-	return mevents.Publish(nsTopic, NamespaceEvent{Namespace: *ns, Type: "namespaces.created"})
+	//return mevents.Publish(nsTopic, NamespaceEvent{Namespace: *ns, Type: "namespaces.created"})
+	return nil
 }
 
 // writeNamespace writes to the store. We deliberately denormalise/duplicate across many indexes to optimise for reads
@@ -202,9 +200,10 @@ func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserReque
 		return err
 	}
 	// TODO anything else we need to do for adding a user to namespace?
-	return mevents.Publish(nsTopic,
-		NamespaceEvent{Namespace: *ns, Type: "namespaces.adduser"},
-		events.WithMetadata(map[string]string{"user": request.User}))
+	//return mevents.Publish(nsTopic,
+	//	NamespaceEvent{Namespace: *ns, Type: "namespaces.adduser"},
+	//	events.WithMetadata(map[string]string{"user": request.User}))
+	return nil
 }
 
 func (n Namespaces) RemoveUser(ctx context.Context, request *namespace.RemoveUserRequest, response *namespace.RemoveUserResponse) error {
