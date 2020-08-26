@@ -67,7 +67,7 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	if strings.TrimSpace(request.Id) == "" {
 		return errors.BadRequest("customers.create", "ID is required")
 	}
-	cust, err := updateCustomerStatus(request.Id, statusVerified)
+	_, err := updateCustomerStatus(request.Id, statusVerified)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 	if strings.TrimSpace(request.Id) == "" {
 		return errors.BadRequest("customers.create", "ID is required")
 	}
-	cust, err := updateCustomerStatus(request.Id, statusDeleted)
+	_, err := updateCustomerStatus(request.Id, statusDeleted)
 	if err != nil {
 		return err
 	}
