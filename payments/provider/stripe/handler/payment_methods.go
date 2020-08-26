@@ -75,7 +75,7 @@ func (h *Provider) ListPaymentMethods(ctx context.Context, req *pb.ListPaymentMe
 		return errors.BadRequest(h.name, "User ID doesn't exist")
 	}
 
-	// Get the customer (need the default payment method ID)
+	// Get the customers (need the default payment method ID)
 	c, err := h.client.Customers.Get(stripeID, &stripe.CustomerParams{})
 	if err != nil {
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)

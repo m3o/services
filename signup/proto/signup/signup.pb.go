@@ -5,8 +5,9 @@ package go_micro_service_signup
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -150,7 +151,7 @@ type VerifyResponse struct {
 	// @todo this is likely not needed
 	CustomerID string `protobuf:"bytes,2,opt,name=customerID,proto3" json:"customerID,omitempty"`
 	// Namespace to use
-	Namespace string `protobuf:"bytes,3,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Namespace string `protobuf:"bytes,3,opt,name=namespaces,proto3" json:"namespaces,omitempty"`
 	// Message to display to the user
 	Message string `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
 	// Whether payment is required or not
@@ -288,7 +289,7 @@ func (m *CompleteSignupRequest) GetSecret() string {
 
 type CompleteSignupResponse struct {
 	AuthToken            *AuthToken `protobuf:"bytes,1,opt,name=authToken,proto3" json:"authToken,omitempty"`
-	Namespace            string     `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Namespace            string     `protobuf:"bytes,2,opt,name=namespaces,proto3" json:"namespaces,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`

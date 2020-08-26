@@ -5,8 +5,9 @@ package go_micro_srv_provider
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -392,7 +393,7 @@ func (m *Customer) GetMetadata() map[string]string {
 }
 
 type CreateCustomerRequest struct {
-	Customer             *Customer `protobuf:"bytes,1,opt,name=customer,proto3" json:"customer,omitempty"`
+	Customer             *Customer `protobuf:"bytes,1,opt,name=customers,proto3" json:"customers,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
 	XXX_unrecognized     []byte    `json:"-"`
 	XXX_sizecache        int32     `json:"-"`

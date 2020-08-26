@@ -122,7 +122,7 @@ func randStringBytesMaskImprSrc(n int) string {
 }
 
 // SendVerificationEmail is the first step in the signup flow.SendVerificationEmail
-// A stripe customer and a verification token will be created and an email sent.
+// A stripe customers and a verification token will be created and an email sent.
 func (e *Signup) SendVerificationEmail(ctx context.Context,
 	req *signup.SendVerificationEmailRequest,
 	rsp *signup.SendVerificationEmailResponse) error {

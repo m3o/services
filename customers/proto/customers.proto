@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package customer;
+package customers;
 
-option go_package = "proto;customer";
+option go_package = "proto;customers";
 
-service Customer {
+service Customers {
 	// Creates a new, unverified customer
 	rpc Create(CreateRequest) returns (CreateResponse) {}
 	// Mark the customer as verified
@@ -22,10 +22,10 @@ message CreateRequest {
 }
 
 message CreateResponse {
-	CustomerMessage customer = 1;
+	Customer customer = 1;
 }
 
-message CustomerMessage {
+message Customer {
 	string id = 1;
 	string status = 2; // awaiting_verification, verified, active, inactive
 	int64 created = 3;
@@ -53,11 +53,11 @@ message ReadRequest {
 }
 
 message ReadResponse {
-	CustomerMessage customer = 1;
+	Customer customer = 1;
 }
 
 message MarkVerifiedRequest {
-	required string id = 1;
+	string id = 1;
 }
 
 message MarkVerifiedResponse {}

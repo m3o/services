@@ -2,11 +2,11 @@
 GOPATH:=$(shell go env GOPATH)
 .PHONY: proto
 proto:
-	protoc --proto_path=. --micro_out=. --go_out=:. proto/namespace.proto
+	protoc --proto_path=. --micro_out=. --go_out=:. proto/namespaces.proto
 	
 .PHONY: build
 build:
-	go build -o namespace *.go
+	go build -o namespaces *.go
 
 .PHONY: test
 test:
@@ -14,4 +14,4 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t namespace:latest
+	docker build . -t namespaces:latest

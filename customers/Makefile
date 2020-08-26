@@ -2,11 +2,11 @@
 GOPATH:=$(shell go env GOPATH)
 .PHONY: proto
 proto:
-	protoc --proto_path=. --micro_out=. --go_out=:. proto/customer.proto
+	protoc --proto_path=. --micro_out=. --go_out=:. proto/customers.proto
 	
 .PHONY: build
 build:
-	go build -o customer *.go
+	go build -o customers *.go
 
 .PHONY: test
 test:
@@ -14,4 +14,4 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t customer:latest
+	docker build . -t customers:latest

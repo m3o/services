@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package namespace;
+package namespaces;
 
-option go_package = "proto;namespace";
+option go_package = "proto;namespaces";
 
-service Namespace {
+service Namespaces {
 	rpc Create(CreateRequest) returns (CreateResponse) {}
 	rpc Read(ReadRequest) returns (ReadResponse) {}
 	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
@@ -17,14 +17,14 @@ service Namespace {
 
 message CreateRequest {
 	string id = 1;
-	string owner = 2;
+	repeated string owners = 2;
 }
 
 message CreateResponse {
-	NamespaceMessage namespace = 1;
+	Namespace namespace = 1;
 }
 
-message NamespaceMessage {
+message Namespace {
 	string id = 1;
 	repeated string owners = 2;
 	repeated string users = 3;
@@ -32,11 +32,11 @@ message NamespaceMessage {
 }
 
 message ReadRequest {
-	string name = 1;
+	string id = 1;
 }
 
 message ReadResponse {
-	NamespaceMessage namespace = 1;
+	Namespace namespace = 1;
 }
 
 message DeleteRequest {
@@ -46,11 +46,12 @@ message DeleteRequest {
 message DeleteResponse {}
 
 message ListRequest {
-	string user = 1;
+	string owner = 1;
+	string user = 2;
 }
 
 message ListResponse {
-	repeated NamespaceMessage namespaces = 1;
+	repeated Namespace namespaces = 1;
 }
 
 message AddUserRequest {

@@ -152,13 +152,13 @@ func testM3oSignupFlow(t *test.T) {
 
 		outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 		if err != nil {
-			t.Fatalf("Error getting namespace: %v", err)
+			t.Fatalf("Error getting namespaces: %v", err)
 			return
 		}
 		ns := string(outp)
 
 		if strings.Count(ns, "-") != 2 {
-			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+			t.Fatalf("Expected 2 dashes in namespaces but namespaces is: %v", ns)
 			return
 		}
 
@@ -173,7 +173,7 @@ func testM3oSignupFlow(t *test.T) {
 				return outp, errors.New("Account not found")
 			}
 			if strings.Contains(string(outp), "default") {
-				return outp, errors.New("Default account should not be present in the namespace")
+				return outp, errors.New("Default account should not be present in the namespaces")
 			}
 			return outp, nil
 		}, 5*time.Second)

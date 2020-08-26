@@ -7,11 +7,12 @@
 package subscription
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -136,7 +137,7 @@ type SubscriptionMessage struct {
 	CustomerID string `protobuf:"bytes,2,opt,name=customerID,proto3" json:"customerID,omitempty"`
 	Type       string `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
 	Created    int64  `protobuf:"varint,4,opt,name=created,proto3" json:"created,omitempty"`
-	Expires    int64  `protobuf:"varint,5,opt,name=expires,proto3" json:"expires,omitempty"` // blank unless the customer has cancelled their subscription
+	Expires    int64  `protobuf:"varint,5,opt,name=expires,proto3" json:"expires,omitempty"` // blank unless the customers has cancelled their subscription
 }
 
 func (x *SubscriptionMessage) Reset() {

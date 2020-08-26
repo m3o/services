@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/m3o/services/customer/handler"
+	"github.com/m3o/services/namespaces/handler"
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
@@ -10,12 +10,12 @@ import (
 func main() {
 	// Create service
 	srv := service.New(
-		service.Name("customer"),
+		service.Name("namespaces"),
 		service.Version("latest"),
 	)
 
 	// Register handler
-	srv.Handle(new(handler.Customer))
+	srv.Handle(new(handler.Namespaces))
 
 	// Run service
 	if err := srv.Run(); err != nil {
