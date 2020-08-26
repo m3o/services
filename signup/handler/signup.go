@@ -25,8 +25,6 @@ import (
 	cproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	nproto "github.com/m3o/services/namespaces/proto"
-	paymentsproto "github.com/m3o/services/payments/provider/proto"
-	plproto "github.com/m3o/services/platform/proto"
 	sproto "github.com/m3o/services/subscriptions/proto"
 )
 
@@ -40,22 +38,16 @@ type tokenToEmail struct {
 }
 
 type Signup struct {
-	paymentService      paymentsproto.ProviderService
 	inviteService       inviteproto.InviteService
-	platformService     plproto.PlatformService
 	customerService     cproto.CustomersService
 	namespaceService    nproto.NamespacesService
 	subscriptionService sproto.SubscriptionsService
 	auth                auth.Auth
 	sendgridTemplateID  string
 	sendgridAPIKey      string
-	// M3O Platform Subscription plan id
-	planID string
-	// M3O Addition Users plan id
-	additionUsersPriceID string
-	emailFrom            string
-	paymentMessage       string
-	testMode             bool
+	emailFrom           string
+	paymentMessage      string
+	testMode            bool
 }
 
 var (
@@ -64,9 +56,7 @@ var (
 	Message = "Please complete signup at https://m3o.com/subscribe?email=%s and enter the generated token ID: "
 )
 
-func NewSignup(paymentService paymentsproto.ProviderService,
-	inviteService inviteproto.InviteService,
-	platformService plproto.PlatformService,
+func NewSignup(inviteService inviteproto.InviteService,
 	customerService cproto.CustomersService,
 	namespaceService nproto.NamespacesService,
 	subscriptionService sproto.SubscriptionsService,
@@ -74,8 +64,6 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
-	planID := mconfig.Get("micro", "signup", "plan_id").String("")
-	additionUsersPriceID := mconfig.Get("micro", "signup", "additional_users_price_id").String("")
 	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
@@ -86,27 +74,17 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	if len(templateID) == 0 {
 		logger.Error("No sendgrid template ID provided")
 	}
-	if len(planID) == 0 {
-		logger.Error("No stripe plan id")
-	}
-	if len(additionUsersPriceID) == 0 {
-		logger.Error("No addition user plan id")
-	}
 	return &Signup{
-		paymentService:       paymentService,
-		inviteService:        inviteService,
-		platformService:      platformService,
-		customerService:      customerService,
-		namespaceService:     namespaceService,
-		subscriptionService:  subscriptionService,
-		auth:                 auth,
-		sendgridAPIKey:       apiKey,
-		sendgridTemplateID:   templateID,
-		planID:               planID,
-		additionUsersPriceID: additionUsersPriceID,
-		emailFrom:            emailFrom,
-		testMode:             testMode,
-		paymentMessage:       paymentMessage,
+		inviteService:       inviteService,
+		customerService:     customerService,
+		namespaceService:    namespaceService,
+		subscriptionService: subscriptionService,
+		auth:                auth,
+		sendgridAPIKey:      apiKey,
+		sendgridTemplateID:  templateID,
+		emailFrom:           emailFrom,
+		testMode:            testMode,
+		paymentMessage:      paymentMessage,
 	}
 }
 

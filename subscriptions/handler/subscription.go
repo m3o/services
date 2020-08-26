@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	mconfig "github.com/micro/micro/v3/service/config"
+
 	merrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/events"
@@ -16,8 +18,6 @@ import (
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	subscription "github.com/m3o/services/subscriptions/proto"
 	"github.com/micro/go-micro/v3/client"
-	log "github.com/micro/go-micro/v3/logger"
-	mconfig "github.com/micro/micro/v3/service/config"
 )
 
 const (
@@ -27,9 +27,13 @@ const (
 	prefixCustomer     = "customer/"
 )
 
+var (
+	additionalUsersPriceID = ""
+	planID                 = ""
+)
+
 type Subscriptions struct {
 	paymentService paymentsproto.ProviderService
-	typeMap        TypeMap
 }
 
 type SubscriptionType struct {
@@ -37,16 +41,18 @@ type SubscriptionType struct {
 	PriceID string
 }
 
-type TypeMap map[string]SubscriptionType
-
 func New(paySvc paymentsproto.ProviderService) *Subscriptions {
-	typeMap := TypeMap{}
-	if err := mconfig.Get("micro", "subscriptions", "types").Scan(&typeMap); err != nil {
-		log.Fatalf("Failed to retrieve subscription type map %s", err)
+	additionalUsersPriceID = mconfig.Get("micro", "signup", "additional_users_price_id").String("")
+	planID = mconfig.Get("micro", "signup", "plan_id").String("")
+	if len(planID) == 0 {
+		logger.Error("No stripe plan id")
 	}
+	if len(additionalUsersPriceID) == 0 {
+		logger.Error("No addition user plan id")
+	}
+
 	return &Subscriptions{
 		paymentService: paySvc,
-		typeMap:        typeMap,
 	}
 }
 
@@ -101,14 +107,10 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		return err
 	}
 
-	subscriptionType, ok := s.typeMap[request.Type]
-	if !ok {
-		return errors.BadRequest("subscriptions.create.subtype", "Subscription type not recognised")
-	}
 	rsp, err := s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
 		CustomerId:   email,
 		CustomerType: "user",
-		PlanId:       subscriptionType.PlanID,
+		PlanId:       planID,
 	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	if err != nil {
 		return err
@@ -144,36 +146,35 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 }
 
 func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUserRequest, response *subscription.AddUserResponse) error {
-	priceID := s.typeMap["developer_additional_user"].PriceID
 	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
 		CustomerId:   request.OwnerID,
 		CustomerType: "user",
-		PriceId:      priceID,
+		PriceId:      additionalUsersPriceID,
 	}, client.WithAuthToken())
 	if err != nil {
-		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding subscription: %v", err)
+		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding sub: %v", err)
 	}
-	var subscription *paymentsproto.Subscription
+	var sub *paymentsproto.Subscription
 	if len(subs.Subscriptions) > 0 {
-		subscription = subs.Subscriptions[0]
+		sub = subs.Subscriptions[0]
 	}
 
-	if subscription == nil {
-		logger.Info("Creating subscription with quantity 1")
+	if sub == nil {
+		logger.Info("Creating sub with quantity 1")
 		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
 			CustomerId:   request.OwnerID,
 			CustomerType: "user",
-			PriceId:      priceID,
+			PriceId:      additionalUsersPriceID,
 			Quantity:     1,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	} else {
-		logger.Info("Increasing subscription quantity")
+		logger.Info("Increasing sub quantity")
 		_, err = s.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
-			SubscriptionId: subscription.Id,
+			SubscriptionId: sub.Id,
 			CustomerId:     request.OwnerID,
 			CustomerType:   "user",
-			PriceId:        priceID,
-			Quantity:       subscription.Quantity + 1,
+			PriceId:        additionalUsersPriceID,
+			Quantity:       sub.Quantity + 1,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	}
 	if err != nil {
