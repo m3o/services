@@ -214,6 +214,14 @@ func (h *Invite) increaseInviteCount(userID string, namespaces []string, emailTo
 
 // Delete an invite
 func (h *Invite) Delete(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+	account, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized(h.name, "Unauthorized request")
+	}
+	if account.Issuer != defaultNamespace {
+		return errors.Unauthorized(h.name, "Unauthorized request")
+	}
+
 	// soft delete by marking as deleted. Note, assumes email was present, doesn't error in case it was never created
 	b, _ := json.Marshal(invite{Email: req.Email, Deleted: true})
 	return mstore.Write(&store.Record{
