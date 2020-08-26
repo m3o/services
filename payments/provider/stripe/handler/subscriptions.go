@@ -16,7 +16,7 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 		return err
 	}
 
-	_, err = h.client.Subscriptions.New(&stripe.SubscriptionParams{
+	sub, err := h.client.Subscriptions.New(&stripe.SubscriptionParams{
 		Customer: stripe.String(id),
 		Items: []*stripe.SubscriptionItemsParams{
 			{
@@ -25,6 +25,7 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 		},
 	})
 	if err == nil {
+		rsp.Subscription = serializeSubscription(sub)
 		return nil
 	}
 

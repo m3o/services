@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package subscription;
+package subscriptions;
 
-option go_package = "proto;subscription";
+option go_package = "proto;subscriptions";
 
-service Subscription {
+service Subscriptions {
 	rpc Create(CreateRequest) returns (CreateResponse) {}
 	rpc Cancel(CancelRequest) returns (CancelResponse) {}
 	rpc List(ListRequest) returns (ListResponse) {}
@@ -13,13 +13,14 @@ service Subscription {
 message CreateRequest {
 	string customerID = 1;
 	string type = 2;
+	string paymentMethodID = 3;
 }
 
 message CreateResponse {
-	SubscriptionMessage subscription = 1;
+	Subscription subscription = 1;
 }
 
-message SubscriptionMessage {
+message Subscription {
 	string id = 1;
 	string customerID = 2;
 	string type = 3;
@@ -33,7 +34,7 @@ message CancelRequest {
 }
 
 message CancelResponse {
-	SubscriptionMessage subscription = 1;
+	Subscription subscription = 1;
 }
 
 message ListRequest {
@@ -41,5 +42,5 @@ message ListRequest {
 }
 
 message ListResponse {
-	repeated SubscriptionMessage subscriptions = 1;
+	repeated Subscription subscriptions = 1;
 }

@@ -69,7 +69,9 @@ message CreateSubscriptionRequest {
   string plan_id = 3;
 }
 
-message CreateSubscriptionResponse {}
+message CreateSubscriptionResponse {
+  Subscription subscription = 1;
+}
 
 message ListSubscriptionsRequest {
   string customer_id = 1;

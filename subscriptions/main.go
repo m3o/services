@@ -1,7 +1,8 @@
 package main
 
 import (
-	"subscription/handler"
+	paymentsproto "github.com/m3o/services/payments/provider/proto"
+	"github.com/m3o/services/subscriptions/handler"
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
@@ -10,12 +11,12 @@ import (
 func main() {
 	// Create service
 	srv := service.New(
-		service.Name("subscription"),
+		service.Name("subscriptions"),
 		service.Version("latest"),
 	)
 
 	// Register handler
-	srv.Handle(new(handler.Subscription))
+	srv.Handle(handler.New(paymentsproto.NewProviderService("payment.stripe", srv.Client())))
 
 	// Run service
 	if err := srv.Run(); err != nil {

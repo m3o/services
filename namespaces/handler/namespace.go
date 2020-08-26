@@ -15,7 +15,6 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	mclient "github.com/micro/micro/v3/service/client"
 	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
 
@@ -34,9 +33,9 @@ type Namespaces struct {
 	platformService plproto.PlatformService
 }
 
-func New() *Namespaces {
+func New(plSvc plproto.PlatformService) *Namespaces {
 	return &Namespaces{
-		platformService: plproto.NewPlatformService("platform", mclient.DefaultClient),
+		platformService: plSvc,
 	}
 }
 
@@ -75,19 +74,19 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 		Users:   request.Owners,
 		Created: time.Now().Unix(),
 	}
-	err := writeNamespace(ns)
+	_, err := n.platformService.CreateNamespace(ctx, &plproto.CreateNamespaceRequest{
+		Name: ns.ID,
+	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+	if err != nil {
+		log.Errorf("Error creating namespace %s", err)
+		return errors.InternalServerError("namespaces.create.creation", "Error creating namespace")
+	}
+	err = writeNamespace(ns)
 	if err != nil {
 		return err
 	}
 	response.Namespace = objToProto(ns)
-	_, err = n.platformService.CreateNamespace(ctx, &plproto.CreateNamespaceRequest{
-		Name: ns.ID,
-	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
-	if err != nil {
-		// TODO rollback the DB writes
-		log.Errorf("Error creating namespace %s", err)
-		return errors.InternalServerError("namespaces.create.creation", "Error creating namespace")
-	}
+
 	return mevents.Publish(nsTopic, NamespaceEvent{Namespace: *ns, Type: "namespaces.created"})
 }
 
