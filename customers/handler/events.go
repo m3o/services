@@ -16,15 +16,23 @@ type CustomerEvent struct {
 func init() {
 	events, err := mevents.Subscribe("subscriptions")
 	if err != nil {
-		logger.Fatalf("Failed to subscribe to payments event stream")
+		logger.Fatalf("Failed to subscribe to payments event stream %s", err)
 	}
 	go processSubscriptionEvents(events)
 	// TODO
 }
 
 type SubscriptionEvent struct {
-	Type       string
+	Type         string
+	Subscription SubscriptionModel
+}
+
+type SubscriptionModel struct {
+	ID         string
 	CustomerID string
+	Type       string
+	Created    int64
+	Expires    int64
 }
 
 func processSubscriptionEvents(ch <-chan events.Event) {
@@ -36,9 +44,9 @@ func processSubscriptionEvents(ch <-chan events.Event) {
 			continue
 		}
 		switch sub.Type {
-		case "subscription.created":
-			if _, err := updateCustomerStatus(sub.CustomerID, statusActive); err != nil {
-				logger.Errorf("Error updating customers status for customers %s. %s", sub.CustomerID, err)
+		case "subscriptions.created":
+			if _, err := updateCustomerStatus(sub.Subscription.CustomerID, statusActive); err != nil {
+				logger.Errorf("Error updating customers status for customers %s. %s", sub.Subscription.CustomerID, err)
 				continue
 			}
 		}
