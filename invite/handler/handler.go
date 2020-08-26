@@ -76,8 +76,12 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 	// When admins invite from "micro", we don't save
 	// the namespace because that would enable users to join the
 	// micro (admin) namespace which  we do not want.
-	if len(req.Namespace) > 0 && (account.Issuer == req.Namespace || account.Issuer == defaultNamespace) {
-		namespaces = append(namespaces, account.Issuer)
+	if len(req.Namespace) > 0 {
+		if account.Issuer == defaultNamespace || account.Issuer == req.Namespace {
+			namespaces = append(namespaces, account.Issuer)
+		} else {
+			return errors.Unauthorized(h.name, "Unauthorized request")
+		}
 	}
 	if account.Issuer != defaultNamespace {
 		err := h.canInvite(account.ID, namespaces)
