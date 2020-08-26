@@ -23,7 +23,8 @@ func init() {
 		if err == nil {
 			break
 		}
-		if time.Since(start) > 2*time.Minute {
+		// TODO fix me
+		if time.Since(start) > 5*time.Minute {
 			logger.Fatalf("Failed to subscribe to subscriptions topic %s", err)
 		}
 		time.Sleep(20 * time.Second)
