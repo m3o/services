@@ -40,8 +40,8 @@ type invite struct {
 func New(srv *service.Service) *Invite {
 	templateID := mconfig.Get("micro", "invite", "sendgrid", "invite_template_id").String("")
 	apiKey := mconfig.Get("micro", "invite", "sendgrid", "api_key").String("")
-	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
-	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
+	emailFrom := mconfig.Get("micro", "invite", "email_from").String("Micro Team <support@micro.mu>")
+	testMode := mconfig.Get("micro", "invite", "test_env").Bool(false)
 
 	return &Invite{
 		name:             srv.Name(),
@@ -85,7 +85,6 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 			return err
 		}
 	}
-	// TODO maybe send an email or something
 	b, _ := json.Marshal(invite{
 		Email:      req.Email,
 		Deleted:    false,
@@ -96,9 +95,12 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 		Key:   req.Email,
 		Value: b,
 	})
-
 	if err != nil {
 		return errors.InternalServerError(h.name, "Failed to save invite %v", err)
+	}
+	err = h.sendEmail(req.Email, h.inviteTemplateID)
+	if err != nil {
+		return errors.InternalServerError(h.name, "Failed to send email: %v", err)
 	}
 
 	if account.Issuer != defaultNamespace {

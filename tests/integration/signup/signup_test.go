@@ -35,24 +35,27 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	envToConfigKey := map[string]string{
-		"MICRO_STRIPE_API_KEY":                   "micro.payments.stripe.api_key",
-		"MICRO_SENDGRID_API_KEY":                 "micro.signup.sendgrid.api_key",
-		"MICRO_SENDGRID_TEMPLATE_ID":             "micro.signup.sendgrid.template_id",
-		"MICRO_STRIPE_PLAN_ID":                   "micro.signup.plan_id",
-		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID": "micro.signup.additional_users_price_id",
-		"MICRO_EMAIL_FROM":                       "micro.signup.email_from",
-		"MICRO_TEST_ENV":                         "micro.signup.test_env",
+	envToConfigKey := map[string][]string{
+		"MICRO_STRIPE_API_KEY":                   {"micro.payments.stripe.api_key"},
+		"MICRO_SENDGRID_API_KEY":                 {"micro.signup.sendgrid.api_key", "micro.invite.sendgrid.api_key"},
+		"MICRO_SENDGRID_TEMPLATE_ID":             {"micro.signup.sendgrid.template_id"},
+		"MICRO_SENDGRID_INVITE_TEMPLATE_ID":      {"micro.invite.sendgrid.invite_template_id"},
+		"MICRO_STRIPE_PLAN_ID":                   {"micro.signup.plan_id"},
+		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID": {"micro.signup.additional_users_price_id"},
+		"MICRO_EMAIL_FROM":                       {"micro.signup.email_from"},
+		"MICRO_TEST_ENV":                         {"micro.signup.test_env"},
 	}
 
-	for envKey, configKey := range envToConfigKey {
+	for envKey, configKeys := range envToConfigKey {
 		val := os.Getenv(envKey)
 		if len(val) == 0 {
 			t.Fatalf("'%v' flag is missing", envKey)
 		}
-		outp, err := serv.Command().Exec("config", "set", configKey, val)
-		if err != nil {
-			t.Fatal(string(outp))
+		for _, configKey := range configKeys {
+			outp, err := serv.Command().Exec("config", "set", configKey, val)
+			if err != nil {
+				t.Fatal(string(outp))
+			}
 		}
 	}
 
