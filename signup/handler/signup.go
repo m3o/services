@@ -32,6 +32,7 @@ import (
 const (
 	storePrefixAccountSecrets = "secrets/"
 	storePrefixNamesapce      = "namespaces/"
+	storePrefixOwner          = "owner/"
 	expiryDuration            = 5 * time.Minute
 )
 
@@ -47,10 +48,13 @@ type Signup struct {
 	auth               auth.Auth
 	sendgridTemplateID string
 	sendgridAPIKey     string
-	planID             string
-	emailFrom          string
-	paymentMessage     string
-	testMode           bool
+	// M3O Platform Subscription plan id
+	planID string
+	// M3O Addition Users plan id
+	additionUsersPriceID string
+	emailFrom            string
+	paymentMessage       string
+	testMode             bool
 }
 
 var (
@@ -66,6 +70,7 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
 	planID := mconfig.Get("micro", "signup", "plan_id").String("")
+	additionUsersPriceID := mconfig.Get("micro", "signup", "additional_users_price_id").String("")
 	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
@@ -79,17 +84,21 @@ func NewSignup(paymentService paymentsproto.ProviderService,
 	if len(planID) == 0 {
 		logger.Error("No stripe plan id")
 	}
+	if len(additionUsersPriceID) == 0 {
+		logger.Error("No addition user plan id")
+	}
 	return &Signup{
-		paymentService:     paymentService,
-		inviteService:      inviteService,
-		platformService:    platformService,
-		auth:               auth,
-		sendgridAPIKey:     apiKey,
-		sendgridTemplateID: templateID,
-		planID:             planID,
-		emailFrom:          emailFrom,
-		testMode:           testMode,
-		paymentMessage:     paymentMessage,
+		paymentService:       paymentService,
+		inviteService:        inviteService,
+		platformService:      platformService,
+		auth:                 auth,
+		sendgridAPIKey:       apiKey,
+		sendgridTemplateID:   templateID,
+		planID:               planID,
+		additionUsersPriceID: additionUsersPriceID,
+		emailFrom:            emailFrom,
+		testMode:             testMode,
+		paymentMessage:       paymentMessage,
 	}
 }
 
@@ -128,7 +137,8 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
-	if !e.isAllowedToSignup(ctx, req.Email) {
+	_, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	if !isAllowed {
 		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
 	}
 
@@ -162,15 +172,17 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func (e *Signup) isAllowedToSignup(ctx context.Context, email string) bool {
+func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string, bool) {
 	// for now we're checking the invite service before allowing signup
 	// TODO check for a valid invite code rather than just the email
-	_, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email}, client.WithAuthToken())
-	return err == nil
+	rsp, err := e.inviteService.Validate(ctx, &inviteproto.ValidateRequest{Email: email}, client.WithAuthToken())
+	if err != nil {
+		return nil, false
+	}
+	return rsp.Namespaces, true
 }
 
 // Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187
@@ -264,7 +276,17 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 			},
 		},
 	}, client.WithAuthToken())
-	return err
+	if err != nil {
+		return err
+	}
+
+	// At this point the user should be allowed, only making this call to return namespaces
+	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	if !isAllowed {
+		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
+	}
+	rsp.Namespaces = namespaces
+	return nil
 }
 
 func (e *Signup) getNamespace(email string) (string, error) {
@@ -281,8 +303,32 @@ func (e *Signup) saveNamespace(email, namespace string) error {
 	return mstore.Write(&store.Record{Key: key, Value: []byte(namespace)})
 }
 
+func (e *Signup) getOwner(namespace string) (string, error) {
+	key := storePrefixOwner + namespace
+	recs, err := mstore.Read(key)
+	if err != nil {
+		return "", err
+	}
+	return string(recs[0].Value), nil
+}
+
+func (e *Signup) saveOwner(email, namespace string) error {
+	key := storePrefixOwner + namespace
+	return mstore.Write(&store.Record{Key: key, Value: []byte(email)})
+}
+
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
+
+	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
+	if !isAllowed {
+		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
+	}
+	ns := ""
+	isJoining := len(namespaces) > 0 && len(req.Namespace) > 0 && namespaces[0] == req.Namespace
+	if isJoining {
+		ns = namespaces[0]
+	}
 
 	recs, err := mstore.Read(req.Email)
 	if err == store.ErrNotFound {
@@ -299,32 +345,90 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		return errors.New("invalid token")
 	}
 
-	_, err = e.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
-		CustomerId:   req.Email,
-		CustomerType: "user",
-		Id:           req.PaymentMethodID,
-	}, client.WithAuthToken())
+	if isJoining {
+		ownerEmail, err := e.getOwner(ns)
+		if err != nil {
+			return err
+		}
+		subs, err := e.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
+			CustomerId:   ownerEmail,
+			CustomerType: "user",
+		}, client.WithAuthToken())
+		if err != nil {
+			return merrors.InternalServerError("signup", "Error listing subscriptions: %v", err)
+		}
+		var subscription *paymentsproto.Subscription
+		for _, sub := range subs.Subscriptions {
+			if sub.Plan.Id == e.additionUsersPriceID {
+				subscription = sub
+			}
+		}
+		if subscription == nil {
+			logger.Info("Creating subscription with quantity 1")
+			_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+				CustomerId:   ownerEmail,
+				CustomerType: "user",
+				PriceId:      e.additionUsersPriceID,
+				Quantity:     1,
+			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+		} else {
+			logger.Info("Increasing subscription quantity")
+			_, err = e.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
+				SubscriptionId: subscription.Id,
+				CustomerId:     ownerEmail,
+				CustomerType:   "user",
+				PriceId:        e.additionUsersPriceID,
+				Quantity:       subscription.Quantity + 1,
+			}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+		}
+		if err != nil {
+			return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
+		}
+	} else {
+		_, err = e.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
+			CustomerId:   req.Email,
+			CustomerType: "user",
+			Id:           req.PaymentMethodID,
+		}, client.WithAuthToken())
+		if err != nil {
+			return err
+		}
+
+		_, err = e.paymentService.SetDefaultPaymentMethod(ctx, &paymentsproto.SetDefaultPaymentMethodRequest{
+			CustomerId:      req.Email,
+			CustomerType:    "user",
+			PaymentMethodId: req.PaymentMethodID,
+		}, client.WithAuthToken())
+		if err != nil {
+			return err
+		}
+
+		_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+			Quantity:     1,
+			CustomerId:   req.Email,
+			CustomerType: "user",
+			PlanId:       e.planID,
+		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+		if err != nil {
+			return err
+		}
+
+		var err error
+		ns, err = e.createNamespace(ctx)
+		if err != nil {
+			return err
+		}
+		err = e.saveOwner(req.Email, ns)
+		if err != nil {
+			return err
+		}
+	}
+	err = e.saveNamespace(req.Email, ns)
 	if err != nil {
 		return err
 	}
 
-	_, err = e.paymentService.SetDefaultPaymentMethod(ctx, &paymentsproto.SetDefaultPaymentMethodRequest{
-		CustomerId:      req.Email,
-		CustomerType:    "user",
-		PaymentMethodId: req.PaymentMethodID,
-	}, client.WithAuthToken())
-	if err != nil {
-		return err
-	}
-
-	_, err = e.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-		CustomerId:   req.Email,
-		CustomerType: "user",
-		PlanId:       e.planID,
-	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
-	if err != nil {
-		return err
-	}
+	rsp.Namespace = ns
 
 	// take secret from the request
 	secret := req.Secret
@@ -333,17 +437,6 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-
-	ns, err := e.createNamespace(ctx)
-	if err != nil {
-		return err
-	}
-	err = e.saveNamespace(req.Email, ns)
-	if err != nil {
-		return err
-	}
-	rsp.Namespace = ns
-
 	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.WithIssuer(ns))
 	if err != nil {
 		return err

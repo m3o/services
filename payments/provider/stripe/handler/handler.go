@@ -10,7 +10,7 @@ import (
 	"github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
 
-	"github.com/stripe/stripe-go/client"
+	"github.com/stripe/stripe-go/v71/client"
 )
 
 // Provider implements the payments provider interface for stripe

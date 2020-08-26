@@ -6,7 +6,7 @@ import (
 	pb "github.com/m3o/services/payments/provider/proto"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
-	stripe "github.com/stripe/stripe-go"
+	stripe "github.com/stripe/stripe-go/v71"
 )
 
 // CreateSubscription via the Stripe API, e.g. "Subscribe John Doe to Notes Gold"
@@ -16,12 +16,19 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 		return err
 	}
 
+	itemParam := &stripe.SubscriptionItemsParams{
+		Quantity: stripe.Int64(req.Quantity),
+	}
+	if len(req.PlanId) > 0 {
+		itemParam.Plan = stripe.String(req.PlanId)
+	}
+	if len(req.PriceId) > 0 {
+		itemParam.Price = stripe.String(req.PriceId)
+	}
 	sub, err := h.client.Subscriptions.New(&stripe.SubscriptionParams{
 		Customer: stripe.String(id),
 		Items: []*stripe.SubscriptionItemsParams{
-			{
-				Plan: stripe.String(req.PlanId),
-			},
+			itemParam,
 		},
 	})
 	if err == nil {
@@ -40,12 +47,15 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 }
 
 func (h *Provider) ListSubscriptions(ctx context.Context, req *pb.ListSubscriptionsRequest, rsp *pb.ListSubscriptionsResponse) error {
-	id, err := h.getStripeIDForCustomer(req.CustomerId, req.CustomerType)
+	id, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {
 		return err
 	}
-
-	iter := h.client.Subscriptions.List(&stripe.SubscriptionListParams{Customer: id, Plan: req.PlanId})
+	iter := h.client.Subscriptions.List(&stripe.SubscriptionListParams{
+		Customer: id,
+		Plan:     req.PlanId,
+		Price:    req.PriceId,
+	})
 	if iter.Err() != nil {
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", iter.Err())
 	}
@@ -64,6 +74,26 @@ func (h *Provider) ListSubscriptions(ctx context.Context, req *pb.ListSubscripti
 	return nil
 }
 
+// Update subscription quantity
+func (h *Provider) UpdateSubscription(ctx context.Context, req *pb.UpdateSubscriptionRequest, rsp *pb.UpdateSubscriptionResponse) error {
+	_, err := h.client.Subscriptions.Update(req.SubscriptionId, &stripe.SubscriptionParams{
+		Quantity:          stripe.Int64(req.Quantity),
+		ProrationBehavior: stripe.String("always_invoice"),
+	})
+	if err == nil {
+		return nil
+	}
+
+	// Handle the error
+	switch err.(*stripe.Error).Code {
+	case stripe.ErrorCodeParameterInvalidEmpty:
+		logger.Errorf("Error updating subscription: %v", err)
+		return errors.BadRequest("payment.stripe", "missing arguments")
+	default:
+		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
+	}
+}
+
 func serializeSubscription(pm *stripe.Subscription) *pb.Subscription {
 	rsp := &pb.Subscription{
 		Id: pm.ID,
@@ -80,6 +110,7 @@ func serializeSubscription(pm *stripe.Subscription) *pb.Subscription {
 	if plan != nil && plan.Product != nil {
 		rsp.Product = serializeProduct(plan.Product)
 	}
+	rsp.Quantity = pm.Items.Data[0].Quantity
 
 	return rsp
 }

@@ -8,6 +8,8 @@ service Provider {
   rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
   rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
+  // UpdateSubscription is curretly used to update the quantity of a subscription.
+  rpc UpdateSubscription(UpdateSubscriptionRequest) returns (UpdateSubscriptionResponse);
   rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
   rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
   rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse);
@@ -66,23 +68,40 @@ message CreateCustomerResponse {}
 message CreateSubscriptionRequest {
   string customer_id = 1;
   string customer_type = 2;
+  // plans and prices are mutually exclusive
   string plan_id = 3;
+  string price_id = 4;
+  // price quantity
+  int64 quantity = 5;
 }
 
 message CreateSubscriptionResponse {
   Subscription subscription = 1;
 }
 
+message UpdateSubscriptionRequest {
+  string subscription_id = 1;
+  string customer_id = 2;
+  string customer_type = 3;
+  string plan_id = 4;
+  string price_id = 5;
+  int64 quantity = 6;
+}
+
+message UpdateSubscriptionResponse{}
+
 message ListSubscriptionsRequest {
   string customer_id = 1;
   string customer_type = 2;
   string plan_id = 3;
+  string price_id = 4;
 }
 
 message Subscription {
   string id = 1;
   Plan plan = 2;
   Product product = 3;
+  int64 quantity = 4;
 }
 
 message ListSubscriptionsResponse {

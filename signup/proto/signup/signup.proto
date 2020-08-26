@@ -15,8 +15,7 @@ message SendVerificationEmailRequest {
 	string email = 1;
 }
 
-message SendVerificationEmailResponse {
-}
+message SendVerificationEmailResponse {}
 
 message VerifyRequest {
 	string email = 1;
@@ -36,11 +35,15 @@ message VerifyResponse {
 	// @todo this is likely not needed
 	string customerID = 2;
 	// Namespace to use
+	// @todod deprecated since we no longer support OTP logins
 	string namespace = 3;
 	// Message to display to the user
 	string message = 4;
 	// Whether payment is required or not
 	bool payment_required = 5;
+	// Namespaces one has access to based on previous invites
+	// Currently only 1 is supported
+	repeated string namespaces = 6;
 }
 
 
@@ -52,6 +55,8 @@ message CompleteSignupRequest {
 	string paymentMethodID = 3;
 	// The secret/password to use for the account
 	string secret = 4;
+	// Which namespace to sign up to based on previous invite
+	string namespace = 5;
 }
 
 message CompleteSignupResponse {
