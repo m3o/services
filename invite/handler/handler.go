@@ -1,15 +1,21 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"path"
 
 	pb "github.com/m3o/services/invite/proto"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
+	merrors "github.com/micro/go-micro/v3/errors"
+	logger "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
+	mconfig "github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
@@ -30,20 +36,29 @@ type invite struct {
 	Namespaces []string
 }
 
-type inviteCount struct {
-	Count int
-}
-
 // New returns an initialised handler
 func New(srv *service.Service) *Invite {
+	templateID := mconfig.Get("micro", "invite", "sendgrid", "invite_template_id").String("")
+	apiKey := mconfig.Get("micro", "invite", "sendgrid", "api_key").String("")
+	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
+	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
+
 	return &Invite{
-		name: srv.Name(),
+		name:             srv.Name(),
+		inviteTemplateID: templateID,
+		sendgridAPIKey:   apiKey,
+		emailFrom:        emailFrom,
+		testMode:         testMode,
 	}
 }
 
 // Invite implements the invite service inteface
 type Invite struct {
-	name string
+	name             string
+	inviteTemplateID string
+	sendgridAPIKey   string
+	emailFrom        string
+	testMode         bool
 }
 
 // Invite a user
@@ -81,12 +96,66 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 		Key:   req.Email,
 		Value: b,
 	})
+
 	if err != nil {
 		return errors.InternalServerError(h.name, "Failed to save invite %v", err)
 	}
 
 	if account.Issuer != defaultNamespace {
-		return h.increaseInviteCount(account.ID, namespaces)
+		return h.increaseInviteCount(account.ID, namespaces, req.Email)
+	}
+	return nil
+}
+
+func (e *Invite) sendEmail(email, token string) error {
+	logger.Infof("Sending email to address '%v'", email)
+
+	reqBody, _ := json.Marshal(map[string]interface{}{
+		"template_id": e.inviteTemplateID,
+		"from": map[string]string{
+			"email": e.emailFrom,
+		},
+		"personalizations": []interface{}{
+			map[string]interface{}{
+				"to": []map[string]string{
+					{
+						"email": email,
+					},
+				},
+				"dynamic_template_data": map[string]string{
+					"token": token,
+				},
+			},
+		},
+		"mail_settings": map[string]interface{}{
+			"sandbox_mode": map[string]bool{
+				"enable": e.testMode,
+			},
+		},
+	})
+
+	req, err := http.NewRequest("POST", "https://api.sendgrid.com/v3/mail/send", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+e.sendgridAPIKey)
+	req.Header.Set("Content-Type", "application/json")
+	rsp, err := new(http.Client).Do(req)
+	if err != nil {
+		logger.Infof("Could not send email to %v, error: %v", email, err)
+		return err
+	}
+	defer rsp.Body.Close()
+
+	if rsp.StatusCode < 200 || rsp.StatusCode > 299 {
+		bytes, err := ioutil.ReadAll(rsp.Body)
+		if err != nil {
+			logger.Errorf("Could not send email to %v, error: %v", email, err.Error())
+			return err
+		}
+		logger.Errorf("Could not send email to %v, error: %v", email, string(bytes))
+		return merrors.InternalServerError("signup.sendemail", "error sending email")
 	}
 	return nil
 }
@@ -95,17 +164,11 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 // || does namespace have more than 5 invite
 // -> { forbidden }
 func (h *Invite) canInvite(userID string, namespaces []string) error {
-	userCounts, err := mstore.Read(path.Join(userCountPrefix, userID))
+	userCounts, err := mstore.Read(path.Join(userCountPrefix, userID), store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {
 		return errors.InternalServerError(h.name, "can't read user invite count")
 	}
-	userCount := &inviteCount{}
-	if err == nil {
-		if err := json.Unmarshal(userCounts[0].Value, userCount); err != nil {
-			return err
-		}
-	}
-	if userCount.Count >= maxUserInvites {
+	if len(userCounts) >= maxUserInvites {
 		return errors.BadRequest(h.name, "user invite limit reached")
 	}
 
@@ -113,39 +176,21 @@ func (h *Invite) canInvite(userID string, namespaces []string) error {
 		return nil
 	}
 
-	namespaceCounts, err := mstore.Read(path.Join(namespaceCountPrefix, userID))
+	namespaceCounts, err := mstore.Read(path.Join(namespaceCountPrefix, userID), store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {
 		return errors.BadRequest(h.name, "can''t read namespace invite count")
 	}
-	namespaceCount := &inviteCount{}
-	if err == nil {
-		if err := json.Unmarshal(namespaceCounts[0].Value, userCount); err != nil {
-			return err
-		}
-	}
-	if namespaceCount.Count > maxNamespaceInvites {
+	if len(namespaceCounts) >= maxNamespaceInvites {
 		return errors.BadRequest(h.name, "user invite limit reached")
 	}
 
 	return nil
 }
 
-func (h *Invite) increaseInviteCount(userID string, namespaces []string) error {
-	userCounts, err := mstore.Read(path.Join(userCountPrefix, userID))
-	if err != nil && err != store.ErrNotFound {
-		return errors.InternalServerError(h.name, "can't read user invite count")
-	}
-	userCount := &inviteCount{}
-	if err == nil {
-		if err := json.Unmarshal(userCounts[0].Value, userCount); err != nil {
-			return err
-		}
-	}
-	userCount.Count++
-	b, _ := json.Marshal(userCount)
-	err = mstore.Write(&store.Record{
-		Key:   path.Join(userCountPrefix, userID),
-		Value: b,
+func (h *Invite) increaseInviteCount(userID string, namespaces []string, emailToBeInvited string) error {
+	err := mstore.Write(&store.Record{
+		Key:   path.Join(userCountPrefix, userID, emailToBeInvited),
+		Value: nil,
 	})
 	if err != nil {
 		return errors.InternalServerError(h.name, "can't increase user invite count: %v", err)
@@ -155,21 +200,9 @@ func (h *Invite) increaseInviteCount(userID string, namespaces []string) error {
 		return nil
 	}
 
-	namespaceCounts, err := mstore.Read(path.Join(namespaceCountPrefix, userID))
-	if err != nil && err != store.ErrNotFound {
-		return errors.BadRequest(h.name, "can''t read namespace invite count")
-	}
-	namespaceCount := &inviteCount{}
-	if err == nil {
-		if err := json.Unmarshal(namespaceCounts[0].Value, userCount); err != nil {
-			return err
-		}
-	}
-	namespaceCount.Count++
-	b, _ = json.Marshal(namespaceCount)
 	err = mstore.Write(&store.Record{
-		Key:   path.Join(namespaceCountPrefix, namespaces[0]),
-		Value: b,
+		Key:   path.Join(namespaceCountPrefix, namespaces[0], emailToBeInvited),
+		Value: nil,
 	})
 	if err != nil {
 		return errors.InternalServerError(h.name, "can't increase namespace invite count: %v", err)
