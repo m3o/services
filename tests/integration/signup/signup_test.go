@@ -22,8 +22,8 @@ const (
 	signupSuccessString = "Signup complete"
 )
 
-func TestM3oSignupFlow(t *testing.T) {
-	test.TrySuite(t, testM3oSignupFlow, retryCount)
+func TestSignupFlow(t *testing.T) {
+	test.TrySuite(t, testSignupFlow, retryCount)
 }
 
 func setupM3Tests(serv test.Server, t *test.T) {
@@ -85,9 +85,32 @@ func setupM3Tests(serv test.Server, t *test.T) {
 	// setup rules
 
 	// Adjust rules before we signup into a non admin account
-	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:*\"", "invitecreatepublic")
+	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:*\"", "invite")
 	if err != nil {
 		t.Fatalf("Error setting up rules: %v", err)
+		return
+	}
+
+	// Adjust rules before we signup into a non admin account
+	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:signup:*\"", "signup")
+	if err != nil {
+		t.Fatalf("Error setting up rules: %v", err)
+		return
+	}
+
+	// Adjust rules before we signup into a non admin account
+	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:auth:*\"", "auth")
+	if err != nil {
+		t.Fatalf("Error setting up rules: %v", err)
+		return
+	}
+
+	// copy the config with the admin logged in so we can use it for reading logs
+	// we dont want to have an open access rule for logs as it's not how it works in live
+	confPath := serv.Command().Config
+	outp, err = exec.Command("cp", "-rf", confPath, confPath+".admin").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error copying config: %v", err)
 		return
 	}
 }
@@ -106,7 +129,7 @@ func logout(serv test.Server, t *test.T) {
 	}
 }
 
-func testM3oSignupFlow(t *test.T) {
+func testSignupFlow(t *test.T) {
 	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
@@ -157,6 +180,9 @@ func testM3oSignupFlow(t *test.T) {
 	test.Try("Send invite", t, func() ([]byte, error) {
 		return serv.Command().Exec("invite", "user", "--email="+email)
 	}, 5*time.Second)
+
+	// Log out of the admin account to start testing signups
+	logout(serv, t)
 
 	password := "PassWord1@"
 	signup(serv, t, email, password, false, false)
@@ -211,14 +237,6 @@ func testM3oSignupFlow(t *test.T) {
 
 	logout(serv, t)
 
-	// @todo: only needed because of logging endpoint etc not being open by default.
-	// should create open rules instead
-	err = test.Login(serv, t, "admin", "micro")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
 	signup(serv, t, newEmail, password, true, true)
 	if t.Failed() {
 		return
@@ -238,14 +256,6 @@ func testM3oSignupFlow(t *test.T) {
 
 	logout(serv, t)
 
-	// @todo: only needed because of logging endpoint etc not being open by default.
-	// should create open rules instead
-	err = test.Login(serv, t, "admin", "micro")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
 	signup(serv, t, newEmail2, password, true, true)
 	if t.Failed() {
 		return
@@ -264,9 +274,54 @@ func testM3oSignupFlow(t *test.T) {
 	t.T().Logf("Namespace joined: %v", string(outp))
 }
 
-func signup(serv test.Server, t *test.T, email, password string, isInvited, shouldJoin bool) {
+func TestAdminInvites(t *testing.T) {
+	test.TrySuite(t, testAdminInvites, retryCount)
+}
+
+func testAdminInvites(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := "dobronszki@gmail.com"
+	password := "PassWord1@"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	time.Sleep(2 * time.Second)
+
+	logout(serv, t)
+
+	signup(serv, t, email, password, false, false)
+
+	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	ns := strings.TrimSpace(string(outp))
+	if ns == "micro" {
+		t.Fatal("SECURITY FLAW: invited user ended up in micro namespace")
+	}
+	if strings.Count(ns, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	t.T().Logf("Namespace joined: %v", string(outp))
+}
+
+func signup(serv test.Server, t *test.T, email, password string, isInvitedToNamespace, shouldJoin bool) {
 	envFlag := "-e=" + serv.Env()
 	confFlag := "-c=" + serv.Command().Config
+	adminConfFlag := "-c=" + serv.Command().Config + ".admin"
 
 	cmd := exec.Command("micro", envFlag, confFlag, "signup", "--password", password)
 	stdin, err := cmd.StdinPipe()
@@ -306,7 +361,7 @@ func signup(serv test.Server, t *test.T, email, password string, isInvited, shou
 
 	t.Log("looking for code now", email)
 	if err := test.Try("Find latest verification token in logs", t, func() ([]byte, error) {
-		outp, err := serv.Command().Exec("logs", "-n", "300", "signup")
+		outp, err := exec.Command("micro", envFlag, adminConfFlag, "logs", "-n", "300", "signup").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -343,7 +398,7 @@ func signup(serv test.Server, t *test.T, email, password string, isInvited, shou
 		return
 	}
 
-	if isInvited {
+	if isInvitedToNamespace {
 		time.Sleep(3 * time.Second)
 		answer := "own"
 		if shouldJoin {
