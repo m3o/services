@@ -26,15 +26,7 @@ func TestM3oSignupFlow(t *testing.T) {
 	test.TrySuite(t, testM3oSignupFlow, retryCount)
 }
 
-func testM3oSignupFlow(t *test.T) {
-	t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
+func setupM3Tests(serv test.Server, t *test.T) {
 	envToConfigKey := map[string][]string{
 		"MICRO_STRIPE_API_KEY":                   {"micro.payments.stripe.api_key"},
 		"MICRO_SENDGRID_API_KEY":                 {"micro.signup.sendgrid.api_key", "micro.invite.sendgrid.api_key"},
@@ -77,7 +69,7 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	if err := test.Try("Find signup and stripe in list", t, func() ([]byte, error) {
+	if err := test.Try("Find signup, invite and stripe in list", t, func() ([]byte, error) {
 		outp, err := serv.Command().Exec("services")
 		if err != nil {
 			return outp, err
@@ -89,6 +81,18 @@ func testM3oSignupFlow(t *test.T) {
 	}, 180*time.Second); err != nil {
 		return
 	}
+}
+
+func testM3oSignupFlow(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
 
 	// flags
 	envFlag := "-e=" + serv.Env()
