@@ -81,6 +81,29 @@ func setupM3Tests(serv test.Server, t *test.T) {
 	}, 180*time.Second); err != nil {
 		return
 	}
+
+	// setup rules
+
+	// Adjust rules before we signup into a non admin account
+	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:*\"", "invitecreatepublic")
+	if err != nil {
+		t.Fatalf("Error setting up rules: %v", err)
+		return
+	}
+}
+
+func logout(serv test.Server, t *test.T) {
+	// Log out and switch namespace back to micro
+	outp, err := serv.Command().Exec("user", "config", "set", "micro.auth."+serv.Env())
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	outp, err = serv.Command().Exec("user", "config", "set", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
 }
 
 func testM3oSignupFlow(t *test.T) {
@@ -135,19 +158,12 @@ func testM3oSignupFlow(t *test.T) {
 		return serv.Command().Exec("invite", "user", "--email="+email)
 	}, 5*time.Second)
 
-	// Adjust rules before we signup into a non admin account
-	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:create\"", "invitecreatepublic")
-	if err != nil {
-		t.Fatalf("Error setting up rules: %v", err)
-		return
-	}
-
 	password := "PassWord1@"
 	signup(serv, t, email, password, false, false)
 	if t.Failed() {
 		return
 	}
-	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
 		t.Fatalf("Error getting namespace: %v", err)
 		return
@@ -193,17 +209,8 @@ func testM3oSignupFlow(t *test.T) {
 		return
 	}
 
-	// Log out and switch namespace back to micro
-	outp, err = serv.Command().Exec("user", "config", "set", "micro.auth."+serv.Env())
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	outp, err = serv.Command().Exec("user", "config", "set", "namespaces."+serv.Env()+".current")
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
+	logout(serv, t)
+
 	// @todo: only needed because of logging endpoint etc not being open by default.
 	// should create open rules instead
 	err = test.Login(serv, t, "admin", "micro")
@@ -229,17 +236,8 @@ func testM3oSignupFlow(t *test.T) {
 
 	t.T().Logf("Namespace joined: %v", string(outp))
 
-	// Log out and switch namespace back to micro
-	outp, err = serv.Command().Exec("user", "config", "set", "micro.auth."+serv.Env())
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	outp, err = serv.Command().Exec("user", "config", "set", "namespaces."+serv.Env()+".current")
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
+	logout(serv, t)
+
 	// @todo: only needed because of logging endpoint etc not being open by default.
 	// should create open rules instead
 	err = test.Login(serv, t, "admin", "micro")
