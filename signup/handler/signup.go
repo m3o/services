@@ -178,8 +178,11 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
 func (e *Signup) sendEmail(email, token string) error {
+	if e.testMode {
+		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
+		return nil
+	}
 	logger.Infof("Sending email to address '%v'", email)
-
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": e.sendgridTemplateID,
 		"from": map[string]string{
