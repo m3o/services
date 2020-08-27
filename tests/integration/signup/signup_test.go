@@ -387,6 +387,130 @@ func testUserInviteLimit(t *test.T) {
 	}
 }
 
+func TestUserInviteNoJoin(t *testing.T) {
+	test.TrySuite(t, testUserInviteNoJoin, retryCount)
+}
+
+func testUserInviteNoJoin(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := "dobronszki@gmail.com"
+	password := "PassWord1@"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	logout(serv, t)
+
+	signup(serv, t, email, password, false, false)
+
+	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	ns := strings.TrimSpace(string(outp))
+	if strings.Count(ns, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	newEmail := "dobronszki+1@gmail.com"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+newEmail)
+	}, 5*time.Second)
+
+	logout(serv, t)
+
+	signup(serv, t, newEmail, password, false, false)
+
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	newNs := strings.TrimSpace(string(outp))
+	if strings.Count(newNs, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	if ns == newNs {
+		t.Fatal("User should not have joined invitees namespace")
+	}
+}
+
+func TestUserInviteJoinDecline(t *testing.T) {
+	test.TrySuite(t, testUserInviteJoinDecline, retryCount)
+}
+
+func testUserInviteJoinDecline(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := "dobronszki@gmail.com"
+	password := "PassWord1@"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	logout(serv, t)
+
+	signup(serv, t, email, password, false, false)
+
+	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	ns := strings.TrimSpace(string(outp))
+	if strings.Count(ns, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	newEmail := "dobronszki+1@gmail.com"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace="+ns)
+	}, 5*time.Second)
+
+	logout(serv, t)
+
+	signup(serv, t, newEmail, password, true, false)
+
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	newNs := strings.TrimSpace(string(outp))
+	if strings.Count(newNs, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	if ns == newNs {
+		t.Fatal("User should not have joined invitees namespace")
+	}
+}
+
 func signup(serv test.Server, t *test.T, email, password string, isInvitedToNamespace, shouldJoin bool) {
 	envFlag := "-e=" + serv.Env()
 	confFlag := "-c=" + serv.Command().Config
