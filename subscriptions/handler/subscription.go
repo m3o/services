@@ -5,18 +5,20 @@ import (
 	"encoding/json"
 	"time"
 
-	mconfig "github.com/micro/micro/v3/service/config"
-
-	merrors "github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v3/service/logger"
-	mstore "github.com/micro/micro/v3/service/store"
-
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/google/uuid"
 
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	subscription "github.com/m3o/services/subscriptions/proto"
 	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/errors"
+	merrors "github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/events"
+	"github.com/micro/go-micro/v3/store"
+	mconfig "github.com/micro/micro/v3/service/config"
+	mcontext "github.com/micro/micro/v3/service/context"
+	eventsproto "github.com/micro/micro/v3/service/events/proto"
+	"github.com/micro/micro/v3/service/logger"
+	mstore "github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -33,6 +35,7 @@ var (
 
 type Subscriptions struct {
 	paymentService paymentsproto.ProviderService
+	streamService  eventsproto.StreamService
 }
 
 type SubscriptionType struct {
@@ -40,7 +43,7 @@ type SubscriptionType struct {
 	PriceID string
 }
 
-func New(paySvc paymentsproto.ProviderService) *Subscriptions {
+func New(paySvc paymentsproto.ProviderService, streamService eventsproto.StreamService) *Subscriptions {
 	additionalUsersPriceID = mconfig.Get("micro", "signup", "additional_users_price_id").String("")
 	planID = mconfig.Get("micro", "signup", "plan_id").String("")
 	if len(planID) == 0 {
@@ -52,18 +55,26 @@ func New(paySvc paymentsproto.ProviderService) *Subscriptions {
 
 	return &Subscriptions{
 		paymentService: paySvc,
+		streamService:  streamService,
 	}
 }
 
-type SubscriptionModel struct {
-	ID         string
-	CustomerID string
-	Type       string
-	Created    int64
-	Expires    int64
+type Subscription struct {
+	// ID in this service
+	ID string
+	// ID in the payment service
+	PaymentSubscriptionID string
+	CustomerID            string
+	// developer, additional
+	Type    string
+	Created int64
+	// If this sub has been cancelled this represents the end date
+	Expires int64
+	// If this subscription is paid for by another subscription, this is populated with the ID of the paying sybscription
+	ParentSubscriptionID string
 }
 
-func objToProto(sub *SubscriptionModel) *subscription.Subscription {
+func objToProto(sub *Subscription) *subscription.Subscription {
 	return &subscription.Subscription{
 		CustomerID: sub.CustomerID,
 		Created:    sub.Created,
@@ -114,12 +125,21 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	if err != nil {
 		return err
 	}
-	sub := &SubscriptionModel{
-		Type:       request.Type,
-		CustomerID: email,
-		Created:    time.Now().Unix(),
-		ID:         rsp.Subscription.Id,
+	sub := &Subscription{
+		Type:                  request.Type,
+		CustomerID:            email,
+		Created:               time.Now().Unix(),
+		ID:                    uuid.New().String(),
+		PaymentSubscriptionID: rsp.Subscription.Id,
 	}
+	if err := s.writeSubscription(sub); err != nil {
+		return err
+	}
+	response.Subscription = objToProto(sub)
+	return s.eventPublish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
+}
+
+func (s Subscriptions) writeSubscription(sub *Subscription) error {
 	b, err := json.Marshal(sub)
 	if err != nil {
 		return err
@@ -136,8 +156,6 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	}); err != nil {
 		return err
 	}
-	response.Subscription = objToProto(sub)
-	//return events.Publish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
 	return nil
 }
 
@@ -180,5 +198,67 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 	if err != nil {
 		return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
 	}
-	return nil
+
+	recs, err := mstore.Read(prefixCustomer+request.OwnerID, store.ReadPrefix())
+	if err != nil {
+		return err
+	}
+
+	// we assume a user only has one subscription right now
+	parentSub := &Subscription{}
+	if err := json.Unmarshal(recs[0].Value, parentSub); err != nil {
+		return err
+	}
+
+	subscription := &Subscription{
+		Type:                  "additional",
+		CustomerID:            request.NewUserID,
+		Created:               time.Now().Unix(),
+		ID:                    uuid.New().String(),
+		ParentSubscriptionID:  parentSub.ID,
+		PaymentSubscriptionID: parentSub.PaymentSubscriptionID,
+	}
+
+	if err := s.writeSubscription(subscription); err != nil {
+		return err
+	}
+
+	return s.eventPublish(subscriptionTopic,
+		SubscriptionEvent{Subscription: *subscription, Type: "subscriptions.created"},
+		events.WithMetadata(map[string]string{"user": request.NewUserID}),
+	)
+
+}
+
+// TODO remove this and replace with publish from micro/micro
+func (s Subscriptions) eventPublish(topic string, msg interface{}, opts ...events.PublishOption) error {
+	// parse the options
+	options := events.PublishOptions{
+		Timestamp: time.Now(),
+	}
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// encode the message if it's not already encoded
+	var payload []byte
+	if p, ok := msg.([]byte); ok {
+		payload = p
+	} else {
+		p, err := json.Marshal(msg)
+		if err != nil {
+			return events.ErrEncodingMessage
+		}
+		payload = p
+	}
+
+	// execute the RPC
+	_, err := s.streamService.Publish(mcontext.DefaultContext, &eventsproto.PublishRequest{
+		Topic:     topic,
+		Payload:   payload,
+		Metadata:  options.Metadata,
+		Timestamp: options.Timestamp.Unix(),
+	}, client.WithAuthToken())
+
+	return err
 }

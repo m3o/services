@@ -7,13 +7,18 @@ import (
 	"time"
 
 	customer "github.com/m3o/services/customers/proto"
-
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/events"
 	"github.com/micro/go-micro/v3/store"
+	mcontext "github.com/micro/micro/v3/service/context"
+	eventsproto "github.com/micro/micro/v3/service/events/proto"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
-type Customers struct{}
+type Customers struct {
+	streamService eventsproto.StreamService
+}
 
 const (
 	statusUnverified = "unverified"
@@ -29,6 +34,12 @@ type CustomerModel struct {
 	ID      string
 	Status  string
 	Created int64
+}
+
+func New(streamService eventsproto.StreamService) *Customers {
+	return &Customers{
+		streamService: streamService,
+	}
 }
 
 func objToProto(cust *CustomerModel) *customer.Customer {
@@ -59,20 +70,20 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 		return err
 	}
 	response.Customer = objToProto(cust)
-	//return events.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.created"})
-	return nil
+
+	return c.eventPublish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.created"})
+	//return nil
 }
 
 func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVerifiedRequest, response *customer.MarkVerifiedResponse) error {
 	if strings.TrimSpace(request.Id) == "" {
 		return errors.BadRequest("customers.create", "ID is required")
 	}
-	_, err := updateCustomerStatus(request.Id, statusVerified)
+	cust, err := updateCustomerStatus(request.Id, statusVerified)
 	if err != nil {
 		return err
 	}
-	//return events.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.verified"})
-	return nil
+	return c.eventPublish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.verified"})
 }
 
 func readCustomer(customerID string) (*CustomerModel, error) {
@@ -108,12 +119,11 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 	if strings.TrimSpace(request.Id) == "" {
 		return errors.BadRequest("customers.create", "ID is required")
 	}
-	_, err := updateCustomerStatus(request.Id, statusDeleted)
+	cust, err := updateCustomerStatus(request.Id, statusDeleted)
 	if err != nil {
 		return err
 	}
-	//return events.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.deleted"})
-	return nil
+	return c.eventPublish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.deleted"})
 }
 
 func updateCustomerStatus(customerID, status string) (*CustomerModel, error) {
@@ -131,4 +141,37 @@ func updateCustomerStatus(customerID, status string) (*CustomerModel, error) {
 		return nil, err
 	}
 	return cust, nil
+}
+
+// TODO remove this and replace with publish from micro/micro
+func (c *Customers) eventPublish(topic string, msg interface{}, opts ...events.PublishOption) error {
+	// parse the options
+	options := events.PublishOptions{
+		Timestamp: time.Now(),
+	}
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// encode the message if it's not already encoded
+	var payload []byte
+	if p, ok := msg.([]byte); ok {
+		payload = p
+	} else {
+		p, err := json.Marshal(msg)
+		if err != nil {
+			return events.ErrEncodingMessage
+		}
+		payload = p
+	}
+
+	// execute the RPC
+	_, err := c.streamService.Publish(mcontext.DefaultContext, &eventsproto.PublishRequest{
+		Topic:     topic,
+		Payload:   payload,
+		Metadata:  options.Metadata,
+		Timestamp: options.Timestamp.Unix(),
+	}, goclient.WithAuthToken())
+
+	return err
 }
