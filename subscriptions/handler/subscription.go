@@ -151,7 +151,7 @@ func (s Subscriptions) writeSubscription(sub *Subscription) error {
 		return err
 	}
 	if err := mstore.Write(&store.Record{
-		Key:   prefixCustomer + sub.CustomerID + "-" + sub.ID,
+		Key:   prefixCustomer + sub.CustomerID + "/" + sub.ID,
 		Value: b,
 	}); err != nil {
 		return err
@@ -199,7 +199,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
 	}
 
-	recs, err := mstore.Read(prefixCustomer+request.OwnerID, store.ReadPrefix())
+	recs, err := mstore.Read(prefixCustomer+request.OwnerID+"/", store.ReadPrefix())
 	if err != nil {
 		return err
 	}

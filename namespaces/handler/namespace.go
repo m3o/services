@@ -110,7 +110,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	// index by owner
 	for _, owner := range ns.Owners {
 		if err := mstore.Write(&store.Record{
-			Key:   prefixOwner + owner + "-" + ns.ID,
+			Key:   prefixOwner + owner + "/" + ns.ID,
 			Value: b,
 		}); err != nil {
 			return err
@@ -119,7 +119,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	// index by user
 	for _, user := range ns.Users {
 		if err := mstore.Write(&store.Record{
-			Key:   prefixUser + user + "-" + ns.ID,
+			Key:   prefixUser + user + "/" + ns.ID,
 			Value: b,
 		}); err != nil {
 			return err
@@ -170,7 +170,7 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 		id = request.User
 		prefix = prefixUser
 	}
-	recs, err := mstore.Read(prefix+id+"-", store.ReadPrefix())
+	recs, err := mstore.Read(prefix+id+"/", store.ReadPrefix())
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserReque
 			return nil
 		}
 	}
-	ns.Users = append(ns.Users)
+	ns.Users = append(ns.Users, request.User)
 	// write it
 	if err := writeNamespace(ns); err != nil {
 		return err

@@ -363,12 +363,12 @@ func (e *Signup) joinNamespace(ctx context.Context, email, ns string) error {
 
 	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID: ownerEmail, NewUserID: email}, client.WithAuthToken())
 	if err != nil {
-		return merrors.InternalServerError("signup", "Error adding user to subscription %s", err)
+		return merrors.InternalServerError("signup.join.subscription", "Error adding user to subscription %s", err)
 	}
 
 	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User: email}, client.WithAuthToken())
 	if err != nil {
-		return err
+		return merrors.InternalServerError("signup.join.namespace", "Error adding user to namespace %s", err)
 	}
 
 	return nil
