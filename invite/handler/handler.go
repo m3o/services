@@ -116,6 +116,10 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 }
 
 func (e *Invite) sendEmail(email, token string) error {
+	if e.testMode {
+		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
+		return nil
+	}
 	logger.Infof("Sending email to address '%v'", email)
 
 	reqBody, _ := json.Marshal(map[string]interface{}{

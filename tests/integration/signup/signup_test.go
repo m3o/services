@@ -52,22 +52,25 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		}
 	}
 
-	outp, err := serv.Command().Exec("run", getSrcString("M3O_INVITE_SVC", "../../../invite"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
+	services := []struct {
+		envVar string
+		deflt  string
+	}{
+		{envVar: "M3O_INVITE_SVC", deflt: "../../../invite"},
+		{envVar: "M3O_SIGNUP_SVC", deflt: "../../../signup"},
+		{envVar: "M3O_STRIPE_SVC", deflt: "../../../payments/provider/stripe"},
+		{envVar: "M3O_CUSTOMERS_SVC", deflt: "../../../customers"},
+		{envVar: "M3O_NAMESPACES_SVC", deflt: "../../../namespaces"},
+		{envVar: "M3O_SUBSCRIPTIONS_SVC", deflt: "../../../subscriptions"},
+		{envVar: "M3O_PLATFORM_SVC", deflt: "../../../platform"},
 	}
 
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_SIGNUP_SVC", "../../../signup"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	outp, err = serv.Command().Exec("run", getSrcString("M3O_STRIPE_SVC", "../../../payments/provider/stripe"))
-	if err != nil {
-		t.Fatal(string(outp))
-		return
+	for _, v := range services {
+		outp, err := serv.Command().Exec("run", getSrcString(v.envVar, v.deflt))
+		if err != nil {
+			t.Fatal(string(outp))
+			return
+		}
 	}
 
 	if err := test.Try("Find signup, invite and stripe in list", t, func() ([]byte, error) {
@@ -75,7 +78,10 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "stripe") || !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "invite") {
+		if !strings.Contains(string(outp), "stripe") ||
+			!strings.Contains(string(outp), "signup") ||
+			!strings.Contains(string(outp), "invite") ||
+			!strings.Contains(string(outp), "customers") {
 			return outp, errors.New("Can't find signup or stripe or invite in list")
 		}
 		return outp, err

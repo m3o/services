@@ -25,13 +25,14 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 	if len(req.PriceId) > 0 {
 		itemParam.Price = stripe.String(req.PriceId)
 	}
-	_, err = h.client.Subscriptions.New(&stripe.SubscriptionParams{
+	sub, err := h.client.Subscriptions.New(&stripe.SubscriptionParams{
 		Customer: stripe.String(id),
 		Items: []*stripe.SubscriptionItemsParams{
 			itemParam,
 		},
 	})
 	if err == nil {
+		rsp.Subscription = serializeSubscription(sub)
 		return nil
 	}
 

@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package subscriptions;
+
+option go_package = "proto;subscriptions";
+
+service Subscriptions {
+	rpc Create(CreateRequest) returns (CreateResponse) {}
+	rpc Cancel(CancelRequest) returns (CancelResponse) {}
+	// Add user to an existing subscription
+	rpc AddUser(AddUserRequest) returns (AddUserResponse) {}
+}
+
+message CreateRequest {
+	string customerID = 1;
+	string type = 2;
+	string paymentMethodID = 3;
+}
+
+message CreateResponse {
+	Subscription subscription = 1;
+}
+
+message Subscription {
+	string id = 1;
+	string customerID = 2;
+	string type = 3;
+	int64 created = 4;
+	int64 expires = 5; // blank unless the customer has cancelled their subscription
+}
+
+message CancelRequest {
+	string customerID = 1;
+	string subscriptionID = 2;
+}
+
+message CancelResponse {
+	Subscription subscription = 1;
+}
+
+
+message AddUserRequest {
+	string ownerID = 1;
+	string newUserID = 2;
+}
+
+message AddUserResponse {
+
+}

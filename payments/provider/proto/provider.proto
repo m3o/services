@@ -75,7 +75,9 @@ message CreateSubscriptionRequest {
   int64 quantity = 5;
 }
 
-message CreateSubscriptionResponse {}
+message CreateSubscriptionResponse {
+  Subscription subscription = 1;
+}
 
 message UpdateSubscriptionRequest {
   string subscription_id = 1;

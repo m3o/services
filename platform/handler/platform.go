@@ -3,18 +3,15 @@ package handler
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/client"
-
 	pb "github.com/m3o/services/platform/proto"
-	k8s "github.com/micro/go-micro/v3/util/kubernetes/client"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	rproto "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 // Platform implements the platform service interface
 type Platform struct {
 	name    string
-	client  k8s.Client
 	runtime rproto.RuntimeService
 }
 
@@ -22,7 +19,6 @@ type Platform struct {
 func New(service *service.Service) *Platform {
 	return &Platform{
 		name:    service.Name(),
-		client:  k8s.NewClusterClient(),
 		runtime: rproto.NewRuntimeService("runtime", client.DefaultClient),
 	}
 }
