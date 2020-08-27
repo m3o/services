@@ -17,7 +17,7 @@ func main() {
 
 	// Register handler
 	srv.Handle(handler.New(eventsproto.NewStreamService("events", srv.Client())))
-
+	handler.ConsumeEvents()
 	// Run service
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
