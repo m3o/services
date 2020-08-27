@@ -23,6 +23,14 @@ const (
 	signupSuccessString = "Signup complete"
 )
 
+// generates test emails
+func testEmail(nth int) string {
+	if nth == 0 {
+		return "platform@m3o.com"
+	}
+	return fmt.Sprintf("platform+%v@gm3o.com", nth)
+}
+
 func TestSignupFlow(t *testing.T) {
 	test.TrySuite(t, testSignupFlow, retryCount)
 }
@@ -151,7 +159,7 @@ func testSignupFlow(t *test.T) {
 	envFlag := "-e=" + serv.Env()
 	confFlag := "-c=" + serv.Command().Config
 
-	email := "dobronszki@gmail.com"
+	email := testEmail(0)
 
 	time.Sleep(5 * time.Second)
 
@@ -224,8 +232,8 @@ func testSignupFlow(t *test.T) {
 		return outp, nil
 	}, 5*time.Second)
 
-	newEmail := "dobronszki+1@gmail.com"
-	newEmail2 := "dobronszki+2@gmail.com"
+	newEmail := testEmail(1)
+	newEmail2 := testEmail(2)
 
 	test.Login(serv, t, email, password)
 
@@ -295,7 +303,7 @@ func testAdminInvites(t *test.T) {
 	}
 
 	setupM3Tests(serv, t)
-	email := "dobronszki@gmail.com"
+	email := testEmail(0)
 	password := "PassWord1@"
 
 	test.Try("Send invite", t, func() ([]byte, error) {
@@ -339,12 +347,11 @@ func testAdminInviteNoLimit(t *test.T) {
 	}
 
 	setupM3Tests(serv, t)
-	email := "dobronszki@gmail.com"
 
 	// Make sure test mod is on otherwise this will spam
 	for i := 0; i < 10; i++ {
 		test.Try("Send invite", t, func() ([]byte, error) {
-			return serv.Command().Exec("invite", "user", "--email="+fmt.Sprintf("%v+%v", email, i))
+			return serv.Command().Exec("invite", "user", "--email="+testEmail(i))
 		}, 5*time.Second)
 	}
 }
@@ -363,7 +370,7 @@ func testUserInviteLimit(t *test.T) {
 	}
 
 	setupM3Tests(serv, t)
-	email := "dobronszki@gmail.com"
+	email := testEmail(0)
 	password := "PassWord1@"
 
 	test.Try("Send invite", t, func() ([]byte, error) {
@@ -377,11 +384,11 @@ func testUserInviteLimit(t *test.T) {
 	// Make sure test mod is on otherwise this will spam
 	for i := 0; i < 5; i++ {
 		test.Try("Send invite", t, func() ([]byte, error) {
-			return serv.Command().Exec("invite", "user", "--email="+fmt.Sprintf("%v+%v", email, i))
+			return serv.Command().Exec("invite", "user", "--email="+testEmail(i+1))
 		}, 5*time.Second)
 	}
 
-	outp, err := serv.Command().Exec("invite", "user", "--email="+fmt.Sprintf("%v+%v", email, 6))
+	outp, err := serv.Command().Exec("invite", "user", "--email="+testEmail(7))
 	if err == nil {
 		t.Fatalf("Sending 6th invite should fail: %v", outp)
 	}
@@ -401,7 +408,7 @@ func testUserInviteNoJoin(t *test.T) {
 	}
 
 	setupM3Tests(serv, t)
-	email := "dobronszki@gmail.com"
+	email := testEmail(0)
 	password := "PassWord1@"
 
 	test.Try("Send invite", t, func() ([]byte, error) {
@@ -423,7 +430,7 @@ func testUserInviteNoJoin(t *test.T) {
 		return
 	}
 
-	newEmail := "dobronszki+1@gmail.com"
+	newEmail := testEmail(1)
 
 	test.Try("Send invite", t, func() ([]byte, error) {
 		return serv.Command().Exec("invite", "user", "--email="+newEmail)
@@ -463,7 +470,7 @@ func testUserInviteJoinDecline(t *test.T) {
 	}
 
 	setupM3Tests(serv, t)
-	email := "dobronszki@gmail.com"
+	email := testEmail(0)
 	password := "PassWord1@"
 
 	test.Try("Send invite", t, func() ([]byte, error) {
@@ -485,7 +492,7 @@ func testUserInviteJoinDecline(t *test.T) {
 		return
 	}
 
-	newEmail := "dobronszki+1@gmail.com"
+	newEmail := testEmail(1)
 
 	test.Try("Send invite", t, func() ([]byte, error) {
 		return serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace="+ns)
@@ -525,7 +532,7 @@ func testUserInviteToNotOwnedNamespace(t *test.T) {
 	}
 
 	setupM3Tests(serv, t)
-	email := "dobronszki@gmail.com"
+	email := testEmail(0)
 	password := "PassWord1@"
 
 	test.Try("Send invite", t, func() ([]byte, error) {
@@ -547,7 +554,7 @@ func testUserInviteToNotOwnedNamespace(t *test.T) {
 		return
 	}
 
-	newEmail := "dobronszki+1@gmail.com"
+	newEmail := testEmail(1)
 
 	outp, err = serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace=not-my-namespace")
 	if err == nil {
