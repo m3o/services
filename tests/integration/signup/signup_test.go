@@ -92,23 +92,23 @@ func setupM3Tests(serv test.Server, t *test.T) {
 	// setup rules
 
 	// Adjust rules before we signup into a non admin account
-	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:*\"", "invite")
+	outp, err := serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:*\"", "invite")
 	if err != nil {
-		t.Fatalf("Error setting up rules: %v", err)
+		t.Fatalf("Error setting up rules: %v", outp)
 		return
 	}
 
 	// Adjust rules before we signup into a non admin account
 	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:signup:*\"", "signup")
 	if err != nil {
-		t.Fatalf("Error setting up rules: %v", err)
+		t.Fatalf("Error setting up rules: %v", outp)
 		return
 	}
 
 	// Adjust rules before we signup into a non admin account
 	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:auth:*\"", "auth")
 	if err != nil {
-		t.Fatalf("Error setting up rules: %v", err)
+		t.Fatalf("Error setting up rules: %v", outp)
 		return
 	}
 
@@ -117,7 +117,7 @@ func setupM3Tests(serv test.Server, t *test.T) {
 	confPath := serv.Command().Config
 	outp, err = exec.Command("cp", "-rf", confPath, confPath+".admin").CombinedOutput()
 	if err != nil {
-		t.Fatalf("Error copying config: %v", err)
+		t.Fatalf("Error copying config: %v", outp)
 		return
 	}
 }
