@@ -356,10 +356,9 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	for _, v := range listRsp.Namespaces {
 		namespaces = append(namespaces, v.Id)
 	}
-	e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
+	return e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
 	})
-	return nil
 }
 
 func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest) (string, error) {
