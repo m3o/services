@@ -25,7 +25,7 @@ func main() {
 	srv := service.New()
 	logger.Infof("Using %v runtime", mruntime.DefaultRuntime)
 
-	// setup an admin account for the service to use (required to run services in a custom namespaces)
+	// setup an admin account for the service to use (required to run services in a custom namespace)
 	// this is a temporaty solution until identity is setup then we'll need to pass a set of creds
 	// as arguments.
 	name := fmt.Sprintf("bootstrap-%v", srv.Server().Options().Id)

@@ -40,7 +40,7 @@ type Customer struct {
 	StripeID string `json:"stripe_id"`
 }
 
-// getStripeIDForCustomer returns the stripe ID from the store for the given customers
+// getStripeIDForCustomer returns the stripe ID from the store for the given customer
 func (h *Provider) getStripeIDForCustomer(customerType, customerID string) (string, error) {
 	recs, err := mstore.Read(customerType + "/" + customerID)
 	if err == store.ErrNotFound {
@@ -57,7 +57,7 @@ func (h *Provider) getStripeIDForCustomer(customerType, customerID string) (stri
 	return c.StripeID, nil
 }
 
-// setStripeIDForCustomer writes the stripe ID to the store for the given customers
+// setStripeIDForCustomer writes the stripe ID to the store for the given customer
 func (h *Provider) setStripeIDForCustomer(stripeID, customerType, customerID string) error {
 	bytes, err := json.Marshal(&Customer{StripeID: stripeID})
 	if err != nil {

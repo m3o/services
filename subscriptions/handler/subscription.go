@@ -131,7 +131,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		return err
 	}
 	sub := &Subscription{
-		Type:                  request.Type,
+		Type:                  "developer", // TODO we'll end up supporting more that one sub type so we'll use request.Type,
 		CustomerID:            email,
 		Created:               time.Now().Unix(),
 		ID:                    uuid.New().String(),
