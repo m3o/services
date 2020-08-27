@@ -102,9 +102,11 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 	if err != nil {
 		return errors.InternalServerError(h.name, "Failed to save invite %v", err)
 	}
-	err = h.sendEmail(req.Email, h.inviteTemplateID)
-	if err != nil {
-		return errors.InternalServerError(h.name, "Failed to send email: %v", err)
+	if !h.testMode {
+		err = h.sendEmail(req.Email, h.inviteTemplateID)
+		if err != nil {
+			return errors.InternalServerError(h.name, "Failed to send email: %v", err)
+		}
 	}
 
 	if account.Issuer != defaultNamespace {
@@ -149,7 +151,7 @@ func (e *Invite) sendEmail(email, token string) error {
 	req.Header.Set("Content-Type", "application/json")
 	rsp, err := new(http.Client).Do(req)
 	if err != nil {
-		logger.Infof("Could not send email to %v, error: %v", email, err)
+		logger.Infof("Could not send email, error: %v", err)
 		return err
 	}
 	defer rsp.Body.Close()
@@ -157,10 +159,10 @@ func (e *Invite) sendEmail(email, token string) error {
 	if rsp.StatusCode < 200 || rsp.StatusCode > 299 {
 		bytes, err := ioutil.ReadAll(rsp.Body)
 		if err != nil {
-			logger.Errorf("Could not send email to %v, error: %v", email, err.Error())
+			logger.Errorf("Could not send email, error: %v", err.Error())
 			return err
 		}
-		logger.Errorf("Could not send email to %v, error: %v", email, string(bytes))
+		logger.Errorf("Could not send email, error: %v", string(bytes))
 		return merrors.InternalServerError("signup.sendemail", "error sending email")
 	}
 	return nil

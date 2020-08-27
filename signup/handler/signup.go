@@ -168,9 +168,13 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	// Send email
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
-	err = e.sendEmail(req.Email, k)
-	if err != nil {
-		return err
+	if !e.testMode {
+		err = e.sendEmail(req.Email, k)
+		if err != nil {
+			return err
+		}
+	} else {
+		logger.Infof("Sending email to address '%v'", req.Email)
 	}
 	return nil
 }
@@ -189,8 +193,6 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
 func (e *Signup) sendEmail(email, token string) error {
-	logger.Infof("Sending email to address '%v'", email)
-
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": e.sendgridTemplateID,
 		"from": map[string]string{
@@ -224,7 +226,7 @@ func (e *Signup) sendEmail(email, token string) error {
 	req.Header.Set("Content-Type", "application/json")
 	rsp, err := new(http.Client).Do(req)
 	if err != nil {
-		logger.Infof("Could not send email to %v, error: %v", email, err)
+		logger.Infof("Could not send email, error: %v", err)
 		return err
 	}
 	defer rsp.Body.Close()
@@ -232,10 +234,10 @@ func (e *Signup) sendEmail(email, token string) error {
 	if rsp.StatusCode < 200 || rsp.StatusCode > 299 {
 		bytes, err := ioutil.ReadAll(rsp.Body)
 		if err != nil {
-			logger.Errorf("Could not send email to %v, error: %v", email, err.Error())
+			logger.Errorf("Could not send email, error: %v", err.Error())
 			return err
 		}
-		logger.Errorf("Could not send email to %v, error: %v", email, string(bytes))
+		logger.Errorf("Could not send email, error: %v", string(bytes))
 		return merrors.InternalServerError("signup.sendemail", "error sending email")
 	}
 	return nil

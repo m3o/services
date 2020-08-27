@@ -4,6 +4,7 @@ package signup
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -35,7 +36,7 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		"MICRO_STRIPE_PLAN_ID":                   {"micro.signup.plan_id"},
 		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID": {"micro.signup.additional_users_price_id"},
 		"MICRO_EMAIL_FROM":                       {"micro.signup.email_from"},
-		"MICRO_TEST_ENV":                         {"micro.signup.test_env"},
+		"MICRO_TEST_ENV":                         {"micro.signup.test_env", "micro.invite.test_env"},
 	}
 
 	for envKey, configKeys := range envToConfigKey {
@@ -316,6 +317,68 @@ func testAdminInvites(t *test.T) {
 	}
 
 	t.T().Logf("Namespace joined: %v", string(outp))
+}
+
+func TestAdminInviteNoLimit(t *testing.T) {
+	test.TrySuite(t, testAdminInviteNoLimit, retryCount)
+}
+
+func testAdminInviteNoLimit(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := "dobronszki@gmail.com"
+
+	// Make sure test mod is on otherwise this will spam
+	for i := 0; i < 10; i++ {
+		test.Try("Send invite", t, func() ([]byte, error) {
+			return serv.Command().Exec("invite", "user", "--email="+fmt.Sprintf("%v+%v", email, i))
+		}, 5*time.Second)
+	}
+}
+
+func TestUserInviteLimit(t *testing.T) {
+	test.TrySuite(t, testUserInviteLimit, retryCount)
+}
+
+func testUserInviteLimit(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := "dobronszki@gmail.com"
+	password := "PassWord1@"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	logout(serv, t)
+
+	signup(serv, t, email, password, false, false)
+
+	// Make sure test mod is on otherwise this will spam
+	for i := 0; i < 5; i++ {
+		test.Try("Send invite", t, func() ([]byte, error) {
+			return serv.Command().Exec("invite", "user", "--email="+fmt.Sprintf("%v+%v", email, i))
+		}, 5*time.Second)
+	}
+
+	outp, err := serv.Command().Exec("invite", "user", "--email="+fmt.Sprintf("%v+%v", email, 6))
+	if err == nil {
+		t.Fatalf("Sending 6th invite should fail: %v", outp)
+	}
 }
 
 func signup(serv test.Server, t *test.T, email, password string, isInvitedToNamespace, shouldJoin bool) {
