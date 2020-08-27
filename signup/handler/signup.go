@@ -42,6 +42,7 @@ type Signup struct {
 	subscriptionService sproto.SubscriptionsService
 	auth                auth.Auth
 	sendgridTemplateID  string
+	recoverTemplateID   string
 	sendgridAPIKey      string
 	emailFrom           string
 	paymentMessage      string
@@ -62,6 +63,7 @@ func NewSignup(inviteService inviteproto.InviteService,
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
+	recoverTemplateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
 	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
@@ -83,6 +85,7 @@ func NewSignup(inviteService inviteproto.InviteService,
 		emailFrom:           emailFrom,
 		testMode:            testMode,
 		paymentMessage:      paymentMessage,
+		recoverTemplateID:   recoverTemplateID,
 	}
 }
 
@@ -158,7 +161,9 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
 
-	err = e.sendEmail(req.Email, k)
+	err = e.sendEmail(req.Email, e.sendgridTemplateID, map[string]interface{}{
+		"token": k,
+	})
 	if err != nil {
 		return err
 	}
@@ -179,13 +184,13 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
-func (e *Signup) sendEmail(email, token string) error {
+func (e *Signup) sendEmail(email, templateID string, templateData map[string]interface{}) error {
 	if e.testMode {
 		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
 		return nil
 	}
 	reqBody, _ := json.Marshal(map[string]interface{}{
-		"template_id": e.sendgridTemplateID,
+		"template_id": templateID,
 		"from": map[string]string{
 			"email": e.emailFrom,
 		},
@@ -196,9 +201,7 @@ func (e *Signup) sendEmail(email, token string) error {
 						"email": email,
 					},
 				},
-				"dynamic_template_data": map[string]string{
-					"token": token,
-				},
+				"dynamic_template_data": templateData,
 			},
 		},
 		"mail_settings": map[string]interface{}{
@@ -338,6 +341,24 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		Expiry:       t.Expiry.Unix(),
 		Created:      t.Created.Unix(),
 	}
+	return nil
+}
+
+func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *signup.RecoverResponse) error {
+	logger.Info("Received Signup.Recover request")
+	listRsp, err := e.namespaceService.List(ctx, &nproto.ListRequest{
+		User: req.Email,
+	})
+	if err != nil {
+		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
+	}
+	namespaces := []string{}
+	for _, v := range listRsp.Namespaces {
+		namespaces = append(namespaces, v.Id)
+	}
+	e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
+		"namespaces": namespaces,
+	})
 	return nil
 }
 
