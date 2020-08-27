@@ -157,14 +157,12 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	// Send email
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
-	if !e.testMode {
-		err = e.sendEmail(req.Email, k)
-		if err != nil {
-			return err
-		}
-	} else {
-		logger.Infof("Sending email to address '%v'", req.Email)
+
+	err = e.sendEmail(req.Email, k)
+	if err != nil {
+		return err
 	}
+
 	return nil
 }
 
@@ -182,6 +180,10 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
 func (e *Signup) sendEmail(email, token string) error {
+	if e.testMode {
+		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
+		return nil
+	}
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": e.sendgridTemplateID,
 		"from": map[string]string{

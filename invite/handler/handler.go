@@ -102,11 +102,10 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 	if err != nil {
 		return errors.InternalServerError(h.name, "Failed to save invite %v", err)
 	}
-	if !h.testMode {
-		err = h.sendEmail(req.Email, h.inviteTemplateID)
-		if err != nil {
-			return errors.InternalServerError(h.name, "Failed to send email: %v", err)
-		}
+
+	err = h.sendEmail(req.Email, h.inviteTemplateID)
+	if err != nil {
+		return errors.InternalServerError(h.name, "Failed to send email: %v", err)
 	}
 
 	if account.Issuer != defaultNamespace {
