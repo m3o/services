@@ -3,10 +3,9 @@ package handler
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/client"
-
 	pb "github.com/m3o/services/platform/proto"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	rproto "github.com/micro/micro/v3/service/runtime/proto"
 )
 

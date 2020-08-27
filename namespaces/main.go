@@ -3,9 +3,8 @@ package main
 import (
 	"github.com/m3o/services/namespaces/handler"
 	plproto "github.com/m3o/services/platform/proto"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
-
 	"github.com/micro/micro/v3/service"
+	eventsproto "github.com/micro/micro/v3/service/events/proto"
 	"github.com/micro/micro/v3/service/logger"
 )
 

@@ -12,6 +12,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	cproto "github.com/m3o/services/customers/proto"
+	inviteproto "github.com/m3o/services/invite/proto"
+	nproto "github.com/m3o/services/namespaces/proto"
+	signup "github.com/m3o/services/signup/proto/signup"
+	sproto "github.com/m3o/services/subscriptions/proto"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
@@ -19,13 +24,6 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	mconfig "github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
-
-	signup "github.com/m3o/services/signup/proto/signup"
-
-	cproto "github.com/m3o/services/customers/proto"
-	inviteproto "github.com/m3o/services/invite/proto"
-	nproto "github.com/m3o/services/namespaces/proto"
-	sproto "github.com/m3o/services/subscriptions/proto"
 )
 
 const (

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/micro/go-micro/v3/auth"
+
 	"github.com/google/uuid"
 
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
@@ -85,6 +87,9 @@ func objToProto(sub *Subscription) *subscription.Subscription {
 }
 
 func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateRequest, response *subscription.CreateResponse) error {
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
 	email := request.CustomerID
 	_, err := s.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
 		Customer: &paymentsproto.Customer{
@@ -164,6 +169,9 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 }
 
 func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUserRequest, response *subscription.AddUserResponse) error {
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
 	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
 		CustomerId:   request.OwnerID,
 		CustomerType: "user",
@@ -261,4 +269,15 @@ func (s Subscriptions) eventPublish(topic string, msg interface{}, opts ...event
 	}, client.WithAuthToken())
 
 	return err
+}
+
+func authorizeCall(ctx context.Context) error {
+	account, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("subscriptions", "Unauthorized request")
+	}
+	if account.Issuer != "micro" {
+		return errors.Unauthorized("subscriptions", "Unauthorized request")
+	}
+	return nil
 }

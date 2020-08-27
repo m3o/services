@@ -3,9 +3,8 @@ package main
 import (
 	paymentsproto "github.com/m3o/services/payments/provider/proto"
 	"github.com/m3o/services/subscriptions/handler"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
-
 	"github.com/micro/micro/v3/service"
+	eventsproto "github.com/micro/micro/v3/service/events/proto"
 	"github.com/micro/micro/v3/service/logger"
 )
 

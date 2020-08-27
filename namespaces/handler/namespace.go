@@ -6,18 +6,17 @@ import (
 	"strings"
 	"time"
 
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
-
-	"github.com/micro/go-micro/v3/events"
-	mcontext "github.com/micro/micro/v3/service/context"
-
-	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/auth"
 
 	namespace "github.com/m3o/services/namespaces/proto"
 	plproto "github.com/m3o/services/platform/proto"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/events"
+	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
+	mcontext "github.com/micro/micro/v3/service/context"
+	eventsproto "github.com/micro/micro/v3/service/events/proto"
 	mstore "github.com/micro/micro/v3/service/store"
 
 	"github.com/sethvargo/go-diceware/diceware"
@@ -60,6 +59,9 @@ func objToProto(ns *NamespaceModel) *namespace.Namespace {
 }
 
 func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest, response *namespace.CreateResponse) error {
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
 	if len(request.Owners) == 0 {
 		return errors.BadRequest("namespaces.create.validation", "Owners is required")
 	}
@@ -129,6 +131,10 @@ func writeNamespace(ns *NamespaceModel) error {
 }
 
 func (n Namespaces) Read(ctx context.Context, request *namespace.ReadRequest, response *namespace.ReadResponse) error {
+	// TODO at some point we'll probably want to relax this
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
 	if request.Id == "" {
 		return errors.BadRequest("namespaces.read.validation", "ID is required")
 	}
@@ -161,6 +167,10 @@ func (n Namespaces) Delete(ctx context.Context, request *namespace.DeleteRequest
 }
 
 func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, response *namespace.ListResponse) error {
+	// TODO at some point we'll want to relax this
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
 	if (request.Owner == "" && request.User == "") || (request.Owner != "" && request.User != "") {
 		return errors.BadRequest("namespaces.list.validation", "Only one of Owner or User should be specified")
 	}
@@ -187,6 +197,9 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 }
 
 func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserRequest, response *namespace.AddUserResponse) error {
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
 	if request.Namespace == "" || request.User == "" {
 		return errors.BadRequest("namespaces.adduser.validation", "User and Namespace are required")
 	}
@@ -247,4 +260,15 @@ func (n Namespaces) eventPublish(topic string, msg interface{}, opts ...events.P
 	}, client.WithAuthToken())
 
 	return err
+}
+
+func authorizeCall(ctx context.Context) error {
+	account, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("namespaces", "Unauthorized request")
+	}
+	if account.Issuer != "micro" {
+		return errors.Unauthorized("namespaces", "Unauthorized request")
+	}
+	return nil
 }
