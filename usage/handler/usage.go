@@ -70,6 +70,7 @@ func (e *Usage) loop() {
 				log.Warnf("Empty namespace list")
 				return
 			}
+			log.Infof("Got %v namespaces", len(rsp.Namespaces))
 			for _, v := range rsp.Namespaces {
 				u, err := e.usageForNamespace(v.Id)
 				if err != nil {
@@ -78,6 +79,7 @@ func (e *Usage) loop() {
 				}
 				u.Created = created.Unix()
 				val, _ := json.Marshal(u)
+				log.Infof("Saving usage for %v", v.Id)
 				err = mstore.Write(&store.Record{
 					Key:   fmt.Sprintf("%v/%v", samplePrefix, math.MaxInt64-(created.Unix()%3600)),
 					Value: val,
