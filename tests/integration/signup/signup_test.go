@@ -41,8 +41,8 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		"MICRO_SENDGRID_API_KEY":                 {"micro.signup.sendgrid.api_key", "micro.invite.sendgrid.api_key"},
 		"MICRO_SENDGRID_TEMPLATE_ID":             {"micro.signup.sendgrid.template_id"},
 		"MICRO_SENDGRID_INVITE_TEMPLATE_ID":      {"micro.invite.sendgrid.invite_template_id"},
-		"MICRO_STRIPE_PLAN_ID":                   {"micro.signup.plan_id"},
-		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID": {"micro.signup.additional_users_price_id"},
+		"MICRO_STRIPE_PLAN_ID":                   {"micro.subscriptions.plan_id"},
+		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID": {"micro.subscriptions.additional_users_price_id"},
 		"MICRO_EMAIL_FROM":                       {"micro.signup.email_from"},
 		"MICRO_TEST_ENV":                         {"micro.signup.test_env", "micro.invite.test_env"},
 	}
