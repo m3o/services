@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/m3o/services/customers/handler"
 	"github.com/micro/micro/v3/service"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -15,7 +14,7 @@ func main() {
 	)
 
 	// Register handler
-	srv.Handle(handler.New(eventsproto.NewStreamService("events", srv.Client())))
+	srv.Handle(handler.New())
 	handler.ConsumeEvents()
 	// Run service
 	if err := srv.Run(); err != nil {

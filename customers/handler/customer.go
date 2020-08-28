@@ -11,12 +11,11 @@ import (
 	customer "github.com/m3o/services/customers/proto"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
+	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
 type Customers struct {
-	streamService eventsproto.StreamService
 }
 
 const (
@@ -35,10 +34,8 @@ type CustomerModel struct {
 	Created int64
 }
 
-func New(streamService eventsproto.StreamService) *Customers {
-	return &Customers{
-		streamService: streamService,
-	}
+func New() *Customers {
+	return &Customers{}
 }
 
 func objToProto(cust *CustomerModel) *customer.Customer {
@@ -73,7 +70,7 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 	}
 	response.Customer = objToProto(cust)
 
-	return c.eventPublish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.created"})
+	return mevents.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.created"})
 }
 
 func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVerifiedRequest, response *customer.MarkVerifiedResponse) error {
@@ -87,7 +84,7 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	if err != nil {
 		return err
 	}
-	return c.eventPublish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.verified"})
+	return mevents.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.verified"})
 }
 
 func readCustomer(customerID string) (*CustomerModel, error) {
@@ -134,7 +131,7 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 	if err != nil {
 		return err
 	}
-	return c.eventPublish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.deleted"})
+	return mevents.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.deleted"})
 }
 
 func updateCustomerStatus(customerID, status string) (*CustomerModel, error) {
