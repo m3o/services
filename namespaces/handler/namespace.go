@@ -184,7 +184,7 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 		key = prefixUser + request.User
 	}
 
-	recs, err := mstore.Read(key+"/", store.ReadPrefix())
+	recs, err := mstore.Read(key, store.ReadPrefix())
 	if err != nil {
 		return err
 	}
