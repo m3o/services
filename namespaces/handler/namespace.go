@@ -179,9 +179,9 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 	case request.Owner == "" && request.User == "":
 		key = prefixNs
 	case request.Owner != "":
-		key = prefixOwner + request.Owner
+		key = prefixOwner + request.Owner + "/"
 	case request.User != "":
-		key = prefixUser + request.User
+		key = prefixUser + request.User + "/"
 	}
 
 	recs, err := mstore.Read(key, store.ReadPrefix())
