@@ -59,31 +59,35 @@ func (e *Usage) ListSamples(ctx context.Context, req *usage.ListSamplesRequest, 
 
 func (e *Usage) loop() {
 	for {
-		created := time.Now()
-		rsp, err := e.ns.List(context.TODO(), &nsproto.ListRequest{}, client.WithAuthToken())
-		if err != nil {
-			log.Errorf("Error calling namespace service: %v", err)
-		}
-		if len(rsp.Namespaces) == 0 {
-			log.Warnf("Empty namespace list")
-			continue
-		}
-		for _, v := range rsp.Namespaces {
-			u, err := e.usageForNamespace(v.Id)
+		func() {
+			created := time.Now()
+			rsp, err := e.ns.List(context.TODO(), &nsproto.ListRequest{}, client.WithAuthToken())
 			if err != nil {
-				log.Warn("Error getting usage for namespace %v: %v", v.Id, err)
-				continue
+				log.Errorf("Error calling namespace service: %v", err)
+				return
 			}
-			u.Created = created.Unix()
-			val, _ := json.Marshal(u)
-			err = mstore.Write(&store.Record{
-				Key:   fmt.Sprintf("%v/%v", samplePrefix, math.MaxInt64-(created.Unix()%3600)),
-				Value: val,
-			})
-			if err != nil {
-				log.Warnf("Error writing to store: %v", err)
+			if len(rsp.Namespaces) == 0 {
+				log.Warnf("Empty namespace list")
+				return
 			}
-		}
+			for _, v := range rsp.Namespaces {
+				u, err := e.usageForNamespace(v.Id)
+				if err != nil {
+					log.Warn("Error getting usage for namespace %v: %v", v.Id, err)
+					continue
+				}
+				u.Created = created.Unix()
+				val, _ := json.Marshal(u)
+				err = mstore.Write(&store.Record{
+					Key:   fmt.Sprintf("%v/%v", samplePrefix, math.MaxInt64-(created.Unix()%3600)),
+					Value: val,
+				})
+				if err != nil {
+					log.Warnf("Error writing to store: %v", err)
+				}
+			}
+		}()
+
 		time.Sleep(1 * time.Hour)
 	}
 }
