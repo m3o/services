@@ -17,6 +17,8 @@ import (
 	nproto "github.com/m3o/services/namespaces/proto"
 	signup "github.com/m3o/services/signup/proto/signup"
 	sproto "github.com/m3o/services/subscriptions/proto"
+	"github.com/patrickmn/go-cache"
+
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
@@ -47,6 +49,7 @@ type Signup struct {
 	emailFrom           string
 	paymentMessage      string
 	testMode            bool
+	cache               *cache.Cache
 }
 
 var (
@@ -86,6 +89,7 @@ func NewSignup(inviteService inviteproto.InviteService,
 		testMode:            testMode,
 		paymentMessage:      paymentMessage,
 		recoverTemplateID:   recoverTemplateID,
+		cache:               cache.New(1*time.Minute, 5*time.Minute),
 	}
 }
 
@@ -346,12 +350,21 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 
 func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *signup.RecoverResponse) error {
 	logger.Info("Received Signup.Recover request")
+	_, found := e.cache.Get(req.Email)
+	if found {
+		return merrors.BadRequest("signup.recover", "We have issued a recovery email recently. Please check that.")
+	}
+
 	listRsp, err := e.namespaceService.List(ctx, &nproto.ListRequest{
 		User: req.Email,
 	}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
 	}
+	if len(listRsp.Namespaces) == 0 {
+		return merrors.BadRequest("signup.recover", "We don't recognize this account")
+	}
+
 	// Sendgrid wants objects in a list not string
 	namespaces := []map[string]string{}
 	for _, v := range listRsp.Namespaces {
@@ -361,9 +374,13 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	}
 
 	logger.Infof("Sending email with data %v", namespaces)
-	return e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
+	err = e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
 	})
+	if err == nil {
+		e.cache.Set(req.Email, true, cache.DefaultExpiration)
+	}
+	return err
 }
 
 func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest) (string, error) {
