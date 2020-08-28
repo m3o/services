@@ -700,3 +700,76 @@ func getSrcString(envvar, dflt string) string {
 	}
 	return dflt
 }
+
+func TestDuplicateInvites(t *testing.T) {
+	test.TrySuite(t, testDuplicateInvites, retryCount)
+}
+
+func testDuplicateInvites(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := testEmail(0)
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+	test.Try("Send invite again", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+	outp, err := serv.Command().Exec("logs", "invite")
+	if err != nil {
+		t.Fatalf("Unexpected error retrieving logs %s", err)
+	}
+	if !strings.Contains(string(outp), "Invite already sent for user "+email) {
+		t.Fatalf("Invite was sent multiple times")
+	}
+
+	// test a force resend
+	email2 := testEmail(1)
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email2)
+	}, 5*time.Second)
+	test.Try("Send invite again", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email2, "--resend=true")
+	}, 5*time.Second)
+	outp, err = serv.Command().Exec("logs", "invite")
+	if err != nil {
+		t.Fatalf("Unexpected error retrieving logs %s", err)
+	}
+	if strings.Contains(string(outp), "Invite already sent for user "+email2) {
+		t.Fatalf("Invite should have been sent multiple times but was blocked")
+	}
+
+}
+
+func TestInviteEmailValidation(t *testing.T) {
+	test.TrySuite(t, testInviteEmailValidation, retryCount)
+}
+
+func testInviteEmailValidation(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+
+	outp, err := serv.Command().Exec("invite", "user", "--email=notanemail.com")
+	if err != nil {
+		t.Fatalf("Expected an error from invite attempt %s", string(outp))
+	}
+	if !strings.Contains(string(outp), "400") {
+		t.Fatalf("Expected a 400 bad request error %s", string(outp))
+	}
+
+}
