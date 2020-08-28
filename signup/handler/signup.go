@@ -359,9 +359,8 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 			"namespace": v.Id,
 		})
 	}
-	if e.testMode {
-		logger.Infof("Sending email to %v with data %v", req.Email, namespaces)
-	}
+
+	logger.Infof("Sending email with data %v", namespaces)
 	return e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
 	})
