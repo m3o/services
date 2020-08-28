@@ -17,6 +17,8 @@ import (
 	nproto "github.com/m3o/services/namespaces/proto"
 	signup "github.com/m3o/services/signup/proto/signup"
 	sproto "github.com/m3o/services/subscriptions/proto"
+	"github.com/patrickmn/go-cache"
+
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
@@ -43,10 +45,12 @@ type Signup struct {
 	subscriptionService sproto.SubscriptionsService
 	auth                auth.Auth
 	sendgridTemplateID  string
+	recoverTemplateID   string
 	sendgridAPIKey      string
 	emailFrom           string
 	paymentMessage      string
 	testMode            bool
+	cache               *cache.Cache
 }
 
 var (
@@ -63,6 +67,7 @@ func NewSignup(inviteService inviteproto.InviteService,
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
+	recoverTemplateID := mconfig.Get("micro", "signup", "sendgrid", "recovery_template_id").String("")
 	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
@@ -84,6 +89,8 @@ func NewSignup(inviteService inviteproto.InviteService,
 		emailFrom:           emailFrom,
 		testMode:            testMode,
 		paymentMessage:      paymentMessage,
+		recoverTemplateID:   recoverTemplateID,
+		cache:               cache.New(1*time.Minute, 5*time.Minute),
 	}
 }
 
@@ -159,7 +166,9 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
 
-	err = e.sendEmail(req.Email, k)
+	err = e.sendEmail(req.Email, e.sendgridTemplateID, map[string]interface{}{
+		"token": k,
+	})
 	if err != nil {
 		return err
 	}
@@ -180,13 +189,13 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
-func (e *Signup) sendEmail(email, token string) error {
+func (e *Signup) sendEmail(email, templateID string, templateData map[string]interface{}) error {
 	if e.testMode {
 		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
 		return nil
 	}
 	reqBody, _ := json.Marshal(map[string]interface{}{
-		"template_id": e.sendgridTemplateID,
+		"template_id": templateID,
 		"from": map[string]string{
 			"email": e.emailFrom,
 		},
@@ -197,9 +206,7 @@ func (e *Signup) sendEmail(email, token string) error {
 						"email": email,
 					},
 				},
-				"dynamic_template_data": map[string]string{
-					"token": token,
-				},
+				"dynamic_template_data": templateData,
 			},
 		},
 		"mail_settings": map[string]interface{}{
@@ -340,6 +347,41 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		Created:      t.Created.Unix(),
 	}
 	return nil
+}
+
+func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *signup.RecoverResponse) error {
+	logger.Info("Received Signup.Recover request")
+	_, found := e.cache.Get(req.Email)
+	if found {
+		return merrors.BadRequest("signup.recover", "We have issued a recovery email recently. Please check that.")
+	}
+
+	listRsp, err := e.namespaceService.List(ctx, &nproto.ListRequest{
+		User: req.Email,
+	}, client.WithAuthToken())
+	if err != nil {
+		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
+	}
+	if len(listRsp.Namespaces) == 0 {
+		return merrors.BadRequest("signup.recover", "We don't recognize this account")
+	}
+
+	// Sendgrid wants objects in a list not string
+	namespaces := []map[string]string{}
+	for _, v := range listRsp.Namespaces {
+		namespaces = append(namespaces, map[string]string{
+			"id": v.Id,
+		})
+	}
+
+	logger.Infof("Sending email with data %v", namespaces)
+	err = e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
+		"namespaces": namespaces,
+	})
+	if err == nil {
+		e.cache.Set(req.Email, true, cache.DefaultExpiration)
+	}
+	return err
 }
 
 func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest) (string, error) {
