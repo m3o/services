@@ -33,8 +33,9 @@ const (
 )
 
 type tokenToEmail struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
+	Email   string `json:"email"`
+	Token   string `json:"token"`
+	Created int64  `json:"created"`
 }
 
 type Signup struct {
@@ -135,8 +136,9 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 
 	k := randStringBytesMaskImprSrc(8)
 	tok := &tokenToEmail{
-		Token: k,
-		Email: req.Email,
+		Token:   k,
+		Email:   req.Email,
+		Created: time.Now().Unix(),
 	}
 
 	bytes, err := json.Marshal(tok)
@@ -145,9 +147,8 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 
 	if err := mstore.Write(&store.Record{
-		Key:    req.Email,
-		Value:  bytes,
-		Expiry: expiryDuration,
+		Key:   req.Email,
+		Value: bytes,
 	}); err != nil {
 		return err
 	}
@@ -256,7 +257,7 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		return err
 	}
 
-	if tok.Token != req.Token {
+	if tok.Token != req.Token || time.Since(time.Unix(tok.Created, 0)) > expiryDuration {
 		return errors.New("Invalid token")
 	}
 
@@ -305,7 +306,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
 		return err
 	}
-	if tok.Token != req.Token {
+	if tok.Token != req.Token { // not checking expiry here because we've already checked it during Verify() step
 		return errors.New("invalid token")
 	}
 
