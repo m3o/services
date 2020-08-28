@@ -352,9 +352,12 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	if err != nil {
 		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
 	}
-	namespaces := []string{}
+	// Sendgrid wants objects in a list not string
+	namespaces := []map[string]string{}
 	for _, v := range listRsp.Namespaces {
-		namespaces = append(namespaces, v.Id)
+		namespaces = append(namespaces, map[string]string{
+			"namespace": v.Id,
+		})
 	}
 	return e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
