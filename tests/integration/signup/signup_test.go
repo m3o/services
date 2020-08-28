@@ -764,10 +764,7 @@ func testInviteEmailValidation(t *test.T) {
 
 	setupM3Tests(serv, t)
 
-	outp, err := serv.Command().Exec("invite", "user", "--email=notanemail.com")
-	if err != nil {
-		t.Fatalf("Expected an error from invite attempt %s", string(outp))
-	}
+	outp, _ := serv.Command().Exec("invite", "user", "--email=notanemail.com")
 	if !strings.Contains(string(outp), "400") {
 		t.Fatalf("Expected a 400 bad request error %s", string(outp))
 	}
