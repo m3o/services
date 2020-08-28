@@ -80,8 +80,9 @@ func (e *Usage) loop() {
 				u.Created = created.Unix()
 				val, _ := json.Marshal(u)
 				log.Infof("Saving usage for %v", v.Id)
+				// Save by namespace
 				err = mstore.Write(&store.Record{
-					Key:   fmt.Sprintf("%v/%v", samplePrefix, math.MaxInt64-(created.Unix()%3600)),
+					Key:   fmt.Sprintf("%v/%v/%v", samplePrefix, v.Id, math.MaxInt64-(created.Unix()%3600)),
 					Value: val,
 				})
 				if err != nil {
