@@ -356,7 +356,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	namespaces := []map[string]string{}
 	for _, v := range listRsp.Namespaces {
 		namespaces = append(namespaces, map[string]string{
-			"namespace": v.Id,
+			"id": v.Id,
 		})
 	}
 
