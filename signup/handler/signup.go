@@ -348,7 +348,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	logger.Info("Received Signup.Recover request")
 	listRsp, err := e.namespaceService.List(ctx, &nproto.ListRequest{
 		User: req.Email,
-	})
+	}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
 	}
