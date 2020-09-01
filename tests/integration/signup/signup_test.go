@@ -747,7 +747,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		if !found {
 			t.Fatalf("Subscription with price ID %v not found", priceID)
 		}
-		if sub.Quantity != int64(opts.xthInvitee)*2 {
+		if sub.Quantity != int64(opts.xthInvitee) {
 			t.Fatalf("Subscription quantity '%v' should match invitee number '%v", sub.Quantity, opts.xthInvitee)
 		}
 	} else {
