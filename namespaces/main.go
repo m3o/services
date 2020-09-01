@@ -4,7 +4,6 @@ import (
 	"github.com/m3o/services/namespaces/handler"
 	plproto "github.com/m3o/services/platform/proto"
 	"github.com/micro/micro/v3/service"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -18,7 +17,6 @@ func main() {
 	// Register handler
 	srv.Handle(handler.New(
 		plproto.NewPlatformService("platform", srv.Client()),
-		eventsproto.NewStreamService("events", srv.Client()),
 	))
 
 	// Run service

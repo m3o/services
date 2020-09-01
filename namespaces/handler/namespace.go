@@ -15,8 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/events"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
-	mcontext "github.com/micro/micro/v3/service/context"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
+	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
 
 	"github.com/sethvargo/go-diceware/diceware"
@@ -32,13 +31,11 @@ const (
 
 type Namespaces struct {
 	platformService plproto.PlatformService
-	streamService   eventsproto.StreamService
 }
 
-func New(plSvc plproto.PlatformService, streamService eventsproto.StreamService) *Namespaces {
+func New(plSvc plproto.PlatformService) *Namespaces {
 	return &Namespaces{
 		platformService: plSvc,
-		streamService:   streamService,
 	}
 }
 
@@ -93,7 +90,7 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 	}
 	response.Namespace = objToProto(ns)
 
-	return n.eventPublish(nsTopic, NamespaceEvent{Namespace: *ns, Type: "namespaces.created"})
+	return mevents.Publish(nsTopic, NamespaceEvent{Namespace: *ns, Type: "namespaces.created"})
 
 }
 
@@ -224,46 +221,13 @@ func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserReque
 		return err
 	}
 	// TODO anything else we need to do for adding a user to namespace?
-	return n.eventPublish(nsTopic,
+	return mevents.Publish(nsTopic,
 		NamespaceEvent{Namespace: *ns, Type: "namespaces.adduser"},
 		events.WithMetadata(map[string]string{"user": request.User}))
 }
 
 func (n Namespaces) RemoveUser(ctx context.Context, request *namespace.RemoveUserRequest, response *namespace.RemoveUserResponse) error {
 	return errors.InternalServerError("notimplemented", "not implemented")
-}
-
-// TODO remove this and replace with publish from micro/micro
-func (n Namespaces) eventPublish(topic string, msg interface{}, opts ...events.PublishOption) error {
-	// parse the options
-	options := events.PublishOptions{
-		Timestamp: time.Now(),
-	}
-	for _, o := range opts {
-		o(&options)
-	}
-
-	// encode the message if it's not already encoded
-	var payload []byte
-	if p, ok := msg.([]byte); ok {
-		payload = p
-	} else {
-		p, err := json.Marshal(msg)
-		if err != nil {
-			return events.ErrEncodingMessage
-		}
-		payload = p
-	}
-
-	// execute the RPC
-	_, err := n.streamService.Publish(mcontext.DefaultContext, &eventsproto.PublishRequest{
-		Topic:     topic,
-		Payload:   payload,
-		Metadata:  options.Metadata,
-		Timestamp: options.Timestamp.Unix(),
-	}, client.WithAuthToken())
-
-	return err
 }
 
 func authorizeCall(ctx context.Context) error {
