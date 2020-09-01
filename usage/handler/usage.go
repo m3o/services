@@ -103,7 +103,11 @@ type usg struct {
 }
 
 func (e *Usage) usageForNamespace(namespace string) (*usg, error) {
-	arsp, err := e.as.List(context.TODO(), &pb.ListAccountsRequest{}, client.WithAuthToken())
+	arsp, err := e.as.List(context.TODO(), &pb.ListAccountsRequest{
+		Options: &pb.Options{
+			Namespace: namespace,
+		},
+	}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
