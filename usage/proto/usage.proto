@@ -5,22 +5,22 @@ package usage;
 option go_package = "proto;usage";
 
 service Usage {
-	rpc ListSamples(ListSamplesRequest) returns (ListSamplesResponse) {}
+	rpc List(ListRequest) returns (ListResponse) {}
 }
 
-message Sample {
+message Account {
 	string id = 1;
 	string namespace = 2;
-	int64 user_count = 3;
-	int64 service_count = 4;
+	int64 users = 3;
+	int64 services= 4;
 	int64 created = 5;
 }
 
-message ListSamplesRequest {
+message ListRequest {
 	// optional parameter to filter by namespace
 	string namespace = 1;
 }
 
-message ListSamplesResponse {
-	repeated Sample samples = 1;
+message ListResponse {
+	repeated Account accounts = 1;
 }

@@ -42,7 +42,7 @@ func NewUsageEndpoints() []*api.Endpoint {
 // Client API for Usage service
 
 type UsageService interface {
-	ListSamples(ctx context.Context, in *ListSamplesRequest, opts ...client.CallOption) (*ListSamplesResponse, error)
+	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 }
 
 type usageService struct {
@@ -57,9 +57,9 @@ func NewUsageService(name string, c client.Client) UsageService {
 	}
 }
 
-func (c *usageService) ListSamples(ctx context.Context, in *ListSamplesRequest, opts ...client.CallOption) (*ListSamplesResponse, error) {
-	req := c.c.NewRequest(c.name, "Usage.ListSamples", in)
-	out := new(ListSamplesResponse)
+func (c *usageService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	req := c.c.NewRequest(c.name, "Usage.List", in)
+	out := new(ListResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -70,12 +70,12 @@ func (c *usageService) ListSamples(ctx context.Context, in *ListSamplesRequest, 
 // Server API for Usage service
 
 type UsageHandler interface {
-	ListSamples(context.Context, *ListSamplesRequest, *ListSamplesResponse) error
+	List(context.Context, *ListRequest, *ListResponse) error
 }
 
 func RegisterUsageHandler(s server.Server, hdlr UsageHandler, opts ...server.HandlerOption) error {
 	type usage interface {
-		ListSamples(ctx context.Context, in *ListSamplesRequest, out *ListSamplesResponse) error
+		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 	}
 	type Usage struct {
 		usage
@@ -88,6 +88,6 @@ type usageHandler struct {
 	UsageHandler
 }
 
-func (h *usageHandler) ListSamples(ctx context.Context, in *ListSamplesRequest, out *ListSamplesResponse) error {
-	return h.UsageHandler.ListSamples(ctx, in, out)
+func (h *usageHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
+	return h.UsageHandler.List(ctx, in, out)
 }
