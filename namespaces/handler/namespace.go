@@ -169,7 +169,7 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 		return err
 	}
 	if request.Owner != "" && request.User != "" {
-		return errors.BadRequest("namespaces.list.validation", "Only one of Owner or User should be specified")
+		return errors.BadRequest("namespaces.list.validation", "Cannot specify both owner and user")
 	}
 	key := ""
 	switch {
