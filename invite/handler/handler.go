@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path"
+	"strings"
+	"time"
 
 	pb "github.com/m3o/services/invite/proto"
 	"github.com/micro/go-micro/v3/auth"
@@ -34,6 +36,7 @@ type invite struct {
 	Email      string
 	Deleted    bool
 	Namespaces []string
+	Created    int64
 }
 
 // New returns an initialised handler
@@ -67,6 +70,10 @@ type Invite struct {
 // - a user invites a user without sharing namespace ie "hey join micro"
 // - a user invites a user to share a namespace ie "hey join my namespace on micro"
 func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+	if req.Email == "" || !strings.Contains(req.Email, "@") {
+		return errors.BadRequest("invite.user.validation", "Valid email is required")
+	}
+
 	account, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return errors.Unauthorized(h.name, "Unauthorized request")
@@ -89,10 +96,30 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 			return err
 		}
 	}
+
+	if !req.Resend {
+		// in normal circumstances we want to check in case we've sent an invite already
+		recs, err := mstore.Read(req.Email)
+		if err != nil && err != store.ErrNotFound {
+			return err
+		}
+		if len(recs) > 0 {
+			inv := &invite{}
+			if err := json.Unmarshal(recs[0].Value, inv); err != nil {
+				return err
+			}
+			if !inv.Deleted {
+				// we've already sent one and it's not been deleted, return success
+				logger.Infof("Invite already sent for user %s. Skipping ", req.Email)
+				return nil
+			}
+		}
+	}
 	b, _ := json.Marshal(invite{
 		Email:      req.Email,
 		Deleted:    false,
 		Namespaces: namespaces,
+		Created:    time.Now().Unix(),
 	})
 	// write the email to the store
 	err := mstore.Write(&store.Record{

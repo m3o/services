@@ -17,8 +17,7 @@ import (
 	"github.com/micro/go-micro/v3/events"
 	"github.com/micro/go-micro/v3/store"
 	mconfig "github.com/micro/micro/v3/service/config"
-	mcontext "github.com/micro/micro/v3/service/context"
-	eventsproto "github.com/micro/micro/v3/service/events/proto"
+	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 )
@@ -37,7 +36,6 @@ var (
 
 type Subscriptions struct {
 	paymentService paymentsproto.ProviderService
-	streamService  eventsproto.StreamService
 }
 
 type SubscriptionType struct {
@@ -45,9 +43,9 @@ type SubscriptionType struct {
 	PriceID string
 }
 
-func New(paySvc paymentsproto.ProviderService, streamService eventsproto.StreamService) *Subscriptions {
-	additionalUsersPriceID = mconfig.Get("micro", "signup", "additional_users_price_id").String("")
-	planID = mconfig.Get("micro", "signup", "plan_id").String("")
+func New(paySvc paymentsproto.ProviderService) *Subscriptions {
+	additionalUsersPriceID = mconfig.Get("micro", "subscriptions", "additional_users_price_id").String("")
+	planID = mconfig.Get("micro", "subscriptions", "plan_id").String("")
 	if len(planID) == 0 {
 		logger.Error("No stripe plan id")
 	}
@@ -57,7 +55,6 @@ func New(paySvc paymentsproto.ProviderService, streamService eventsproto.StreamS
 
 	return &Subscriptions{
 		paymentService: paySvc,
-		streamService:  streamService,
 	}
 }
 
@@ -126,6 +123,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		CustomerId:   email,
 		CustomerType: "user",
 		PlanId:       planID,
+		Quantity:     1,
 	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	if err != nil {
 		return err
@@ -141,7 +139,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		return err
 	}
 	response.Subscription = objToProto(sub)
-	return s.eventPublish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
+	return mevents.Publish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
 }
 
 func (s Subscriptions) writeSubscription(sub *Subscription) error {
@@ -231,44 +229,11 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		return err
 	}
 
-	return s.eventPublish(subscriptionTopic,
+	return mevents.Publish(subscriptionTopic,
 		SubscriptionEvent{Subscription: *subscription, Type: "subscriptions.created"},
 		events.WithMetadata(map[string]string{"user": request.NewUserID}),
 	)
 
-}
-
-// TODO remove this and replace with publish from micro/micro
-func (s Subscriptions) eventPublish(topic string, msg interface{}, opts ...events.PublishOption) error {
-	// parse the options
-	options := events.PublishOptions{
-		Timestamp: time.Now(),
-	}
-	for _, o := range opts {
-		o(&options)
-	}
-
-	// encode the message if it's not already encoded
-	var payload []byte
-	if p, ok := msg.([]byte); ok {
-		payload = p
-	} else {
-		p, err := json.Marshal(msg)
-		if err != nil {
-			return events.ErrEncodingMessage
-		}
-		payload = p
-	}
-
-	// execute the RPC
-	_, err := s.streamService.Publish(mcontext.DefaultContext, &eventsproto.PublishRequest{
-		Topic:     topic,
-		Payload:   payload,
-		Metadata:  options.Metadata,
-		Timestamp: options.Timestamp.Unix(),
-	}, client.WithAuthToken())
-
-	return err
 }
 
 func authorizeCall(ctx context.Context) error {
