@@ -120,6 +120,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	}
 
 	rsp, err := s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+		Quantity:     1,
 		CustomerId:   email,
 		CustomerType: "user",
 		PlanId:       planID,
