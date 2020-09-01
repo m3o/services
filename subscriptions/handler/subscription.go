@@ -123,6 +123,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		CustomerId:   email,
 		CustomerType: "user",
 		PlanId:       planID,
+		Quantity:     1,
 	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	if err != nil {
 		return err
