@@ -17,7 +17,7 @@ import (
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
-const AccountPrefix = "Account"
+const accountPrefix = "account"
 
 type Usage struct {
 	ns nsproto.NamespacesService
@@ -36,7 +36,7 @@ func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService) *Usage {
 // Call is a single request handler called via client.Call or the generated client code
 func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.ListResponse) error {
 	log.Info("Received Usage.ListAccounts request")
-	records, err := mstore.Read(AccountPrefix, store.ReadPrefix())
+	records, err := mstore.Read(accountPrefix, store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {
 		return merrors.InternalServerError("usage.listAccounts", "Error listing store: %v", err)
 	}
