@@ -104,21 +104,21 @@ func (e *Usage) loop() {
 				// Save by namespace
 				timeVal := math.MaxInt64 - (created.Unix() % 3600)
 				err = mstore.Write(&store.Record{
-					Key:   fmt.Sprintf("%v/%v/%v", accountByNamespacePrefix, namespace.Id, timeVal),
+					Key:   fmt.Sprintf("%v%v/%v", accountByNamespacePrefix, namespace.Id, timeVal),
 					Value: val,
 				})
 				if err != nil {
 					log.Warnf("Error writing to store: %v", err)
 				}
 				err = mstore.Write(&store.Record{
-					Key:   fmt.Sprintf("%v/%v/%v", accountByTime, timeVal, namespace.Id),
+					Key:   fmt.Sprintf("%v%v/%v", accountByTime, timeVal, namespace.Id),
 					Value: val,
 				})
 				if err != nil {
 					log.Warnf("Error writing to store: %v", err)
 				}
 				err = mstore.Write(&store.Record{
-					Key:   fmt.Sprintf("%v/%v", accountByLatest, namespace.Id),
+					Key:   fmt.Sprintf("%v%v", accountByLatest, namespace.Id),
 					Value: val,
 				})
 				if err != nil {
