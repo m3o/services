@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"os/exec"
 	"strings"
@@ -23,12 +24,23 @@ const (
 	signupSuccessString = "Signup complete"
 )
 
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+
+func randStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
 // generates test emails
 func testEmail(nth int) string {
+	uid := randStringRunes(8)
 	if nth == 0 {
-		return "platform@m3o.com"
+		return fmt.Sprintf("platform+citest+%v@m3o.com", uid)
 	}
-	return fmt.Sprintf("platform+%v@gm3o.com", nth)
+	return fmt.Sprintf("platform+cites+%v+%v@m3o.com", nth, uid)
 }
 
 func TestSignupFlow(t *testing.T) {
@@ -200,7 +212,7 @@ func testSignupFlow(t *test.T) {
 	logout(serv, t)
 
 	password := "PassWord1@"
-	signup(serv, t, email, password, false, false)
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 	if t.Failed() {
 		return
 	}
@@ -252,7 +264,7 @@ func testSignupFlow(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, newEmail, password, true, true)
+	signup(serv, t, newEmail, password, signupOptions{inviterEmail: email, xthInvitee: 1, isInvitedToNamespace: true, shouldJoin: true})
 	if t.Failed() {
 		return
 	}
@@ -271,7 +283,7 @@ func testSignupFlow(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, newEmail2, password, true, true)
+	signup(serv, t, newEmail2, password, signupOptions{inviterEmail: email, xthInvitee: 2, isInvitedToNamespace: true, shouldJoin: true})
 	if t.Failed() {
 		return
 	}
@@ -314,7 +326,7 @@ func testAdminInvites(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, email, password, false, false)
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -379,7 +391,7 @@ func testUserInviteLimit(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, email, password, false, false)
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	// Make sure test mod is on otherwise this will spam
 	for i := 0; i < 5; i++ {
@@ -417,7 +429,7 @@ func testUserInviteNoJoin(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, email, password, false, false)
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -438,7 +450,7 @@ func testUserInviteNoJoin(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, newEmail, password, false, false)
+	signup(serv, t, newEmail, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -479,7 +491,7 @@ func testUserInviteJoinDecline(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, email, password, false, false)
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -500,7 +512,7 @@ func testUserInviteJoinDecline(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, newEmail, password, true, false)
+	signup(serv, t, newEmail, password, signupOptions{isInvitedToNamespace: true, shouldJoin: false})
 
 	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -541,7 +553,7 @@ func testUserInviteToNotOwnedNamespace(t *test.T) {
 
 	logout(serv, t)
 
-	signup(serv, t, email, password, false, false)
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -568,7 +580,14 @@ func testUserInviteToNotOwnedNamespace(t *test.T) {
 	}
 }
 
-func signup(serv test.Server, t *test.T, email, password string, isInvitedToNamespace, shouldJoin bool) {
+type signupOptions struct {
+	isInvitedToNamespace bool
+	shouldJoin           bool
+	inviterEmail         string
+	xthInvitee           int
+}
+
+func signup(serv test.Server, t *test.T, email, password string, opts signupOptions) {
 	envFlag := "-e=" + serv.Env()
 	confFlag := "-c=" + serv.Command().Config
 	adminConfFlag := "-c=" + serv.Command().Config + ".admin"
@@ -648,10 +667,10 @@ func signup(serv test.Server, t *test.T, email, password string, isInvitedToName
 		return
 	}
 
-	if isInvitedToNamespace {
+	if opts.isInvitedToNamespace {
 		time.Sleep(3 * time.Second)
 		answer := "own"
-		if shouldJoin {
+		if opts.shouldJoin {
 			t.Log("Joining a namespace now")
 			answer = "join"
 		}
@@ -662,7 +681,7 @@ func signup(serv test.Server, t *test.T, email, password string, isInvitedToName
 		}
 	}
 
-	if !shouldJoin {
+	if !opts.shouldJoin {
 		time.Sleep(5 * time.Second)
 		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
 		pm, err := sc.PaymentMethods.New(
@@ -683,6 +702,62 @@ func signup(serv test.Server, t *test.T, email, password string, isInvitedToName
 		_, err = io.WriteString(stdin, pm.ID+"\n")
 		if err != nil {
 			t.Fatal(err)
+		}
+	}
+
+	// Instead of a sleep shoud probably use Try
+	// Some gotchas for this: while the stripe api documentation online
+	// shows prices and plans being separate entitires, even v71 version of the
+	// go library only has plans. However, it seems like the prices are under plans too.
+	time.Sleep(5 * time.Second)
+
+	// Testing if stripe subscriptions exist
+
+	sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
+	subListParams := &stripe.SubscriptionListParams{}
+	subListParams.Limit = stripe.Int64(20)
+	subListParams.AddExpand("data.customer")
+	iter := sc.Subscriptions.List(subListParams)
+	count := 0
+	// email -> plan/price id -> subscription
+	userPlans := map[string]*stripe.Subscription{}
+	inviterPlans := map[string]*stripe.Subscription{}
+	for iter.Next() {
+		if count > 20 {
+			break
+		}
+		count++
+
+		c := iter.Subscription()
+		if len(opts.inviterEmail) > 0 && c.Customer.Email == opts.inviterEmail {
+			if c.Plan != nil {
+				inviterPlans[c.Plan.ID] = c
+			}
+		}
+		if c.Customer.Email == email {
+			if c.Plan != nil {
+				userPlans[c.Plan.ID] = c
+			}
+		}
+	}
+
+	if opts.shouldJoin {
+		priceID := os.Getenv("MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID")
+		sub, found := inviterPlans[priceID]
+		if !found {
+			t.Fatalf("Subscription with price ID %v not found", priceID)
+		}
+		if sub.Quantity != int64(opts.xthInvitee) {
+			t.Fatalf("Subscription quantity '%v' should match invitee number '%v", sub.Quantity, opts.xthInvitee)
+		}
+	} else {
+		planID := os.Getenv("MICRO_STRIPE_PLAN_ID")
+		sub, found := userPlans[planID]
+		if !found {
+			t.Fatalf("Subscription with plan ID %v not found", planID)
+		}
+		if sub.Quantity != 1 {
+			t.Fatalf("Subscription quantity should be 1 but is %v", sub.Quantity)
 		}
 	}
 
