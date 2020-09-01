@@ -17,7 +17,16 @@ import (
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
-const accountPrefix = "account"
+const (
+	// format `account/namespace/timestamp`
+	accountByNamespacePrefix = "account/"
+	// format `account-by-time/timestamp/namespace`
+	// to help listing all accounts by a time
+	accountByTime = "account-by-time/"
+	// format `account-latest` to help listing
+	// latest measurements
+	accountByLatest = "account-latest/"
+)
 
 type Usage struct {
 	ns nsproto.NamespacesService
@@ -33,10 +42,15 @@ func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService) *Usage {
 	return u
 }
 
-// Call is a single request handler called via client.Call or the generated client code
+// List account history by namespace, or lists latest values for each namespace if history is not provided.
 func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.ListResponse) error {
 	log.Info("Received Usage.ListAccounts request")
-	records, err := mstore.Read(accountPrefix, store.ReadPrefix())
+
+	key := accountByLatest
+	if req.Namespace != "" {
+		key = accountByNamespacePrefix + req.Namespace + "/"
+	}
+	records, err := mstore.Read(key, store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {
 		return merrors.InternalServerError("usage.listAccounts", "Error listing store: %v", err)
 	}
@@ -73,18 +87,34 @@ func (e *Usage) loop() {
 				return
 			}
 			log.Infof("Got %v namespaces", len(rsp.Namespaces))
-			for _, v := range rsp.Namespaces {
-				u, err := e.usageForNamespace(v.Id)
+			for _, namespace := range rsp.Namespaces {
+				u, err := e.usageForNamespace(namespace.Id)
 				if err != nil {
-					log.Warn("Error getting usage for namespace %v: %v", v.Id, err)
+					log.Warn("Error getting usage for namespace '%v': %v", namespace.Id, err)
 					continue
 				}
 				u.Created = created.Unix()
 				val, _ := json.Marshal(u)
-				log.Infof("Saving usage for %v", v.Id)
+				log.Infof("Saving usage for namespace '%v'", namespace.Id)
+
 				// Save by namespace
+				timeVal := math.MaxInt64 - (created.Unix() % 3600)
 				err = mstore.Write(&store.Record{
-					Key:   fmt.Sprintf("%v/%v/%v", accountPrefix, v.Id, math.MaxInt64-(created.Unix()%3600)),
+					Key:   fmt.Sprintf("%v/%v/%v", accountByNamespacePrefix, namespace.Id, timeVal),
+					Value: val,
+				})
+				if err != nil {
+					log.Warnf("Error writing to store: %v", err)
+				}
+				err = mstore.Write(&store.Record{
+					Key:   fmt.Sprintf("%v/%v/%v", accountByTime, timeVal, namespace.Id),
+					Value: val,
+				})
+				if err != nil {
+					log.Warnf("Error writing to store: %v", err)
+				}
+				err = mstore.Write(&store.Record{
+					Key:   fmt.Sprintf("%v/%v", accountByLatest, namespace.Id),
 					Value: val,
 				})
 				if err != nil {
