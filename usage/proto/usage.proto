@@ -19,6 +19,8 @@ message Account {
 message ListRequest {
 	// optional parameter to filter by namespace
 	string namespace = 1;
+	int64 offset = 2;
+	int64 limit = 3;
 }
 
 message ListResponse {

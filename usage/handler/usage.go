@@ -50,7 +50,11 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 	if req.Namespace != "" {
 		key = accountByNamespacePrefix + req.Namespace + "/"
 	}
-	records, err := mstore.Read(key, store.ReadPrefix())
+	limit := req.Limit
+	if limit == 0 {
+		limit = 20
+	}
+	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
 		return merrors.InternalServerError("usage.listAccounts", "Error listing store: %v", err)
 	}
