@@ -126,6 +126,7 @@ func (b *Billing) loop() {
 			}
 
 			for _, max := range maxs {
+				log.Infof("Processing namespace '%v'", max.namespace)
 				customer, found := namespaceToOwner[max.namespace]
 				if !found {
 					log.Warnf("Owner customer id not found for namespace '%v'", max.namespace)
@@ -146,6 +147,8 @@ func (b *Billing) loop() {
 					if sub.Id == b.additionalUsersPriceID {
 						if sub.Quantity != max.users {
 							log.Infof("Users count needs amending")
+						} else {
+							log.Infof("User count ok")
 						}
 					}
 				}
