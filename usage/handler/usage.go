@@ -120,7 +120,7 @@ func (e *Usage) loop() {
 				log.Infof("Saving usage for namespace '%v'", namespace.Id)
 
 				// Save by namespace
-				timeVal := math.MaxInt64 - (created.Unix() % 3600)
+				timeVal := math.MaxInt64 - (created.Unix() % 3600 * 24) // 1 day
 				err = mstore.Write(&store.Record{
 					Key:   fmt.Sprintf("%v%v/%v", accountByNamespacePrefix, namespace.Id, timeVal),
 					Value: val,
