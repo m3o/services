@@ -146,6 +146,7 @@ func (b *Billing) loop() {
 				}
 				log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), max.namespace)
 				for _, sub := range subsRsp.Subscriptions {
+					log.Infof("Processing sub id %v plan id %v", sub.Id, sub.Plan.Id)
 					if sub.Plan.Id == b.additionalUsersPriceID {
 						if sub.Quantity != max.users {
 							log.Infof("Users count needs amending")
