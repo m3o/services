@@ -6,6 +6,8 @@ option go_package = "proto;billing";
 
 service Billing {
 	rpc Portal(PortalRequest) returns (PortalResponse) {}
+	// List amendments to be made
+	rpc ListAmendments(ListAmendmentRequest) returns (ListAmendmentResponse) {}
 }
 
 message PortalRequest {}

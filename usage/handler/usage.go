@@ -8,6 +8,7 @@ import (
 	"time"
 	usage "usage/proto"
 
+	"github.com/google/uuid"
 	nsproto "github.com/m3o/services/namespaces/proto"
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
@@ -26,6 +27,10 @@ const (
 	// format `account-latest` to help listing
 	// latest measurements
 	accountByLatest = "account-latest/"
+	// format ''account-distinct/$month/namespace/users/$countvalue`
+	// and 'account-distinct/$month/namespace/services/$countvalue`
+	accountByDistinct = "account-by-distinct/"
+	monthFormat       = "2006-01"
 )
 
 type Usage struct {
@@ -50,13 +55,25 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 	if req.Namespace != "" {
 		key = accountByNamespacePrefix + req.Namespace + "/"
 	}
+	if req.Distinct {
+		month := time.Now().Format(monthFormat)
+		if req.DistinctTime > 0 {
+			month = time.Unix(req.DistinctTime, 0).Format(monthFormat)
+		}
+		if len(req.Namespace) > 0 {
+			key = fmt.Sprintf("%v%v/%v/", accountByDistinct, month, req.Namespace)
+		} else {
+			key = fmt.Sprintf("%v%v/", accountByDistinct, month)
+		}
+		key = accountByNamespacePrefix + req.Namespace + "/"
+	}
 	limit := req.Limit
 	if limit == 0 {
 		limit = 20
 	}
 	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
-		return merrors.InternalServerError("usage.listAccounts", "Error listing store: %v", err)
+		return merrors.InternalServerError("usage.list", "Error listing store: %v", err)
 	}
 
 	accounts := []*usage.Account{}
@@ -64,7 +81,7 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 		u := &usg{}
 		err = json.Unmarshal(v.Value, u)
 		if err != nil {
-			return merrors.InternalServerError("usage.listAccounts", "Error unmarsjaling value: %v", err)
+			return merrors.InternalServerError("usage.list", "Error unmarsjaling value: %v", err)
 		}
 		accounts = append(accounts, &usage.Account{
 			Namespace: u.Namespace,
@@ -98,6 +115,7 @@ func (e *Usage) loop() {
 					continue
 				}
 				u.Created = created.Unix()
+				u.Id = uuid.New().String()
 				val, _ := json.Marshal(u)
 				log.Infof("Saving usage for namespace '%v'", namespace.Id)
 
@@ -124,6 +142,21 @@ func (e *Usage) loop() {
 				if err != nil {
 					log.Warnf("Error writing to store: %v", err)
 				}
+				month := created.Format(monthFormat)
+				err = mstore.Write(&store.Record{
+					Key:   fmt.Sprintf("%v%v/%v/users/%v", accountByDistinct, month, namespace.Id, u.Users),
+					Value: val,
+				})
+				if err != nil {
+					log.Warnf("Error writing to store: %v", err)
+				}
+				err = mstore.Write(&store.Record{
+					Key:   fmt.Sprintf("%v%v/%v/services/%vv", accountByDistinct, month, namespace.Id, u.Services),
+					Value: val,
+				})
+				if err != nil {
+					log.Warnf("Error writing to store: %v", err)
+				}
 			}
 		}()
 
@@ -132,6 +165,7 @@ func (e *Usage) loop() {
 }
 
 type usg struct {
+	Id        string
 	Users     int64
 	Services  int64
 	Created   int64
