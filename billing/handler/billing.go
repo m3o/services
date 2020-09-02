@@ -19,17 +19,19 @@ import (
 )
 
 type Billing struct {
-	stripeClient           *client.API // stripe api client
-	ns                     nsproto.NamespacesService
-	ss                     sproto.ProviderService
-	us                     uproto.UsageService
-	additionalUsersPriceID string
-	planID                 string
+	stripeClient              *client.API // stripe api client
+	ns                        nsproto.NamespacesService
+	ss                        sproto.ProviderService
+	us                        uproto.UsageService
+	additionalUsersPriceID    string
+	additionalServicesPriceID string
+	planID                    string
 }
 
 func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us uproto.UsageService) *Billing {
 	// this is only here for prototyping, should use subscriptions service properly
 	additionalUsersPriceID := mconfig.Get("micro", "subscriptions", "additional_users_price_id").String("")
+	additionalServicesPriceID := mconfig.Get("micro", "subscriptions", "additional_services_price_id").String("")
 	planID := mconfig.Get("micro", "subscriptions", "plan_id").String("")
 
 	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
@@ -37,12 +39,13 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
 	}
 	b := &Billing{
-		stripeClient:           client.New(apiKey, nil),
-		ns:                     ns,
-		ss:                     ss,
-		us:                     us,
-		additionalUsersPriceID: additionalUsersPriceID,
-		planID:                 planID,
+		stripeClient:              client.New(apiKey, nil),
+		ns:                        ns,
+		ss:                        ss,
+		us:                        us,
+		additionalUsersPriceID:    additionalUsersPriceID,
+		additionalServicesPriceID: additionalServicesPriceID,
+		planID:                    planID,
 	}
 	go b.loop()
 	return b

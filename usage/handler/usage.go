@@ -115,7 +115,7 @@ func (e *Usage) loop() {
 			for _, namespace := range rsp.Namespaces {
 				u, err := e.usageForNamespace(namespace.Id)
 				if err != nil {
-					log.Warn("Error getting usage for namespace '%v': %v", namespace.Id, err)
+					log.Warnf("Error getting usage for namespace '%v': %v", namespace.Id, err)
 					continue
 				}
 				u.Created = created.Unix()
@@ -195,7 +195,7 @@ func (e *Usage) usageForNamespace(namespace string) (*usg, error) {
 		Options: &rproto.ReadOptions{
 			Namespace: namespace,
 		},
-	})
+	}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
