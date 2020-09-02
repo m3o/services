@@ -259,7 +259,7 @@ func (b *Billing) loop() {
 					}
 				}
 
-				sub, exists = planIDToSub[b.additionalUsersPriceID]
+				sub, exists = planIDToSub[b.additionalServicesPriceID]
 				quantity = int64(0)
 				if exists {
 					quantity = sub.Quantity
