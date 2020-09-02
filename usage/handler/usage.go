@@ -155,7 +155,7 @@ func (e *Usage) loop() {
 					log.Warnf("Error writing to store: %v", err)
 				}
 				err = mstore.Write(&store.Record{
-					Key:   fmt.Sprintf("%v%v/%v/services/%vv", accountByDistinct, month, namespace.Id, u.Services),
+					Key:   fmt.Sprintf("%v%v/%v/services/%v", accountByDistinct, month, namespace.Id, u.Services),
 					Value: val,
 				})
 				if err != nil {
