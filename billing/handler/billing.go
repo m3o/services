@@ -126,7 +126,11 @@ func (b *Billing) loop() {
 			}
 
 			for _, max := range maxs {
-				customer := namespaceToOwner[max.namespace]
+				customer, found := namespaceToOwner[max.namespace]
+				if !found {
+					log.Warnf("Owner customer id not found for namespace %v", max.namespace)
+					continue
+				}
 				subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
 					CustomerId:   customer,
 					CustomerType: "user",
