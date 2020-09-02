@@ -139,7 +139,11 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 		return err
 	}
 	response.Subscription = objToProto(sub)
-	return mevents.Publish(subscriptionTopic, SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"})
+	ev := SubscriptionEvent{Subscription: *sub, Type: "subscriptions.created"}
+	if err := mevents.Publish(subscriptionTopic, ev); err != nil {
+		logger.Errorf("Error publishing subscriptions.created for event %+v", ev)
+	}
+	return nil
 }
 
 func (s Subscriptions) writeSubscription(sub *Subscription) error {
@@ -228,11 +232,13 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 	if err := s.writeSubscription(subscription); err != nil {
 		return err
 	}
-
-	return mevents.Publish(subscriptionTopic,
-		SubscriptionEvent{Subscription: *subscription, Type: "subscriptions.created"},
+	ev := SubscriptionEvent{Subscription: *subscription, Type: "subscriptions.created"}
+	if err := mevents.Publish(subscriptionTopic, ev,
 		events.WithMetadata(map[string]string{"user": request.NewUserID}),
-	)
+	); err != nil {
+		logger.Errorf("Error publishing subscriptions.deleted for user %s event %+v", request.NewUserID, ev)
+	}
+	return nil
 
 }
 
