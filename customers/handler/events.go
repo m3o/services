@@ -41,9 +41,9 @@ func ConsumeEvents() {
 		start := time.Now()
 		for {
 			var err error
-			evs, err = mevents.Subscribe("subscriptions",
-				events.WithAutoAck(false, 30*time.Second),
-				events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+			evs, err = mevents.Subscribe("subscriptions") //,
+			//events.WithAutoAck(false, 30*time.Second),
+			//events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 			if err == nil {
 				break
 			}
@@ -65,20 +65,20 @@ func processSubscriptionEvents(ch <-chan events.Event) {
 	for ev := range ch {
 		sub := &SubscriptionEvent{}
 		if err := json.Unmarshal(ev.Payload, sub); err != nil {
-			ev.Nack()
+			//ev.Nack()
 			logger.Errorf("Error unmarshalling subscription event: $s", err)
 			continue
 		}
 		switch sub.Type {
 		case "subscriptions.created":
 			if _, err := updateCustomerStatus(sub.Subscription.CustomerID, statusActive); err != nil {
-				ev.Nack()
+				//ev.Nack()
 				logger.Errorf("Error updating customers status for customers %s. %s", sub.Subscription.CustomerID, err)
 				continue
 			}
 			logger.Infof("Updated customer status to active from subscriptions.created event %+v", sub)
 		}
-		ev.Ack()
+		//ev.Ack()
 	}
 	// TODO what do you do if the channel closes
 }
