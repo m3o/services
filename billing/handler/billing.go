@@ -128,7 +128,7 @@ func (b *Billing) loop() {
 			for _, max := range maxs {
 				customer, found := namespaceToOwner[max.namespace]
 				if !found {
-					log.Warnf("Owner customer id not found for namespace %v", max.namespace)
+					log.Warnf("Owner customer id not found for namespace '%v'", max.namespace)
 					continue
 				}
 				subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
@@ -175,6 +175,7 @@ func getMax(accounts []*uproto.Account) map[string]*max {
 		if account.Services > m.services {
 			m.services = account.Services
 		}
+		m.namespace = account.Namespace
 		index[account.Namespace] = m
 	}
 	return index
