@@ -242,7 +242,7 @@ func (b *Billing) loop() {
 				if exists {
 					quantity = sub.Quantity
 				}
-				if sub.Quantity != max.users {
+				if quantity != max.users {
 					log.Infof("Users count needs amending. Saving")
 
 					err = saveAmendment(amendment{
@@ -264,11 +264,12 @@ func (b *Billing) loop() {
 				if exists {
 					quantity = sub.Quantity
 				}
-				if sub.Plan.Id == b.additionalServicesPriceID {
-					quantityShouldBe := max.services - int64(b.maxIncludedServices)
-					if quantityShouldBe < 0 {
-						quantityShouldBe = 0
-					}
+
+				quantityShouldBe := max.services - int64(b.maxIncludedServices)
+				if quantityShouldBe < 0 {
+					quantityShouldBe = 0
+				}
+				if quantity != quantityShouldBe {
 					err = saveAmendment(amendment{
 						ID:           uuid.New().String(),
 						PriceID:      b.additionalServicesPriceID,
