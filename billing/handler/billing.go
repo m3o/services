@@ -128,7 +128,8 @@ func (b *Billing) loop() {
 			for _, max := range maxs {
 				customer := namespaceToOwner[max.namespace]
 				subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
-					CustomerId: customer,
+					CustomerId:   customer,
+					CustomerType: "user",
 				}, goclient.WithAuthToken(), goclient.WithRequestTimeout(10*time.Second))
 				if err != nil {
 					log.Warnf("Error listing subscriptions for customer %v: %v", customer, err)
