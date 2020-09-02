@@ -54,7 +54,8 @@ func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService, runtime rprot
 // List account history by namespace, or lists latest values for each namespace if history is not provided.
 func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.ListResponse) error {
 	key := accountByLatest
-	if req.Namespace != "" {
+	if len(req.Namespace) > 0 {
+		log.Infof("Listing with namespace '%v'", req.Namespace)
 		key = accountByNamespacePrefix + req.Namespace + "/"
 	}
 	if req.Distinct {
