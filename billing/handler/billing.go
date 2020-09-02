@@ -134,6 +134,9 @@ func (b *Billing) loop() {
 					log.Warnf("Error listing subscriptions for customer %v: %v", customer, err)
 					continue
 				}
+				if subsRsp == nil {
+					continue
+				}
 				for _, sub := range subsRsp.Subscriptions {
 					if sub.Id == b.additionalUsersPriceID {
 						if sub.Quantity != max.users {
