@@ -129,7 +129,7 @@ func (b *Billing) loop() {
 				customer := namespaceToOwner[max.namespace]
 				subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
 					CustomerId: customer,
-				}, goclient.WithAuthToken(), goclient.WithDialTimeout(10*time.Second))
+				}, goclient.WithAuthToken(), goclient.WithRequestTimeout(10*time.Second))
 				if err != nil {
 					log.Warnf("Error listing subscriptions for customer %v: %v", customer, err)
 					continue
