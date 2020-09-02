@@ -232,45 +232,54 @@ func (b *Billing) loop() {
 				}
 				log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), max.namespace)
 
+				planIDToSub := map[string]*sproto.Subscription{}
 				for _, sub := range subsRsp.Subscriptions {
-					log.Infof("Processing sub id %v plan id %v", sub.Id, sub.Plan.Id)
+					planIDToSub[sub.Plan.Id] = sub
+				}
 
-					if sub.Plan.Id == b.additionalUsersPriceID {
-						if sub.Quantity != max.users {
-							log.Infof("Users count needs amending. Saving")
+				sub, exists := planIDToSub[b.additionalUsersPriceID]
+				quantity := int64(0)
+				if exists {
+					quantity = sub.Quantity
+				}
+				if sub.Quantity != max.users {
+					log.Infof("Users count needs amending. Saving")
 
-							err = saveAmendment(amendment{
-								ID:           uuid.New().String(),
-								PriceID:      sub.Plan.Id,
-								QuantityFrom: sub.Quantity,
-								QuantityTo:   max.users,
-								Namespace:    max.namespace,
-								Note:         "Additional users subscription needs changing",
-								Customer:     customer,
-							})
-							if err != nil {
-								log.Warnf("Error saving amendment: %v", err)
-							}
-						}
+					err = saveAmendment(amendment{
+						ID:           uuid.New().String(),
+						PriceID:      b.additionalUsersPriceID,
+						QuantityFrom: quantity,
+						QuantityTo:   max.users,
+						Namespace:    max.namespace,
+						Note:         "Additional users subscription needs changing",
+						Customer:     customer,
+					})
+					if err != nil {
+						log.Warnf("Error saving amendment: %v", err)
 					}
+				}
 
-					if sub.Plan.Id == b.additionalServicesPriceID {
-						quantityShouldBe := max.services - int64(b.maxIncludedServices)
-						if quantityShouldBe < 0 {
-							quantityShouldBe = 0
-						}
-						err = saveAmendment(amendment{
-							ID:           uuid.New().String(),
-							PriceID:      sub.Plan.Id,
-							QuantityFrom: sub.Quantity,
-							QuantityTo:   quantityShouldBe,
-							Namespace:    max.namespace,
-							Note:         "Additional services subscription needs changing",
-							Customer:     customer,
-						})
-						if err != nil {
-							log.Warnf("Error saving amendment: %v", err)
-						}
+				sub, exists = planIDToSub[b.additionalUsersPriceID]
+				quantity = int64(0)
+				if exists {
+					quantity = sub.Quantity
+				}
+				if sub.Plan.Id == b.additionalServicesPriceID {
+					quantityShouldBe := max.services - int64(b.maxIncludedServices)
+					if quantityShouldBe < 0 {
+						quantityShouldBe = 0
+					}
+					err = saveAmendment(amendment{
+						ID:           uuid.New().String(),
+						PriceID:      b.additionalServicesPriceID,
+						QuantityFrom: quantity,
+						QuantityTo:   quantityShouldBe,
+						Namespace:    max.namespace,
+						Note:         "Additional services subscription needs changing",
+						Customer:     customer,
+					})
+					if err != nil {
+						log.Warnf("Error saving amendment: %v", err)
 					}
 				}
 			}
