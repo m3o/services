@@ -74,7 +74,7 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 		limit = 20
 	}
 
-	log.Info("Received Usage.ListAccounts request, listing with key '%v', limit '%v'", key, limit)
+	log.Infof("Received Usage.ListAccounts request, listing with key '%v', limit '%v'", key, limit)
 
 	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
