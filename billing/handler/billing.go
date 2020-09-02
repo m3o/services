@@ -128,7 +128,7 @@ func (b *Billing) loop() {
 			for _, max := range maxs {
 				log.Infof("Processing namespace '%v'", max.namespace)
 				customer, found := namespaceToOwner[max.namespace]
-				if !found {
+				if !found || len(customer) == 0 {
 					log.Warnf("Owner customer id not found for namespace '%v'", max.namespace)
 					continue
 				}
