@@ -2,8 +2,11 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	billing "github.com/m3o/services/billing/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
 	sproto "github.com/m3o/services/payments/provider/proto"
@@ -11,11 +14,22 @@ import (
 	"github.com/micro/go-micro/v3/auth"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
+	merrors "github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/config"
 	mconfig "github.com/micro/micro/v3/service/config"
 	log "github.com/micro/micro/v3/service/logger"
+	mstore "github.com/micro/micro/v3/service/store"
 	"github.com/stripe/stripe-go/v71"
 	"github.com/stripe/stripe-go/v71/client"
+)
+
+const (
+	// format: `amendment/2020-09/namespace`
+	amendmentPrefix = "amendment/"
+	// format: `amendment-by-namespace/namespace/2020-09`
+	amendmentByNamespacePrefix = "amendment-by-namespace/"
+	monthFormat                = "2006-01"
 )
 
 type Billing struct {
@@ -26,6 +40,7 @@ type Billing struct {
 	additionalUsersPriceID    string
 	additionalServicesPriceID string
 	planID                    string
+	maxFreeServices           int
 }
 
 func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us uproto.UsageService) *Billing {
@@ -33,6 +48,7 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 	additionalUsersPriceID := mconfig.Get("micro", "subscriptions", "additional_users_price_id").String("")
 	additionalServicesPriceID := mconfig.Get("micro", "subscriptions", "additional_services_price_id").String("")
 	planID := mconfig.Get("micro", "subscriptions", "plan_id").String("")
+	maxFreeServices := mconfig.Get("micro", "billing", "max_free_services").Int(10)
 
 	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
 	if len(apiKey) == 0 {
@@ -46,9 +62,48 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 		additionalUsersPriceID:    additionalUsersPriceID,
 		additionalServicesPriceID: additionalServicesPriceID,
 		planID:                    planID,
+		maxFreeServices:           maxFreeServices,
 	}
 	go b.loop()
 	return b
+}
+
+// List account history by namespace, or lists latest values for each namespace if history is not provided.
+func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendmentsRequest, rsp *billing.ListAmendmentsResponse) error {
+	key := amendmentPrefix
+	if len(req.Namespace) > 0 {
+		key = amendmentByNamespacePrefix + req.Namespace + "/"
+	}
+	limit := req.Limit
+	if limit == 0 {
+		limit = 20
+	}
+
+	log.Infof("Received Billing.ListAmendments request, listing with key '%v', limit '%v'", key, limit)
+
+	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
+	if err != nil && err != store.ErrNotFound {
+		return merrors.InternalServerError("billing.ListAmendments", "Error listing store: %v", err)
+	}
+
+	amendments := []*billing.Amendment{}
+	for _, v := range records {
+		u := &amendment{}
+		err = json.Unmarshal(v.Value, u)
+		if err != nil {
+			return merrors.InternalServerError("billing.ListAmendments", "Error unmarsjaling value: %v", err)
+		}
+		amendments = append(amendments, &billing.Amendment{
+			Namespace:    u.Namespace,
+			Created:      u.Created,
+			QuantityFrom: u.QuantityFrom,
+			QuantityTo:   u.QuantityTo,
+			PlanID:       u.PlanID,
+			PriceID:      u.PriceID,
+		})
+	}
+	rsp.Amendments = amendments
+	return nil
 }
 
 // Portal returns the billing portal address the customers can go to to manager their subscriptons
@@ -82,6 +137,16 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 	}
 	rsp.Url = sess.URL
 	return nil
+}
+
+type amendment struct {
+	ID           string
+	Namespace    string
+	PlanID       string
+	PriceID      string
+	QuantityFrom int64
+	QuantityTo   int64
+	Created      int64
 }
 
 func (b *Billing) loop() {
@@ -148,13 +213,41 @@ func (b *Billing) loop() {
 					continue
 				}
 				log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), max.namespace)
+
 				for _, sub := range subsRsp.Subscriptions {
 					log.Infof("Processing sub id %v plan id %v", sub.Id, sub.Plan.Id)
+
 					if sub.Plan.Id == b.additionalUsersPriceID {
 						if sub.Quantity != max.users {
-							log.Infof("Users count needs amending")
-						} else {
-							log.Infof("User count ok: subscription quantity and user count: %v", sub.Quantity)
+							log.Infof("Users count needs amending. Saving")
+
+							err = saveAmendment(amendment{
+								ID:           uuid.New().String(),
+								PriceID:      sub.Plan.Id,
+								QuantityFrom: sub.Quantity,
+								QuantityTo:   max.users,
+								Namespace:    max.namespace,
+							})
+							if err != nil {
+								log.Warnf("Error saving amendment: %v", err)
+							}
+						}
+					}
+
+					if sub.Plan.Id == b.additionalServicesPriceID {
+						quantityShouldBe := max.services - int64(b.maxFreeServices)
+						if quantityShouldBe < 0 {
+							quantityShouldBe = 0
+						}
+						err = saveAmendment(amendment{
+							ID:           uuid.New().String(),
+							PriceID:      sub.Plan.Id,
+							QuantityFrom: sub.Quantity,
+							QuantityTo:   quantityShouldBe,
+							Namespace:    max.namespace,
+						})
+						if err != nil {
+							log.Warnf("Error saving amendment: %v", err)
 						}
 					}
 				}
@@ -163,6 +256,23 @@ func (b *Billing) loop() {
 
 		time.Sleep(1 * time.Hour)
 	}
+}
+
+func saveAmendment(record amendment) error {
+	tim := time.Now()
+	val, _ := json.Marshal(record)
+	month := tim.Format(monthFormat)
+	err := mstore.Write(&store.Record{
+		Key:   fmt.Sprintf("%v%v/%v", amendmentPrefix, month, record.Namespace),
+		Value: val,
+	})
+	if err != nil {
+		return err
+	}
+	return mstore.Write(&store.Record{
+		Key:   fmt.Sprintf("%v%v/%v", amendmentByNamespacePrefix, record.Namespace, month),
+		Value: val,
+	})
 }
 
 type max struct {

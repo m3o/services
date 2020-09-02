@@ -26,7 +26,11 @@ message Amendment {
 	int64 created = 7;
 }
 
-message ListAmendmentsRequest {}
+message ListAmendmentsRequest {
+	string namespace = 1;
+	int64 offset = 2;
+	int64 limit = 3;
+}
 
 message ListAmendmentsResponse {
 	repeated Amendment amendments = 1;
