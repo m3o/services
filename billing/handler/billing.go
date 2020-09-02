@@ -41,7 +41,7 @@ type Billing struct {
 	additionalUsersPriceID    string
 	additionalServicesPriceID string
 	planID                    string
-	maxFreeServices           int
+	maxIncludedServices       int
 }
 
 func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us uproto.UsageService) *Billing {
@@ -49,7 +49,7 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 	additionalUsersPriceID := mconfig.Get("micro", "subscriptions", "additional_users_price_id").String("")
 	additionalServicesPriceID := mconfig.Get("micro", "subscriptions", "additional_services_price_id").String("")
 	planID := mconfig.Get("micro", "subscriptions", "plan_id").String("")
-	maxFreeServices := mconfig.Get("micro", "billing", "max_free_services").Int(10)
+	maxIncludedServices := mconfig.Get("micro", "billing", "max_included_services").Int(10)
 
 	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
 	if len(apiKey) == 0 {
@@ -63,7 +63,7 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 		additionalUsersPriceID:    additionalUsersPriceID,
 		additionalServicesPriceID: additionalServicesPriceID,
 		planID:                    planID,
-		maxFreeServices:           maxFreeServices,
+		maxIncludedServices:       maxIncludedServices,
 	}
 	go b.loop()
 	return b
@@ -255,7 +255,7 @@ func (b *Billing) loop() {
 					}
 
 					if sub.Plan.Id == b.additionalServicesPriceID {
-						quantityShouldBe := max.services - int64(b.maxFreeServices)
+						quantityShouldBe := max.services - int64(b.maxIncludedServices)
 						if quantityShouldBe < 0 {
 							quantityShouldBe = 0
 						}
