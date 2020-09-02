@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"math"
 	"time"
-	usage "usage/proto"
+
+	usage "github.com/m3o/services/usage/proto"
 
 	"github.com/google/uuid"
 	nsproto "github.com/m3o/services/namespaces/proto"
@@ -15,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	log "github.com/micro/micro/v3/service/logger"
+	rproto "github.com/micro/micro/v3/service/runtime/proto"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
@@ -34,14 +36,16 @@ const (
 )
 
 type Usage struct {
-	ns nsproto.NamespacesService
-	as pb.AccountsService
+	ns      nsproto.NamespacesService
+	as      pb.AccountsService
+	runtime rproto.RuntimeService
 }
 
-func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService) *Usage {
+func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService, runtime rproto.RuntimeService) *Usage {
 	u := &Usage{
-		ns: ns,
-		as: as,
+		ns:      ns,
+		as:      as,
+		runtime: runtime,
 	}
 	go u.loop()
 	return u
@@ -182,15 +186,20 @@ func (e *Usage) usageForNamespace(namespace string) (*usg, error) {
 		return nil, err
 	}
 	userCount := 0
-	serviceCount := 0
 	for _, account := range arsp.Accounts {
 		if account.Type == "user" {
 			userCount++
 		}
-		if account.Type == "service" {
-			serviceCount++
-		}
 	}
+	rrsp, err := e.runtime.Read(context.TODO(), &rproto.ReadRequest{
+		Options: &rproto.ReadOptions{
+			Namespace: namespace,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	serviceCount := len(rrsp.Services)
 	return &usg{
 		Users:     int64(userCount),
 		Services:  int64(serviceCount),

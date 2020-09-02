@@ -151,7 +151,7 @@ func (b *Billing) loop() {
 						if sub.Quantity != max.users {
 							log.Infof("Users count needs amending")
 						} else {
-							log.Infof("User count ok")
+							log.Infof("User count ok: subscription quantity and user count: %v", sub.Quantity)
 						}
 					}
 				}

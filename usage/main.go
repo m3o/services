@@ -1,12 +1,13 @@
 package main
 
 import (
-	"usage/handler"
+	"github.com/m3o/services/usage/handler"
 
 	nsproto "github.com/m3o/services/namespaces/proto"
 	"github.com/micro/micro/v3/service"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/logger"
+	rproto "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	srv.Handle(handler.NewUsage(
 		nsproto.NewNamespacesService("namespaces", srv.Client()),
 		pb.NewAccountsService("auth", srv.Client()),
+		rproto.NewRuntimeService("runtime", srv.Client()),
 	))
 
 	// Run service

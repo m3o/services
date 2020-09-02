@@ -6,8 +6,8 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/micro/go-micro v1.18.0
-	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200825081046-bf8b3aeac796
-	github.com/micro/micro/v3 v3.0.0-beta.0.20200826095016-4f5885a4e864
+	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200902122854-6bdf33c4eede
+	github.com/micro/micro/v3 v3.0.0-beta.3.0.20200902130351-31ffe18be83e
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sethvargo/go-diceware v0.2.0
 	github.com/slack-go/slack v0.6.5
