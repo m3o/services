@@ -7,11 +7,27 @@ option go_package = "proto;billing";
 service Billing {
 	rpc Portal(PortalRequest) returns (PortalResponse) {}
 	// List amendments to be made
-	rpc ListAmendments(ListAmendmentRequest) returns (ListAmendmentResponse) {}
+	rpc ListAmendments(ListAmendmentsRequest) returns (ListAmendmentsResponse) {}
 }
 
 message PortalRequest {}
 
 message PortalResponse {
 	string url = 1;
+}
+
+message Amendment {
+	string id = 1;
+	string namespace = 2;
+	string planID = 3;
+	string priceID = 4;
+	int64 quantityFrom = 5;
+	int64 quantityTo = 6;
+	int64 created = 7;
+}
+
+message ListAmendmentsRequest {}
+
+message ListAmendmentsResponse {
+	repeated Amendment amendments = 1;
 }
