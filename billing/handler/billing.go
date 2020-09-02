@@ -141,6 +141,7 @@ func (b *Billing) loop() {
 					continue
 				}
 				if subsRsp == nil {
+					log.Warnf("Subscriptions listing response seems empty")
 					continue
 				}
 				for _, sub := range subsRsp.Subscriptions {
