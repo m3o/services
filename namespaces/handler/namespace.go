@@ -90,8 +90,11 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 	}
 	response.Namespace = objToProto(ns)
 
-	return mevents.Publish(nsTopic, NamespaceEvent{Namespace: *ns, Type: "namespaces.created"})
-
+	ev := NamespaceEvent{Namespace: *ns, Type: "namespaces.created"}
+	if err := mevents.Publish(nsTopic, ev); err != nil {
+		log.Errorf("Error publishing namespaces.created for event %+v", ev)
+	}
+	return nil
 }
 
 // writeNamespace writes to the store. We deliberately denormalise/duplicate across many indexes to optimise for reads
@@ -216,10 +219,13 @@ func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserReque
 	if err := writeNamespace(ns); err != nil {
 		return err
 	}
-	// TODO anything else we need to do for adding a user to namespace?
-	return mevents.Publish(nsTopic,
-		NamespaceEvent{Namespace: *ns, Type: "namespaces.adduser"},
-		events.WithMetadata(map[string]string{"user": request.User}))
+	ev := NamespaceEvent{Namespace: *ns, Type: "namespaces.adduser"}
+	if err := mevents.Publish(nsTopic, ev,
+		events.WithMetadata(map[string]string{"user": request.User})); err != nil {
+		log.Errorf("Error publishing namespaces.adduser for user %s and event %+v", request.User, ev)
+
+	}
+	return nil
 }
 
 func (n Namespaces) RemoveUser(ctx context.Context, request *namespace.RemoveUserRequest, response *namespace.RemoveUserResponse) error {

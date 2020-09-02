@@ -761,6 +761,17 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		}
 	}
 
+	test.Try("Check customer marked active", t, func() ([]byte, error) {
+		outp, err := exec.Command("call", "customers", "read", "--id="+email).CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), `"status": "active"`) {
+			return outp, fmt.Errorf("Customer status is not active")
+		}
+		return nil, nil
+	}, 60*time.Second)
+
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.Failed() {

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/micro/go-micro/v3/logger"
+
 	"github.com/micro/go-micro/v3/auth"
 
 	customer "github.com/m3o/services/customers/proto"
@@ -69,8 +71,11 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 		return err
 	}
 	response.Customer = objToProto(cust)
-
-	return mevents.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.created"})
+	ev := CustomerEvent{Customer: *cust, Type: "customers.created"}
+	if err := mevents.Publish(custTopic, ev); err != nil {
+		log.Errorf("Error publishing customers.created event %+v", ev)
+	}
+	return nil
 }
 
 func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVerifiedRequest, response *customer.MarkVerifiedResponse) error {
@@ -84,7 +89,11 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	if err != nil {
 		return err
 	}
-	return mevents.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.verified"})
+	ev := CustomerEvent{Customer: *cust, Type: "customers.verified"}
+	if err := mevents.Publish(custTopic, ev); err != nil {
+		log.Errorf("Error publishing customers.verified event %+v", ev)
+	}
+	return nil
 }
 
 func readCustomer(customerID string) (*CustomerModel, error) {
@@ -131,7 +140,11 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 	if err != nil {
 		return err
 	}
-	return mevents.Publish(custTopic, CustomerEvent{Customer: *cust, Type: "customers.deleted"})
+	ev := CustomerEvent{Customer: *cust, Type: "customers.deleted"}
+	if err := mevents.Publish(custTopic, ev); err != nil {
+		log.Errorf("Error publishing customers.deleted event %+v", ev)
+	}
+	return nil
 }
 
 func updateCustomerStatus(customerID, status string) (*CustomerModel, error) {
