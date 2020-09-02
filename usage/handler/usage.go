@@ -53,8 +53,6 @@ func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService, runtime rprot
 
 // List account history by namespace, or lists latest values for each namespace if history is not provided.
 func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.ListResponse) error {
-	log.Info("Received Usage.ListAccounts request")
-
 	key := accountByLatest
 	if req.Namespace != "" {
 		key = accountByNamespacePrefix + req.Namespace + "/"
@@ -75,6 +73,9 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 	if limit == 0 {
 		limit = 20
 	}
+
+	log.Info("Received Usage.ListAccounts request, listing with key '%v', limit '%v'", key, limit)
+
 	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
 		return merrors.InternalServerError("usage.list", "Error listing store: %v", err)
