@@ -55,7 +55,6 @@ func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService, runtime rprot
 func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.ListResponse) error {
 	key := accountByLatest
 	if len(req.Namespace) > 0 {
-		log.Infof("Listing with namespace '%v'", req.Namespace)
 		key = accountByNamespacePrefix + req.Namespace + "/"
 	}
 	if req.Distinct {
@@ -68,7 +67,6 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 		} else {
 			key = fmt.Sprintf("%v%v/", accountByDistinct, month)
 		}
-		key = accountByNamespacePrefix + req.Namespace + "/"
 	}
 	limit := req.Limit
 	if limit == 0 {
