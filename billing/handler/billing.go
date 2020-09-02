@@ -79,7 +79,9 @@ func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendment
 	switch {
 	case acc.Issuer == defaultNamespace:
 	case acc.Issuer != req.Namespace:
-		return errors.Unauthorized("billing.ListAmendments", "Unauthorized")
+		// Instead of throwing an unauthorized, we default back to listing
+		// the users namespace
+		req.Namespace = acc.Issuer
 	}
 
 	key := amendmentPrefix
