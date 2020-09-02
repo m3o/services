@@ -30,6 +30,7 @@ const (
 	// format: `amendment-by-namespace/namespace/2020-09`
 	amendmentByNamespacePrefix = "amendment-by-namespace/"
 	monthFormat                = "2006-01"
+	defaultNamespace           = "micro"
 )
 
 type Billing struct {
@@ -70,6 +71,17 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 
 // List account history by namespace, or lists latest values for each namespace if history is not provided.
 func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendmentsRequest, rsp *billing.ListAmendmentsResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("billing.ListAmendments", "Unauthorized")
+	}
+
+	switch {
+	case acc.Issuer == defaultNamespace:
+	case acc.Issuer != req.Namespace:
+		return errors.Unauthorized("billing.ListAmendments", "Unauthorized")
+	}
+
 	key := amendmentPrefix
 	if len(req.Namespace) > 0 {
 		key = amendmentByNamespacePrefix + req.Namespace + "/"
@@ -100,6 +112,8 @@ func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendment
 			QuantityTo:   u.QuantityTo,
 			PlanID:       u.PlanID,
 			PriceID:      u.PriceID,
+			Note:         u.Note,
+			Customer:     u.Customer,
 		})
 	}
 	rsp.Amendments = amendments
@@ -147,6 +161,8 @@ type amendment struct {
 	QuantityFrom int64
 	QuantityTo   int64
 	Created      int64
+	Note         string
+	Customer     string
 }
 
 func (b *Billing) loop() {
@@ -227,6 +243,8 @@ func (b *Billing) loop() {
 								QuantityFrom: sub.Quantity,
 								QuantityTo:   max.users,
 								Namespace:    max.namespace,
+								Note:         "Additional users subscription needs changing",
+								Customer:     customer,
 							})
 							if err != nil {
 								log.Warnf("Error saving amendment: %v", err)
@@ -245,6 +263,8 @@ func (b *Billing) loop() {
 							QuantityFrom: sub.Quantity,
 							QuantityTo:   quantityShouldBe,
 							Namespace:    max.namespace,
+							Note:         "Additional services subscription needs changing",
+							Customer:     customer,
 						})
 						if err != nil {
 							log.Warnf("Error saving amendment: %v", err)

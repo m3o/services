@@ -23,7 +23,10 @@ message Amendment {
 	string priceID = 4;
 	int64 quantityFrom = 5;
 	int64 quantityTo = 6;
-	int64 created = 7;
+	string note = 7;
+	int64 created = 8;
+	// customer email, not a stripe customer id
+	string customer = 9;
 }
 
 message ListAmendmentsRequest {
