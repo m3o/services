@@ -40,6 +40,7 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 		stripeClient:           client.New(apiKey, nil),
 		ns:                     ns,
 		ss:                     ss,
+		us:                     us,
 		additionalUsersPriceID: additionalUsersPriceID,
 		planID:                 planID,
 	}
