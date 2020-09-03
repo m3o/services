@@ -43,8 +43,8 @@ func NewBillingEndpoints() []*api.Endpoint {
 
 type BillingService interface {
 	Portal(ctx context.Context, in *PortalRequest, opts ...client.CallOption) (*PortalResponse, error)
-	// List amendments to be made
-	ListAmendments(ctx context.Context, in *ListAmendmentsRequest, opts ...client.CallOption) (*ListAmendmentsResponse, error)
+	// List updates to be made
+	Updates(ctx context.Context, in *UpdatesRequest, opts ...client.CallOption) (*UpdatesResponse, error)
 }
 
 type billingService struct {
@@ -69,9 +69,9 @@ func (c *billingService) Portal(ctx context.Context, in *PortalRequest, opts ...
 	return out, nil
 }
 
-func (c *billingService) ListAmendments(ctx context.Context, in *ListAmendmentsRequest, opts ...client.CallOption) (*ListAmendmentsResponse, error) {
-	req := c.c.NewRequest(c.name, "Billing.ListAmendments", in)
-	out := new(ListAmendmentsResponse)
+func (c *billingService) Updates(ctx context.Context, in *UpdatesRequest, opts ...client.CallOption) (*UpdatesResponse, error) {
+	req := c.c.NewRequest(c.name, "Billing.Updates", in)
+	out := new(UpdatesResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -83,14 +83,14 @@ func (c *billingService) ListAmendments(ctx context.Context, in *ListAmendmentsR
 
 type BillingHandler interface {
 	Portal(context.Context, *PortalRequest, *PortalResponse) error
-	// List amendments to be made
-	ListAmendments(context.Context, *ListAmendmentsRequest, *ListAmendmentsResponse) error
+	// List updates to be made
+	Updates(context.Context, *UpdatesRequest, *UpdatesResponse) error
 }
 
 func RegisterBillingHandler(s server.Server, hdlr BillingHandler, opts ...server.HandlerOption) error {
 	type billing interface {
 		Portal(ctx context.Context, in *PortalRequest, out *PortalResponse) error
-		ListAmendments(ctx context.Context, in *ListAmendmentsRequest, out *ListAmendmentsResponse) error
+		Updates(ctx context.Context, in *UpdatesRequest, out *UpdatesResponse) error
 	}
 	type Billing struct {
 		billing
@@ -107,6 +107,6 @@ func (h *billingHandler) Portal(ctx context.Context, in *PortalRequest, out *Por
 	return h.BillingHandler.Portal(ctx, in, out)
 }
 
-func (h *billingHandler) ListAmendments(ctx context.Context, in *ListAmendmentsRequest, out *ListAmendmentsResponse) error {
-	return h.BillingHandler.ListAmendments(ctx, in, out)
+func (h *billingHandler) Updates(ctx context.Context, in *UpdatesRequest, out *UpdatesResponse) error {
+	return h.BillingHandler.Updates(ctx, in, out)
 }

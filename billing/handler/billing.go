@@ -25,12 +25,12 @@ import (
 )
 
 const (
-	// format: `amendment/2020-09/namespace`
-	amendmentPrefix = "amendment/"
-	// format: `amendment-by-namespace/namespace/2020-09`
-	amendmentByNamespacePrefix = "amendment-by-namespace/"
-	monthFormat                = "2006-01"
-	defaultNamespace           = "micro"
+	// format: `update/2020-09/namespace`
+	updatePrefix = "update/"
+	// format: `update-by-namespace/namespace/2020-09`
+	updateByNamespacePrefix = "update-by-namespace/"
+	monthFormat             = "2006-01"
+	defaultNamespace        = "micro"
 )
 
 type Billing struct {
@@ -70,10 +70,10 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 }
 
 // List account history by namespace, or lists latest values for each namespace if history is not provided.
-func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendmentsRequest, rsp *billing.ListAmendmentsResponse) error {
+func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp *billing.UpdatesResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
-		return errors.Unauthorized("billing.ListAmendments", "Unauthorized")
+		return errors.Unauthorized("billing.ListUpdates", "Unauthorized")
 	}
 
 	switch {
@@ -84,30 +84,30 @@ func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendment
 		req.Namespace = acc.Issuer
 	}
 
-	key := amendmentPrefix
+	key := updatePrefix
 	if len(req.Namespace) > 0 {
-		key = amendmentByNamespacePrefix + req.Namespace + "/"
+		key = updateByNamespacePrefix + req.Namespace + "/"
 	}
 	limit := req.Limit
 	if limit == 0 {
 		limit = 20
 	}
 
-	log.Infof("Received Billing.ListAmendments request, listing with key '%v', limit '%v'", key, limit)
+	log.Infof("Received Billing.ListUpdates request, listing with key '%v', limit '%v'", key, limit)
 
 	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
-		return merrors.InternalServerError("billing.ListAmendments", "Error listing store: %v", err)
+		return merrors.InternalServerError("billing.ListUpdates", "Error listing store: %v", err)
 	}
 
-	amendments := []*billing.Amendment{}
+	updates := []*billing.Update{}
 	for _, v := range records {
-		u := &amendment{}
+		u := &update{}
 		err = json.Unmarshal(v.Value, u)
 		if err != nil {
-			return merrors.InternalServerError("billing.ListAmendments", "Error unmarsjaling value: %v", err)
+			return merrors.InternalServerError("billing.ListUpdates", "Error unmarsjaling value: %v", err)
 		}
-		amendments = append(amendments, &billing.Amendment{
+		updates = append(updates, &billing.Update{
 			Namespace:    u.Namespace,
 			Created:      u.Created,
 			QuantityFrom: u.QuantityFrom,
@@ -119,7 +119,7 @@ func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendment
 			Id:           u.ID,
 		})
 	}
-	rsp.Amendments = amendments
+	rsp.Updates = updates
 	return nil
 }
 
@@ -156,7 +156,7 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 	return nil
 }
 
-type amendment struct {
+type update struct {
 	ID           string
 	Namespace    string
 	PlanID       string
@@ -246,7 +246,7 @@ func (b *Billing) loop() {
 				if quantity != max.users {
 					log.Infof("Users count needs amending. Saving")
 
-					err = saveAmendment(amendment{
+					err = saveUpdate(update{
 						ID:           uuid.New().String(),
 						PriceID:      b.additionalUsersPriceID,
 						QuantityFrom: quantity,
@@ -256,7 +256,7 @@ func (b *Billing) loop() {
 						Customer:     customer,
 					})
 					if err != nil {
-						log.Warnf("Error saving amendment: %v", err)
+						log.Warnf("Error saving update: %v", err)
 					}
 				}
 
@@ -271,7 +271,7 @@ func (b *Billing) loop() {
 					quantityShouldBe = 0
 				}
 				if quantity != quantityShouldBe {
-					err = saveAmendment(amendment{
+					err = saveUpdate(update{
 						ID:           uuid.New().String(),
 						PriceID:      b.additionalServicesPriceID,
 						QuantityFrom: quantity,
@@ -281,7 +281,7 @@ func (b *Billing) loop() {
 						Customer:     customer,
 					})
 					if err != nil {
-						log.Warnf("Error saving amendment: %v", err)
+						log.Warnf("Error saving update: %v", err)
 					}
 				}
 			}
@@ -291,20 +291,27 @@ func (b *Billing) loop() {
 	}
 }
 
-func saveAmendment(record amendment) error {
+func saveUpdate(record update) error {
 	tim := time.Now()
 	record.Created = tim.Unix()
 	val, _ := json.Marshal(record)
 	month := tim.Format(monthFormat)
 	err := mstore.Write(&store.Record{
-		Key:   fmt.Sprintf("%v%v/%v", amendmentPrefix, month, record.Namespace),
+		Key:   fmt.Sprintf("%v%v/%v", updatePrefix, month, record.Namespace),
+		Value: val,
+	})
+	if err != nil {
+		return err
+	}
+	err = mstore.Write(&store.Record{
+		Key:   record.ID,
 		Value: val,
 	})
 	if err != nil {
 		return err
 	}
 	return mstore.Write(&store.Record{
-		Key:   fmt.Sprintf("%v%v/%v", amendmentByNamespacePrefix, record.Namespace, month),
+		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, month),
 		Value: val,
 	})
 }
