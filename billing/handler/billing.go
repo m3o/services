@@ -128,10 +128,16 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 	return nil
 }
 
-// List account history by namespace, or lists latest values for each namespace if history is not provided.
+// Apply a change to the account and update the subscriptions accordingly
 func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *billing.ApplyResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
+		return errors.Unauthorized("billing.Apply", "Unauthorized")
+	}
+
+	switch {
+	case acc.Issuer == defaultNamespace:
+	default:
 		return errors.Unauthorized("billing.Apply", "Unauthorized")
 	}
 
@@ -143,12 +149,6 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	err = json.Unmarshal(records[0].Value, u)
 	if err != nil {
 		return merrors.InternalServerError("billing.Apply", "Error unmarsjaling value: %v", err)
-	}
-
-	switch {
-	case acc.Issuer == defaultNamespace:
-	case acc.Issuer != u.Namespace:
-		return errors.Unauthorized("billing.Apply", "Unauthorized")
 	}
 
 	_, err = b.subs.Update(ctx, &subproto.UpdateRequest{
