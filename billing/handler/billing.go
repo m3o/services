@@ -116,6 +116,7 @@ func (b *Billing) ListAmendments(ctx context.Context, req *billing.ListAmendment
 			PriceID:      u.PriceID,
 			Note:         u.Note,
 			Customer:     u.Customer,
+			Id:           u.ID,
 		})
 	}
 	rsp.Amendments = amendments
@@ -262,7 +263,6 @@ func (b *Billing) loop() {
 				sub, exists = planIDToSub[b.additionalServicesPriceID]
 				quantity = int64(0)
 				if exists {
-					log.Infof("Existing service subscription: %v %v", sub.Id, sub.Quantity)
 					quantity = sub.Quantity
 				}
 
@@ -294,6 +294,7 @@ func (b *Billing) loop() {
 func saveAmendment(record amendment) error {
 	tim := time.Now()
 	val, _ := json.Marshal(record)
+	record.Created = tim.Unix()
 	month := tim.Format(monthFormat)
 	err := mstore.Write(&store.Record{
 		Key:   fmt.Sprintf("%v%v/%v", amendmentPrefix, month, record.Namespace),
