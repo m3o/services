@@ -293,8 +293,8 @@ func (b *Billing) loop() {
 
 func saveAmendment(record amendment) error {
 	tim := time.Now()
-	val, _ := json.Marshal(record)
 	record.Created = tim.Unix()
+	val, _ := json.Marshal(record)
 	month := tim.Format(monthFormat)
 	err := mstore.Write(&store.Record{
 		Key:   fmt.Sprintf("%v%v/%v", amendmentPrefix, month, record.Namespace),
