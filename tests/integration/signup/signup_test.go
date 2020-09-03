@@ -676,6 +676,87 @@ func testServicesSubscription(t *test.T) {
 	}
 }
 
+func TestUsersSubscription(t *testing.T) {
+	test.TrySuite(t, testUsersSubscription, retryCount)
+}
+
+func testUsersSubscription(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := testEmail(0)
+	password := "PassWord1@"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+
+	serv.Command().Exec("auth", "create", "account", "create", "hi@there.com")
+
+	adminConfFlag := "-c=" + serv.Command().Config + ".admin"
+	envFlag := "-e=" + serv.Env()
+	exec.Command("micro", envFlag, adminConfFlag, "kill", "billing").CombinedOutput()
+	time.Sleep(2 * time.Second)
+	exec.Command("micro", envFlag, adminConfFlag, "run", "../../../usage").CombinedOutput()
+	time.Sleep(4 * time.Second)
+	exec.Command("micro", envFlag, adminConfFlag, "run", "../../../billing").CombinedOutput()
+
+	changeId := ""
+	test.Try("Get changes", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		updatesRsp := map[string]interface{}{}
+		err = json.Unmarshal(outp, &updatesRsp)
+		if err != nil {
+			return outp, err
+		}
+		updates, ok := updatesRsp["updates"].([]interface{})
+		if !ok {
+			return outp, errors.New("Unexpected output")
+		}
+		if len(updates) == 0 {
+			return outp, errors.New("No updates found")
+		}
+		if updates[0].(map[string]interface{})["quantityTo"].(string) != "1" {
+			return outp, errors.New("Quantity should be 1")
+		}
+		changeId = updates[0].(map[string]interface{})["id"].(string)
+		if !strings.Contains(string(outp), "Additional users") {
+			return outp, errors.New("unexpected output")
+		}
+		if strings.Contains(string(outp), "Additional services") {
+			return outp, errors.New("unexpected output")
+		}
+		return outp, err
+	}, 30*time.Second)
+
+	test.Try("Apply change", t, func() ([]byte, error) {
+		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--id="+changeId).CombinedOutput()
+	}, 5*time.Second)
+
+	time.Sleep(4 * time.Second)
+	subs := getSubscriptions(t, email)
+	priceID := os.Getenv("MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID")
+	sub, ok := subs[priceID]
+	if !ok {
+		t.Fatalf("Sub with id %v not found", priceID)
+		return
+	}
+	if sub.Quantity != 1 {
+		t.Fatalf("Quantity should be 1, but it's %v", sub.Quantity)
+	}
+}
+
 // returns map witj plan (price) id -> subscriptions
 func getSubscriptions(t *test.T, email string) map[string]*stripe.Subscription {
 	sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)

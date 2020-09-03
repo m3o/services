@@ -287,7 +287,7 @@ func (b *Billing) loop() {
 						ID:           uuid.New().String(),
 						PriceID:      b.additionalUsersPriceID,
 						QuantityFrom: quantity,
-						QuantityTo:   max.users,
+						QuantityTo:   max.users - 1,
 						Namespace:    max.namespace,
 						Note:         "Additional users subscription needs changing",
 						Customer:     customer,
