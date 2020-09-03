@@ -110,7 +110,7 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 		u := &update{}
 		err = json.Unmarshal(v.Value, u)
 		if err != nil {
-			return merrors.InternalServerError("billing.Updates", "Error unmarsjaling value: %v", err)
+			return merrors.InternalServerError("billing.Updates", "Error unmarshaling value: %v", err)
 		}
 		updates = append(updates, &billing.Update{
 			Namespace:    u.Namespace,
