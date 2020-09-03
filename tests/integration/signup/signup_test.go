@@ -657,7 +657,7 @@ func testServicesSubscription(t *test.T) {
 			return outp, errors.New("unexpected output")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 40*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
 		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--id="+changeId).CombinedOutput()
@@ -738,7 +738,7 @@ func testUsersSubscription(t *test.T) {
 			return outp, errors.New("unexpected output")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 40*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
 		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--id="+changeId).CombinedOutput()
