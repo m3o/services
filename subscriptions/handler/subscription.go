@@ -265,7 +265,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 		if request.Quantity == 0 {
 			return errors.InternalServerError("subscriptions.Update", "Something is wrong, trying to create subscription with 0 value")
 		}
-		logger.Info("Creating sub with quantity 1")
+		logger.Infof("Creating sub with quantity %d", request.Quantity)
 		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
 			CustomerId:   request.OwnerID,
 			CustomerType: "user",
