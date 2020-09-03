@@ -288,8 +288,6 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 			return merrors.InternalServerError("signup", "Error updating subscription '%v': %v", sub.Id, err)
 		}
 	}
-	// @todo finish defining the data model for the subscriptions service
-	// and persist the subscription change
 	return nil
 }
 
