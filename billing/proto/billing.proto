@@ -8,6 +8,7 @@ service Billing {
 	rpc Portal(PortalRequest) returns (PortalResponse) {}
 	// List updates to be made
 	rpc Updates(UpdatesRequest) returns (UpdatesResponse) {}
+	rpc Apply(ApplyRequest) returns (ApplyResponse) {}
 }
 
 message PortalRequest {}
@@ -37,4 +38,11 @@ message UpdatesRequest {
 
 message UpdatesResponse {
 	repeated Update updates = 1;
+}
+
+message ApplyRequest {
+	string id = 1;
+}
+
+message ApplyResponse {
 }

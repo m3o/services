@@ -42,10 +42,14 @@ func NewSubscriptionsEndpoints() []*api.Endpoint {
 // Client API for Subscriptions service
 
 type SubscriptionsService interface {
+	// Create a subscription to the "M3O Platform" plan
 	Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error)
 	Cancel(ctx context.Context, in *CancelRequest, opts ...client.CallOption) (*CancelResponse, error)
-	// Add user to an existing subscription
+	// Soon to be deprecated and replaced with Update calls
 	AddUser(ctx context.Context, in *AddUserRequest, opts ...client.CallOption) (*AddUserResponse, error)
+	// Create or update subscriptions like "M3O Addition Users"
+	// or "M3O Additional Services"
+	Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error)
 }
 
 type subscriptionsService struct {
@@ -90,13 +94,27 @@ func (c *subscriptionsService) AddUser(ctx context.Context, in *AddUserRequest, 
 	return out, nil
 }
 
+func (c *subscriptionsService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
+	req := c.c.NewRequest(c.name, "Subscriptions.Update", in)
+	out := new(UpdateResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Subscriptions service
 
 type SubscriptionsHandler interface {
+	// Create a subscription to the "M3O Platform" plan
 	Create(context.Context, *CreateRequest, *CreateResponse) error
 	Cancel(context.Context, *CancelRequest, *CancelResponse) error
-	// Add user to an existing subscription
+	// Soon to be deprecated and replaced with Update calls
 	AddUser(context.Context, *AddUserRequest, *AddUserResponse) error
+	// Create or update subscriptions like "M3O Addition Users"
+	// or "M3O Additional Services"
+	Update(context.Context, *UpdateRequest, *UpdateResponse) error
 }
 
 func RegisterSubscriptionsHandler(s server.Server, hdlr SubscriptionsHandler, opts ...server.HandlerOption) error {
@@ -104,6 +122,7 @@ func RegisterSubscriptionsHandler(s server.Server, hdlr SubscriptionsHandler, op
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Cancel(ctx context.Context, in *CancelRequest, out *CancelResponse) error
 		AddUser(ctx context.Context, in *AddUserRequest, out *AddUserResponse) error
+		Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error
 	}
 	type Subscriptions struct {
 		subscriptions
@@ -126,4 +145,8 @@ func (h *subscriptionsHandler) Cancel(ctx context.Context, in *CancelRequest, ou
 
 func (h *subscriptionsHandler) AddUser(ctx context.Context, in *AddUserRequest, out *AddUserResponse) error {
 	return h.SubscriptionsHandler.AddUser(ctx, in, out)
+}
+
+func (h *subscriptionsHandler) Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error {
+	return h.SubscriptionsHandler.Update(ctx, in, out)
 }

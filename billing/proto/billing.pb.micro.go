@@ -45,6 +45,7 @@ type BillingService interface {
 	Portal(ctx context.Context, in *PortalRequest, opts ...client.CallOption) (*PortalResponse, error)
 	// List updates to be made
 	Updates(ctx context.Context, in *UpdatesRequest, opts ...client.CallOption) (*UpdatesResponse, error)
+	Apply(ctx context.Context, in *ApplyRequest, opts ...client.CallOption) (*ApplyResponse, error)
 }
 
 type billingService struct {
@@ -79,18 +80,30 @@ func (c *billingService) Updates(ctx context.Context, in *UpdatesRequest, opts .
 	return out, nil
 }
 
+func (c *billingService) Apply(ctx context.Context, in *ApplyRequest, opts ...client.CallOption) (*ApplyResponse, error) {
+	req := c.c.NewRequest(c.name, "Billing.Apply", in)
+	out := new(ApplyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Billing service
 
 type BillingHandler interface {
 	Portal(context.Context, *PortalRequest, *PortalResponse) error
 	// List updates to be made
 	Updates(context.Context, *UpdatesRequest, *UpdatesResponse) error
+	Apply(context.Context, *ApplyRequest, *ApplyResponse) error
 }
 
 func RegisterBillingHandler(s server.Server, hdlr BillingHandler, opts ...server.HandlerOption) error {
 	type billing interface {
 		Portal(ctx context.Context, in *PortalRequest, out *PortalResponse) error
 		Updates(ctx context.Context, in *UpdatesRequest, out *UpdatesResponse) error
+		Apply(ctx context.Context, in *ApplyRequest, out *ApplyResponse) error
 	}
 	type Billing struct {
 		billing
@@ -109,4 +122,8 @@ func (h *billingHandler) Portal(ctx context.Context, in *PortalRequest, out *Por
 
 func (h *billingHandler) Updates(ctx context.Context, in *UpdatesRequest, out *UpdatesResponse) error {
 	return h.BillingHandler.Updates(ctx, in, out)
+}
+
+func (h *billingHandler) Apply(ctx context.Context, in *ApplyRequest, out *ApplyResponse) error {
+	return h.BillingHandler.Apply(ctx, in, out)
 }

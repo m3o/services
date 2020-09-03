@@ -36,6 +36,7 @@ var (
 
 type Subscriptions struct {
 	paymentService paymentsproto.ProviderService
+	planID         string
 }
 
 type SubscriptionType struct {
@@ -55,6 +56,7 @@ func New(paySvc paymentsproto.ProviderService) *Subscriptions {
 
 	return &Subscriptions{
 		paymentService: paySvc,
+		planID:         planID,
 	}
 }
 
@@ -234,6 +236,61 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		events.WithMetadata(map[string]string{"user": request.NewUserID}),
 	)
 
+}
+
+func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateRequest, response *subscription.UpdateResponse) error {
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
+	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
+		CustomerId:   request.OwnerID,
+		CustomerType: "user",
+		PriceId:      additionalUsersPriceID,
+	}, client.WithAuthToken())
+	if err != nil {
+		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding sub: %v", err)
+	}
+	var sub *paymentsproto.Subscription
+	if len(subs.Subscriptions) > 0 {
+		for _, su := range subs.Subscriptions {
+			// plan and price ids are both store in s.Plan.Id
+			if su.Plan.Id == request.PriceID {
+				sub = su
+				break
+			}
+		}
+	}
+
+	if sub == nil {
+		if request.Quantity == 0 {
+			return errors.InternalServerError("subscriptions.Update", "Something is wrong, trying to create subscription with 0 value")
+		}
+		logger.Info("Creating sub with quantity 1")
+		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
+			CustomerId:   request.OwnerID,
+			CustomerType: "user",
+			PriceId:      request.PriceID,
+			Quantity:     sub.Quantity,
+		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+		if err != nil {
+			return merrors.InternalServerError("signup", "Error creating subscription: %v", err)
+		}
+	} else {
+		logger.Info("Increasing subscription quantity")
+		_, err = s.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
+			SubscriptionId: sub.Id,
+			CustomerId:     request.OwnerID,
+			CustomerType:   "user",
+			PriceId:        request.PriceID,
+			Quantity:       request.Quantity,
+		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
+		if err != nil {
+			return merrors.InternalServerError("signup", "Error updating subscription '%v': %v", sub.Id, err)
+		}
+	}
+	// @todo finish defining the data model for the subscriptions service
+	// and persist the subscription change
+	return nil
 }
 
 func authorizeCall(ctx context.Context) error {

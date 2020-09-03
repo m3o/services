@@ -10,6 +10,7 @@ import (
 	billing "github.com/m3o/services/billing/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
 	sproto "github.com/m3o/services/payments/provider/proto"
+	subproto "github.com/m3o/services/subscriptions/proto"
 	uproto "github.com/m3o/services/usage/proto"
 	"github.com/micro/go-micro/v3/auth"
 	goclient "github.com/micro/go-micro/v3/client"
@@ -38,13 +39,17 @@ type Billing struct {
 	ns                        nsproto.NamespacesService
 	ss                        sproto.ProviderService
 	us                        uproto.UsageService
+	subs                      subproto.SubscriptionsService
 	additionalUsersPriceID    string
 	additionalServicesPriceID string
 	planID                    string
 	maxIncludedServices       int
 }
 
-func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us uproto.UsageService) *Billing {
+func NewBilling(ns nsproto.NamespacesService,
+	ss sproto.ProviderService,
+	us uproto.UsageService,
+	subs subproto.SubscriptionsService) *Billing {
 	// this is only here for prototyping, should use subscriptions service properly
 	additionalUsersPriceID := mconfig.Get("micro", "subscriptions", "additional_users_price_id").String("")
 	additionalServicesPriceID := mconfig.Get("micro", "subscriptions", "additional_services_price_id").String("")
@@ -60,6 +65,7 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 		ns:                        ns,
 		ss:                        ss,
 		us:                        us,
+		subs:                      subs,
 		additionalUsersPriceID:    additionalUsersPriceID,
 		additionalServicesPriceID: additionalServicesPriceID,
 		planID:                    planID,
@@ -69,11 +75,10 @@ func NewBilling(ns nsproto.NamespacesService, ss sproto.ProviderService, us upro
 	return b
 }
 
-// List account history by namespace, or lists latest values for each namespace if history is not provided.
 func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp *billing.UpdatesResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
-		return errors.Unauthorized("billing.ListUpdates", "Unauthorized")
+		return errors.Unauthorized("billing.Updates", "Unauthorized")
 	}
 
 	switch {
@@ -93,11 +98,11 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 		limit = 20
 	}
 
-	log.Infof("Received Billing.ListUpdates request, listing with key '%v', limit '%v'", key, limit)
+	log.Infof("Received Billing.Updates request, listing with key '%v', limit '%v'", key, limit)
 
 	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
-		return merrors.InternalServerError("billing.ListUpdates", "Error listing store: %v", err)
+		return merrors.InternalServerError("billing.Updates", "Error listing store: %v", err)
 	}
 
 	updates := []*billing.Update{}
@@ -105,7 +110,7 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 		u := &update{}
 		err = json.Unmarshal(v.Value, u)
 		if err != nil {
-			return merrors.InternalServerError("billing.ListUpdates", "Error unmarsjaling value: %v", err)
+			return merrors.InternalServerError("billing.Updates", "Error unmarsjaling value: %v", err)
 		}
 		updates = append(updates, &billing.Update{
 			Namespace:    u.Namespace,
@@ -120,6 +125,31 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 		})
 	}
 	rsp.Updates = updates
+	return nil
+}
+
+// List account history by namespace, or lists latest values for each namespace if history is not provided.
+func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *billing.ApplyResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("billing.Apply", "Unauthorized")
+	}
+
+	records, err := mstore.Read(req.Id)
+	if err != nil || len(records) == 0 {
+		return merrors.InternalServerError("billing.Apply", "Error reading change: %v", err)
+	}
+	u := &update{}
+	err = json.Unmarshal(records[0].Value, u)
+	if err != nil {
+		return merrors.InternalServerError("billing.Apply", "Error unmarsjaling value: %v", err)
+	}
+
+	switch {
+	case acc.Issuer == defaultNamespace:
+	case acc.Issuer != u.Namespace:
+		return errors.Unauthorized("billing.Apply", "Unauthorized")
+	}
 	return nil
 }
 
