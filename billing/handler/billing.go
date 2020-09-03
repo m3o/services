@@ -150,7 +150,13 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	case acc.Issuer != u.Namespace:
 		return errors.Unauthorized("billing.Apply", "Unauthorized")
 	}
-	return nil
+
+	_, err = b.subs.Update(ctx, &subproto.UpdateRequest{
+		PriceID:  u.PriceID,
+		OwnerID:  u.Customer,
+		Quantity: u.QuantityTo,
+	})
+	return err
 }
 
 // Portal returns the billing portal address the customers can go to to manager their subscriptons
