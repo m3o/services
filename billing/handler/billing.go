@@ -262,7 +262,7 @@ func (b *Billing) loop() {
 				sub, exists = planIDToSub[b.additionalServicesPriceID]
 				quantity = int64(0)
 				if exists {
-					log.Infof("Existing service subscription: %v %v", sub.ID, sub.Quantity)
+					log.Infof("Existing service subscription: %v %v", sub.Id, sub.Quantity)
 					quantity = sub.Quantity
 				}
 
