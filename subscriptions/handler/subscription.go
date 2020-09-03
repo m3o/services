@@ -270,7 +270,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 			CustomerId:   request.OwnerID,
 			CustomerType: "user",
 			PriceId:      request.PriceID,
-			Quantity:     sub.Quantity,
+			Quantity:     request.Quantity,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 		if err != nil {
 			return merrors.InternalServerError("signup", "Error creating subscription: %v", err)

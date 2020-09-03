@@ -279,7 +279,8 @@ func (b *Billing) loop() {
 				if exists {
 					quantity = sub.Quantity
 				}
-				if quantity != max.users {
+				// 1 user is the owner itself
+				if quantity != max.users-1 {
 					log.Infof("Users count needs amending. Saving")
 
 					err = saveUpdate(update{
