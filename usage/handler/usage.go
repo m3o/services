@@ -11,8 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	nsproto "github.com/m3o/services/namespaces/proto"
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
@@ -56,18 +54,6 @@ func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService, runtime rprot
 
 // List account history by namespace, or lists latest values for each namespace if history is not provided.
 func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.ListResponse) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("billing.Updates", "Unauthorized")
-	}
-	switch {
-	case acc.Issuer == defaultNamespace:
-	case acc.Issuer != req.Namespace:
-		// Instead of throwing an unauthorized, we default back to listing
-		// the users namespace
-		req.Namespace = acc.Issuer
-	}
-
 	key := accountByLatest
 	if len(req.Namespace) > 0 {
 		key = accountByNamespacePrefix + req.Namespace + "/"
