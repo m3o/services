@@ -3,6 +3,8 @@ module github.com/m3o/services
 go 1.14
 
 require (
+	docker.io/go-docker v1.0.0
+	github.com/docker/go-docker v1.0.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200904073149-724e2b583082

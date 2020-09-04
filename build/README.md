@@ -32,6 +32,6 @@ Todo
 - [X] main.go
 - [X] proto
 - [X] handler
-- [ ] checkout git repo
 - [ ] build inside a container
 - [ ] push to registry
+- [ ] metrics

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package build;
+
+option go_package = "proto;build";
+
+service Build {
+    // Creates an image from Go source in a Git repo:
+	rpc ImageFromGitRepo(ImageFromGitRepoRequest) returns (ImageFromGitRepoResponse);
+}
+
+message ImageFromGitRepoRequest {
+    string sourceGitRepo = 1;
+    string targetDockerRegistry = 2;
+    string targetImageTag = 3;
+}
+
+message ImageFromGitRepoResponse {
+    string builtImageURL = 1;
+    string builtImageTag = 2;
+}

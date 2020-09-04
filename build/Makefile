@@ -1,6 +1,6 @@
 .PHONY: proto
 proto:
-	protoc --proto_path=. --micro_out=. --go_out=. proto/build/build.proto
+	protoc --proto_path=. --micro_out=. --go_out=. proto/build.proto
 
 .PHONY: build
 build: proto
