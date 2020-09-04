@@ -6,10 +6,43 @@ option go_package = "proto;billing";
 
 service Billing {
 	rpc Portal(PortalRequest) returns (PortalResponse) {}
+	// List updates to be made
+	rpc Updates(UpdatesRequest) returns (UpdatesResponse) {}
+	rpc Apply(ApplyRequest) returns (ApplyResponse) {}
 }
 
 message PortalRequest {}
 
 message PortalResponse {
 	string url = 1;
+}
+
+message Update {
+	string id = 1;
+	string namespace = 2;
+	string planID = 3;
+	string priceID = 4;
+	int64 quantityFrom = 5;
+	int64 quantityTo = 6;
+	string note = 7;
+	int64 created = 8;
+	// customer email, not a stripe customer id
+	string customer = 9;
+}
+
+message UpdatesRequest {
+	string namespace = 1;
+	int64 offset = 2;
+	int64 limit = 3;
+}
+
+message UpdatesResponse {
+	repeated Update updates = 1;
+}
+
+message ApplyRequest {
+	string id = 1;
+}
+
+message ApplyResponse {
 }

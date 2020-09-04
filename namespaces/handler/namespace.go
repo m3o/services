@@ -171,16 +171,20 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if (request.Owner == "" && request.User == "") || (request.Owner != "" && request.User != "") {
-		return errors.BadRequest("namespaces.list.validation", "Only one of Owner or User should be specified")
+	if request.Owner != "" && request.User != "" {
+		return errors.BadRequest("namespaces.list.validation", "Cannot specify both owner and user")
 	}
-	id := request.Owner
-	prefix := prefixOwner
-	if id == "" {
-		id = request.User
-		prefix = prefixUser
+	key := ""
+	switch {
+	case request.Owner == "" && request.User == "":
+		key = prefixNs
+	case request.Owner != "":
+		key = prefixOwner + request.Owner + "/"
+	case request.User != "":
+		key = prefixUser + request.User + "/"
 	}
-	recs, err := mstore.Read(prefix+id+"/", store.ReadPrefix())
+
+	recs, err := mstore.Read(key, store.ReadPrefix())
 	if err != nil {
 		return err
 	}
