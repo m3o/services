@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package build;
+
+service Build {
+	rpc BuildImageFromGitRepo (BuildImageFromGitRepoRequest) returns (BuildImageFromGitRepoResponse) {};
+}
+
+message BuildImageFromGitRepoRequest {
+    string sourceGitRepo = 1;
+    string targetDockerRegistry = 2;
+}
+
+message BuildImageFromGitRepoResponse {
+    string builtImageURL = 1;
+    string builtImageTag = 2;
+}
