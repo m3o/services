@@ -965,7 +965,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	}
 
 	test.Try("Check customer marked active", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", envFlag, confFlag, "call", "customers", "read", "--id", email).CombinedOutput()
+		outp, err := exec.Command("micro", envFlag, confFlag, "customers", "read", "--id="+email).CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
