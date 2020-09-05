@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	defaultBaseImageURL  = "alpine:latest"
-	defaultBuildImageURL = "golang:1.14-alpine"
+	defaultBaseImageURL  = "golang:alpine"
+	defaultBuildImageURL = "golang:1.14-buster"
 )
 
 func main() {

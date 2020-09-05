@@ -17,5 +17,4 @@ message ImageFromGitRepoRequest {
 
 message ImageFromGitRepoResponse {
     string imageURL = 1;
-    string imageTag = 2;
 }

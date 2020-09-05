@@ -56,10 +56,9 @@ func (h *BuildHandler) ImageFromGitRepo(ctx context.Context, request *pb.ImageFr
 		return errors.InternalServerError("docker.build", "Error building Docker image: %v", err)
 	}
 
-	response.ImageTag = "cruft/cruft"
-	response.ImageURL = "cruft"
+	response.ImageURL = request.ImageTag
 
-	logger.Info("Built an image")
+	logger.Infof("Built an image (%s)", request.ImageTag)
 
 	return nil
 }

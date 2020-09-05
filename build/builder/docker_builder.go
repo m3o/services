@@ -13,9 +13,9 @@ import (
 )
 
 // dockerfileTemplateRaw gets rendered to a buildable Dockerfile:
-var dockerfileTemplateRaw = `
-# Build a service binary in a GoLang container:
+var dockerfileTemplateRaw = `# Build a service binary in a GoLang container:
 FROM {{.BuildImage}} AS build
+RUN go get {{.SourceGitRepo}}
 RUN go build -o /service {{.SourceGitRepo}}
 
 # Copy the service binary into a lean Alpine container:
@@ -51,21 +51,28 @@ func (b *Docker) Build(sourceGitRepo, targetImageTag string) error {
 
 	// Prepare some ImageBuildOptions:
 	imageBuildOptions := types.ImageBuildOptions{
-		Tags:       []string{targetImageTag},
 		Dockerfile: "Dockerfile",
+		Remove:     false,
+		Tags:       []string{targetImageTag},
 	}
 
 	// Try to build an image:
-	_, err = b.dockerClient.ImageBuild(context.TODO(), dockerBuildContext, imageBuildOptions)
+	imageBuildResponse, err := b.dockerClient.ImageBuild(context.TODO(), dockerBuildContext, imageBuildOptions)
 	if err != nil {
 		logger.Warnf("Error building image: %v", err)
 		return err
 	}
+	defer imageBuildResponse.Body.Close()
 
-	logger.Info("Built an image")
+	// Log any message that came from Docker:
+	var bodyBytes []byte
+	imageBuildResponse.Body.Read(bodyBytes)
+	logger.Debugf("ImageBuild response: %s", bodyBytes)
+
 	return nil
 }
 
+// prepareBuildContext stuffs a Dockerfile into a TAR archive (I'm serious) which becomes the Docker "build context":
 func (b *Docker) prepareBuildContext(sourceGitRepo string) (io.Reader, error) {
 
 	// Render out the Dockerfile template:
@@ -103,6 +110,7 @@ func (b *Docker) prepareBuildContext(sourceGitRepo string) (io.Reader, error) {
 	return tarBuffer, nil
 }
 
+// renderDockerFile uses parameters from config and from the RPC request to render the Dockerfile template:
 func (b *Docker) renderDockerFile(sourceGitRepo string) ([]byte, error) {
 
 	// Prepare a build with the metadata we need to render a Dockerfile template:
@@ -124,6 +132,8 @@ func (b *Docker) renderDockerFile(sourceGitRepo string) ([]byte, error) {
 	if err := dockerfileTemplateParsed.Execute(buf, build); err != nil {
 		return nil, err
 	}
+
+	logger.Debugf("Generated Dockerfile: %s", buf.String())
 
 	return buf.Bytes(), nil
 }
