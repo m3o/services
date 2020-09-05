@@ -10,12 +10,12 @@ service Build {
 }
 
 message ImageFromGitRepoRequest {
-    string sourceGitRepo = 1;
-    string targetDockerRegistry = 2;
-    string targetImageTag = 3;
+    string gitRepo = 1;
+    string dockerRegistry = 2;
+    string imageTag = 3;
 }
 
 message ImageFromGitRepoResponse {
-    string builtImageURL = 1;
-    string builtImageTag = 2;
+    string imageURL = 1;
+    string imageTag = 2;
 }

@@ -40,24 +40,24 @@ func New(baseImageURL, buildImageURL string) (*BuildHandler, error) {
 // ImageFromGitRepo builds a service from source (a git repo), pushes to a Docker registry, and returns the image URL:
 func (h *BuildHandler) ImageFromGitRepo(ctx context.Context, request *pb.ImageFromGitRepoRequest, response *pb.ImageFromGitRepoResponse) error {
 
-	if request.GetSourceGitRepo() == "" {
-		return errors.BadRequest("request.validation", "SourceGitRepo is required")
+	if request.GetGitRepo() == "" {
+		return errors.BadRequest("request.validation", "GitRepo is required")
 	}
 
-	if request.GetTargetDockerRegistry() == "" {
-		return errors.BadRequest("request.validation", "TargetDockerRegistry is required")
+	if request.GetDockerRegistry() == "" {
+		return errors.BadRequest("request.validation", "GockerRegistry is required")
 	}
 
-	if request.TargetImageTag == "" {
-		return errors.BadRequest("request.validation", "TargetImageTag is required")
+	if request.ImageTag == "" {
+		return errors.BadRequest("request.validation", "ImageTag is required")
 	}
 
-	if err := h.builder.Build(request.SourceGitRepo, request.TargetImageTag); err != nil {
+	if err := h.builder.Build(request.GitRepo, request.ImageTag); err != nil {
 		return errors.InternalServerError("docker.build", "Error building Docker image: %v", err)
 	}
 
-	response.BuiltImageTag = "cruft/cruft"
-	response.BuiltImageURL = "cruft"
+	response.ImageTag = "cruft/cruft"
+	response.ImageURL = "cruft"
 
 	logger.Info("Built an image")
 
