@@ -6,15 +6,13 @@ option go_package = "proto;build";
 
 service Build {
     // Creates an image from Go source in a Git repo:
-	rpc ImageFromGitRepo(ImageFromGitRepoRequest) returns (ImageFromGitRepoResponse);
+	rpc CreateImage(CreateImageRequest) returns (CreateImageResponse);
 }
 
-message ImageFromGitRepoRequest {
+message CreateImageRequest {
     string gitRepo = 1;
     string dockerRegistry = 2;
     string imageTag = 3;
 }
 
-message ImageFromGitRepoResponse {
-    string imageURL = 1;
-}
+message CreateImageResponse {}

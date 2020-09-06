@@ -12,36 +12,36 @@ import (
 	"github.com/micro/go-micro/v3/logger"
 )
 
-// dockerfileTemplateRaw gets rendered to a buildable Dockerfile:
-var dockerfileTemplateRaw = `# Build a service binary in a GoLang container:
-FROM {{.BuildImage}} AS build
-RUN go get {{.SourceGitRepo}}
-RUN go build -o /service {{.SourceGitRepo}}
-
-# Copy the service binary into a lean Alpine container:
-FROM {{.BaseImage}}
-COPY --from=build /service /service
-CMD ["/service"]
-`
-
-// Docker implements the Builder interface:
-type Docker struct {
+// DockerLibBuilder implements the Builder interface:
+// It is an attempt at using the Docker libraries, but has struggled with several things:
+// - Automatic image pulling doesn't seem to work
+// - Neither does manual image pulling
+// - Builds silently fail if the required images don't exist (which they won't because the image pulling doesn't work)
+// - Multi-stage Dockerfile builds seem to produce no image
+type DockerLibBuilder struct {
 	baseImageURL  string
 	buildImageURL string
 	dockerClient  docker.ImageAPIClient
 }
 
-// New returns a configured Docker builder:
-func New(baseImageURL, buildImageURL string, dockerClient docker.ImageAPIClient) *Docker {
-	return &Docker{
+// NewDockerLibBuilder returns a configured Docker builder:
+func NewDockerLibBuilder(baseImageURL, buildImageURL string, dockerClient docker.ImageAPIClient) (*DockerLibBuilder, error) {
+
+	// Prepare a new Docker client:
+	dockerClient, err := docker.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return &DockerLibBuilder{
 		baseImageURL:  baseImageURL,
 		buildImageURL: buildImageURL,
 		dockerClient:  dockerClient,
-	}
+	}, nil
 }
 
 // Build actually builds a Docker image:
-func (b *Docker) Build(sourceGitRepo, targetImageTag string) error {
+func (b *DockerLibBuilder) Build(sourceGitRepo, targetImageTag string) error {
 
 	// Prepare a Docker build context:
 	dockerBuildContext, err := b.prepareBuildContext(sourceGitRepo)
@@ -52,7 +52,8 @@ func (b *Docker) Build(sourceGitRepo, targetImageTag string) error {
 	// Prepare some ImageBuildOptions:
 	imageBuildOptions := types.ImageBuildOptions{
 		Dockerfile: "Dockerfile",
-		Remove:     false,
+		NoCache:    true,
+		Remove:     true,
 		Tags:       []string{targetImageTag},
 	}
 
@@ -73,7 +74,7 @@ func (b *Docker) Build(sourceGitRepo, targetImageTag string) error {
 }
 
 // prepareBuildContext stuffs a Dockerfile into a TAR archive (I'm serious) which becomes the Docker "build context":
-func (b *Docker) prepareBuildContext(sourceGitRepo string) (io.Reader, error) {
+func (b *DockerLibBuilder) prepareBuildContext(sourceGitRepo string) (io.Reader, error) {
 
 	// Render out the Dockerfile template:
 	dockerfileContents, err := b.renderDockerFile(sourceGitRepo)
@@ -111,7 +112,7 @@ func (b *Docker) prepareBuildContext(sourceGitRepo string) (io.Reader, error) {
 }
 
 // renderDockerFile uses parameters from config and from the RPC request to render the Dockerfile template:
-func (b *Docker) renderDockerFile(sourceGitRepo string) ([]byte, error) {
+func (b *DockerLibBuilder) renderDockerFile(sourceGitRepo string) ([]byte, error) {
 
 	// Prepare a build with the metadata we need to render a Dockerfile template:
 	build := build{

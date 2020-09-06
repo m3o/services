@@ -43,7 +43,7 @@ func NewBuildEndpoints() []*api.Endpoint {
 
 type BuildService interface {
 	// Creates an image from Go source in a Git repo:
-	ImageFromGitRepo(ctx context.Context, in *ImageFromGitRepoRequest, opts ...client.CallOption) (*ImageFromGitRepoResponse, error)
+	CreateImage(ctx context.Context, in *CreateImageRequest, opts ...client.CallOption) (*CreateImageResponse, error)
 }
 
 type buildService struct {
@@ -58,9 +58,9 @@ func NewBuildService(name string, c client.Client) BuildService {
 	}
 }
 
-func (c *buildService) ImageFromGitRepo(ctx context.Context, in *ImageFromGitRepoRequest, opts ...client.CallOption) (*ImageFromGitRepoResponse, error) {
-	req := c.c.NewRequest(c.name, "Build.ImageFromGitRepo", in)
-	out := new(ImageFromGitRepoResponse)
+func (c *buildService) CreateImage(ctx context.Context, in *CreateImageRequest, opts ...client.CallOption) (*CreateImageResponse, error) {
+	req := c.c.NewRequest(c.name, "Build.CreateImage", in)
+	out := new(CreateImageResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,12 +72,12 @@ func (c *buildService) ImageFromGitRepo(ctx context.Context, in *ImageFromGitRep
 
 type BuildHandler interface {
 	// Creates an image from Go source in a Git repo:
-	ImageFromGitRepo(context.Context, *ImageFromGitRepoRequest, *ImageFromGitRepoResponse) error
+	CreateImage(context.Context, *CreateImageRequest, *CreateImageResponse) error
 }
 
 func RegisterBuildHandler(s server.Server, hdlr BuildHandler, opts ...server.HandlerOption) error {
 	type build interface {
-		ImageFromGitRepo(ctx context.Context, in *ImageFromGitRepoRequest, out *ImageFromGitRepoResponse) error
+		CreateImage(ctx context.Context, in *CreateImageRequest, out *CreateImageResponse) error
 	}
 	type Build struct {
 		build
@@ -90,6 +90,6 @@ type buildHandler struct {
 	BuildHandler
 }
 
-func (h *buildHandler) ImageFromGitRepo(ctx context.Context, in *ImageFromGitRepoRequest, out *ImageFromGitRepoResponse) error {
-	return h.BuildHandler.ImageFromGitRepo(ctx, in, out)
+func (h *buildHandler) CreateImage(ctx context.Context, in *CreateImageRequest, out *CreateImageResponse) error {
+	return h.BuildHandler.CreateImage(ctx, in, out)
 }
