@@ -32,6 +32,22 @@ Todo
 - [X] main.go
 - [X] proto
 - [X] handler
-- [ ] build inside a container
-- [ ] push to registry
-- [ ] metrics
+- [X] config from micro
+- [X] login to Scaleway registry
+- [X] build inside a container
+- [X] push to registry
+- [X] metrics
+- [X] periodically clean up images
+- [ ] how to clean up all built images (but not build/base)?
+- [ ] handle credentials for private git repos
+- [ ] share Go cache (so the build container doesn't have to download so much cruft every time)
+- [ ] store the state of each build, and provide an RPC to query this
+
+Test
+----
+* `micro call build Build.CreateImage '{"gitRepo": "github.com/micro/micro", "dockerRegistry": "rg.fr-par.scw.cloud/micro", "imageTag": "rg.fr-par.scw.cloud/micro/micro:latest"}'`
+
+Links
+-----
+* https://stackoverflow.com/questions/38804313/build-docker-image-from-go-code
+* https://medium.com/faun/how-to-build-docker-images-on-the-fly-2a1fd696c3fd

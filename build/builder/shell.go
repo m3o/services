@@ -30,19 +30,19 @@ func NewShellBuilder(metricsReporter metrics.Reporter, config *Config) (*ShellBu
 	}
 
 	// Login to the build registry:
-	logger.Debugf("Logging in to the build registry (%s)", config.BuildRegistryURL)
+	logger.Infof("Logging in to the build registry (%s)", config.BuildRegistryURL)
 	if err := newBuilder.dockerLogin(config.BuildRegistryURL); err != nil {
 		return nil, err
 	}
 
 	// Pull the base image:
-	logger.Debugf("Pulling base image (%s)", config.BaseImageURL)
+	logger.Infof("Pulling base image (%s)", config.BaseImageURL)
 	if err := exec.Command("docker", "pull", config.BaseImageURL).Run(); err != nil {
 		return nil, errors.Wrapf(err, "Unable to pull base image (%s)", config.BaseImageURL)
 	}
 
 	// Pull the build image:
-	logger.Debugf("Pulling build image (%s)", config.BuildImageURL)
+	logger.Infof("Pulling build image (%s)", config.BuildImageURL)
 	if err := exec.Command("docker", "pull", config.BuildImageURL).Run(); err != nil {
 		return nil, errors.Wrapf(err, "Unable to pull build image (%s)", config.BuildImageURL)
 	}
@@ -67,14 +67,14 @@ func (b *ShellBuilder) Build(sourceGitRepo, targetImageTag string) error {
 
 		// Try to build an image (Dockerfile contents provided via StdIn):
 		buildBeginTime := time.Now()
-		buildCommand := exec.Command("docker", "build", "--rm", "-t", targetImageTag, "-")
+		buildCommand := exec.Command("docker", "build", "--force-rm", "--rm", "-t", targetImageTag, "-")
 		buildCommand.Stdin = dockerfileContents
 		if err := buildCommand.Run(); err != nil {
 			logger.Errorf("Unable to build image (%s): %v", targetImageTag, err)
 			b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
-		logger.Infof("Build finished (%s)", targetImageTag)
+		logger.Infof("Build finished (%s) in %s", targetImageTag, time.Since(buildBeginTime).String())
 		b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "success"})
 
 		// Try to push the image:
@@ -84,7 +84,7 @@ func (b *ShellBuilder) Build(sourceGitRepo, targetImageTag string) error {
 			b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
-		logger.Infof("Image has been pushed (%s)", targetImageTag)
+		logger.Infof("Image has been pushed (%s) in %s", targetImageTag, time.Since(pushBeginTime).String())
 		b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "success"})
 	}()
 
@@ -121,6 +121,8 @@ func (b *ShellBuilder) renderDockerFile(sourceGitRepo string) (io.Reader, error)
 
 // dockerLogin logs the configured Docker daemon into a specific registry:
 func (b *ShellBuilder) dockerLogin(registryURL string) error {
+
+	// Use the docker login command:
 	loginBeginTime := time.Now()
 	dockerLoginCommand := exec.Command("docker", "login", registryURL, "-u", b.config.RegistryUsername, "-p", b.config.RegistryPassword)
 	if err := dockerLoginCommand.Run(); err != nil {

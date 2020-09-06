@@ -13,3 +13,10 @@ test:
 .PHONY: docker
 docker:
 	docker build . -t build-service:latest
+
+.PHONY: images
+images:
+	docker build . -t rg.fr-par.scw.cloud/build/base:latest -f builder/Dockerfile.base
+	docker build . -t rg.fr-par.scw.cloud/build/build:latest -f builder/Dockerfile.build
+	docker push rg.fr-par.scw.cloud/build/base:latest
+	docker push rg.fr-par.scw.cloud/build/build:latest
