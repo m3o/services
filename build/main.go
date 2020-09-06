@@ -4,6 +4,8 @@ import (
 	"github.com/m3o/services/build/builder"
 	"github.com/m3o/services/build/handler"
 	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/metrics/prometheus"
+	"github.com/micro/go-micro/v3/metrics/wrapper"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/config"
 )
@@ -15,10 +17,17 @@ const (
 
 func main() {
 
+	// Prepare a Prometheus metrics reporter:
+	reporter, err := prometheus.New()
+	if err != nil {
+		log.Fatalf("Error preparing a Prometheus reporter: %v", err)
+	}
+
 	// New service:
 	srv := service.New(
 		service.Name("build"),
 		service.Version("latest"),
+		service.WrapHandler(wrapper.New(reporter).HandlerFunc),
 	)
 
 	// Get some config:
@@ -26,7 +35,7 @@ func main() {
 	buildImageURL := config.Get("micro", "build", "buildImageURL").String(defaultBuildImageURL)
 
 	// Prepare a docker builder for the handler to use:
-	dockerBuilder, err := builder.NewShellBuilder(baseImageURL, buildImageURL)
+	dockerBuilder, err := builder.NewShellBuilder(reporter, baseImageURL, buildImageURL)
 	if err != nil {
 		log.Fatalf("Error preparing a Docker builder: %v", err)
 	}
