@@ -11,8 +11,11 @@ import (
 )
 
 const (
-	defaultBaseImageURL  = "golang:alpine"
-	defaultBuildImageURL = "golang:1.14-buster"
+	defaultBaseImageURL     = "rg.fr-par.scw.cloud/build/base:latest"
+	defaultBuildImageURL    = "rg.fr-par.scw.cloud/build/build:latest"
+	defaultBuildRegistryURL = "rg.fr-par.scw.cloud/build"
+	defaultRegistryUsername = "nologin"
+	defaultRegistryPassword = "changeme"
 )
 
 func main() {
@@ -31,11 +34,16 @@ func main() {
 	)
 
 	// Get some config:
-	baseImageURL := config.Get("micro", "build", "baseImageURL").String(defaultBaseImageURL)
-	buildImageURL := config.Get("micro", "build", "buildImageURL").String(defaultBuildImageURL)
+	builderConfig := &builder.Config{
+		BaseImageURL:     config.Get("micro", "build", "baseimageurl").String(defaultBaseImageURL),
+		BuildImageURL:    config.Get("micro", "build", "buildimageurl").String(defaultBuildImageURL),
+		BuildRegistryURL: config.Get("micro", "build", "buildregistryurl").String(defaultBuildRegistryURL),
+		RegistryUsername: config.Get("micro", "build", "registryusername").String(defaultRegistryUsername),
+		RegistryPassword: config.Get("micro", "build", "registrypassword").String(defaultRegistryPassword),
+	}
 
 	// Prepare a docker builder for the handler to use:
-	dockerBuilder, err := builder.NewShellBuilder(reporter, baseImageURL, buildImageURL)
+	dockerBuilder, err := builder.NewShellBuilder(reporter, builderConfig)
 	if err != nil {
 		log.Fatalf("Error preparing a Docker builder: %v", err)
 	}

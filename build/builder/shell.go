@@ -2,6 +2,7 @@ package builder
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os/exec"
 	"text/template"
@@ -15,30 +16,35 @@ import (
 // ShellBuilder implements the Builder interface:
 // It shells out to the "docker" command to do builds, image pulls, and image pushes.
 type ShellBuilder struct {
-	baseImageURL    string
-	buildImageURL   string
+	config          *Config
 	metricsReporter metrics.Reporter
 }
 
 // NewShellBuilder returns a configured shell Docker builder:
-func NewShellBuilder(metricsReporter metrics.Reporter, baseImageURL, buildImageURL string) (*ShellBuilder, error) {
+func NewShellBuilder(metricsReporter metrics.Reporter, config *Config) (*ShellBuilder, error) {
+
+	// Make a new builder:
+	newBuilder := &ShellBuilder{
+		config:          config,
+		metricsReporter: metricsReporter,
+	}
+
+	// Login to the build registry:
+	logger.Debugf("Logging in to the build registry (%s)", config.BuildRegistryURL)
+	if err := newBuilder.dockerLogin(config.BuildRegistryURL); err != nil {
+		return nil, err
+	}
 
 	// Pull the base image:
-	logger.Debugf("Pulling base image (%s)", baseImageURL)
-	if err := exec.Command("docker", "pull", baseImageURL).Run(); err != nil {
-		return nil, errors.Wrapf(err, "Unable to pull base image (%s)", baseImageURL)
+	logger.Debugf("Pulling base image (%s)", config.BaseImageURL)
+	if err := exec.Command("docker", "pull", config.BaseImageURL).Run(); err != nil {
+		return nil, errors.Wrapf(err, "Unable to pull base image (%s)", config.BaseImageURL)
 	}
 
 	// Pull the build image:
-	logger.Debugf("Pulling build image (%s)", buildImageURL)
-	if err := exec.Command("docker", "pull", buildImageURL).Run(); err != nil {
-		return nil, errors.Wrapf(err, "Unable to pull build image (%s)", buildImageURL)
-	}
-
-	newBuilder := &ShellBuilder{
-		baseImageURL:    baseImageURL,
-		buildImageURL:   buildImageURL,
-		metricsReporter: metricsReporter,
+	logger.Debugf("Pulling build image (%s)", config.BuildImageURL)
+	if err := exec.Command("docker", "pull", config.BuildImageURL).Run(); err != nil {
+		return nil, errors.Wrapf(err, "Unable to pull build image (%s)", config.BuildImageURL)
 	}
 
 	// Run the background image-reaper (cleans up old dangling images):
@@ -65,21 +71,21 @@ func (b *ShellBuilder) Build(sourceGitRepo, targetImageTag string) error {
 		buildCommand.Stdin = dockerfileContents
 		if err := buildCommand.Run(); err != nil {
 			logger.Errorf("Unable to build image (%s): %v", targetImageTag, err)
-			b.metricsReporter.Timing("image_build", time.Since(buildBeginTime), metrics.Tags{"result": "failure"})
+			b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
 		logger.Infof("Build finished (%s)", targetImageTag)
-		b.metricsReporter.Timing("image_build", time.Since(buildBeginTime), metrics.Tags{"result": "success"})
+		b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "success"})
 
 		// Try to push the image:
 		pushBeginTime := time.Now()
 		if err := exec.Command("docker", "push", targetImageTag).Run(); err != nil {
 			logger.Errorf("Unable to push image (%s): %v", targetImageTag, err)
-			b.metricsReporter.Timing("image_push", time.Since(pushBeginTime), metrics.Tags{"result": "failure"})
+			b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
 		logger.Infof("Image has been pushed (%s)", targetImageTag)
-		b.metricsReporter.Timing("image_push", time.Since(pushBeginTime), metrics.Tags{"result": "success"})
+		b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "success"})
 	}()
 
 	return nil
@@ -90,8 +96,8 @@ func (b *ShellBuilder) renderDockerFile(sourceGitRepo string) (io.Reader, error)
 
 	// Prepare a build with the metadata we need to render a Dockerfile template:
 	build := build{
-		BaseImage:     b.baseImageURL,
-		BuildImage:    b.buildImageURL,
+		BaseImage:     b.config.BaseImageURL,
+		BuildImage:    b.config.BuildImageURL,
 		SourceGitRepo: sourceGitRepo,
 	}
 
@@ -113,6 +119,20 @@ func (b *ShellBuilder) renderDockerFile(sourceGitRepo string) (io.Reader, error)
 	return buf, nil
 }
 
+// dockerLogin logs the configured Docker daemon into a specific registry:
+func (b *ShellBuilder) dockerLogin(registryURL string) error {
+	loginBeginTime := time.Now()
+	dockerLoginCommand := exec.Command("docker", "login", registryURL, "-u", b.config.RegistryUsername, "-p", b.config.RegistryPassword)
+	if err := dockerLoginCommand.Run(); err != nil {
+		b.metricsReporter.Timing("build.registry_login", time.Since(loginBeginTime), metrics.Tags{"result": "failure"})
+		dockerLoginCommandOutput, _ := dockerLoginCommand.CombinedOutput()
+		return fmt.Errorf("Unable to login to Docker registry (%s): %s", registryURL, dockerLoginCommandOutput)
+	}
+	logger.Debugf("Docker login successful (%s)", registryURL)
+	b.metricsReporter.Timing("build.registry_login", time.Since(loginBeginTime), metrics.Tags{"result": "success"})
+	return nil
+}
+
 // imageReaper periodically cleans up (prunes) unused images:
 func (b *ShellBuilder) imageReaper() {
 	for {
@@ -120,11 +140,11 @@ func (b *ShellBuilder) imageReaper() {
 		pruneBeginTime := time.Now()
 		if err := exec.Command("docker", "image", "prune", "-f").Run(); err != nil {
 			logger.Errorf("Unable to prune images: %v", err)
-			b.metricsReporter.Timing("image_prune", time.Since(pruneBeginTime), metrics.Tags{"result": "failure"})
+			b.metricsReporter.Timing("build.image_prune", time.Since(pruneBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
 		logger.Debug("Images have been pruned")
-		b.metricsReporter.Timing("image_prune", time.Since(pruneBeginTime), metrics.Tags{"result": "success"})
+		b.metricsReporter.Timing("build.image_prune", time.Since(pruneBeginTime), metrics.Tags{"result": "success"})
 
 		// Sleep for a minte:
 		time.Sleep(time.Minute)

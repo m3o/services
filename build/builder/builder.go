@@ -5,13 +5,6 @@ type Builder interface {
 	Build(sourceGitRepo, targetImageTag string) error
 }
 
-// build has what we need to render the Dockerfile template:
-type build struct {
-	BaseImage     string
-	BuildImage    string
-	SourceGitRepo string
-}
-
 // dockerfileTemplateRaw gets rendered to a buildable Dockerfile:
 var dockerfileTemplateRaw = `# Build a service binary in a GoLang container:
 FROM {{.BuildImage}} AS build
