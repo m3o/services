@@ -9,8 +9,8 @@ import (
 	api "github.com/micro/go-micro/v3/api/proto"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
+	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/debug/proto"
 )
 
 var (

@@ -14,9 +14,9 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
+	rproto "github.com/micro/micro/v3/proto/runtime"
 	log "github.com/micro/micro/v3/service/logger"
-	rproto "github.com/micro/micro/v3/service/runtime/proto"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 

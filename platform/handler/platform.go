@@ -4,9 +4,9 @@ import (
 	"context"
 
 	pb "github.com/m3o/services/platform/proto"
+	rproto "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
-	rproto "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 // Platform implements the platform service interface

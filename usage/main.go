@@ -4,10 +4,10 @@ import (
 	"github.com/m3o/services/usage/handler"
 
 	nsproto "github.com/m3o/services/namespaces/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
+	rproto "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
-	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/logger"
-	rproto "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 func main() {
