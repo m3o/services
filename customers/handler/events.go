@@ -71,7 +71,7 @@ func processSubscriptionEvents(ch <-chan events.Event) {
 		}
 		switch sub.Type {
 		case "subscriptions.created":
-			if _, err := updateCustomerStatusByEmail(sub.Subscription.CustomerID, statusActive); err != nil {
+			if _, err := updateCustomerStatusByID(sub.Subscription.CustomerID, statusActive); err != nil {
 				ev.Nack()
 				logger.Errorf("Error updating customers status for customers %s. %s", sub.Subscription.CustomerID, err)
 				continue

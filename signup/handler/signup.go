@@ -315,11 +315,11 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	if isJoining {
-		if err := e.joinNamespace(ctx, req.Email, ns); err != nil {
+		if err := e.joinNamespace(ctx, tok.CustomerID, ns); err != nil {
 			return err
 		}
 	} else {
-		newNs, err := e.signupWithNewNamespace(ctx, tok.CustomerID, req.PaymentMethodID)
+		newNs, err := e.signupWithNewNamespace(ctx, tok.CustomerID, tok.Email, req.PaymentMethodID)
 		if err != nil {
 			return err
 		}
@@ -397,9 +397,9 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	return err
 }
 
-func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, paymentMethodID string) (string, error) {
+func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email, paymentMethodID string) (string, error) {
 	// TODO fix type to be more than just developer
-	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID1: customerID, Type: "developer", PaymentMethodID: paymentMethodID}, client.WithAuthToken())
+	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID1: customerID, Type: "developer", PaymentMethodID: paymentMethodID, Email: email}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
