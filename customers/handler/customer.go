@@ -71,14 +71,7 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 		Created: time.Now().Unix(),
 		Email:   email,
 	}
-	b, err := json.Marshal(*cust)
-	if err != nil {
-		return err
-	}
-	if err := mstore.Write(&store.Record{
-		Key:   prefixCustomer + cust.ID,
-		Value: b,
-	}); err != nil {
+	if err := writeCustomer(cust); err != nil {
 		return err
 	}
 	response.Customer = objToProto(cust)
