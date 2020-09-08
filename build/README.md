@@ -42,12 +42,12 @@ Todo
 - [ ] handle credentials for private git repos
 - [ ] share Go cache (so the build container doesn't have to download so much cruft every time)
 - [ ] store the state of each build, and provide an RPC to query this
-- [ ] make sure that we catch the full output of docker commands
+- [X] make sure that we catch the full output of docker commands
 - [X] checkout the source repo with git before compiling (instead of relying on "go build" to do it for us)
 
 Test
 ----
-* `micro call build Build.CreateImage '{"gitRepo": "github.com/micro/micro", "dockerRegistry": "rg.fr-par.scw.cloud/micro", "imageTag": "rg.fr-par.scw.cloud/micro/micro:latest"}'`
+* `micro call build Build.CreateImage '{"gitRepo": "https://github.com/micro/micro.git", "gitCommit": "master", "imageTag": "rg.fr-par.scw.cloud/micro/micro:latest"}'`
 
 Links
 -----

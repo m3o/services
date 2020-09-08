@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
 	"time"
@@ -75,26 +76,45 @@ func (b *CmdBuilder) Build(sourceGitRepo, sourceGitCommit, targetImageTag string
 	// Do the building in a GoRoutine (because it is too slow for synchronous calls):
 	go func() {
 
-		// Try to build an image (Dockerfile contents provided via StdIn):
+		// A command to build an image (Dockerfile contents provided via StdIn):
+		outBuffer := new(bytes.Buffer)
 		buildBeginTime := time.Now()
 		buildCommand := exec.Command("docker", "build", "--force-rm", "--rm", "-t", targetImageTag, "-")
 		buildCommand.Stdin = dockerfileContents
+		buildCommand.Stderr = outBuffer
+		buildCommand.Stdout = outBuffer
+
+		// Run the build command:
 		if err := buildCommand.Run(); err != nil {
 			logger.Errorf("Unable to build image (%s): %v", targetImageTag, err)
+			logger.Debugf("Build output (%s): %s", targetImageTag, outBuffer)
 			b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
+
+		// Success:
 		logger.Infof("Build finished (%s) in %s", targetImageTag, time.Since(buildBeginTime).String())
+		logger.Debugf("Build output (%s): %s", targetImageTag, outBuffer)
 		b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "success"})
 
-		// Try to push the image:
+		// A command to push the image:
+		outBuffer.Reset()
 		pushBeginTime := time.Now()
-		if err := exec.Command("docker", "push", targetImageTag).Run(); err != nil {
+		pushCommand := exec.Command("docker", "push", targetImageTag)
+		pushCommand.Stderr = outBuffer
+		pushCommand.Stdout = outBuffer
+
+		// Run the push command:
+		if err := pushCommand.Run(); err != nil {
 			logger.Errorf("Unable to push image (%s): %v", targetImageTag, err)
+			logger.Debugf("Push output (%s): %s", targetImageTag, outBuffer)
 			b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "failure"})
 			return
 		}
+
+		// Success:
 		logger.Infof("Image has been pushed (%s) in %s", targetImageTag, time.Since(pushBeginTime).String())
+		logger.Debugf("Push output (%s): %s", targetImageTag, outBuffer)
 		b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "success"})
 	}()
 
