@@ -50,8 +50,8 @@ func objToProto(ns *NamespaceModel) *namespace.Namespace {
 	return &namespace.Namespace{
 		Id:      ns.ID,
 		Created: ns.Created,
-		Owners:  ns.Owners,
-		Users:   ns.Users,
+		Owners1: ns.Owners,
+		Users1:  ns.Users,
 	}
 }
 
@@ -59,7 +59,7 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if len(request.Owners) == 0 {
+	if len(request.Owners1) == 0 {
 		return errors.BadRequest("namespaces.create.validation", "Owners is required")
 	}
 
@@ -73,8 +73,8 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 	}
 	ns := &NamespaceModel{
 		ID:      id,
-		Owners:  request.Owners,
-		Users:   request.Owners,
+		Owners:  request.Owners1,
+		Users:   request.Owners1,
 		Created: time.Now().Unix(),
 	}
 	_, err := n.platformService.CreateNamespace(ctx, &plproto.CreateNamespaceRequest{
@@ -171,17 +171,17 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if request.Owner != "" && request.User != "" {
+	if request.Owner1 != "" && request.User1 != "" {
 		return errors.BadRequest("namespaces.list.validation", "Cannot specify both owner and user")
 	}
 	key := ""
 	switch {
-	case request.Owner == "" && request.User == "":
+	case request.Owner1 == "" && request.User1 == "":
 		key = prefixNs
-	case request.Owner != "":
-		key = prefixOwner + request.Owner + "/"
-	case request.User != "":
-		key = prefixUser + request.User + "/"
+	case request.Owner1 != "":
+		key = prefixOwner + request.Owner1 + "/"
+	case request.User1 != "":
+		key = prefixUser + request.User1 + "/"
 	}
 
 	recs, err := mstore.Read(key, store.ReadPrefix())
@@ -204,7 +204,7 @@ func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserReque
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if request.Namespace == "" || request.User == "" {
+	if request.Namespace == "" || request.User1 == "" {
 		return errors.BadRequest("namespaces.adduser.validation", "User and Namespace are required")
 	}
 	ns, err := readNamespace(request.Namespace)
@@ -213,20 +213,20 @@ func (n Namespaces) AddUser(ctx context.Context, request *namespace.AddUserReque
 	}
 	// quick check we haven't already added this user
 	for _, user := range ns.Users {
-		if user == request.User {
+		if user == request.User1 {
 			// idempotent, just return success
 			return nil
 		}
 	}
-	ns.Users = append(ns.Users, request.User)
+	ns.Users = append(ns.Users, request.User1)
 	// write it
 	if err := writeNamespace(ns); err != nil {
 		return err
 	}
 	ev := NamespaceEvent{Namespace: *ns, Type: "namespaces.adduser"}
 	if err := mevents.Publish(nsTopic, ev,
-		events.WithMetadata(map[string]string{"user": request.User})); err != nil {
-		log.Errorf("Error publishing namespaces.adduser for user %s and event %+v", request.User, ev)
+		events.WithMetadata(map[string]string{"user": request.User1})); err != nil {
+		log.Errorf("Error publishing namespaces.adduser for user %s and event %+v", request.User1, ev)
 
 	}
 	return nil
