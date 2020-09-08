@@ -611,7 +611,7 @@ func testServicesSubscription(t *test.T) {
 	serv.Command().Exec("run", "github.com/micro/services/blog/tags")
 	serv.Command().Exec("run", "github.com/micro/services/pubsub")
 
-	test.Try("Get changes", t, func() ([]byte, error) {
+	test.Try("Wait for services", t, func() ([]byte, error) {
 		outp, err := serv.Command().Exec("status")
 		if !strings.Contains(string(outp), "helloworld") || !strings.Contains(string(outp), "posts") || !strings.Contains(string(outp), "posts") ||
 			!strings.Contains(string(outp), "tags") || !strings.Contains(string(outp), "pubsub") {
@@ -622,8 +622,6 @@ func testServicesSubscription(t *test.T) {
 
 	adminConfFlag := "-c=" + serv.Command().Config + ".admin"
 	envFlag := "-e=" + serv.Env()
-	exec.Command("micro", envFlag, adminConfFlag, "kill", "billing").CombinedOutput()
-	time.Sleep(2 * time.Second)
 	exec.Command("micro", envFlag, adminConfFlag, "run", "../../../usage").CombinedOutput()
 	time.Sleep(4 * time.Second)
 	exec.Command("micro", envFlag, adminConfFlag, "run", "../../../billing").CombinedOutput()
@@ -657,7 +655,7 @@ func testServicesSubscription(t *test.T) {
 			return outp, errors.New("unexpected output")
 		}
 		return outp, err
-	}, 40*time.Second)
+	}, 90*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
 		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--id="+changeId).CombinedOutput()

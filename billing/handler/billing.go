@@ -148,7 +148,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	u := &update{}
 	err = json.Unmarshal(records[0].Value, u)
 	if err != nil {
-		return merrors.InternalServerError("billing.Apply", "Error unmarsjaling value: %v", err)
+		return merrors.InternalServerError("billing.Apply", "Error unmarshaling value: %v", err)
 	}
 
 	_, err = b.subs.Update(ctx, &subproto.UpdateRequest{
