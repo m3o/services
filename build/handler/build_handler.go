@@ -31,10 +31,6 @@ func (b *Build) CreateImage(ctx context.Context, request *pb.CreateImageRequest,
 		return errors.BadRequest("request.validation", "GitRepo is required")
 	}
 
-	if request.GetDockerRegistry() == "" {
-		return errors.BadRequest("request.validation", "GockerRegistry is required")
-	}
-
 	if request.ImageTag == "" {
 		return errors.BadRequest("request.validation", "ImageTag is required")
 	}

@@ -11,8 +11,7 @@ service Build {
 
 message CreateImageRequest {
     string gitRepo = 1;
-    string dockerRegistry = 2;
-    string imageTag = 3;
+    string imageTag = 2;
 }
 
 message CreateImageResponse {}
