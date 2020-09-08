@@ -11,7 +11,8 @@ service Build {
 
 message CreateImageRequest {
     string gitRepo = 1;
-    string imageTag = 2;
+    string gitCommit = 2;
+    string imageTag = 3;
 }
 
 message CreateImageResponse {}

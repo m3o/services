@@ -1,11 +1,8 @@
 package builder
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os/exec"
-	"text/template"
 	"time"
 
 	"github.com/micro/go-micro/v3/logger"
@@ -15,7 +12,7 @@ import (
 
 // Builder does the actual building of docker images:
 type Builder interface {
-	Build(sourceGitRepo, targetImageTag string) error
+	Build(sourceGitRepo, sourceGitBranch, targetImageTag string) error
 }
 
 // CmdBuilder implements the Builder interface:
@@ -25,7 +22,7 @@ type CmdBuilder struct {
 	metricsReporter metrics.Reporter
 }
 
-// New returns a configured CmdBuilder:
+// New returns a configured CmdBuilder builder:
 func New(metricsReporter metrics.Reporter, config *Config) (*CmdBuilder, error) {
 
 	// Make a new builder:
@@ -59,10 +56,18 @@ func New(metricsReporter metrics.Reporter, config *Config) (*CmdBuilder, error) 
 }
 
 // Build actually builds a Docker image:
-func (b *CmdBuilder) Build(sourceGitRepo, targetImageTag string) error {
+func (b *CmdBuilder) Build(sourceGitRepo, sourceGitCommit, targetImageTag string) error {
+
+	// Prepare a build with the metadata we need to render a Dockerfile template:
+	build := &build{
+		BaseImage:       b.config.BaseImageURL,
+		BuildImage:      b.config.BuildImageURL,
+		SourceGitCommit: sourceGitCommit,
+		SourceGitRepo:   sourceGitRepo,
+	}
 
 	// Render out the Dockerfile template:
-	dockerfileContents, err := b.renderDockerFile(sourceGitRepo)
+	dockerfileContents, err := build.renderDockerFile()
 	if err != nil {
 		return err
 	}
@@ -94,34 +99,6 @@ func (b *CmdBuilder) Build(sourceGitRepo, targetImageTag string) error {
 	}()
 
 	return nil
-}
-
-// renderDockerFile uses parameters from config and from the RPC request to render the Dockerfile template:
-func (b *CmdBuilder) renderDockerFile(sourceGitRepo string) (io.Reader, error) {
-
-	// Prepare a build with the metadata we need to render a Dockerfile template:
-	build := build{
-		BaseImage:     b.config.BaseImageURL,
-		BuildImage:    b.config.BuildImageURL,
-		SourceGitRepo: sourceGitRepo,
-	}
-
-	// Create the template:
-	dockerfileTemplate := template.New("Dockerfile")
-	dockerfileTemplateParsed, err := dockerfileTemplate.Parse(dockerfileTemplateRaw)
-	if err != nil {
-		return nil, err
-	}
-
-	// Render the template with our build:
-	buf := new(bytes.Buffer)
-	if err := dockerfileTemplateParsed.Execute(buf, build); err != nil {
-		return nil, err
-	}
-
-	logger.Debugf("Generated Dockerfile: %s", buf)
-
-	return buf, nil
 }
 
 // dockerLogin logs the configured Docker daemon into a specific registry:

@@ -27,15 +27,19 @@ func New(builder builder.Builder) *Build {
 // CreateImage builds a service from source (a git repo), pushes to a Docker registry, and returns the image URL:
 func (b *Build) CreateImage(ctx context.Context, request *pb.CreateImageRequest, response *pb.CreateImageResponse) error {
 
+	if request.GetGitCommit() == "" {
+		return errors.BadRequest("request.validation", "GitCommit is required")
+	}
+
 	if request.GetGitRepo() == "" {
 		return errors.BadRequest("request.validation", "GitRepo is required")
 	}
 
-	if request.ImageTag == "" {
+	if request.GetImageTag() == "" {
 		return errors.BadRequest("request.validation", "ImageTag is required")
 	}
 
-	if err := b.builder.Build(request.GitRepo, request.ImageTag); err != nil {
+	if err := b.builder.Build(request.GitRepo, request.GitCommit, request.ImageTag); err != nil {
 		return errors.InternalServerError("docker.build", "Error request Docker image build: %v", err)
 	}
 
