@@ -43,7 +43,7 @@ func main() {
 	}
 
 	// Prepare a docker builder for the handler to use:
-	dockerBuilder, err := builder.NewShellBuilder(reporter, builderConfig)
+	dockerBuilder, err := builder.New(reporter, builderConfig)
 	if err != nil {
 		log.Fatalf("Error preparing a Docker builder: %v", err)
 	}

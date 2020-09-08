@@ -42,6 +42,8 @@ Todo
 - [ ] handle credentials for private git repos
 - [ ] share Go cache (so the build container doesn't have to download so much cruft every time)
 - [ ] store the state of each build, and provide an RPC to query this
+- [ ] make sure that we catch the full output of docker commands
+- [ ] checkout the source repo with git before compiling (instead of relying on "go build" to do it for us)
 
 Test
 ----
