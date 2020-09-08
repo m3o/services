@@ -20,3 +20,8 @@ images:
 	docker build . -t rg.fr-par.scw.cloud/build/build:latest -f builder/Dockerfile.build
 	docker push rg.fr-par.scw.cloud/build/base:latest
 	docker push rg.fr-par.scw.cloud/build/build:latest
+
+.PHONY: mocks
+mocks:
+	mkdir -p builder/mock
+	counterfeiter -o builder/mock/builder.go --fake-name=MockBuilder builder Builder

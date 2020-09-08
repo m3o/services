@@ -27,8 +27,10 @@ Config
 * Docker credentials
 
 
-Todo
-----
+Development Roadmap
+-------------------
+
+In `v1` the aim is to get basic functionality working as a stand-alone Micro service:
 - [X] main.go
 - [X] proto
 - [X] handler
@@ -38,15 +40,28 @@ Todo
 - [X] push to registry
 - [X] metrics
 - [X] periodically clean up images
-- [ ] how to clean up all built images (but not build/base)?
-- [ ] handle credentials for private git repos
-- [ ] share Go cache (so the build container doesn't have to download so much cruft every time)
-- [ ] store the state of each build, and provide an RPC to query this
 - [X] make sure that we catch the full output of docker commands
 - [X] checkout the source repo with git before compiling (instead of relying on "go build" to do it for us)
+- [ ] add a streaming endpoint which stays open until a build finishes, periodically returning a status update:
+    - state (enum)
+    - output (from Docker commands etc)
+    - errors
+- [X] tests
 
-Test
-----
+ In `v2` the aim is to integrate with the micro platform and toolset:
+- [ ] move the service proto to micro/micro
+- [ ] move the build logic into go-micro
+- [ ] potentially update the Build interface in go-micro (and drag the rest of the implementations with it?)
+- [ ] build all of this into the runtime service, and use profiles to inject a build-service builder for the micro platform
+
+ Future features:
+- [ ] how to clean up all built images (but not build/base)?
+- [ ] handle credentials for private git repos
+- [ ] consider an option share Go cache (so the build container doesn't have to download so much cruft every time)
+
+
+Example call
+------------
 * `micro call build Build.CreateImage '{"gitRepo": "https://github.com/micro/micro.git", "gitCommit": "master", "imageTag": "rg.fr-par.scw.cloud/micro/micro:latest"}'`
 
 Links
