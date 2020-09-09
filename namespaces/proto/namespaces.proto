@@ -17,7 +17,7 @@ service Namespaces {
 
 message CreateRequest {
 	string id = 1;
-	repeated string owners1 = 2;
+	repeated string owners = 2;
 }
 
 message CreateResponse {
@@ -26,8 +26,8 @@ message CreateResponse {
 
 message Namespace {
 	string id = 1;
-	repeated string owners1 = 2;
-	repeated string users1 = 3;
+	repeated string owners = 2;
+	repeated string users = 3;
 	int64 created = 4;
 }
 
@@ -46,8 +46,8 @@ message DeleteRequest {
 message DeleteResponse {}
 
 message ListRequest {
-	string owner1 = 1;
-	string user1 = 2;
+	string owner = 1;
+	string user = 2;
 }
 
 message ListResponse {
@@ -55,14 +55,14 @@ message ListResponse {
 }
 
 message AddUserRequest {
-	string user1 = 1;
+	string user = 1;
 	string namespace = 2;
 }
 
 message AddUserResponse {}
 
 message RemoveUserRequest {
-	string user1 = 1;
+	string user = 1;
 	string namespace = 2;
 }
 

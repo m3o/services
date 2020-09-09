@@ -46,7 +46,7 @@ func New() *Customers {
 
 func objToProto(cust *CustomerModel) *customer.Customer {
 	return &customer.Customer{
-		Id1:     cust.ID,
+		Id:      cust.ID,
 		Status:  cust.Status,
 		Created: cust.Created,
 		Email:   cust.Email,
@@ -60,7 +60,7 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 	email := request.Email
 	if email == "" {
 		// try deprecated fallback
-		email = request.Id1
+		email = request.Id
 	}
 	if strings.TrimSpace(email) == "" {
 		return errors.BadRequest("customers.create", "Email is required")
@@ -89,7 +89,7 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	email := request.Email
 	if email == "" {
 		// try deprecated fallback
-		email = request.Id1
+		email = request.Id
 	}
 
 	if strings.TrimSpace(email) == "" {
@@ -135,13 +135,13 @@ func (c *Customers) Read(ctx context.Context, request *customer.ReadRequest, res
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if strings.TrimSpace(request.Id1) == "" && strings.TrimSpace(request.Email) == "" {
+	if strings.TrimSpace(request.Id) == "" && strings.TrimSpace(request.Email) == "" {
 		return errors.BadRequest("customers.read", "ID or Email is required")
 	}
 	var cust *CustomerModel
 	var err error
-	if request.Id1 != "" {
-		cust, err = readCustomerByID(request.Id1)
+	if request.Id != "" {
+		cust, err = readCustomerByID(request.Id)
 	} else {
 		cust, err = readCustomerByEmail(request.Email)
 	}
@@ -156,10 +156,10 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if strings.TrimSpace(request.Id1) == "" {
+	if strings.TrimSpace(request.Id) == "" {
 		return errors.BadRequest("customers.delete", "ID is required")
 	}
-	cust, err := updateCustomerStatusByID(request.Id1, statusDeleted)
+	cust, err := updateCustomerStatusByID(request.Id, statusDeleted)
 	if err != nil {
 		return err
 	}

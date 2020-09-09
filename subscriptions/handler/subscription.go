@@ -77,11 +77,11 @@ type Subscription struct {
 
 func objToProto(sub *Subscription) *subscription.Subscription {
 	return &subscription.Subscription{
-		CustomerID1: sub.CustomerID,
-		Created:     sub.Created,
-		Expires:     sub.Expires,
-		Id:          sub.ID,
-		Type:        sub.Type,
+		CustomerID: sub.CustomerID,
+		Created:    sub.Created,
+		Expires:    sub.Expires,
+		Id:         sub.ID,
+		Type:       sub.Type,
 	}
 }
 
@@ -89,7 +89,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	customerID := request.CustomerID1
+	customerID := request.CustomerID
 	_, err := s.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
 		Customer: &paymentsproto.Customer{
 			Id:   customerID,
@@ -177,7 +177,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		return err
 	}
 	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
-		CustomerId:   request.OwnerID1,
+		CustomerId:   request.OwnerID,
 		CustomerType: "user",
 		PriceId:      additionalUsersPriceID,
 	}, client.WithAuthToken())
@@ -192,7 +192,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 	if sub == nil {
 		logger.Info("Creating sub with quantity 1")
 		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-			CustomerId:   request.OwnerID1,
+			CustomerId:   request.OwnerID,
 			CustomerType: "user",
 			PriceId:      additionalUsersPriceID,
 			Quantity:     1,
@@ -201,7 +201,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		logger.Info("Increasing sub quantity")
 		_, err = s.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
 			SubscriptionId: sub.Id,
-			CustomerId:     request.OwnerID1,
+			CustomerId:     request.OwnerID,
 			CustomerType:   "user",
 			PriceId:        additionalUsersPriceID,
 			Quantity:       sub.Quantity + 1,
@@ -211,7 +211,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
 	}
 
-	recs, err := mstore.Read(prefixCustomer+request.OwnerID1+"/", store.ReadPrefix())
+	recs, err := mstore.Read(prefixCustomer+request.OwnerID+"/", store.ReadPrefix())
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 
 	subscription := &Subscription{
 		Type:                  "additional",
-		CustomerID:            request.NewUserID1,
+		CustomerID:            request.NewUserID,
 		Created:               time.Now().Unix(),
 		ID:                    uuid.New().String(),
 		ParentSubscriptionID:  parentSub.ID,
@@ -236,9 +236,9 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 	}
 	ev := SubscriptionEvent{Subscription: *subscription, Type: "subscriptions.created"}
 	if err := mevents.Publish(subscriptionTopic, ev,
-		events.WithMetadata(map[string]string{"user": request.NewUserID1}),
+		events.WithMetadata(map[string]string{"user": request.NewUserID}),
 	); err != nil {
-		logger.Errorf("Error publishing subscriptions.created for user %s event %+v", request.NewUserID1, ev)
+		logger.Errorf("Error publishing subscriptions.created for user %s event %+v", request.NewUserID, ev)
 	}
 	return nil
 
@@ -249,7 +249,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 		return err
 	}
 	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
-		CustomerId:   request.OwnerID1,
+		CustomerId:   request.OwnerID,
 		CustomerType: "user",
 		PriceId:      additionalUsersPriceID,
 	}, client.WithAuthToken())
@@ -273,7 +273,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 		}
 		logger.Infof("Creating sub with quantity %d", request.Quantity)
 		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-			CustomerId:   request.OwnerID1,
+			CustomerId:   request.OwnerID,
 			CustomerType: "user",
 			PriceId:      request.PriceID,
 			Quantity:     request.Quantity,
@@ -285,7 +285,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 		logger.Info("Increasing subscription quantity")
 		_, err = s.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
 			SubscriptionId: sub.Id,
-			CustomerId:     request.OwnerID1,
+			CustomerId:     request.OwnerID,
 			CustomerType:   "user",
 			PriceId:        request.PriceID,
 			Quantity:       request.Quantity,

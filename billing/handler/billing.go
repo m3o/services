@@ -153,7 +153,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 
 	_, err = b.subs.Update(ctx, &subproto.UpdateRequest{
 		PriceID:  u.PriceID,
-		OwnerID1: u.Customer,
+		OwnerID:  u.Customer,
 		Quantity: u.QuantityTo,
 	})
 	return err
@@ -241,11 +241,11 @@ func (b *Billing) loop() {
 			}
 			namespaceToOwner := map[string]string{}
 			for _, namespace := range rsp.Namespaces {
-				if len(namespace.Owners1) == 0 {
+				if len(namespace.Owners) == 0 {
 					log.Warnf("Namespace %v has no owner", namespace.Id)
 					continue
 				}
-				namespaceToOwner[namespace.Id] = namespace.Owners1[0]
+				namespaceToOwner[namespace.Id] = namespace.Owners[0]
 			}
 
 			for _, max := range maxs {

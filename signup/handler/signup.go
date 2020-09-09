@@ -147,7 +147,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		Token:      k,
 		Email:      req.Email,
 		Created:    time.Now().Unix(),
-		CustomerID: custResp.Customer.Id1,
+		CustomerID: custResp.Customer.Id,
 	}
 
 	bytes, err := json.Marshal(tok)
@@ -370,7 +370,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	}
 
 	listRsp, err := e.namespaceService.List(ctx, &nproto.ListRequest{
-		User1: custResp.Customer.Id1,
+		User: custResp.Customer.Id,
 	}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
@@ -399,11 +399,11 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 
 func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email, paymentMethodID string) (string, error) {
 	// TODO fix type to be more than just developer
-	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID1: customerID, Type: "developer", PaymentMethodID: paymentMethodID, Email: email}, client.WithAuthToken())
+	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID: customerID, Type: "developer", PaymentMethodID: paymentMethodID, Email: email}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
-	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners1: []string{customerID}}, client.WithAuthToken())
+	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners: []string{customerID}}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
@@ -417,14 +417,14 @@ func (e *Signup) joinNamespace(ctx context.Context, customerID, ns string) error
 	if err != nil {
 		return err
 	}
-	ownerID := rsp.Namespace.Owners1[0]
+	ownerID := rsp.Namespace.Owners[0]
 
-	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID1: ownerID, NewUserID1: customerID}, client.WithAuthToken())
+	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID: ownerID, NewUserID: customerID}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.join.subscription", "Error adding user to subscription %s", err)
 	}
 
-	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User1: customerID}, client.WithAuthToken())
+	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User: customerID}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.join.namespace", "Error adding user to namespace %s", err)
 	}

@@ -16,7 +16,7 @@ service Subscriptions {
 }
 
 message CreateRequest {
-	string customerID1 = 1;
+	string customerID = 1;
 	string type = 2;
 	string paymentMethodID = 3;
 	string email = 4;
@@ -28,14 +28,14 @@ message CreateResponse {
 
 message Subscription {
 	string id = 1;
-	string customerID1 = 2;
+	string customerID = 2;
 	string type = 3;
 	int64 created = 4;
 	int64 expires = 5; // blank unless the customer has cancelled their subscription
 }
 
 message CancelRequest {
-	string customerID1 = 1;
+	string customerID = 1;
 	string subscriptionID = 2;
 }
 
@@ -44,8 +44,8 @@ message CancelResponse {
 }
 
 message AddUserRequest{
-	string ownerID1 = 1;
-	string newUserID1 = 2;
+	string ownerID = 1;
+	string newUserID = 2;
 }
 
 message AddUserResponse {
@@ -54,7 +54,7 @@ message AddUserResponse {
 message UpdateRequest {
 	string priceID = 1;
 	int64 quantity = 2;
-	string ownerID1 = 3;
+	string ownerID = 3;
 }
 
 message UpdateResponse {
