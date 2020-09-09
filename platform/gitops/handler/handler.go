@@ -27,8 +27,6 @@ type Gitops struct {
 // Webhook handles webhooks from GitHub. We use an interface as the request type to ensure no data
 // is lost unmarshaling into a struct, as the full message is required in order to verify the hmac
 func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookResponse) error {
-	fmt.Println(string(req))
-
 	// unmarshal the request in a webhookRequest object
 	var payload WebhookRequest
 	if err := json.Unmarshal(req, &payload); err != nil {
@@ -87,6 +85,7 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	}
 
 	// update all other services
+	fmt.Println("UPDATING ALL SERVICES")
 	srvs, err := runtime.Read(gorun.ReadNamespace("micro"))
 	if err != nil {
 		logger.Errorf("Error reading services: %v", err)
@@ -94,6 +93,7 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	}
 
 	for _, srv := range srvs {
+		fmt.Println(srv.Name)
 		// don't update a service which was just created
 		var alreadyAmended bool
 		for dir := range changes {
