@@ -59,7 +59,7 @@ type Signup struct {
 var (
 	// TODO: move this message to a better location
 	// Message is a predefined message returned during signup
-	Message = "Please complete signup at https://m3o.com/subscribe?email=%s. This command will now wait for you to finish.\nWaiting... "
+	Message = "Please complete signup at https://m3o.com/subscribe?email=%s. This command will now wait for you to finish."
 )
 
 func NewSignup(inviteService inviteproto.InviteService,
