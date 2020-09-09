@@ -65,8 +65,6 @@ func main() {
 	c.AddFunc("0 9 * * *", checkInfraUsage)
 	c.Start()
 
-	checkInfraUsage()
-
 	// Register the RPC handler
 	pb.RegisterInfrastructureHandler(svr.Server(), new(infrastructure))
 
