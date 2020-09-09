@@ -398,6 +398,12 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 }
 
 func (e *Signup) SetPaymentMethod(ctx context.Context, req *signup.SetPaymentMethodRequest, rsp *signup.SetPaymentMethodResponse) error {
+	if len(req.Email) == 0 {
+		return merrors.BadRequest("signup.SetPaymentMethod", "No email provided")
+	}
+	if len(req.PaymentMethod) == 0 {
+		return merrors.BadRequest("signup.SetPaymentMethod", "No payment method provided")
+	}
 	_, err := e.paymentService.VerifyPaymentMethod(ctx, &pproto.VerifyPaymentMethodRequest{
 		PaymentMethod: req.PaymentMethod,
 	}, client.WithAuthToken())
