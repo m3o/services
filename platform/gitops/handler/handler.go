@@ -54,7 +54,7 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 
 	// compare the hmacs
 	sha, _ := hex.DecodeString(parts[1])
-	mac := hmac.New(sha1.New, []byte(secret))
+	mac := hmac.New(sha1.New, secret)
 	mac.Write(req)
 	expect := mac.Sum(nil)
 	equals := hmac.Equal(sha, expect)
