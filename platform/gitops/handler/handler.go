@@ -76,16 +76,19 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 		case created:
 			if err := runtime.Create(srv, gorun.CreateNamespace("micro")); err != nil && err != gorun.ErrAlreadyExists {
 				logger.Errorf("Error creating service %v: %v", dir, err)
+			} else {
+				logger.Infof("Created service %v", srv.Name)
 			}
 		case deleted:
 			if err := runtime.Delete(srv, gorun.DeleteNamespace("micro")); err != nil {
-				logger.Errorf("Error deleting service %v: %v", dir, err)
+				logger.Errorf("Error deleting service %v: %v", srv.Name, err)
+			} else {
+				logger.Infof("Deleted service %v", srv.Name)
 			}
 		}
 	}
 
 	// update all other services
-	fmt.Println("UPDATING ALL SERVICES")
 	srvs, err := runtime.Read(gorun.ReadNamespace("micro"))
 	if err != nil {
 		logger.Errorf("Error reading services: %v", err)
@@ -93,7 +96,6 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	}
 
 	for _, srv := range srvs {
-		fmt.Println(srv.Name)
 		// don't update a service which was just created
 		var alreadyAmended bool
 		for dir := range changes {
@@ -108,6 +110,8 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 
 		if err := runtime.Update(srv, gorun.UpdateNamespace("micro")); err != nil {
 			logger.Errorf("Error updating service %v: %v", srv.Name, err)
+		} else {
+			logger.Infof("Updated service %v", srv.Name)
 		}
 	}
 
