@@ -64,7 +64,6 @@ func loadConfig() {
 	if len(Token) == 0 {
 		logger.Fatalf("Missing required config: micro.gitops.token")
 	}
-
 	WebhookURL = config.Get("micro", "gitops", "webhook").String("")
 	if len(WebhookURL) == 0 {
 		logger.Fatalf("Missing required config: micro.gitops.webhook")
