@@ -74,6 +74,8 @@ message CompleteSignupRequest {
 	// The token has to be passed here too for identification purposes.
 	string token = 2;
 	// This payment method ID is the one we got back from Stripe on the frontend (ie. `m3o.com/subscribe.html`)
+	// deprecated: signup service now knows the payment method due to the
+	// SetPaymentMethod call issued by the frontend.
 	string paymentMethodID = 3;
 	// The secret/password to use for the account
 	string secret = 4;

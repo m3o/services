@@ -323,12 +323,16 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		return errors.New("invalid token")
 	}
 
+	pm, err := getPaymentMethod(tok.Email)
+	if err != nil || len(pm) == 0 {
+		return merrors.InternalServerError("signup.CompleteSignup", "Error getting payment method: %v", err)
+	}
 	if isJoining {
 		if err := e.joinNamespace(ctx, req.Email, ns); err != nil {
 			return err
 		}
 	} else {
-		newNs, err := e.signupWithNewNamespace(ctx, req)
+		newNs, err := e.signupWithNewNamespace(ctx, req, pm)
 		if err != nil {
 			return err
 		}
@@ -446,9 +450,12 @@ func getPaymentMethod(email string) (string, error) {
 	return "", errors.New("Can't find payment method")
 }
 
-func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest) (string, error) {
+func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest, paymentMethod string) (string, error) {
 	// TODO fix type to be more than just developer
-	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID: req.Email, Type: "developer", PaymentMethodID: req.PaymentMethodID}, client.WithAuthToken())
+	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{
+		CustomerID:      req.Email,
+		Type:            "developer",
+		PaymentMethodID: paymentMethod}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
