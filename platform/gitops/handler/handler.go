@@ -57,10 +57,10 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	// compare the hmacs
 	mac := hmac.New(sha1.New, secret)
 	mac.Write(req)
-	expectedMAC := base64.StdEncoding.EncodeToString(mac.Sum(nil))
-	fmt.Println("REQ", reqMac)
-	fmt.Println("EXP", expectedMAC)
-	if !hmac.Equal([]byte(reqMac), []byte(expectedMAC)) {
+	expectedMAC := []byte(base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+	fmt.Println("REQ", string(reqMac))
+	fmt.Println("EXP", string(expectedMAC))
+	if !hmac.Equal(reqMac, expectedMAC) {
 		return errors.Unauthorized("gitops.Webhook", "Invalid request signature")
 	}
 
