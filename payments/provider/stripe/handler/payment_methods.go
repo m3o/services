@@ -133,6 +133,15 @@ func (h *Provider) SetDefaultPaymentMethod(ctx context.Context, req *pb.SetDefau
 	return nil
 }
 
+func (h *Provider) VerifyPaymentMethod(ctx context.Context, req *pb.VerifyPaymentMethodRequest, rsp *pb.VerifyPaymentMethodResponse) error {
+	response, err := h.client.PaymentMethods.Get(req.PaymentMethod, nil)
+	if err != nil {
+		return err
+	}
+	fmt.Println(response)
+	return nil
+}
+
 func serializePaymentMethod(pm *stripe.PaymentMethod, CustomerType, CustomerID string) *pb.PaymentMethod {
 	rsp := &pb.PaymentMethod{
 		Id:           pm.ID,

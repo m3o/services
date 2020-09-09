@@ -15,6 +15,10 @@ service Provider {
   rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse);
   rpc SetDefaultPaymentMethod(SetDefaultPaymentMethodRequest) returns (SetDefaultPaymentMethodResponse);
   rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse);
+  // Verify a payment method token that gets generated on m3o.com/subscribe
+  // Different from ListPaymentMethod etc. endpoints as the pm token does not belong
+  // to any customer yet.
+  rpc VerifyPaymentMethod(VerifyPaymentMethodRequest) returns (VerifyPaymentMethodResponse);
 }
 
 message Product {
@@ -162,3 +166,9 @@ message ListPlansRequest {
 message ListPlansResponse {
   repeated Plan plans = 1;
 }
+
+message VerifyPaymentMethodRequest {
+  string payment_method = 1;
+}
+
+message VerifyPaymentMethodResponse{}

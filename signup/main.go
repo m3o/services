@@ -4,6 +4,7 @@ import (
 	customersproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
+	pproto "github.com/m3o/services/payments/provider/proto"
 	"github.com/m3o/services/signup/handler"
 	subproto "github.com/m3o/services/subscriptions/proto"
 	log "github.com/micro/go-micro/v3/logger"
@@ -27,6 +28,7 @@ func main() {
 		nsproto.NewNamespacesService("namespaces", srv.Client()),
 		subproto.NewSubscriptionsService("subscriptions", srv.Client()),
 		auth,
+		pproto.NewProviderService("payment.stripe", srv.Client()),
 	))
 
 	// Run service

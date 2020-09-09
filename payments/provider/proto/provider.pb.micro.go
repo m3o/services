@@ -54,6 +54,10 @@ type ProviderService interface {
 	ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, opts ...client.CallOption) (*ListPaymentMethodsResponse, error)
 	SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, opts ...client.CallOption) (*SetDefaultPaymentMethodResponse, error)
 	DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, opts ...client.CallOption) (*DeletePaymentMethodResponse, error)
+	// Verify a payment method token that gets generated on m3o.com/subscribe
+	// Different from ListPaymentMethod etc. endpoints as the pm token does not belong
+	// to any customer yet.
+	VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, opts ...client.CallOption) (*VerifyPaymentMethodResponse, error)
 }
 
 type providerService struct {
@@ -178,6 +182,16 @@ func (c *providerService) DeletePaymentMethod(ctx context.Context, in *DeletePay
 	return out, nil
 }
 
+func (c *providerService) VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, opts ...client.CallOption) (*VerifyPaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.VerifyPaymentMethod", in)
+	out := new(VerifyPaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Provider service
 
 type ProviderHandler interface {
@@ -193,6 +207,10 @@ type ProviderHandler interface {
 	ListPaymentMethods(context.Context, *ListPaymentMethodsRequest, *ListPaymentMethodsResponse) error
 	SetDefaultPaymentMethod(context.Context, *SetDefaultPaymentMethodRequest, *SetDefaultPaymentMethodResponse) error
 	DeletePaymentMethod(context.Context, *DeletePaymentMethodRequest, *DeletePaymentMethodResponse) error
+	// Verify a payment method token that gets generated on m3o.com/subscribe
+	// Different from ListPaymentMethod etc. endpoints as the pm token does not belong
+	// to any customer yet.
+	VerifyPaymentMethod(context.Context, *VerifyPaymentMethodRequest, *VerifyPaymentMethodResponse) error
 }
 
 func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...server.HandlerOption) error {
@@ -208,6 +226,7 @@ func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...serv
 		ListPaymentMethods(ctx context.Context, in *ListPaymentMethodsRequest, out *ListPaymentMethodsResponse) error
 		SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, out *SetDefaultPaymentMethodResponse) error
 		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
+		VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, out *VerifyPaymentMethodResponse) error
 	}
 	type Provider struct {
 		provider
@@ -262,4 +281,8 @@ func (h *providerHandler) SetDefaultPaymentMethod(ctx context.Context, in *SetDe
 
 func (h *providerHandler) DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error {
 	return h.ProviderHandler.DeletePaymentMethod(ctx, in, out)
+}
+
+func (h *providerHandler) VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, out *VerifyPaymentMethodResponse) error {
+	return h.ProviderHandler.VerifyPaymentMethod(ctx, in, out)
 }
