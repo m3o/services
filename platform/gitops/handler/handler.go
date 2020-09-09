@@ -26,11 +26,11 @@ type Gitops struct {
 
 // Webhook handles webhooks from GitHub. We use an interface as the request type to ensure no data
 // is lost unmarshaling into a struct, as the full message is required in order to verify the hmac
-func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *webhookResponse) error {
+func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookResponse) error {
 	fmt.Println(string(req))
 
 	// unmarshal the request in a webhookRequest object
-	var payload webhookRequest
+	var payload WebhookRequest
 	if err := json.Unmarshal(req, &payload); err != nil {
 		return errors.InternalServerError("gitops.Webhook", "Error unmarshaling request: %v", err)
 	}

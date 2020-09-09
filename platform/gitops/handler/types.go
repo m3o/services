@@ -7,11 +7,11 @@ const (
 	deleted
 )
 
-// webhookResponse is the response type of the webhook request
-type webhookResponse struct{}
+// WebhookResponse is the response type of the webhook request
+type WebhookResponse struct{}
 
-// webhookRequest is the payload struct sent from GitHub
-type webhookRequest struct {
+// WebhookRequest is the payload struct sent from GitHub
+type WebhookRequest struct {
 	After      string     `json:"after"`  // e.g. 4c4eee3fad645d165817ecbec597be6d24685d54
 	Before     string     `json:"before"` // e.g. 1cb75bed2ae11fe6c860e4ec2b73ba70f22210de
 	Reference  string     `json:"ref"`    // e.g. refs/heads/master
