@@ -13,6 +13,7 @@ type Config struct {
 	BaseImageURL     string
 	BuildImageURL    string
 	BuildRegistryURL string
+	DockerCommand    string
 	RegistryUsername string
 	RegistryPassword string
 }

@@ -41,13 +41,13 @@ func New(metricsReporter metrics.Reporter, config *Config) (*CmdBuilder, error) 
 
 	// Pull the base image:
 	logger.Infof("Pulling base image (%s)", config.BaseImageURL)
-	if err := exec.Command("docker", "pull", config.BaseImageURL).Run(); err != nil {
+	if err := exec.Command(newBuilder.config.DockerCommand, "pull", config.BaseImageURL).Run(); err != nil {
 		return nil, errors.Wrapf(err, "Unable to pull base image (%s)", config.BaseImageURL)
 	}
 
 	// Pull the build image:
 	logger.Infof("Pulling build image (%s)", config.BuildImageURL)
-	if err := exec.Command("docker", "pull", config.BuildImageURL).Run(); err != nil {
+	if err := exec.Command(newBuilder.config.DockerCommand, "pull", config.BuildImageURL).Run(); err != nil {
 		return nil, errors.Wrapf(err, "Unable to pull build image (%s)", config.BuildImageURL)
 	}
 
@@ -77,7 +77,7 @@ func (b *CmdBuilder) Build(sourceGitRepo, sourceGitCommit, targetImageTag string
 	// A command to build an image (Dockerfile contents provided via StdIn):
 	outBuffer := new(bytes.Buffer)
 	buildBeginTime := time.Now()
-	buildCommand := exec.Command("docker", "build", "--force-rm", "--rm", "-t", targetImageTag, "-")
+	buildCommand := exec.Command(b.config.DockerCommand, "build", "--force-rm", "--rm", "-t", targetImageTag, "-")
 	buildCommand.Stdin = dockerfileContents
 	buildCommand.Stderr = outBuffer
 	buildCommand.Stdout = outBuffer
@@ -100,7 +100,7 @@ func (b *CmdBuilder) Push(targetImageTag string) (string, error) {
 	// A command to push the image:
 	outBuffer := new(bytes.Buffer)
 	pushBeginTime := time.Now()
-	pushCommand := exec.Command("docker", "push", targetImageTag)
+	pushCommand := exec.Command(b.config.DockerCommand, "push", targetImageTag)
 	pushCommand.Stderr = outBuffer
 	pushCommand.Stdout = outBuffer
 
@@ -120,7 +120,7 @@ func (b *CmdBuilder) dockerLogin(registryURL string) error {
 
 	// Use the docker login command:
 	loginBeginTime := time.Now()
-	dockerLoginCommand := exec.Command("docker", "login", registryURL, "-u", b.config.RegistryUsername, "-p", b.config.RegistryPassword)
+	dockerLoginCommand := exec.Command(b.config.DockerCommand, "login", registryURL, "-u", b.config.RegistryUsername, "-p", b.config.RegistryPassword)
 	if err := dockerLoginCommand.Run(); err != nil {
 		b.metricsReporter.Timing("build.registry_login", time.Since(loginBeginTime), metrics.Tags{"result": "failure"})
 		dockerLoginCommandOutput, _ := dockerLoginCommand.CombinedOutput()
@@ -136,7 +136,7 @@ func (b *CmdBuilder) imageReaper() {
 	for {
 		// Try to prune images:
 		pruneBeginTime := time.Now()
-		if err := exec.Command("docker", "image", "prune", "-f").Run(); err != nil {
+		if err := exec.Command(b.config.DockerCommand, "image", "prune", "-f").Run(); err != nil {
 			logger.Errorf("Unable to prune images: %v", err)
 			b.metricsReporter.Timing("build.image_prune", time.Since(pruneBeginTime), metrics.Tags{"result": "failure"})
 			return

@@ -14,6 +14,7 @@ const (
 	defaultBaseImageURL     = "rg.fr-par.scw.cloud/build/base:latest"
 	defaultBuildImageURL    = "rg.fr-par.scw.cloud/build/build:latest"
 	defaultBuildRegistryURL = "rg.fr-par.scw.cloud/build"
+	defaultDockerCommand    = "docker"
 	defaultRegistryUsername = "nologin"
 	defaultRegistryPassword = "changeme"
 )
@@ -38,6 +39,7 @@ func main() {
 		BaseImageURL:     config.Get("micro", "build", "baseimageurl").String(defaultBaseImageURL),
 		BuildImageURL:    config.Get("micro", "build", "buildimageurl").String(defaultBuildImageURL),
 		BuildRegistryURL: config.Get("micro", "build", "buildregistryurl").String(defaultBuildRegistryURL),
+		DockerCommand:    config.Get("micro", "build", "dockerCommand").String(defaultDockerCommand),
 		RegistryUsername: config.Get("micro", "build", "registryusername").String(defaultRegistryUsername),
 		RegistryPassword: config.Get("micro", "build", "registrypassword").String(defaultRegistryPassword),
 	}
