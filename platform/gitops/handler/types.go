@@ -24,7 +24,7 @@ type commit struct {
 	ID       string   `json:"id"`       // e.g. fadc31277ec9137a3605f51ebc97d6802e796000
 	Added    []string `json:"added"`    // e.g. ["test/main.go", "go.sum"]
 	Modified []string `json:"modified"` // e.g. ["test/foo.go"]
-	Deleted  []string `json:"deleted"`  // e.g. ["foo/handler/handler.go"]
+	Removed  []string `json:"removed"`  // e.g. ["foo/handler/handler.go"]
 }
 
 // repository object sent from GitHub
