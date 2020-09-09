@@ -30,7 +30,6 @@ func checkInfraUsage() {
 	for _, c := range clRsp.Clusters {
 		clusterIDs[c.ID] = true
 	}
-	fmt.Println(clusterIDs)
 
 	// load the load balancers
 	lbRsp, err := lbAPI.ListLbs(&lb.ListLbsRequest{Region: scalewayRegion})
