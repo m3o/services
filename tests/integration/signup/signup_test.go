@@ -902,10 +902,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			return
 		}
 
-		_, err = io.WriteString(stdin, pm.ID+"\n")
-		if err != nil {
-			t.Fatal(err)
-		}
+		serv.Command().Exec("call", "signup", "Signup.SetPaymentMethod", "'{\"token\":\""+code+"\",\"paymentMethod\":\""+pm.ID+"\"}'")
 	}
 
 	// Instead of a sleep shoud probably use Try
