@@ -3,6 +3,7 @@ module github.com/m3o/services
 go 1.14
 
 require (
+	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.2

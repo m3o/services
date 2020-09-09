@@ -2,14 +2,11 @@ package handler
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha1"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"strings"
 
+	"github.com/alexellis/hmac"
 	"github.com/micro/go-micro/v3/metadata"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service/errors"
@@ -41,25 +38,14 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	secret := recs[0].Value
 
 	// get the hmac from the request
-	reqMacHeader, ok := metadata.Get(ctx, "X-Hub-Signature")
+	reqMac, ok := metadata.Get(ctx, "X-Hub-Signature")
 	if !ok {
 		return errors.Unauthorized("gitops.Webhook", "Missing required header: X-Hub-Signature")
 	}
 
-	// split the header and decode the string
-	parts := strings.Split(reqMacHeader, "=")
-	if len(parts) < 2 {
-		return errors.Unauthorized("gitops.Webhook", "Invalid header: X-Hub-Signature")
-	}
-
 	// compare the hmacs
-	sha, _ := hex.DecodeString(parts[1])
-	mac := hmac.New(sha1.New, secret)
-	mac.Write(req)
-	expect := mac.Sum(nil)
-	equals := hmac.Equal(sha, expect)
-	if !equals {
-		return errors.Unauthorized("gitops.Webhook", "Invalid request signature")
+	if err := hmac.Validate(req, reqMac, string(secret)); err != nil {
+		return errors.Unauthorized("gitops.Webhook", err.Error())
 	}
 
 	// check the branch matches
