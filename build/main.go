@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/m3o/services/build/builder"
 	"github.com/m3o/services/build/handler"
+	pb "github.com/m3o/services/build/proto"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/metrics/wrapper"
@@ -50,8 +51,8 @@ func main() {
 		log.Fatalf("Error preparing a Docker builder: %v", err)
 	}
 
-	// Register handler:
-	if err := srv.Handle(handler.New(dockerBuilder)); err != nil {
+	// Register the handler:
+	if err := pb.RegisterBuildHandler(srv.Server(), handler.New(dockerBuilder)); err != nil {
 		log.Fatalf("Error registering handler: %v", err)
 	}
 

@@ -53,6 +53,7 @@ In `v1` the aim is to get basic functionality working as a stand-alone Micro ser
 - [ ] move the build logic into go-micro
 - [ ] potentially update the Build interface in go-micro (and drag the rest of the implementations with it?)
 - [ ] build all of this into the runtime service, and use profiles to inject a build-service builder for the micro platform
+- [ ] figure out how to override the resource-limits in the default deployment
 
  Future features:
 - [ ] how to clean up all built images (but not build/base)?
