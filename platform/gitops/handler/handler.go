@@ -51,15 +51,14 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	if len(parts) < 2 {
 		return errors.Unauthorized("gitops.Webhook", "Invalid header: X-Hub-Signature")
 	}
-	reqMac, _ := hex.DecodeString(parts[1])
 
 	// compare the hmacs
-	mac := hmac.New(sha1.New, secret)
+	sha, _ := hex.DecodeString(parts[1])
+	mac := hmac.New(sha1.New, []byte(secret))
 	mac.Write(req)
-	expMac := mac.Sum(nil)
-	fmt.Println("REQ", string(reqMac))
-	fmt.Println("EXP", string(expMac))
-	if !hmac.Equal(reqMac, expMac) {
+	expect := mac.Sum(nil)
+	equals := hmac.Equal(sha, expect)
+	if !equals {
 		return errors.Unauthorized("gitops.Webhook", "Invalid request signature")
 	}
 
