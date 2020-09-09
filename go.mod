@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
+	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/v3 v3.0.0-beta.2
 	github.com/micro/micro/v3 v3.0.0-beta.3.0.20200907201209-650d6e32a270
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -16,3 +17,7 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+
+replace github.com/micro/go-micro/v3 => ../../micro/go-micro
+
+replace github.com/micro/micro/v3 => ../../micro/micro
