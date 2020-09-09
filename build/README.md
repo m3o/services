@@ -42,7 +42,7 @@ In `v1` the aim is to get basic functionality working as a stand-alone Micro ser
 - [X] periodically clean up images
 - [X] make sure that we catch the full output of docker commands
 - [X] checkout the source repo with git before compiling (instead of relying on "go build" to do it for us)
-- [ ] add a streaming endpoint which stays open until a build finishes, periodically returning a status update:
+- [X] add a streaming endpoint which stays open until a build finishes, periodically returning a status update:
     - state (enum)
     - output (from Docker commands etc)
     - errors

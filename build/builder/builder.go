@@ -13,7 +13,8 @@ import (
 
 // Builder does the actual building of docker images:
 type Builder interface {
-	Build(sourceGitRepo, sourceGitBranch, targetImageTag string) error
+	Build(sourceGitRepo, sourceGitBranch, targetImageTag string) (string, error)
+	Push(targetImageTag string) (string, error)
 }
 
 // CmdBuilder implements the Builder interface:
@@ -57,7 +58,7 @@ func New(metricsReporter metrics.Reporter, config *Config) (*CmdBuilder, error) 
 }
 
 // Build actually builds a Docker image:
-func (b *CmdBuilder) Build(sourceGitRepo, sourceGitCommit, targetImageTag string) error {
+func (b *CmdBuilder) Build(sourceGitRepo, sourceGitCommit, targetImageTag string) (string, error) {
 
 	// Prepare a build with the metadata we need to render a Dockerfile template:
 	build := &build{
@@ -70,55 +71,48 @@ func (b *CmdBuilder) Build(sourceGitRepo, sourceGitCommit, targetImageTag string
 	// Render out the Dockerfile template:
 	dockerfileContents, err := build.renderDockerFile()
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	// Do the building in a GoRoutine (because it is too slow for synchronous calls):
-	go func() {
+	// A command to build an image (Dockerfile contents provided via StdIn):
+	outBuffer := new(bytes.Buffer)
+	buildBeginTime := time.Now()
+	buildCommand := exec.Command("docker", "build", "--force-rm", "--rm", "-t", targetImageTag, "-")
+	buildCommand.Stdin = dockerfileContents
+	buildCommand.Stderr = outBuffer
+	buildCommand.Stdout = outBuffer
 
-		// A command to build an image (Dockerfile contents provided via StdIn):
-		outBuffer := new(bytes.Buffer)
-		buildBeginTime := time.Now()
-		buildCommand := exec.Command("docker", "build", "--force-rm", "--rm", "-t", targetImageTag, "-")
-		buildCommand.Stdin = dockerfileContents
-		buildCommand.Stderr = outBuffer
-		buildCommand.Stdout = outBuffer
+	// Run the build command:
+	if err := buildCommand.Run(); err != nil {
+		b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "failure"})
+		return outBuffer.String(), errors.Wrapf(err, "Unable to build image (%s)", targetImageTag)
+	}
 
-		// Run the build command:
-		if err := buildCommand.Run(); err != nil {
-			logger.Errorf("Unable to build image (%s): %v", targetImageTag, err)
-			logger.Debugf("Build output (%s): %s", targetImageTag, outBuffer)
-			b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "failure"})
-			return
-		}
+	// Success:
+	b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "success"})
 
-		// Success:
-		logger.Infof("Build finished (%s) in %s", targetImageTag, time.Since(buildBeginTime).String())
-		logger.Debugf("Build output (%s): %s", targetImageTag, outBuffer)
-		b.metricsReporter.Timing("build.image_build", time.Since(buildBeginTime), metrics.Tags{"result": "success"})
+	return outBuffer.String(), nil
+}
 
-		// A command to push the image:
-		outBuffer.Reset()
-		pushBeginTime := time.Now()
-		pushCommand := exec.Command("docker", "push", targetImageTag)
-		pushCommand.Stderr = outBuffer
-		pushCommand.Stdout = outBuffer
+// Push sends an image to a registry:
+func (b *CmdBuilder) Push(targetImageTag string) (string, error) {
 
-		// Run the push command:
-		if err := pushCommand.Run(); err != nil {
-			logger.Errorf("Unable to push image (%s): %v", targetImageTag, err)
-			logger.Debugf("Push output (%s): %s", targetImageTag, outBuffer)
-			b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "failure"})
-			return
-		}
+	// A command to push the image:
+	outBuffer := new(bytes.Buffer)
+	pushBeginTime := time.Now()
+	pushCommand := exec.Command("docker", "push", targetImageTag)
+	pushCommand.Stderr = outBuffer
+	pushCommand.Stdout = outBuffer
 
-		// Success:
-		logger.Infof("Image has been pushed (%s) in %s", targetImageTag, time.Since(pushBeginTime).String())
-		logger.Debugf("Push output (%s): %s", targetImageTag, outBuffer)
-		b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "success"})
-	}()
+	// Run the push command:
+	if err := pushCommand.Run(); err != nil {
+		b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "failure"})
+		return outBuffer.String(), errors.Wrapf(err, "Unable to push image (%s)", targetImageTag)
+	}
 
-	return nil
+	// Success:
+	b.metricsReporter.Timing("build.image_push", time.Since(pushBeginTime), metrics.Tags{"result": "success"})
+	return outBuffer.String(), nil
 }
 
 // dockerLogin logs the configured Docker daemon into a specific registry:

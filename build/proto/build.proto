@@ -5,8 +5,9 @@ package build;
 option go_package = "proto;build";
 
 service Build {
-    // Creates an image from Go source in a Git repo:
-	rpc CreateImage(CreateImageRequest) returns (CreateImageResponse);
+    rpc CreateImage(CreateImageRequest) returns (CreateImageResponse) {};
+    // Creates an image from Go source in a Git repo, streams back the status as it progresses:
+    rpc StreamImage(CreateImageRequest) returns (stream CreateImageResponse) {};
 }
 
 message CreateImageRequest {
@@ -15,4 +16,23 @@ message CreateImageRequest {
     string imageTag = 3;
 }
 
-message CreateImageResponse {}
+message CreateImageResponse {
+    Status status = 1;
+    string output = 2;
+    string error = 3;
+}
+
+// The status of the build:
+enum Status {
+    UNKNOWN = 0;            // Default / we don't know
+    REQUESTED = 1;          // Request has been received
+    REQUEST_FAILED = 2;     // Something was wrong with the request
+    PENDING = 3;            // Request was accepted but hasn't been actioned yet
+    BUILDING = 4;           // Currently building
+    BUILD_FAILED = 5;       // Build was attempted but failed
+    BUILT = 6;              // Build succeeded
+    PUSHING = 7;            // Image is currently pushing
+    PUSHING_FAILED = 8;     // Image failed to push
+    COMPLETE = 9;           // Image was successfully built and pushed
+    FAILED = 10;            // Failed for some other reason
+}
