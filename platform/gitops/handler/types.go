@@ -1,12 +1,5 @@
 package handler
 
-type changeType int
-
-const (
-	created changeType = iota
-	deleted
-)
-
 // WebhookResponse is the response type of the webhook request
 type WebhookResponse struct{}
 

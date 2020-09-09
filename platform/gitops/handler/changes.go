@@ -5,8 +5,15 @@ import (
 	"path/filepath"
 )
 
+type changeType int
+
+const (
+	created changeType = iota
+	deleted
+)
+
 // determineChanges takes a slice of commmits and returns the status of the services, e.g. "test" =>
-// created, "test/api" => created, "foo" => modified.
+// created, "test/api" => created, "foo" => deleted.
 func determineChanges(commits []commit) map[string]changeType {
 	// services contains the directories and the status, e.g. "test" => created. It can also contain
 	// sub-directories, e.g. "foo/handler" or "foo/api"
