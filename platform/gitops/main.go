@@ -123,9 +123,10 @@ func registerWebhook() {
 	if err != nil {
 		logger.Fatalf("Error executing create webhook request: %v", err)
 	}
+	defer rsp.Body.Close()
+
 	if rsp.StatusCode != http.StatusCreated {
 		bytes, _ := ioutil.ReadAll(rsp.Body)
-		defer rsp.Body.Close()
 		logger.Fatalf("Error creating webhook: %v - %v", rsp.Status, string(bytes))
 	}
 
