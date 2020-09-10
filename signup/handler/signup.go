@@ -324,14 +324,14 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	if isJoining {
-		pm, err := getPaymentMethod(tok.Email)
-		if err != nil || len(pm) == 0 {
-			return merrors.InternalServerError("signup.CompleteSignup", "Error getting payment method: %v", err)
-		}
 		if err := e.joinNamespace(ctx, req.Email, ns); err != nil {
 			return err
 		}
 	} else {
+		pm, err := getPaymentMethod(tok.Email)
+		if err != nil || len(pm) == 0 {
+			return merrors.InternalServerError("signup.CompleteSignup", "Error getting payment method: %v", err)
+		}
 		newNs, err := e.signupWithNewNamespace(ctx, req, pm)
 		if err != nil {
 			return err
