@@ -335,7 +335,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-	_, err = e.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithMetadata(map[string]string{"username": req.Email}))
+	_, err = e.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithName(req.Email))
 	if err != nil {
 		return err
 	}
