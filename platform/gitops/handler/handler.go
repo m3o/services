@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/alexellis/hmac"
+	"github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/metadata"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service/errors"
@@ -23,10 +24,10 @@ type Gitops struct {
 
 // Webhook handles webhooks from GitHub. We use an interface as the request type to ensure no data
 // is lost unmarshaling into a struct, as the full message is required in order to verify the hmac
-func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookResponse) error {
+func (g *Gitops) Webhook(ctx context.Context, req *bytes.Frame, rsp *WebhookResponse) error {
 	// unmarshal the request in a webhookRequest object
 	var payload WebhookRequest
-	if err := json.Unmarshal(req, &payload); err != nil {
+	if err := json.Unmarshal(req.Data, &payload); err != nil {
 		return errors.InternalServerError("gitops.Webhook", "Error unmarshaling request: %v", err)
 	}
 
@@ -44,7 +45,7 @@ func (g *Gitops) Webhook(ctx context.Context, req json.RawMessage, rsp *WebhookR
 	}
 
 	// compare the hmacs
-	if err := hmac.Validate(req, reqMac, string(secret)); err != nil {
+	if err := hmac.Validate(req.Data, reqMac, string(secret)); err != nil {
 		return errors.Unauthorized("gitops.Webhook", err.Error())
 	}
 
