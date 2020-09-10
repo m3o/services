@@ -323,11 +323,11 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		return errors.New("invalid token")
 	}
 
-	pm, err := getPaymentMethod(tok.Email)
-	if err != nil || len(pm) == 0 {
-		return merrors.InternalServerError("signup.CompleteSignup", "Error getting payment method: %v", err)
-	}
 	if isJoining {
+		pm, err := getPaymentMethod(tok.Email)
+		if err != nil || len(pm) == 0 {
+			return merrors.InternalServerError("signup.CompleteSignup", "Error getting payment method: %v", err)
+		}
 		if err := e.joinNamespace(ctx, req.Email, ns); err != nil {
 			return err
 		}
@@ -408,6 +408,7 @@ func (e *Signup) SetPaymentMethod(ctx context.Context, req *signup.SetPaymentMet
 	if len(req.PaymentMethod) == 0 {
 		return merrors.BadRequest("signup.SetPaymentMethod", "No payment method provided")
 	}
+
 	_, err := e.paymentService.VerifyPaymentMethod(ctx, &pproto.VerifyPaymentMethodRequest{
 		PaymentMethod: req.PaymentMethod,
 	}, client.WithAuthToken())
@@ -427,6 +428,7 @@ func (e *Signup) HasPaymentMethod(ctx context.Context, req *signup.HasPaymentMet
 	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
 		return err
 	}
+
 	pm, err := getPaymentMethod(tok.Email)
 	rsp.Has = err == nil && len(pm) > 0
 	return nil

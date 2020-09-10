@@ -7,7 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -902,67 +905,85 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			return
 		}
 
-		outp, err := serv.Command().Exec("call", "signup", "Signup.SetPaymentMethod", `'{"token":"`+code+`","paymentMethod":"`+pm.ID+`"}'`)
+		// using a curl here as `call` redirection to micro namespace doesnt work properly, unlike
+		// dynamic commands
+
+		curl := func(serv test.Server, path, email, paymentMethod string) (map[string]interface{}, error) {
+			resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v?email=%v&paymentMethod=%v", serv.APIPort(), path, url.QueryEscape(email), paymentMethod))
+			if err != nil {
+				return nil, err
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			m := map[string]interface{}{}
+			return m, json.Unmarshal(body, &m)
+		}
+
+		rsp, err := curl(serv, "signup/setPaymentMethod", email, pm.ID)
 		if err != nil {
-			t.Fatal(string(outp))
+			t.Fatal(err)
+		}
+		if len(rsp) > 0 {
+			t.Fatal(rsp)
 		}
 	}
 
-	// Instead of a sleep shoud probably use Try
 	// Some gotchas for this: while the stripe api documentation online
 	// shows prices and plans being separate entitires, even v71 version of the
 	// go library only has plans. However, it seems like the prices are under plans too.
-	time.Sleep(5 * time.Second)
+	test.Try("Check subscription in stripe", t, func() ([]byte, error) {
+		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
+		subListParams := &stripe.SubscriptionListParams{}
+		subListParams.Limit = stripe.Int64(20)
+		subListParams.AddExpand("data.customer")
+		iter := sc.Subscriptions.List(subListParams)
+		count := 0
+		// email -> plan/price id -> subscription
+		userPlans := map[string]*stripe.Subscription{}
+		inviterPlans := map[string]*stripe.Subscription{}
+		for iter.Next() {
+			if count > 20 {
+				break
+			}
+			count++
 
-	// Testing if stripe subscriptions exist
-
-	sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
-	subListParams := &stripe.SubscriptionListParams{}
-	subListParams.Limit = stripe.Int64(20)
-	subListParams.AddExpand("data.customer")
-	iter := sc.Subscriptions.List(subListParams)
-	count := 0
-	// email -> plan/price id -> subscription
-	userPlans := map[string]*stripe.Subscription{}
-	inviterPlans := map[string]*stripe.Subscription{}
-	for iter.Next() {
-		if count > 20 {
-			break
-		}
-		count++
-
-		c := iter.Subscription()
-		if len(opts.inviterEmail) > 0 && c.Customer.Email == opts.inviterEmail {
-			if c.Plan != nil {
-				inviterPlans[c.Plan.ID] = c
+			c := iter.Subscription()
+			if len(opts.inviterEmail) > 0 && c.Customer.Email == opts.inviterEmail {
+				if c.Plan != nil {
+					inviterPlans[c.Plan.ID] = c
+				}
+			}
+			if c.Customer.Email == email {
+				if c.Plan != nil {
+					userPlans[c.Plan.ID] = c
+				}
 			}
 		}
-		if c.Customer.Email == email {
-			if c.Plan != nil {
-				userPlans[c.Plan.ID] = c
+
+		if opts.shouldJoin {
+			priceID := os.Getenv("MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID")
+			sub, found := inviterPlans[priceID]
+			if !found {
+				return nil, fmt.Errorf("Subscription with price ID %v not found", priceID)
+			}
+			if sub.Quantity != int64(opts.xthInvitee) {
+				return nil, fmt.Errorf("Subscription quantity '%v' should match invitee number '%v", sub.Quantity, opts.xthInvitee)
+			}
+		} else {
+			planID := os.Getenv("MICRO_STRIPE_PLAN_ID")
+			sub, found := userPlans[planID]
+			if !found {
+				return nil, fmt.Errorf("Subscription with plan ID %v not found", planID)
+			}
+			if sub.Quantity != 1 {
+				return nil, fmt.Errorf("Subscription quantity should be 1 but is %v", sub.Quantity)
 			}
 		}
-	}
-
-	if opts.shouldJoin {
-		priceID := os.Getenv("MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID")
-		sub, found := inviterPlans[priceID]
-		if !found {
-			t.Fatalf("Subscription with price ID %v not found", priceID)
-		}
-		if sub.Quantity != int64(opts.xthInvitee) {
-			t.Fatalf("Subscription quantity '%v' should match invitee number '%v", sub.Quantity, opts.xthInvitee)
-		}
-	} else {
-		planID := os.Getenv("MICRO_STRIPE_PLAN_ID")
-		sub, found := userPlans[planID]
-		if !found {
-			t.Fatalf("Subscription with plan ID %v not found", planID)
-		}
-		if sub.Quantity != 1 {
-			t.Fatalf("Subscription quantity should be 1 but is %v", sub.Quantity)
-		}
-	}
+		return nil, nil
+	}, 50*time.Second)
 
 	test.Try("Check customer marked active", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--id="+email).CombinedOutput()
