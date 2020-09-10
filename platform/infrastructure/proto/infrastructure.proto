@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package platform.infrastructure;
+
+option go_package="github.com/m3o/services/platform/infrastructure";
+
+service Infrastructure {
+  rpc Summary (SummaryRequest) returns (SummaryResponse) {};
+}
+
+message SummaryRequest {}
+
+message SummaryResponse {
+  int32 clusters = 1;
+  int32 load_balancers = 2;
+  int32 servers = 3;
+  int32 volumes = 4;
+}
