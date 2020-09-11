@@ -27,7 +27,6 @@ jobs:
       with:
         repository: 'micro/micro'
         path: 'micro'
-        ref: 'email-to-customer-id'
 
     - name: Install micro
       working-directory: micro
