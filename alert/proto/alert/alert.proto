@@ -18,6 +18,7 @@ message Event {
 	string label = 4;
 	uint64 value = 5;
 	map<string,string> metadata = 6;
+	string userID = 7;
 }
 
 message ReportEventRequest {
