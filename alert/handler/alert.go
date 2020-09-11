@@ -25,6 +25,7 @@ const (
 type Alert struct {
 	slackClient  *slack.Client
 	gaPropertyID string
+	slackOff     bool
 }
 
 type event struct {
@@ -39,6 +40,7 @@ type event struct {
 
 func NewAlert(store store.Store) *Alert {
 	slackToken := config.Get("micro", "alert", "slack_token").String("")
+	slackOff := config.Get("micro", "alert", "slack_off").Bool(false)
 	gaPropertyID := config.Get("micro", "alert", "ga_property_id").String("")
 	if len(slackToken) == 0 {
 		log.Errorf("Slack token missing")
@@ -50,6 +52,7 @@ func NewAlert(store store.Store) *Alert {
 	return &Alert{
 		slackClient:  slack.New(slackToken),
 		gaPropertyID: gaPropertyID,
+		slackOff:     slackOff,
 	}
 }
 
@@ -76,7 +79,7 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 	if err != nil {
 		log.Warnf("Error sending event to google analytics: %v", err)
 	}
-	if req.Event.Action == "error" {
+	if req.Event.Action == "error" && !e.slackOff {
 		jsond, err := json.MarshalIndent(req.Event, "", "   ")
 		if err != nil {
 			return err
