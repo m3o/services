@@ -165,8 +165,12 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 	if !ok {
 		return errors.BadRequest("billing.Portal", "Authentication failed")
 	}
+	email := acc.Name
+	if len(email) == 0 {
+		email = acc.ID
+	}
 	params := &stripe.CustomerListParams{
-		Email: &acc.ID,
+		Email: stripe.String(email),
 	}
 	params.Filters.AddFilter("limit", "", "3")
 	customerIter := b.stripeClient.Customers.List(params)

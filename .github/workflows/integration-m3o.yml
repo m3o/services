@@ -27,7 +27,6 @@ jobs:
       with:
         repository: 'micro/micro'
         path: 'micro'
-        ref: 'test-relative'
 
     - name: Install micro
       working-directory: micro
