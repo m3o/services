@@ -34,9 +34,8 @@ jobs:
         go install
 
     - name: Build container
-      working-directory: micro
       run: |
-        bash scripts/test-docker.sh
+        bash services/tests/image/test-docker.sh
 
     - name: Test M3O services
       working-directory: services/tests
