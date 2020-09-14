@@ -18,7 +18,8 @@ service Customers {
 
 
 message CreateRequest {
-	string id = 1;
+	string id = 1;// deprecated
+	string email = 2;
 }
 
 message CreateResponse {
@@ -29,16 +30,7 @@ message Customer {
 	string id = 1;
 	string status = 2; // awaiting_verification, verified, active, inactive
 	int64 created = 3;
-	Subscription subscription = 4;
-	repeated string namespaces = 5;
-}
-
-message Subscription {
-	string id = 1;
-	string customerID = 2;
-	string type = 3;
-	int64 created = 4;
-	int64 expires = 5; // blank unless the customer has cancelled their subscription
+	string email = 6;
 }
 
 message DeleteRequest {
@@ -50,6 +42,7 @@ message DeleteResponse {
 
 message ReadRequest {
 	string id = 1;
+	string email = 2;
 }
 
 message ReadResponse {
@@ -58,6 +51,7 @@ message ReadResponse {
 
 message MarkVerifiedRequest {
 	string id = 1;
+	string email = 2;
 }
 
 message MarkVerifiedResponse {}

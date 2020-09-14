@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	log "github.com/micro/go-micro/v3/logger"
 
 	"github.com/micro/go-micro/v3/auth"
@@ -26,12 +28,14 @@ const (
 	statusActive     = "active"
 	statusDeleted    = "deleted"
 
-	prefixCustomer = "customers/"
-	custTopic      = "customers"
+	prefixCustomer      = "customers/"
+	prefixCustomerEmail = "email/"
+	custTopic           = "customers"
 )
 
 type CustomerModel struct {
 	ID      string
+	Email   string
 	Status  string
 	Created int64
 }
@@ -45,6 +49,7 @@ func objToProto(cust *CustomerModel) *customer.Customer {
 		Id:      cust.ID,
 		Status:  cust.Status,
 		Created: cust.Created,
+		Email:   cust.Email,
 	}
 }
 
@@ -52,22 +57,21 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if strings.TrimSpace(request.Id) == "" {
-		return errors.BadRequest("customers.create", "ID is required")
+	email := request.Email
+	if email == "" {
+		// try deprecated fallback
+		email = request.Id
+	}
+	if strings.TrimSpace(email) == "" {
+		return errors.BadRequest("customers.create", "Email is required")
 	}
 	cust := &CustomerModel{
-		ID:      request.Id,
+		ID:      uuid.New().String(),
 		Status:  statusUnverified,
 		Created: time.Now().Unix(),
+		Email:   email,
 	}
-	b, err := json.Marshal(*cust)
-	if err != nil {
-		return err
-	}
-	if err := mstore.Write(&store.Record{
-		Key:   prefixCustomer + cust.ID,
-		Value: b,
-	}); err != nil {
+	if err := writeCustomer(cust); err != nil {
 		return err
 	}
 	response.Customer = objToProto(cust)
@@ -82,10 +86,16 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if strings.TrimSpace(request.Id) == "" {
-		return errors.BadRequest("customers.create", "ID is required")
+	email := request.Email
+	if email == "" {
+		// try deprecated fallback
+		email = request.Id
 	}
-	cust, err := updateCustomerStatus(request.Id, statusVerified)
+
+	if strings.TrimSpace(email) == "" {
+		return errors.BadRequest("customers.markverified", "Email is required")
+	}
+	cust, err := updateCustomerStatusByEmail(email, statusVerified)
 	if err != nil {
 		return err
 	}
@@ -96,8 +106,16 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	return nil
 }
 
-func readCustomer(customerID string) (*CustomerModel, error) {
-	recs, err := mstore.Read(prefixCustomer + customerID)
+func readCustomerByID(customerID string) (*CustomerModel, error) {
+	return readCustomer(customerID, prefixCustomer)
+}
+
+func readCustomerByEmail(email string) (*CustomerModel, error) {
+	return readCustomer(email, prefixCustomerEmail)
+}
+
+func readCustomer(id, prefix string) (*CustomerModel, error) {
+	recs, err := mstore.Read(prefix + id)
 	if err != nil {
 		return nil, err
 	}
@@ -117,15 +135,20 @@ func (c *Customers) Read(ctx context.Context, request *customer.ReadRequest, res
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	if strings.TrimSpace(request.Id) == "" {
-		return errors.BadRequest("customers.create", "ID is required")
+	if strings.TrimSpace(request.Id) == "" && strings.TrimSpace(request.Email) == "" {
+		return errors.BadRequest("customers.read", "ID or Email is required")
 	}
-	cust, err := readCustomer(request.Id)
+	var cust *CustomerModel
+	var err error
+	if request.Id != "" {
+		cust, err = readCustomerByID(request.Id)
+	} else {
+		cust, err = readCustomerByEmail(request.Email)
+	}
 	if err != nil {
 		return err
 	}
 	response.Customer = objToProto(cust)
-	// TODO fill out subscription and namespaces
 	return nil
 }
 
@@ -134,9 +157,9 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 		return err
 	}
 	if strings.TrimSpace(request.Id) == "" {
-		return errors.BadRequest("customers.create", "ID is required")
+		return errors.BadRequest("customers.delete", "ID is required")
 	}
-	cust, err := updateCustomerStatus(request.Id, statusDeleted)
+	cust, err := updateCustomerStatusByID(request.Id, statusDeleted)
 	if err != nil {
 		return err
 	}
@@ -147,21 +170,44 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 	return nil
 }
 
-func updateCustomerStatus(customerID, status string) (*CustomerModel, error) {
-	cust, err := readCustomer(customerID)
+func updateCustomerStatusByEmail(email, status string) (*CustomerModel, error) {
+	return updateCustomerStatus(email, status, prefixCustomerEmail)
+}
+
+func updateCustomerStatusByID(id, status string) (*CustomerModel, error) {
+	return updateCustomerStatus(id, status, prefixCustomer)
+}
+
+func updateCustomerStatus(id, status, prefix string) (*CustomerModel, error) {
+	cust, err := readCustomer(id, prefix)
 	if err != nil {
 		return nil, err
 	}
 	cust.Status = status
+	if err := writeCustomer(cust); err != nil {
+		return nil, err
+	}
+	return cust, nil
+
+}
+
+func writeCustomer(cust *CustomerModel) error {
 	b, _ := json.Marshal(*cust)
 
 	if err := mstore.Write(&store.Record{
 		Key:   prefixCustomer + cust.ID,
 		Value: b,
 	}); err != nil {
-		return nil, err
+		return err
 	}
-	return cust, nil
+
+	if err := mstore.Write(&store.Record{
+		Key:   prefixCustomerEmail + cust.Email,
+		Value: b,
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
 func authorizeCall(ctx context.Context) error {
