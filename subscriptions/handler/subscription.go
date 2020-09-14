@@ -89,13 +89,13 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	email := request.CustomerID
+	customerID := request.CustomerID
 	_, err := s.paymentService.CreateCustomer(ctx, &paymentsproto.CreateCustomerRequest{
 		Customer: &paymentsproto.Customer{
-			Id:   email,
+			Id:   customerID,
 			Type: "user",
 			Metadata: map[string]string{
-				"email": email,
+				"email": request.Email,
 			},
 		},
 	}, client.WithAuthToken())
@@ -104,7 +104,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	}
 	// TODO The above call might take a while to complete
 	_, err = s.paymentService.CreatePaymentMethod(ctx, &paymentsproto.CreatePaymentMethodRequest{
-		CustomerId:   email,
+		CustomerId:   customerID,
 		CustomerType: "user",
 		Id:           request.PaymentMethodID,
 	}, client.WithAuthToken())
@@ -113,7 +113,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	}
 
 	_, err = s.paymentService.SetDefaultPaymentMethod(ctx, &paymentsproto.SetDefaultPaymentMethodRequest{
-		CustomerId:      email,
+		CustomerId:      customerID,
 		CustomerType:    "user",
 		PaymentMethodId: request.PaymentMethodID,
 	}, client.WithAuthToken())
@@ -122,7 +122,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	}
 
 	rsp, err := s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-		CustomerId:   email,
+		CustomerId:   customerID,
 		CustomerType: "user",
 		PlanId:       planID,
 		Quantity:     1,
@@ -132,7 +132,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	}
 	sub := &Subscription{
 		Type:                  "developer", // TODO we'll end up supporting more that one sub type so we'll use request.Type,
-		CustomerID:            email,
+		CustomerID:            customerID,
 		Created:               time.Now().Unix(),
 		ID:                    uuid.New().String(),
 		PaymentSubscriptionID: rsp.Subscription.Id,
@@ -238,7 +238,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 	if err := mevents.Publish(subscriptionTopic, ev,
 		events.WithMetadata(map[string]string{"user": request.NewUserID}),
 	); err != nil {
-		logger.Errorf("Error publishing subscriptions.deleted for user %s event %+v", request.NewUserID, ev)
+		logger.Errorf("Error publishing subscriptions.created for user %s event %+v", request.NewUserID, ev)
 	}
 	return nil
 
@@ -254,7 +254,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 		PriceId:      additionalUsersPriceID,
 	}, client.WithAuthToken())
 	if err != nil {
-		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding sub: %v", err)
+		return merrors.InternalServerError("subscriptions.update.read", "Error finding sub: %v", err)
 	}
 	var sub *paymentsproto.Subscription
 	if len(subs.Subscriptions) > 0 {
@@ -294,6 +294,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 			return merrors.InternalServerError("signup", "Error updating subscription '%v': %v", sub.Id, err)
 		}
 	}
+
 	return nil
 }
 

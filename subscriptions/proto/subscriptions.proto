@@ -19,6 +19,7 @@ message CreateRequest {
 	string customerID = 1;
 	string type = 2;
 	string paymentMethodID = 3;
+	string email = 4;
 }
 
 message CreateResponse {

@@ -33,9 +33,10 @@ const (
 )
 
 type tokenToEmail struct {
-	Email   string `json:"email"`
-	Token   string `json:"token"`
-	Created int64  `json:"created"`
+	Email      string `json:"email"`
+	Token      string `json:"token"`
+	Created    int64  `json:"created"`
+	CustomerID string `json:"customerID"`
 }
 
 type Signup struct {
@@ -134,11 +135,19 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
 	}
 
+	custResp, err := e.customerService.Create(ctx, &cproto.CreateRequest{
+		Email: req.Email,
+	}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
+
 	k := randStringBytesMaskImprSrc(8)
 	tok := &tokenToEmail{
-		Token:   k,
-		Email:   req.Email,
-		Created: time.Now().Unix(),
+		Token:      k,
+		Email:      req.Email,
+		Created:    time.Now().Unix(),
+		CustomerID: custResp.Customer.Id,
 	}
 
 	bytes, err := json.Marshal(tok)
@@ -153,11 +162,6 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return err
 	}
 
-	if _, err := e.customerService.Create(ctx, &cproto.CreateRequest{
-		Id: req.Email,
-	}, client.WithAuthToken()); err != nil {
-		return err
-	}
 	if e.testMode {
 		logger.Infof("Sending verification token '%v'", k)
 	}
@@ -268,7 +272,7 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	rsp.PaymentRequired = true
 
 	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{
-		Id: req.Email,
+		Email: req.Email,
 	}, client.WithAuthToken()); err != nil {
 		return err
 	}
@@ -311,11 +315,11 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	if isJoining {
-		if err := e.joinNamespace(ctx, req.Email, ns); err != nil {
+		if err := e.joinNamespace(ctx, tok.CustomerID, ns); err != nil {
 			return err
 		}
 	} else {
-		newNs, err := e.signupWithNewNamespace(ctx, req)
+		newNs, err := e.signupWithNewNamespace(ctx, tok.CustomerID, tok.Email, req.PaymentMethodID)
 		if err != nil {
 			return err
 		}
@@ -331,12 +335,12 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-	_, err = e.auth.Generate(req.Email, auth.WithSecret(secret), auth.WithIssuer(ns))
+	_, err = e.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithName(req.Email))
 	if err != nil {
 		return err
 	}
 
-	t, err := e.auth.Token(auth.WithCredentials(req.Email, secret), auth.WithTokenIssuer(ns))
+	t, err := e.auth.Token(auth.WithCredentials(tok.CustomerID, secret), auth.WithTokenIssuer(ns))
 	if err != nil {
 		return err
 	}
@@ -356,8 +360,17 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 		return merrors.BadRequest("signup.recover", "We have issued a recovery email recently. Please check that.")
 	}
 
+	custResp, err := e.customerService.Read(ctx, &cproto.ReadRequest{Email: req.Email})
+	if err != nil {
+		merr := merrors.FromError(err)
+		if merr.Code == 404 { // not found
+			return merrors.NotFound("signup.recover", "Could not find account with that email address")
+		}
+		return merrors.InternalServerError("signup.recover", "Error looking up account")
+	}
+
 	listRsp, err := e.namespaceService.List(ctx, &nproto.ListRequest{
-		User: req.Email,
+		User: custResp.Customer.Id,
 	}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.recover", "Error calling namespace service: %v", err)
@@ -384,34 +397,34 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	return err
 }
 
-func (e *Signup) signupWithNewNamespace(ctx context.Context, req *signup.CompleteSignupRequest) (string, error) {
+func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email, paymentMethodID string) (string, error) {
 	// TODO fix type to be more than just developer
-	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID: req.Email, Type: "developer", PaymentMethodID: req.PaymentMethodID}, client.WithAuthToken())
+	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID: customerID, Type: "developer", PaymentMethodID: paymentMethodID, Email: email}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
-	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners: []string{req.Email}}, client.WithAuthToken())
+	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners: []string{customerID}}, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
 	return nsRsp.Namespace.Id, nil
 }
 
-func (e *Signup) joinNamespace(ctx context.Context, email, ns string) error {
+func (e *Signup) joinNamespace(ctx context.Context, customerID, ns string) error {
 	rsp, err := e.namespaceService.Read(ctx, &nproto.ReadRequest{
 		Id: ns,
 	}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
-	ownerEmail := rsp.Namespace.Owners[0]
+	ownerID := rsp.Namespace.Owners[0]
 
-	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID: ownerEmail, NewUserID: email}, client.WithAuthToken())
+	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID: ownerID, NewUserID: customerID}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.join.subscription", "Error adding user to subscription %s", err)
 	}
 
-	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User: email}, client.WithAuthToken())
+	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User: customerID}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("signup.join.namespace", "Error adding user to namespace %s", err)
 	}
