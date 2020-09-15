@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-acme/lego/v3/log"
 	"github.com/google/uuid"
 	aproto "github.com/m3o/services/alert/proto/alert"
 	cproto "github.com/m3o/services/customers/proto"
@@ -149,7 +148,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 			},
 		}, client.WithAuthToken())
 		if aerr != nil {
-			log.Warnf("Error during reporting: %v", aerr)
+			logger.Warnf("Error during reporting: %v", aerr)
 		}
 	}
 	return err
@@ -296,7 +295,7 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 			},
 		}, client.WithAuthToken())
 		if aerr != nil {
-			log.Warnf("Error during reporting: %v", aerr)
+			logger.Warnf("Error during reporting: %v", aerr)
 		}
 	}
 	return err
@@ -359,7 +358,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 		},
 	}, client.WithAuthToken())
 	if aerr != nil {
-		log.Warnf("Error during reporting: %v", aerr)
+		logger.Warnf("Error during reporting: %v", aerr)
 	}
 	return err
 }
