@@ -54,13 +54,13 @@ func TestSignupFlow(t *testing.T) {
 func setupM3Tests(serv test.Server, t *test.T) {
 	envToConfigKey := map[string][]string{
 		"MICRO_STRIPE_API_KEY":                      {"micro.payments.stripe.api_key"},
-		"MICRO_SENDGRID_API_KEY":                    {"micro.signup.sendgrid.api_key", "micro.invite.sendgrid.api_key"},
+		"MICRO_SENDGRID_API_KEY":                    {"micro.emails.sendgrid.api_key"},
 		"MICRO_SENDGRID_TEMPLATE_ID":                {"micro.signup.sendgrid.template_id"},
 		"MICRO_SENDGRID_INVITE_TEMPLATE_ID":         {"micro.invite.sendgrid.invite_template_id"},
 		"MICRO_STRIPE_PLAN_ID":                      {"micro.subscriptions.plan_id"},
 		"MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID":    {"micro.subscriptions.additional_users_price_id"},
 		"MICRO_EMAIL_FROM":                          {"micro.signup.email_from"},
-		"MICRO_TEST_ENV":                            {"micro.signup.test_env", "micro.invite.test_env"},
+		"MICRO_TEST_ENV":                            {"micro.signup.test_env"},
 		"MICRO_STRIPE_ADDITIONAL_SERVICES_PRICE_ID": {"micro.subscriptions.additional_services_price_id"},
 	}
 
@@ -89,6 +89,7 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		{envVar: "M3O_NAMESPACES_SVC", deflt: "../../../namespaces"},
 		{envVar: "M3O_SUBSCRIPTIONS_SVC", deflt: "../../../subscriptions"},
 		{envVar: "M3O_PLATFORM_SVC", deflt: "../../../platform"},
+		{envVar: "M3O_EMAILS_SVC", deflt: "../../../emails"},
 	}
 
 	for _, v := range services {
@@ -107,8 +108,9 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		if !strings.Contains(string(outp), "stripe") ||
 			!strings.Contains(string(outp), "signup") ||
 			!strings.Contains(string(outp), "invite") ||
+			!strings.Contains(string(outp), "emails") ||
 			!strings.Contains(string(outp), "customers") {
-			return outp, errors.New("Can't find signup or stripe or invite in list")
+			return outp, errors.New("Can't find required services in list")
 		}
 		return outp, err
 	}, 180*time.Second); err != nil {
