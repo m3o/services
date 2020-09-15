@@ -1,19 +1,16 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"path"
 	"strings"
 	"time"
 
+	eproto "github.com/m3o/services/emails/proto"
 	pb "github.com/m3o/services/invite/proto"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
-	merrors "github.com/micro/go-micro/v3/errors"
 	logger "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
@@ -42,16 +39,13 @@ type invite struct {
 // New returns an initialised handler
 func New(srv *service.Service) *Invite {
 	templateID := mconfig.Get("micro", "invite", "sendgrid", "invite_template_id").String("")
-	apiKey := mconfig.Get("micro", "invite", "sendgrid", "api_key").String("")
 	emailFrom := mconfig.Get("micro", "invite", "email_from").String("Micro Team <support@micro.mu>")
-	testMode := mconfig.Get("micro", "invite", "test_env").Bool(false)
-
+	eSvc := eproto.NewEmailsService("emails", srv.Client())
 	return &Invite{
 		name:             srv.Name(),
 		inviteTemplateID: templateID,
-		sendgridAPIKey:   apiKey,
 		emailFrom:        emailFrom,
-		testMode:         testMode,
+		emailSvc:         eSvc,
 	}
 }
 
@@ -59,9 +53,8 @@ func New(srv *service.Service) *Invite {
 type Invite struct {
 	name             string
 	inviteTemplateID string
-	sendgridAPIKey   string
 	emailFrom        string
-	testMode         bool
+	emailSvc         eproto.EmailsService
 }
 
 // Invite a user
@@ -135,7 +128,7 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 		return errors.InternalServerError(h.name, "Failed to save invite %v", err)
 	}
 
-	err = h.sendEmail(req.Email, h.inviteTemplateID)
+	err = h.sendEmail(ctx, req.Email, h.inviteTemplateID)
 	if err != nil {
 		return errors.InternalServerError(h.name, "Failed to send email: %v", err)
 	}
@@ -146,61 +139,14 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 	return nil
 }
 
-func (e *Invite) sendEmail(email, token string) error {
-	if e.testMode {
-		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
-		return nil
+func (e *Invite) sendEmail(ctx context.Context, email, token string) error {
+	templateData := map[string]string{
+		"token": token,
 	}
-	logger.Infof("Sending email to address '%v'", email)
+	b, _ := json.Marshal(templateData)
 
-	reqBody, _ := json.Marshal(map[string]interface{}{
-		"template_id": e.inviteTemplateID,
-		"from": map[string]string{
-			"email": e.emailFrom,
-		},
-		"personalizations": []interface{}{
-			map[string]interface{}{
-				"to": []map[string]string{
-					{
-						"email": email,
-					},
-				},
-				"dynamic_template_data": map[string]string{
-					"token": token,
-				},
-			},
-		},
-		"mail_settings": map[string]interface{}{
-			"sandbox_mode": map[string]bool{
-				"enable": e.testMode,
-			},
-		},
-	})
-
-	req, err := http.NewRequest("POST", "https://api.sendgrid.com/v3/mail/send", bytes.NewBuffer(reqBody))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Authorization", "Bearer "+e.sendgridAPIKey)
-	req.Header.Set("Content-Type", "application/json")
-	rsp, err := new(http.Client).Do(req)
-	if err != nil {
-		logger.Infof("Could not send email, error: %v", err)
-		return err
-	}
-	defer rsp.Body.Close()
-
-	if rsp.StatusCode < 200 || rsp.StatusCode > 299 {
-		bytes, err := ioutil.ReadAll(rsp.Body)
-		if err != nil {
-			logger.Errorf("Could not send email, error: %v", err.Error())
-			return err
-		}
-		logger.Errorf("Could not send email, error: %v", string(bytes))
-		return merrors.InternalServerError("signup.sendemail", "error sending email")
-	}
-	return nil
+	_, err := e.emailSvc.Send(ctx, &eproto.SendRequest{From: e.emailFrom, To: email, TemplateId: e.inviteTemplateID, TemplateData: b})
+	return err
 }
 
 // has user invited more than 5 invites sent out already

@@ -816,7 +816,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		}
 	}()
 	go func() {
-		time.Sleep(40 * time.Second)
+		time.Sleep(60 * time.Second)
 		cmd.Process.Kill()
 	}()
 

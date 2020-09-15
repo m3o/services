@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package emails;
+
+option go_package = "proto;emails";
+
+service Emails {
+	rpc Send(SendRequest) returns (SendResponse) {}
+}
+
+message SendRequest {
+	string from = 1;
+	string to = 2;
+	string template_id = 3;
+	bytes template_data = 4;
+}
+
+message SendResponse {
+}
+

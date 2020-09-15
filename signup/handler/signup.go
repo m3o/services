@@ -1,30 +1,29 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
-	"net/http"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	"github.com/google/uuid"
 	cproto "github.com/m3o/services/customers/proto"
+	eproto "github.com/m3o/services/emails/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	nproto "github.com/m3o/services/namespaces/proto"
 	pproto "github.com/m3o/services/payments/provider/proto"
 	signup "github.com/m3o/services/signup/proto/signup"
 	sproto "github.com/m3o/services/subscriptions/proto"
-	"github.com/patrickmn/go-cache"
-
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
 	logger "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service"
 	mconfig "github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
 )
@@ -47,11 +46,10 @@ type Signup struct {
 	namespaceService    nproto.NamespacesService
 	subscriptionService sproto.SubscriptionsService
 	paymentService      pproto.ProviderService
+	emailService        eproto.EmailsService
 	auth                auth.Auth
 	sendgridTemplateID  string
 	recoverTemplateID   string
-	sendgridAPIKey      string
-	emailFrom           string
 	paymentMessage      string
 	testMode            bool
 	cache               *cache.Cache
@@ -63,36 +61,24 @@ var (
 	Message = "Please complete signup at https://m3o.com/subscribe?email=%s. This command will now wait for you to finish."
 )
 
-func NewSignup(inviteService inviteproto.InviteService,
-	customerService cproto.CustomersService,
-	namespaceService nproto.NamespacesService,
-	subscriptionService sproto.SubscriptionsService,
-	auth auth.Auth,
-	paymentService pproto.ProviderService) *Signup {
-
-	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
+func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
 	recoverTemplateID := mconfig.Get("micro", "signup", "sendgrid", "recovery_template_id").String("")
-	emailFrom := mconfig.Get("micro", "signup", "email_from").String("Micro Team <support@micro.mu>")
 	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
 	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
 
-	if len(apiKey) == 0 {
-		logger.Error("No sendgrid API key provided")
-	}
-	if len(templateID) == 0 {
-		logger.Error("No sendgrid template ID provided")
+	if !testMode && len(templateID) == 0 {
+		logger.Fatalf("No sendgrid template ID provided")
 	}
 	return &Signup{
-		inviteService:       inviteService,
-		customerService:     customerService,
-		namespaceService:    namespaceService,
-		subscriptionService: subscriptionService,
-		paymentService:      paymentService,
+		inviteService:       inviteproto.NewInviteService("invite", srv.Client()),
+		customerService:     cproto.NewCustomersService("customers", srv.Client()),
+		namespaceService:    nproto.NewNamespacesService("namespaces", srv.Client()),
+		subscriptionService: sproto.NewSubscriptionsService("subscriptions", srv.Client()),
+		paymentService:      pproto.NewProviderService("payment.stripe", srv.Client()),
+		emailService:        eproto.NewEmailsService("emails", srv.Client()),
 		auth:                auth,
-		sendgridAPIKey:      apiKey,
 		sendgridTemplateID:  templateID,
-		emailFrom:           emailFrom,
 		testMode:            testMode,
 		paymentMessage:      paymentMessage,
 		recoverTemplateID:   recoverTemplateID,
@@ -183,7 +169,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
 
-	err = e.sendEmail(req.Email, e.sendgridTemplateID, map[string]interface{}{
+	err = e.sendEmail(ctx, req.Email, e.sendgridTemplateID, map[string]interface{}{
 		"token": k,
 	})
 	if err != nil {
@@ -206,57 +192,10 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187
 // sendEmailInvite sends an email invite via the sendgrid API using the
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
-func (e *Signup) sendEmail(email, templateID string, templateData map[string]interface{}) error {
-	if e.testMode {
-		logger.Infof("Test mode enabled, not sending email to address '%v' ", email)
-		return nil
-	}
-	reqBody, _ := json.Marshal(map[string]interface{}{
-		"template_id": templateID,
-		"from": map[string]string{
-			"email": e.emailFrom,
-		},
-		"personalizations": []interface{}{
-			map[string]interface{}{
-				"to": []map[string]string{
-					{
-						"email": email,
-					},
-				},
-				"dynamic_template_data": templateData,
-			},
-		},
-		"mail_settings": map[string]interface{}{
-			"sandbox_mode": map[string]bool{
-				"enable": e.testMode,
-			},
-		},
-	})
-
-	req, err := http.NewRequest("POST", "https://api.sendgrid.com/v3/mail/send", bytes.NewBuffer(reqBody))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Authorization", "Bearer "+e.sendgridAPIKey)
-	req.Header.Set("Content-Type", "application/json")
-	rsp, err := new(http.Client).Do(req)
-	if err != nil {
-		logger.Infof("Could not send email, error: %v", err)
-		return err
-	}
-	defer rsp.Body.Close()
-
-	if rsp.StatusCode < 200 || rsp.StatusCode > 299 {
-		bytes, err := ioutil.ReadAll(rsp.Body)
-		if err != nil {
-			logger.Errorf("Could not send email, error: %v", err.Error())
-			return err
-		}
-		logger.Errorf("Could not send email, error: %v", string(bytes))
-		return merrors.InternalServerError("signup.sendemail", "error sending email")
-	}
-	return nil
+func (e *Signup) sendEmail(ctx context.Context, email, templateID string, templateData map[string]interface{}) error {
+	b, _ := json.Marshal(templateData)
+	_, err := e.emailService.Send(ctx, &eproto.SendRequest{To: email, TemplateId: templateID, TemplateData: b})
+	return err
 }
 
 func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *signup.VerifyResponse) error {
@@ -405,7 +344,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	}
 
 	logger.Infof("Sending email with data %v", namespaces)
-	err = e.sendEmail(req.Email, e.recoverTemplateID, map[string]interface{}{
+	err = e.sendEmail(ctx, req.Email, e.recoverTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
 	})
 	if err == nil {
@@ -464,7 +403,6 @@ func getPaymentMethod(email string) (string, error) {
 	}
 	return "", errors.New("Can't find payment method")
 }
-
 
 func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email, paymentMethodID string) (string, error) {
 	// TODO fix type to be more than just developer
