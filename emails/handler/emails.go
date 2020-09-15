@@ -9,12 +9,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/go-micro/v3/auth"
-
-	"github.com/micro/micro/v3/service/errors"
-
 	emails "github.com/m3o/services/emails/proto"
+	mauth "github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
 )
 
@@ -46,7 +44,7 @@ type Emails struct {
 }
 
 func (e *Emails) Send(ctx context.Context, request *emails.SendRequest, response *emails.SendResponse) error {
-	acc, ok := auth.AccountFromContext(ctx)
+	acc, ok := mauth.AccountFromContext(ctx)
 	if !ok || acc.Issuer != defaultIssuer { // currently only for m3o internal use
 		return errors.Unauthorized("emails.send.unauthorized", "Not authorized")
 	}
