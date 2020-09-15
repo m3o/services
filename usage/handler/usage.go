@@ -76,7 +76,7 @@ func (e *Usage) List(ctx context.Context, req *usage.ListRequest, rsp *usage.Lis
 
 	log.Infof("Received Usage.ListAccounts request, listing with key '%v', limit '%v'", key, limit)
 
-	records, err := mstore.Read(key, store.ReadPrefix(), store.ReadLimit(uint(limit)), store.ReadOffset(uint(req.Offset)))
+	records, err := mstore.Read("", mstore.Prefix(key), mstore.Limit(uint(limit)), mstore.Offset(uint(req.Offset)))
 	if err != nil && err != store.ErrNotFound {
 		return merrors.InternalServerError("usage.list", "Error listing store: %v", err)
 	}

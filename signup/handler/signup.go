@@ -11,6 +11,7 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/google/uuid"
+	aproto "github.com/m3o/services/alert/proto/alert"
 	cproto "github.com/m3o/services/customers/proto"
 	eproto "github.com/m3o/services/emails/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
@@ -22,7 +23,6 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	merrors "github.com/micro/go-micro/v3/errors"
 	logger "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
 	mconfig "github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
@@ -45,6 +45,7 @@ type Signup struct {
 	customerService     cproto.CustomersService
 	namespaceService    nproto.NamespacesService
 	subscriptionService sproto.SubscriptionsService
+	alertService        aproto.AlertService
 	paymentService      pproto.ProviderService
 	emailService        eproto.EmailsService
 	auth                auth.Auth
@@ -83,6 +84,7 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		paymentMessage:      paymentMessage,
 		recoverTemplateID:   recoverTemplateID,
 		cache:               cache.New(1*time.Minute, 5*time.Minute),
+		alertService:        aproto.NewAlertService("alert", srv.Client()),
 	}
 }
 
@@ -119,6 +121,26 @@ func randStringBytesMaskImprSrc(n int) string {
 func (e *Signup) SendVerificationEmail(ctx context.Context,
 	req *signup.SendVerificationEmailRequest,
 	rsp *signup.SendVerificationEmailResponse) error {
+	err := e.sendVerificationEmail(ctx, req, rsp)
+	if err != nil {
+		_, aerr := e.alertService.ReportEvent(ctx, &aproto.ReportEventRequest{
+			Event: &aproto.Event{
+				Category: "signup",
+				Action:   "SendVerificationEmail",
+				Value:    1,
+				Label:    fmt.Sprintf("Error for %v: %v", req.Email, err),
+			},
+		}, client.WithAuthToken())
+		if aerr != nil {
+			logger.Warnf("Error during reporting: %v", aerr)
+		}
+	}
+	return err
+}
+
+func (e *Signup) sendVerificationEmail(ctx context.Context,
+	req *signup.SendVerificationEmailRequest,
+	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
 	_, isAllowed := e.isAllowedToSignup(ctx, req.Email)
@@ -146,7 +168,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 		return err
 	}
 
-	if err := mstore.Write(&store.Record{
+	if err := mstore.Write(&mstore.Record{
 		Key:   req.Email,
 		Value: bytes,
 	}); err != nil {
@@ -154,7 +176,7 @@ func (e *Signup) SendVerificationEmail(ctx context.Context,
 	}
 	// HasPaymentMethod needs to resolve email from token, so we save the
 	// same record under a token too
-	if err := mstore.Write(&store.Record{
+	if err := mstore.Write(&mstore.Record{
 		Key:   tok.Token,
 		Value: bytes,
 	}); err != nil {
@@ -199,10 +221,28 @@ func (e *Signup) sendEmail(ctx context.Context, email, templateID string, templa
 }
 
 func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *signup.VerifyResponse) error {
+	err := e.verify(ctx, req, rsp)
+	if err != nil {
+		_, aerr := e.alertService.ReportEvent(ctx, &aproto.ReportEventRequest{
+			Event: &aproto.Event{
+				Category: "signup",
+				Action:   "Verify",
+				Value:    1,
+				Label:    fmt.Sprintf("Error for %v: %v", req.Email, err),
+			},
+		}, client.WithAuthToken())
+		if aerr != nil {
+			logger.Warnf("Error during reporting: %v", aerr)
+		}
+	}
+	return err
+}
+
+func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *signup.VerifyResponse) error {
 	logger.Info("Received Signup.Verify request")
 
 	recs, err := mstore.Read(req.Email)
-	if err == store.ErrNotFound {
+	if err == mstore.ErrNotFound {
 		return errors.New("can't verify: record not found")
 	} else if err != nil {
 		return fmt.Errorf("email verification error: %v", err)
@@ -239,6 +279,28 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
+	err := e.completeSignup(ctx, req, rsp)
+	val := 0
+	label := "Completed signup"
+	if err == nil {
+		val = 1
+		label = fmt.Sprintf("Error for %v: %v", req.Email, err)
+	}
+	_, aerr := e.alertService.ReportEvent(ctx, &aproto.ReportEventRequest{
+		Event: &aproto.Event{
+			Category: "signup",
+			Action:   "CompleteSignup",
+			Value:    uint64(val),
+			Label:    label,
+		},
+	}, client.WithAuthToken())
+	if aerr != nil {
+		logger.Warnf("Error during reporting: %v", aerr)
+	}
+	return err
+}
+
+func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
 
 	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
@@ -252,7 +314,7 @@ func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 
 	recs, err := mstore.Read(req.Email)
-	if err == store.ErrNotFound {
+	if err == mstore.ErrNotFound {
 		return errors.New("can't verify: record not found")
 	} else if err != nil {
 		return err
@@ -387,7 +449,7 @@ func (e *Signup) HasPaymentMethod(ctx context.Context, req *signup.HasPaymentMet
 }
 
 func savePaymentMethod(email, pm string) error {
-	return mstore.Write(&store.Record{
+	return mstore.Write(&mstore.Record{
 		Key:   prefixPaymentMethod + email,
 		Value: []byte(pm),
 	})

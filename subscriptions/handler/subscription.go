@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/service/auth"
 
 	"github.com/google/uuid"
 
@@ -211,7 +211,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
 	}
 
-	recs, err := mstore.Read(prefixCustomer+request.OwnerID+"/", store.ReadPrefix())
+	recs, err := mstore.Read("", mstore.Prefix(prefixCustomer+request.OwnerID+"/"))
 	if err != nil {
 		return err
 	}

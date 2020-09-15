@@ -79,7 +79,7 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 	if err != nil {
 		log.Warnf("Error sending event to google analytics: %v", err)
 	}
-	if req.Event.Action == "error" && e.slackEnabled {
+	if e.slackEnabled {
 		jsond, err := json.MarshalIndent(req.Event, "", "   ")
 		if err != nil {
 			return err

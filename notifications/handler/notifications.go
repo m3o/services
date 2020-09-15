@@ -7,9 +7,9 @@ import (
 
 	"github.com/m3o/services/notifications/dao"
 	nproto "github.com/m3o/services/notifications/proto/notifications"
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/auth"
 )
 
 type Notifications struct{}
