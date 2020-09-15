@@ -31,7 +31,9 @@ jobs:
     - name: Install micro
       working-directory: micro
       run: |
-        go install
+        go run . init --profile=ci --output=profile.go
+        go mod edit -replace github.com/micro/micro/profile/ci/v3=./profile/ci
+        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 
     - name: Build container
       run: |
