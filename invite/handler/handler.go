@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/v3/client"
+
 	eproto "github.com/m3o/services/emails/proto"
 	pb "github.com/m3o/services/invite/proto"
 	"github.com/micro/go-micro/v3/auth"
@@ -145,7 +147,7 @@ func (e *Invite) sendEmail(ctx context.Context, email, token string) error {
 	}
 	b, _ := json.Marshal(templateData)
 
-	_, err := e.emailSvc.Send(ctx, &eproto.SendRequest{From: e.emailFrom, To: email, TemplateId: e.inviteTemplateID, TemplateData: b})
+	_, err := e.emailSvc.Send(ctx, &eproto.SendRequest{From: e.emailFrom, To: email, TemplateId: e.inviteTemplateID, TemplateData: b}, client.WithAuthToken())
 	return err
 }
 
