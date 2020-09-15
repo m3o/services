@@ -840,9 +840,6 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), email) {
-			return outp, errors.New("Output does not contain email")
-		}
 		if !strings.Contains(string(outp), "Sending verification token") {
 			return outp, errors.New("Output does not contain expected")
 		}
