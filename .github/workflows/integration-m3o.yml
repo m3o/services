@@ -34,6 +34,7 @@ jobs:
         go run . init --profile=ci --output=profile.go
         go mod edit -replace github.com/micro/micro/profile/ci/v3=./profile/ci
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
+        go install
 
     - name: Build container
       run: |
