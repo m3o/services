@@ -11,7 +11,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-acme/lego/v3/log"
 	"github.com/google/uuid"
+	aproto "github.com/m3o/services/alert/proto/alert"
 	cproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	nproto "github.com/m3o/services/namespaces/proto"
@@ -46,6 +48,7 @@ type Signup struct {
 	customerService     cproto.CustomersService
 	namespaceService    nproto.NamespacesService
 	subscriptionService sproto.SubscriptionsService
+	alertService        aproto.AlertService
 	paymentService      pproto.ProviderService
 	auth                auth.Auth
 	sendgridTemplateID  string
@@ -68,7 +71,8 @@ func NewSignup(inviteService inviteproto.InviteService,
 	namespaceService nproto.NamespacesService,
 	subscriptionService sproto.SubscriptionsService,
 	auth auth.Auth,
-	paymentService pproto.ProviderService) *Signup {
+	paymentService pproto.ProviderService,
+	alertService aproto.AlertService) *Signup {
 
 	apiKey := mconfig.Get("micro", "signup", "sendgrid", "api_key").String("")
 	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
@@ -97,6 +101,7 @@ func NewSignup(inviteService inviteproto.InviteService,
 		paymentMessage:      paymentMessage,
 		recoverTemplateID:   recoverTemplateID,
 		cache:               cache.New(1*time.Minute, 5*time.Minute),
+		alertService:        alertService,
 	}
 }
 
@@ -131,6 +136,26 @@ func randStringBytesMaskImprSrc(n int) string {
 // SendVerificationEmail is the first step in the signup flow.SendVerificationEmail
 // A stripe customer and a verification token will be created and an email sent.
 func (e *Signup) SendVerificationEmail(ctx context.Context,
+	req *signup.SendVerificationEmailRequest,
+	rsp *signup.SendVerificationEmailResponse) error {
+	err := e.sendVerificationEmail(ctx, req, rsp)
+	if err != nil {
+		_, aerr := e.alertService.ReportEvent(ctx, &aproto.ReportEventRequest{
+			Event: &aproto.Event{
+				Category: "signup",
+				Action:   "SendVerificationEmail",
+				Value:    1,
+				Label:    fmt.Sprintf("Error for %v: %v", req.Email, err),
+			},
+		}, client.WithAuthToken())
+		if aerr != nil {
+			log.Warnf("Error during reporting: %v", aerr)
+		}
+	}
+	return err
+}
+
+func (e *Signup) sendVerificationEmail(ctx context.Context,
 	req *signup.SendVerificationEmailRequest,
 	rsp *signup.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
@@ -260,6 +285,24 @@ func (e *Signup) sendEmail(email, templateID string, templateData map[string]int
 }
 
 func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *signup.VerifyResponse) error {
+	err := e.verify(ctx, req, rsp)
+	if err != nil {
+		_, aerr := e.alertService.ReportEvent(ctx, &aproto.ReportEventRequest{
+			Event: &aproto.Event{
+				Category: "signup",
+				Action:   "Verify",
+				Value:    1,
+				Label:    fmt.Sprintf("Error for %v: %v", req.Email, err),
+			},
+		}, client.WithAuthToken())
+		if aerr != nil {
+			log.Warnf("Error during reporting: %v", aerr)
+		}
+	}
+	return err
+}
+
+func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *signup.VerifyResponse) error {
 	logger.Info("Received Signup.Verify request")
 
 	recs, err := mstore.Read(req.Email)
@@ -300,6 +343,28 @@ func (e *Signup) Verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
+	err := e.completeSignup(ctx, req, rsp)
+	val := 0
+	label := "Completed signup"
+	if err == nil {
+		val = 1
+		label = fmt.Sprintf("Error for %v: %v", req.Email, err)
+	}
+	_, aerr := e.alertService.ReportEvent(ctx, &aproto.ReportEventRequest{
+		Event: &aproto.Event{
+			Category: "signup",
+			Action:   "CompleteSignup",
+			Value:    uint64(val),
+			Label:    label,
+		},
+	}, client.WithAuthToken())
+	if aerr != nil {
+		log.Warnf("Error during reporting: %v", aerr)
+	}
+	return err
+}
+
+func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	logger.Info("Received Signup.CompleteSignup request")
 
 	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
@@ -464,7 +529,6 @@ func getPaymentMethod(email string) (string, error) {
 	}
 	return "", errors.New("Can't find payment method")
 }
-
 
 func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email, paymentMethodID string) (string, error) {
 	// TODO fix type to be more than just developer

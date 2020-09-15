@@ -1,6 +1,7 @@
 package main
 
 import (
+	aproto "github.com/m3o/services/alert/proto/alert"
 	customersproto "github.com/m3o/services/customers/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
@@ -29,6 +30,7 @@ func main() {
 		subproto.NewSubscriptionsService("subscriptions", srv.Client()),
 		auth,
 		pproto.NewProviderService("payment.stripe", srv.Client()),
+		aproto.NewAlertService("alert", srv.Client()),
 	))
 
 	// Run service

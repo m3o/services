@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
+	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200911105723-275e92be3288
