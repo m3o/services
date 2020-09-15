@@ -51,7 +51,7 @@ func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) 
 		req := client.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
 		rsp := &proto.HealthResponse{}
 
-		err := client.Call(context.TODO(), req, rsp, goclient.WithAuthToken())
+		err := client.DefaultClient.Call(context.TODO(), req, rsp, goclient.WithAuthToken())
 		status := "OK"
 		if err != nil || rsp.Status != "ok" {
 			status = "NOT_HEALTHY"

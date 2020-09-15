@@ -10,7 +10,7 @@ import (
 
 	log "github.com/micro/go-micro/v3/logger"
 
-	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/service/auth"
 
 	customer "github.com/m3o/services/customers/proto"
 	"github.com/micro/go-micro/v3/errors"

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/service/auth"
 
 	namespace "github.com/m3o/services/namespaces/proto"
 	plproto "github.com/m3o/services/platform/proto"
@@ -184,7 +184,7 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 		key = prefixUser + request.User + "/"
 	}
 
-	recs, err := mstore.Read(key, store.ReadPrefix())
+	recs, err := mstore.Read("", mstore.Prefix(key))
 	if err != nil {
 		return err
 	}

@@ -11,12 +11,12 @@ import (
 	"time"
 
 	pb "github.com/m3o/services/invite/proto"
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
 	merrors "github.com/micro/go-micro/v3/errors"
 	logger "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	mconfig "github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
 )
@@ -207,7 +207,7 @@ func (e *Invite) sendEmail(email, token string) error {
 // || does namespace have more than 5 invite
 // -> { forbidden }
 func (h *Invite) canInvite(userID string, namespaces []string) error {
-	userCounts, err := mstore.Read(path.Join(userCountPrefix, userID), store.ReadPrefix())
+	userCounts, err := mstore.Read("", mstore.Prefix(path.Join(userCountPrefix, userID)))
 	if err != nil && err != store.ErrNotFound {
 		return errors.InternalServerError(h.name, "can't read user invite count")
 	}
@@ -219,7 +219,7 @@ func (h *Invite) canInvite(userID string, namespaces []string) error {
 		return nil
 	}
 
-	namespaceCounts, err := mstore.Read(path.Join(namespaceCountPrefix, userID), store.ReadPrefix())
+	namespaceCounts, err := mstore.Read("", mstore.Prefix(path.Join(namespaceCountPrefix, userID)))
 	if err != nil && err != store.ErrNotFound {
 		return errors.BadRequest(h.name, "can''t read namespace invite count")
 	}
