@@ -344,8 +344,8 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	err := e.completeSignup(ctx, req, rsp)
 	val := 0
-	label := "Completed signup"
-	if err == nil {
+	label := fmt.Sprintf("Successful signup: %v", req.Email)
+	if err != nil {
 		val = 1
 		label = fmt.Sprintf("Error for %v: %v", req.Email, err)
 	}
