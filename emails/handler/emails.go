@@ -59,7 +59,8 @@ func (e *Emails) Send(ctx context.Context, request *emails.SendRequest, response
 
 	templateData := map[string]interface{}{}
 	if len(request.TemplateData) > 0 {
-		if err := json.Unmarshal(request.TemplateData, templateData); err != nil {
+		if err := json.Unmarshal(request.TemplateData, &templateData); err != nil {
+			log.Errorf("Error unmarshalling template data %s %s", string(request.TemplateData), err)
 			return errors.BadRequest("emails.send.templatedata", "Unable to unmarshal template data")
 		}
 	}
