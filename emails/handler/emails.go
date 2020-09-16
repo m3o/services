@@ -30,7 +30,7 @@ func NewEmailsHandler() *Emails {
 			log.Fatalf("Sendgrid API key not configured")
 		}
 	}
-	log.Infof("Emails service configured. enabled: %b, api key length: %d, email from: %s", enabled, len(apiKey), emailFrom)
+	fmt.Printf("Emails service configured. enabled: %b, api key length: %d, email from: %s\n", enabled, len(apiKey), emailFrom)
 	return &Emails{
 		sendingEnabled: enabled,
 		apiKey:         apiKey,
