@@ -16,7 +16,7 @@ func main() {
 	)
 
 	// Register handler
-	pb.RegisterEmailsHandler(srv.Server(), new(handler.Emails))
+	pb.RegisterEmailsHandler(srv.Server(), handler.NewEmailsHandler())
 
 	// Run service
 	if err := srv.Run(); err != nil {
