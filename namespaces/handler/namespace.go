@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service"
 
 	namespace "github.com/m3o/services/namespaces/proto"
 	plproto "github.com/m3o/services/platform/proto"
@@ -15,6 +15,8 @@ import (
 	"github.com/micro/go-micro/v3/events"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
+	aproto "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service/auth"
 	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
 
@@ -27,15 +29,22 @@ const (
 	prefixUser  = "user/"
 
 	nsTopic = "namespaces"
+
+	statusActive  = "active"
+	statusDeleted = "deleted"
 )
 
 type Namespaces struct {
 	platformService plproto.PlatformService
+	accountsService aproto.AccountsService
+	rulesService    aproto.RulesService
 }
 
-func New(plSvc plproto.PlatformService) *Namespaces {
+func New(srv *service.Service) *Namespaces {
 	return &Namespaces{
-		platformService: plSvc,
+		platformService: plproto.NewPlatformService("platform", srv.Client()),
+		accountsService: aproto.NewAccountsService("auth", srv.Client()),
+		rulesService:    aproto.NewRulesService("auth", srv.Client()),
 	}
 }
 
@@ -44,6 +53,8 @@ type NamespaceModel struct {
 	Owners  []string
 	Users   []string
 	Created int64
+	Updated int64
+	Status  string
 }
 
 func objToProto(ns *NamespaceModel) *namespace.Namespace {
@@ -72,10 +83,10 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 		id = strings.Join(list, "-")
 	}
 	ns := &NamespaceModel{
-		ID:      id,
-		Owners:  request.Owners,
-		Users:   request.Owners,
-		Created: time.Now().Unix(),
+		ID:     id,
+		Owners: request.Owners,
+		Users:  request.Owners,
+		Status: statusActive,
 	}
 	_, err := n.platformService.CreateNamespace(ctx, &plproto.CreateNamespaceRequest{
 		Name: ns.ID,
@@ -99,6 +110,11 @@ func (n Namespaces) Create(ctx context.Context, request *namespace.CreateRequest
 
 // writeNamespace writes to the store. We deliberately denormalise/duplicate across many indexes to optimise for reads
 func writeNamespace(ns *NamespaceModel) error {
+	now := time.Now().Unix()
+	if ns.Created == 0 {
+		ns.Created = now
+	}
+	ns.Updated = time.Now().Unix()
 	b, err := json.Marshal(*ns)
 	if err != nil {
 		return err
@@ -142,6 +158,9 @@ func (n Namespaces) Read(ctx context.Context, request *namespace.ReadRequest, re
 	if err != nil {
 		return err
 	}
+	if ns.Status == statusDeleted {
+		return errors.NotFound("namespaces.read", "Namespace not found")
+	}
 	response.Namespace = objToProto(ns)
 	return nil
 }
@@ -152,18 +171,75 @@ func readNamespace(id string) (*NamespaceModel, error) {
 		return nil, err
 	}
 	if len(recs) != 1 {
-		return nil, errors.InternalServerError("customers.read.toomanyrecords", "Cannot find record to update")
+		return nil, errors.InternalServerError("namespaces.read.toomanyrecords", "Cannot find record to update")
 	}
 	rec := recs[0]
 	ns := &NamespaceModel{}
 	if err := json.Unmarshal(rec.Value, ns); err != nil {
 		return nil, err
 	}
+	if ns.Status == statusDeleted {
+		return nil, errors.NotFound("namespaces.read.notfound", "Namespace not found")
+	}
 	return ns, nil
 }
 
 func (n Namespaces) Delete(ctx context.Context, request *namespace.DeleteRequest, response *namespace.DeleteResponse) error {
-	return errors.InternalServerError("notimplemented", "not implemented")
+	if err := authorizeCall(ctx); err != nil {
+		return err
+	}
+	ns, err := readNamespace(request.Id)
+	if err != nil {
+		return err
+	}
+
+	_, err = n.platformService.DeleteNamespace(ctx, &plproto.DeleteNamespaceRequest{Name: request.Id}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
+	// delete any stray accounts
+	rsp, err := n.accountsService.List(ctx, &aproto.ListAccountsRequest{
+		Options: &aproto.Options{
+			Namespace: ns.ID,
+		},
+	})
+	for _, acc := range rsp.Accounts {
+		_, err := n.accountsService.Delete(ctx,
+			&aproto.DeleteAccountRequest{
+				Id:      acc.Id,
+				Options: &aproto.Options{Namespace: acc.Issuer},
+			})
+		if err != nil {
+			return err
+		}
+	}
+
+	// delete any stray auth rules
+	rrsp, err := n.rulesService.List(ctx, &aproto.ListRequest{Options: &aproto.Options{Namespace: ns.ID}})
+	if err != nil {
+		return err
+	}
+	for _, rule := range rrsp.Rules {
+		_, err := n.rulesService.Delete(ctx, &aproto.DeleteRequest{
+			Id:      rule.Id,
+			Options: &aproto.Options{Namespace: ns.ID},
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	ns.Status = statusDeleted
+	if err := writeNamespace(ns); err != nil {
+		return err
+	}
+
+	ev := NamespaceEvent{Namespace: *ns, Type: "namespaces.deleted"}
+	if err := mevents.Publish(nsTopic, ev); err != nil {
+		log.Errorf("Error publishing namespaces.deleted for event %+v", ev)
+	}
+
+	return nil
 }
 
 func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, response *namespace.ListResponse) error {
@@ -185,16 +261,20 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 	}
 
 	recs, err := mstore.Read("", mstore.Prefix(key))
-	if err != nil {
+	if err != nil && err != mstore.ErrNotFound {
 		return err
 	}
-	res := make([]*namespace.Namespace, len(recs))
-	for i, rec := range recs {
+	res := []*namespace.Namespace{}
+
+	for _, rec := range recs {
 		ns := &NamespaceModel{}
 		if err := json.Unmarshal(rec.Value, ns); err != nil {
 			return err
 		}
-		res[i] = objToProto(ns)
+		if ns.Status == statusDeleted {
+			continue
+		}
+		res = append(res, objToProto(ns))
 	}
 	response.Namespaces = res
 	return nil

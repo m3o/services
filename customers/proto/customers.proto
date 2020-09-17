@@ -31,6 +31,7 @@ message Customer {
 	string status = 2; // awaiting_verification, verified, active, inactive
 	int64 created = 3;
 	string email = 6;
+	int64 updated = 7;
 }
 
 message DeleteRequest {

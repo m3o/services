@@ -47,7 +47,7 @@ type ProviderService interface {
 	ListPlans(ctx context.Context, in *ListPlansRequest, opts ...client.CallOption) (*ListPlansResponse, error)
 	CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...client.CallOption) (*CreateCustomerResponse, error)
 	CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...client.CallOption) (*CreateSubscriptionResponse, error)
-	// UpdateSubscription is curretly used to update the quantity of a subscription.
+	// UpdateSubscription is currently used to update the quantity of a subscription.
 	UpdateSubscription(ctx context.Context, in *UpdateSubscriptionRequest, opts ...client.CallOption) (*UpdateSubscriptionResponse, error)
 	ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...client.CallOption) (*ListSubscriptionsResponse, error)
 	CreatePaymentMethod(ctx context.Context, in *CreatePaymentMethodRequest, opts ...client.CallOption) (*CreatePaymentMethodResponse, error)
@@ -58,6 +58,7 @@ type ProviderService interface {
 	// Different from ListPaymentMethod etc. endpoints as the pm token does not belong
 	// to any customer yet.
 	VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, opts ...client.CallOption) (*VerifyPaymentMethodResponse, error)
+	CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, opts ...client.CallOption) (*CancelSubscriptionResponse, error)
 }
 
 type providerService struct {
@@ -192,6 +193,16 @@ func (c *providerService) VerifyPaymentMethod(ctx context.Context, in *VerifyPay
 	return out, nil
 }
 
+func (c *providerService) CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, opts ...client.CallOption) (*CancelSubscriptionResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.CancelSubscription", in)
+	out := new(CancelSubscriptionResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Provider service
 
 type ProviderHandler interface {
@@ -200,7 +211,7 @@ type ProviderHandler interface {
 	ListPlans(context.Context, *ListPlansRequest, *ListPlansResponse) error
 	CreateCustomer(context.Context, *CreateCustomerRequest, *CreateCustomerResponse) error
 	CreateSubscription(context.Context, *CreateSubscriptionRequest, *CreateSubscriptionResponse) error
-	// UpdateSubscription is curretly used to update the quantity of a subscription.
+	// UpdateSubscription is currently used to update the quantity of a subscription.
 	UpdateSubscription(context.Context, *UpdateSubscriptionRequest, *UpdateSubscriptionResponse) error
 	ListSubscriptions(context.Context, *ListSubscriptionsRequest, *ListSubscriptionsResponse) error
 	CreatePaymentMethod(context.Context, *CreatePaymentMethodRequest, *CreatePaymentMethodResponse) error
@@ -211,6 +222,7 @@ type ProviderHandler interface {
 	// Different from ListPaymentMethod etc. endpoints as the pm token does not belong
 	// to any customer yet.
 	VerifyPaymentMethod(context.Context, *VerifyPaymentMethodRequest, *VerifyPaymentMethodResponse) error
+	CancelSubscription(context.Context, *CancelSubscriptionRequest, *CancelSubscriptionResponse) error
 }
 
 func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...server.HandlerOption) error {
@@ -227,6 +239,7 @@ func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...serv
 		SetDefaultPaymentMethod(ctx context.Context, in *SetDefaultPaymentMethodRequest, out *SetDefaultPaymentMethodResponse) error
 		DeletePaymentMethod(ctx context.Context, in *DeletePaymentMethodRequest, out *DeletePaymentMethodResponse) error
 		VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, out *VerifyPaymentMethodResponse) error
+		CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, out *CancelSubscriptionResponse) error
 	}
 	type Provider struct {
 		provider
@@ -285,4 +298,8 @@ func (h *providerHandler) DeletePaymentMethod(ctx context.Context, in *DeletePay
 
 func (h *providerHandler) VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, out *VerifyPaymentMethodResponse) error {
 	return h.ProviderHandler.VerifyPaymentMethod(ctx, in, out)
+}
+
+func (h *providerHandler) CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, out *CancelSubscriptionResponse) error {
+	return h.ProviderHandler.CancelSubscription(ctx, in, out)
 }

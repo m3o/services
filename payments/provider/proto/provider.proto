@@ -8,7 +8,7 @@ service Provider {
   rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
   rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
   rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
-  // UpdateSubscription is curretly used to update the quantity of a subscription.
+  // UpdateSubscription is currently used to update the quantity of a subscription.
   rpc UpdateSubscription(UpdateSubscriptionRequest) returns (UpdateSubscriptionResponse);
   rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
   rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse);
@@ -19,6 +19,7 @@ service Provider {
   // Different from ListPaymentMethod etc. endpoints as the pm token does not belong
   // to any customer yet.
   rpc VerifyPaymentMethod(VerifyPaymentMethodRequest) returns (VerifyPaymentMethodResponse);
+  rpc CancelSubscription(CancelSubscriptionRequest) returns (CancelSubscriptionResponse);
 }
 
 message Product {
@@ -172,3 +173,9 @@ message VerifyPaymentMethodRequest {
 }
 
 message VerifyPaymentMethodResponse{}
+
+message CancelSubscriptionRequest {
+  string subscription_id = 1;
+}
+
+message CancelSubscriptionResponse {}

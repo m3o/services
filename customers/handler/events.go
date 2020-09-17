@@ -36,32 +36,29 @@ type SubscriptionModel struct {
 	ParentSubscriptionID string
 }
 
-func ConsumeEvents() {
-	go func() {
-		var evs <-chan events.Event
-		start := time.Now()
-		for {
-			var err error
-			evs, err = mevents.Subscribe("subscriptions",
-				events.WithAutoAck(false, 30*time.Second),
-				events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-			if err == nil {
-				break
-			}
-			// TODO fix me
-			if time.Since(start) > 2*time.Minute {
-				logger.Fatalf("Failed to subscribe to subscriptions topic %s", err)
-			}
-			logger.Warnf("Unable to subscribe to evs %s. Will retry in 20 secs", err)
-			time.Sleep(20 * time.Second)
+func (c *Customers) consumeEvents() {
+	var evs <-chan events.Event
+	start := time.Now()
+	for {
+		var err error
+		evs, err = mevents.Subscribe("subscriptions",
+			events.WithAutoAck(false, 30*time.Second),
+			events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+		if err == nil {
+			break
 		}
-		go processSubscriptionEvents(evs)
-
-	}()
+		// TODO fix me
+		if time.Since(start) > 2*time.Minute {
+			logger.Fatalf("Failed to subscribe to subscriptions topic %s", err)
+		}
+		logger.Warnf("Unable to subscribe to evs %s. Will retry in 20 secs", err)
+		time.Sleep(20 * time.Second)
+	}
+	go c.processSubscriptionEvents(evs)
 
 }
 
-func processSubscriptionEvents(ch <-chan events.Event) {
+func (c *Customers) processSubscriptionEvents(ch <-chan events.Event) {
 	for ev := range ch {
 		sub := &SubscriptionEvent{}
 		if err := json.Unmarshal(ev.Payload, sub); err != nil {
@@ -73,12 +70,24 @@ func processSubscriptionEvents(ch <-chan events.Event) {
 		case "subscriptions.created":
 			if _, err := updateCustomerStatusByID(sub.Subscription.CustomerID, statusActive); err != nil {
 				ev.Nack()
-				logger.Errorf("Error updating customers status for customers %s. %s", sub.Subscription.CustomerID, err)
+				logger.Errorf("Error updating customers status for customer %s. %s", sub.Subscription.CustomerID, err)
 				continue
 			}
 			logger.Infof("Updated customer status to active from subscriptions.created event %+v", sub)
+		case "subscriptions.cancelled":
+			if err := c.processCancelledSubscription(&sub.Subscription); err != nil {
+				ev.Nack()
+				logger.Errorf("Error processing subscription cancel for customer %s. %s", sub.Subscription.CustomerID, err)
+				continue
+			}
+			logger.Infof("Processed subscriptions.cancelled event %+v", sub)
 		}
 		ev.Ack()
 	}
 	// TODO what do you do if the channel closes
+}
+
+func (c *Customers) processCancelledSubscription(sub *SubscriptionModel) error {
+	return c.deleteCustomer(sub.CustomerID)
+
 }

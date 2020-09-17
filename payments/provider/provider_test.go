@@ -13,6 +13,18 @@ import (
 
 type testprovider struct{}
 
+func (t testprovider) UpdateSubscription(ctx context.Context, request *pb.UpdateSubscriptionRequest, response *pb.UpdateSubscriptionResponse) error {
+	panic("implement me")
+}
+
+func (t testprovider) VerifyPaymentMethod(ctx context.Context, request *pb.VerifyPaymentMethodRequest, response *pb.VerifyPaymentMethodResponse) error {
+	panic("implement me")
+}
+
+func (t testprovider) CancelSubscription(ctx context.Context, request *pb.CancelSubscriptionRequest, response *pb.CancelSubscriptionResponse) error {
+	panic("implement me")
+}
+
 func (t testprovider) CreateProduct(ctx context.Context, req *pb.CreateProductRequest, rsp *pb.CreateProductResponse) error {
 	return nil
 }

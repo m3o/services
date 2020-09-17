@@ -14,8 +14,7 @@ func main() {
 	)
 
 	// Register handler
-	srv.Handle(handler.New())
-	handler.ConsumeEvents()
+	srv.Handle(handler.New(srv))
 	// Run service
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)

@@ -5,7 +5,9 @@ import (
 
 	pb "github.com/m3o/services/payments/provider/proto"
 	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/scaleway/scaleway-sdk-go/logger"
+
 	stripe "github.com/stripe/stripe-go/v71"
 )
 
@@ -142,4 +144,16 @@ func serializeProduct(prod *stripe.Product) *pb.Product {
 		Id:   prod.ID,
 		Name: prod.Name,
 	}
+}
+
+func (h *Provider) CancelSubscription(ctx context.Context, request *pb.CancelSubscriptionRequest, response *pb.CancelSubscriptionResponse) error {
+	_, err := h.client.Subscriptions.Cancel(
+		request.SubscriptionId,
+		&stripe.SubscriptionCancelParams{Prorate: stripe.Bool(true)},
+	)
+	if err != nil {
+		log.Errorf("Error cancelling subscription %s", err)
+		return errors.InternalServerError(h.name+".cancelsubcription", "Error cancelling subscription")
+	}
+	return nil
 }
