@@ -239,7 +239,7 @@ func authorizeCall(ctx context.Context) error {
 
 func (c *Customers) deleteCustomer(ctx context.Context, customerID string) error {
 	// auth accounts are tied to namespaces so get that list and delete all
-	rsp, err := c.namespacesService.List(ctx, &nsproto.ListRequest{User: customerID})
+	rsp, err := c.namespacesService.List(ctx, &nsproto.ListRequest{User: customerID}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
