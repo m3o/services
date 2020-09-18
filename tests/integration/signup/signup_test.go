@@ -1120,7 +1120,7 @@ func testSubCancellation(t *test.T) {
 	if err := json.Unmarshal(outp, csObj); err != nil {
 		t.Fatalf("Error unmarshalling customer %s %s ", string(outp), err)
 	}
-	outp, err = exec.Command("micro", envFlag, adminConfFlag, "subscriptions", "cancel", "--customerID"+csObj.Customer.Id).CombinedOutput()
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "subscriptions", "cancel", "--customerID="+csObj.Customer.Id).CombinedOutput()
 	if err != nil {
 		t.Fatalf("Error cancelling %+v %s %s ", csObj, string(outp), err)
 	}
