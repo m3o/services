@@ -1077,3 +1077,52 @@ func testInviteEmailValidation(t *test.T) {
 	}
 
 }
+
+func TestSubCancellation(t *testing.T) {
+	test.TrySuite(t, testSubCancellation, retryCount)
+}
+
+func testSubCancellation(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupM3Tests(serv, t)
+	email := testEmail(0)
+	password := "PassWord1@"
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+	if t.Failed() {
+		return
+	}
+
+	adminConfFlag := "-c=" + serv.Command().Config + ".admin"
+	envFlag := "-e=" + serv.Env()
+	outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error looking up customer ID %s %s ", string(outp), err)
+	}
+	type cs struct {
+		id string `json:"id"`
+	}
+	type rsp struct {
+		customer cs `json:"customer"`
+	}
+	csObj := &rsp{}
+	if err := json.Unmarshal(outp, csObj); err != nil {
+		t.Fatalf("Error unmarshalling customer %s %s ", string(outp), err)
+	}
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "subscriptions", "cancel", "--customerID"+csObj.customer.id).CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error cancelling %+v %s %s ", csObj, string(outp), err)
+	}
+
+}
