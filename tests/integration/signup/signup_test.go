@@ -1124,5 +1124,22 @@ func testSubCancellation(t *test.T) {
 	if err != nil {
 		t.Fatalf("Error cancelling %+v %s %s ", csObj, string(outp), err)
 	}
+	// check stripe for sub cancelled
+	subs := getSubscriptions(t, email)
+	for k, v := range subs {
+		if v.Status != stripe.SubscriptionStatusCanceled {
+			t.Fatalf("Subscription was not cancelled %+v", v)
+		}
+	}
+	// check customer is deleted
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
+	if !strings.Contains(string(outp), "not found") {
+		t.Fatalf("Customer should not be found %s %s", string(outp), err)
+	}
+	// check namespace is gone
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "namespaces", "list", "--user="+csObj.Customer.Id).CombinedOutput()
+	if strings.Contains(string(outp), "namespaces") {
+		t.Fatalf("Customer should not have any namespaces %s %s", string(outp), err)
+	}
 
 }
