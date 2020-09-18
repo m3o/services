@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -88,6 +89,6 @@ func (c *Customers) processSubscriptionEvents(ch <-chan events.Event) {
 }
 
 func (c *Customers) processCancelledSubscription(sub *SubscriptionModel) error {
-	return c.deleteCustomer(sub.CustomerID)
+	return c.deleteCustomer(context.Background(), sub.CustomerID)
 
 }
