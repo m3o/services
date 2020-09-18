@@ -1131,11 +1131,14 @@ func testSubCancellation(t *test.T) {
 			t.Fatalf("Subscription was not cancelled %+v", v)
 		}
 	}
-	// check customer is deleted
-	outp, err = exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
-	if !strings.Contains(string(outp), "not found") {
-		t.Fatalf("Customer should not be found %s %s", string(outp), err)
-	}
+	test.Try("Check customer deleted", t, func() ([]byte, error) {
+		// check customer is deleted which happens async
+		outp, err = exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
+		if !strings.Contains(string(outp), "not found") {
+			return outp, fmt.Errorf("Customer should not be found %s", err)
+		}
+		return nil, nil
+	}, 60*time.Second)
 	// check namespace is gone
 	outp, err = exec.Command("micro", envFlag, adminConfFlag, "namespaces", "list", "--user="+csObj.Customer.Id).CombinedOutput()
 	if strings.Contains(string(outp), "namespaces") {
