@@ -52,3 +52,21 @@ func (h *Provider) CreateCustomer(ctx context.Context, req *pb.CreateCustomerReq
 	// Write the ID to the database
 	return h.setStripeIDForCustomer(c.ID, req.Customer.Type, req.Customer.Id)
 }
+
+func (h *Provider) DeleteCustomer(ctx context.Context, request *pb.DeleteCustomerRequest, response *pb.DeleteCustomerResponse) error {
+	if len(request.CustomerId) == 0 {
+		return errors.BadRequest(h.name+"deletecustomer", "Customer ID required")
+	}
+	if len(request.CustomerType) == 0 {
+		return errors.BadRequest(h.name+"deletecustomer", "Customer type required")
+	}
+	sid, err := h.getStripeIDForCustomer(request.CustomerType, request.CustomerId)
+	if err != nil {
+		return errors.InternalServerError(h.name+"deletecustomer", "Error looking up customer")
+	}
+	_, err = h.client.Customers.Del(sid, &stripe.CustomerParams{})
+	if err != nil {
+		return errors.InternalServerError(h.name+"deletecustomer", "Error deleting customer in provider")
+	}
+	return nil
+}

@@ -19,6 +19,7 @@ service Provider {
   // Different from ListPaymentMethod etc. endpoints as the pm token does not belong
   // to any customer yet.
   rpc VerifyPaymentMethod(VerifyPaymentMethodRequest) returns (VerifyPaymentMethodResponse);
+  rpc DeleteCustomer(DeleteCustomerRequest) returns (DeleteCustomerResponse);
   rpc CancelSubscription(CancelSubscriptionRequest) returns (CancelSubscriptionResponse);
 }
 
@@ -179,3 +180,10 @@ message CancelSubscriptionRequest {
 }
 
 message CancelSubscriptionResponse {}
+
+message DeleteCustomerRequest {
+  string customer_id = 1;
+  string customer_type = 2;
+}
+
+message DeleteCustomerResponse {}

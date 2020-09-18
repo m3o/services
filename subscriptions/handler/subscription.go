@@ -196,13 +196,44 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 		logger.Errorf("Error unmarshalling subscription %s %s", recs[0].Key, err)
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
 	}
+	if len(sub.ParentSubscriptionID) > 0 {
+		return s.cancelChildSubscription(ctx, sub)
+	}
 
-	// hit stripe
-	_, err = s.paymentService.CancelSubscription(ctx, &paymentsproto.CancelSubscriptionRequest{SubscriptionId: sub.PaymentSubscriptionID})
+	return s.cancelSubscription(ctx, sub)
+}
+
+func (s Subscriptions) cancelSubscription(ctx context.Context, sub *Subscription) error {
+	// clean up stripe.
+	// delete the payment method and delete the customer so all traces are gone. Deleting the customer will also cancel all subscriptions
+	rsp, err := s.paymentService.ListPaymentMethods(ctx,
+		&paymentsproto.ListPaymentMethodsRequest{
+			CustomerId:   sub.CustomerID,
+			CustomerType: "user",
+		})
+	if err != nil {
+		logger.Errorf("Error listing payment methods with stripe %s %s", sub.ID, err)
+		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
+	}
+
+	for _, pm := range rsp.PaymentMethods {
+		// delete all payment methods from user
+		// we need to do this otherwise attempts to sign up again for this email/credit card combination will fail with Stripe
+		_, err = s.paymentService.DeletePaymentMethod(ctx, &paymentsproto.DeletePaymentMethodRequest{Id: pm.Id})
+		if err != nil {
+			logger.Errorf("Error deleting payment method with stripe %s %s", sub.ID, err)
+			return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
+		}
+
+	}
+
+	// deleting the customer will cancel all subscriptions, including the ones for additional services etc
+	_, err = s.paymentService.DeleteCustomer(ctx, &paymentsproto.DeleteCustomerRequest{CustomerType: "user", CustomerId: sub.CustomerID})
 	if err != nil {
 		logger.Errorf("Error cancelling subscription with stripe %s %s", sub.ID, err)
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
 	}
+
 	// update local obj
 	sub.Expires = time.Now().Unix()
 	if err := s.writeSubscription(sub); err != nil {
@@ -210,40 +241,10 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
 	}
 
-	defer func() {
-		ev := SubscriptionEvent{Subscription: *sub, Type: "subscriptions.cancelled"}
-		if err := mevents.Publish(subscriptionTopic, ev); err != nil {
-			logger.Errorf("Error publishing subscriptions.cancelled for event %+v", ev)
-		}
-	}()
-
-	// Cancel any related subscriptions (additional users and additional services subs)
-	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
-		CustomerId:   request.CustomerID,
-		CustomerType: "user",
-	}, client.WithAuthToken())
-	if err != nil {
-		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding sub: %v", err)
-	}
-	if len(subs.Subscriptions) == 0 {
-		// we're done
-		return nil
-	}
-
-	for _, v := range subs.Subscriptions {
-		_, err := s.paymentService.CancelSubscription(ctx, &paymentsproto.CancelSubscriptionRequest{
-			SubscriptionId: v.Id,
-		})
-		if err != nil {
-			logger.Errorf("Error cancelling child subscriptions for customer %s %s", request.CustomerID, err)
-			return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
-		}
-	}
-
 	// clean up any local subscription objects (additional users)
-	recs, err = mstore.Read("", mstore.Prefix(prefixParentSub+sub.ID))
+	recs, err := mstore.Read("", mstore.Prefix(prefixParentSub+sub.ID))
 	if err != nil && err != mstore.ErrNotFound {
-		logger.Errorf("Error looking up child subscriptions for customer %s subscription ID %s %s", request.CustomerID, sub.ID, err)
+		logger.Errorf("Error looking up child subscriptions for customer %s subscription ID %s %s", sub.CustomerID, sub.ID, err)
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
 	}
 	for _, r := range recs {
@@ -261,6 +262,40 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 		if err := mevents.Publish(subscriptionTopic, ev); err != nil {
 			logger.Errorf("Error publishing subscriptions.cancelled for event %+v", ev)
 		}
+	}
+	ev := SubscriptionEvent{Subscription: *sub, Type: "subscriptions.cancelled"}
+	if err := mevents.Publish(subscriptionTopic, ev); err != nil {
+		logger.Errorf("Error publishing subscriptions.cancelled for event %+v", ev)
+	}
+
+	return nil
+}
+
+func (s Subscriptions) cancelChildSubscription(ctx context.Context, sub *Subscription) error {
+	// we should only decrement the additional user's subscription on the parent subscription, no other clean up required
+	recs, err := mstore.Read(prefixSubscription + sub.ParentSubscriptionID)
+	if err != nil {
+		logger.Errorf("Error looking up parent subscription for cancellation parent %s, child %s, err %s", sub.ParentSubscriptionID, sub.ID, err)
+		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
+	}
+	parentSub := &Subscription{}
+	if err := json.Unmarshal(recs[0].Value, parentSub); err != nil {
+		logger.Errorf("Error unmarshalling parent subscription for cancellation parent %s, child %s, err %s", sub.ParentSubscriptionID, sub.ID, err)
+		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
+	}
+
+	if err := s.updatePaymentSubscription(ctx, parentSub.CustomerID, additionalUsersPriceID, -1, true); err != nil {
+		logger.Errorf("Error updating subscription quantity from delete %s %s", sub.ID, err)
+		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
+	}
+	sub.Expires = time.Now().Unix()
+	if err := s.writeSubscription(sub); err != nil {
+		logger.Errorf("Error updating subscription object for cancellation %s %s", sub.ID, err)
+		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
+	}
+	ev := SubscriptionEvent{Subscription: *sub, Type: "subscriptions.cancelled"}
+	if err := mevents.Publish(subscriptionTopic, ev); err != nil {
+		logger.Errorf("Error publishing subscriptions.cancelled for event %+v", ev)
 	}
 
 	return nil
@@ -342,10 +377,19 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 	if err := authorizeAdminCall(ctx); err != nil {
 		return err
 	}
+	if err := s.updatePaymentSubscription(ctx, request.OwnerID, request.PriceID, request.Quantity, false); err != nil {
+		return err
+	}
+	return nil
+}
+
+// updatePaymentSubscription updates the given subscription with a new quantity. If the subscription doesn't yet exist it will create it.
+// if qtyIsDelta quantity is treated as a delta and added to the existing quantity (pass a negative quantity to decrease the quantity).
+func (s Subscriptions) updatePaymentSubscription(ctx context.Context, customerID, priceID string, quantity int64, qtyIsDelta bool) error {
 	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
-		CustomerId:   request.OwnerID,
+		CustomerId:   customerID,
 		CustomerType: "user",
-		PriceId:      additionalUsersPriceID,
+		PriceId:      priceID,
 	}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("subscriptions.update.read", "Error finding sub: %v", err)
@@ -354,7 +398,7 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 	if len(subs.Subscriptions) > 0 {
 		for _, su := range subs.Subscriptions {
 			// plan and price ids are both store in s.Plan.Id
-			if su.Plan.Id == request.PriceID {
+			if su.Plan.Id == priceID {
 				sub = su
 				break
 			}
@@ -362,27 +406,33 @@ func (s Subscriptions) Update(ctx context.Context, request *subscription.UpdateR
 	}
 
 	if sub == nil {
-		if request.Quantity == 0 {
+		if quantity == 0 {
 			return errors.InternalServerError("subscriptions.Update", "Something is wrong, trying to create subscription with 0 value")
 		}
-		logger.Infof("Creating sub with quantity %d", request.Quantity)
+		logger.Infof("Creating sub with quantity %d", quantity)
 		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
-			CustomerId:   request.OwnerID,
+			CustomerId:   customerID,
 			CustomerType: "user",
-			PriceId:      request.PriceID,
-			Quantity:     request.Quantity,
+			PriceId:      priceID,
+			Quantity:     quantity,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 		if err != nil {
 			return merrors.InternalServerError("signup", "Error creating subscription: %v", err)
 		}
 	} else {
+		if qtyIsDelta {
+			quantity = sub.Quantity + quantity
+			if quantity < 0 {
+				return errors.InternalServerError("subscriptions.Update", "Something is wrong, trying to create subscription with negative value")
+			}
+		}
 		logger.Info("Increasing subscription quantity")
 		_, err = s.paymentService.UpdateSubscription(ctx, &paymentsproto.UpdateSubscriptionRequest{
 			SubscriptionId: sub.Id,
-			CustomerId:     request.OwnerID,
+			CustomerId:     customerID,
 			CustomerType:   "user",
-			PriceId:        request.PriceID,
-			Quantity:       request.Quantity,
+			PriceId:        priceID,
+			Quantity:       quantity,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 		if err != nil {
 			return merrors.InternalServerError("signup", "Error updating subscription '%v': %v", sub.Id, err)
