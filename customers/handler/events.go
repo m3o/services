@@ -46,7 +46,9 @@ func (c *Customers) consumeEvents() {
 			events.WithAutoAck(false, 30*time.Second),
 			events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 		if err == nil {
-			break
+			c.processSubscriptionEvents(evs)
+			start = time.Now()
+			continue // if for some reason evs closes we loop and try subscribing again
 		}
 		// TODO fix me
 		if time.Since(start) > 2*time.Minute {
@@ -55,7 +57,6 @@ func (c *Customers) consumeEvents() {
 		logger.Warnf("Unable to subscribe to evs %s. Will retry in 20 secs", err)
 		time.Sleep(20 * time.Second)
 	}
-	go c.processSubscriptionEvents(evs)
 
 }
 
@@ -85,7 +86,6 @@ func (c *Customers) processSubscriptionEvents(ch <-chan events.Event) {
 		}
 		ev.Ack()
 	}
-	// TODO what do you do if the channel closes
 }
 
 func (c *Customers) processCancelledSubscription(sub *SubscriptionModel) error {
