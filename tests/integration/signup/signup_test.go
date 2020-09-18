@@ -1111,16 +1111,16 @@ func testSubCancellation(t *test.T) {
 		t.Fatalf("Error looking up customer ID %s %s ", string(outp), err)
 	}
 	type cs struct {
-		id string `json:"id"`
+		Id string `json:"id"`
 	}
 	type rsp struct {
-		customer cs `json:"customer"`
+		Customer cs `json:"customer"`
 	}
 	csObj := &rsp{}
 	if err := json.Unmarshal(outp, csObj); err != nil {
 		t.Fatalf("Error unmarshalling customer %s %s ", string(outp), err)
 	}
-	outp, err = exec.Command("micro", envFlag, adminConfFlag, "subscriptions", "cancel", "--customerID"+csObj.customer.id).CombinedOutput()
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "subscriptions", "cancel", "--customerID"+csObj.Customer.Id).CombinedOutput()
 	if err != nil {
 		t.Fatalf("Error cancelling %+v %s %s ", csObj, string(outp), err)
 	}
