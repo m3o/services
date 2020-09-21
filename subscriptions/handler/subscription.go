@@ -181,8 +181,8 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 	if err := authorizeCall(ctx, request.CustomerID); err != nil {
 		return err
 	}
-	if len(request.CustomerID) == 0 || len(request.SubscriptionID) == 0 {
-		return errors.BadRequest("subscriptions.cancel.validation", "Customer ID and subscription ID are required")
+	if len(request.CustomerID) == 0 {
+		return errors.BadRequest("subscriptions.cancel.validation", "Customer ID is required")
 	}
 	// lookup the subscriptions for this customer
 	// doing a prefix lookup so if request.SubscriptionID is blank we just look up all the customer's subs.

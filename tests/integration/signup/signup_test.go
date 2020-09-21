@@ -1104,9 +1104,25 @@ func testSubCancellation(t *test.T) {
 		return
 	}
 
+	outp, err := serv.Command().Exec("user", "config")
+	if err != nil {
+		t.Fatalf("Error getting user config %s %s", string(outp), err)
+	}
+
+	ns := ""
+	for _, v := range strings.Split(string(outp), "\n") {
+		if !strings.HasPrefix(v, "namespace: ") {
+			continue
+		}
+		ns = strings.TrimPrefix(v, "namespace: ")
+	}
+	if len(ns) == 0 {
+		t.Fatalf("Unable to determine the namespace of the user %s", string(outp))
+	}
+
 	adminConfFlag := "-c=" + serv.Command().Config + ".admin"
 	envFlag := "-e=" + serv.Env()
-	outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
 	if err != nil {
 		t.Fatalf("Error looking up customer ID %s %s ", string(outp), err)
 	}
@@ -1143,6 +1159,11 @@ func testSubCancellation(t *test.T) {
 	outp, err = exec.Command("micro", envFlag, adminConfFlag, "namespaces", "list", "--user="+csObj.Customer.Id).CombinedOutput()
 	if strings.Contains(string(outp), "namespaces") {
 		t.Fatalf("Customer should not have any namespaces %s %s", string(outp), err)
+	}
+	// check auth is gone
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "store", "list", "--table", "auth").CombinedOutput()
+	if strings.Contains(string(outp), ns) {
+		t.Fatalf("Customer should not have any auth remnants %s %s", string(outp), err)
 	}
 
 }
