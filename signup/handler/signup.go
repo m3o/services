@@ -75,7 +75,8 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 	if !testMode && len(templateID) == 0 {
 		logger.Fatalf("No sendgrid template ID provided")
 	}
-	return &Signup{
+
+	s := &Signup{
 		inviteService:       inviteproto.NewInviteService("invite", srv.Client()),
 		customerService:     cproto.NewCustomersService("customers", srv.Client()),
 		namespaceService:    nproto.NewNamespacesService("namespaces", srv.Client()),
@@ -90,6 +91,8 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		cache:               cache.New(1*time.Minute, 5*time.Minute),
 		alertService:        aproto.NewAlertService("alert", srv.Client()),
 	}
+	go s.consumeEvents()
+	return s
 }
 
 // taken from https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
@@ -435,7 +438,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 
 	ev := SignupEvent{Signup: SignupModel{Email: req.Email, CustomerID: custResp.Customer.Id}, Type: "signup.recover"}
 	if err := mevents.Publish(signupTopic, ev); err != nil {
-		logger.Errorf("Error publishing signup.completed for event %+v", ev)
+		logger.Errorf("Error publishing signup.recover for event %+v", ev)
 	}
 
 	return err

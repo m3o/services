@@ -27,7 +27,7 @@ func (s *Signup) consumeEvents() {
 	start := time.Now()
 	for {
 		var err error
-		evs, err = mevents.Subscribe("signup",
+		evs, err = mevents.Subscribe(signupTopic,
 			events.WithAutoAck(false, 30*time.Second),
 			events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 		if err == nil {
