@@ -1171,6 +1171,11 @@ func testSubCancellation(t *test.T) {
 	if t.Failed() {
 		return
 	}
+
+	outp, err = serv.Command().Exec("user", "config")
+	if err != nil {
+		t.Fatalf("Error getting user config %s %s", string(outp), err)
+	}
 	// check if we've correctly given a new namespace, would be bad if we gave them the same
 	newNS := ""
 	for _, v := range strings.Split(string(outp), "\n") {
