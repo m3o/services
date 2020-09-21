@@ -114,7 +114,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	if ns.Created == 0 {
 		ns.Created = now
 	}
-	ns.Updated = time.Now().Unix()
+	ns.Updated = now
 	b, err := json.Marshal(*ns)
 	if err != nil {
 		return err
