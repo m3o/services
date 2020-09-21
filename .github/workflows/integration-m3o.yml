@@ -1,13 +1,11 @@
 name: M3O integration tests
-# NOTE: if this is running on a self hosted runner do not change to pull_request otherwise
-# you have a big security risk https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners#self-hosted-runner-security-with-public-repositories
 on: [push]
 
 jobs:
 
   test:
     name: Micro server m3o integration tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
 
     - name: Set up Go 1.13
