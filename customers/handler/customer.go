@@ -108,13 +108,9 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	if strings.TrimSpace(email) == "" {
 		return errors.BadRequest("customers.markverified", "Email is required")
 	}
-	cust, err := updateCustomerStatusByEmail(email, statusVerified)
+	_, err := updateCustomerStatusByEmail(email, statusVerified)
 	if err != nil {
 		return err
-	}
-	ev := CustomerEvent{Customer: *cust, Type: "customers.verified"}
-	if err := mevents.Publish(custTopic, ev); err != nil {
-		log.Errorf("Error publishing customers.verified event %+v", ev)
 	}
 	return nil
 }
@@ -199,6 +195,11 @@ func updateCustomerStatus(id, status, prefix string) (*CustomerModel, error) {
 	if err := writeCustomer(cust); err != nil {
 		return nil, err
 	}
+	ev := CustomerEvent{Customer: *cust, Type: "customers." + status}
+	if err := mevents.Publish(custTopic, ev); err != nil {
+		log.Errorf("Error publishing customers.%s event %+v", status, ev)
+	}
+
 	return cust, nil
 
 }

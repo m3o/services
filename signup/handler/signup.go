@@ -8,6 +8,8 @@ import (
 	"math/rand"
 	"time"
 
+	mevents "github.com/micro/micro/v3/service/events"
+
 	"github.com/patrickmn/go-cache"
 
 	"github.com/google/uuid"
@@ -31,6 +33,8 @@ import (
 const (
 	expiryDuration      = 5 * time.Minute
 	prefixPaymentMethod = "payment-method/"
+
+	signupTopic = "signup"
 )
 
 type tokenToEmail struct {
@@ -198,6 +202,11 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		return err
 	}
 
+	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verificationemail"}
+	if err := mevents.Publish(signupTopic, ev); err != nil {
+		logger.Errorf("Error publishing signup.verificationemail for event %+v", ev)
+	}
+
 	return nil
 }
 
@@ -275,11 +284,17 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
 	}
 	rsp.Namespaces = namespaces
+	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verify"}
+	if err := mevents.Publish(signupTopic, ev); err != nil {
+		logger.Errorf("Error publishing signup.verify for event %+v", ev)
+	}
+
 	return nil
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context, req *signup.CompleteSignupRequest, rsp *signup.CompleteSignupResponse) error {
 	err := e.completeSignup(ctx, req, rsp)
+
 	val := 0
 	label := fmt.Sprintf("Successful signup: %v", req.Email)
 	if err != nil {
@@ -368,6 +383,11 @@ func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 		Expiry:       t.Expiry.Unix(),
 		Created:      t.Created.Unix(),
 	}
+	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, Namespace: ns, CustomerID: tok.CustomerID}, Type: "signup.completed"}
+	if err := mevents.Publish(signupTopic, ev); err != nil {
+		logger.Errorf("Error publishing signup.completed for event %+v", ev)
+	}
+
 	return nil
 }
 
@@ -412,6 +432,12 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	if err == nil {
 		e.cache.Set(req.Email, true, cache.DefaultExpiration)
 	}
+
+	ev := SignupEvent{Signup: SignupModel{Email: req.Email, CustomerID: custResp.Customer.Id}, Type: "signup.recover"}
+	if err := mevents.Publish(signupTopic, ev); err != nil {
+		logger.Errorf("Error publishing signup.completed for event %+v", ev)
+	}
+
 	return err
 }
 
@@ -429,7 +455,28 @@ func (e *Signup) SetPaymentMethod(ctx context.Context, req *signup.SetPaymentMet
 	if err != nil {
 		return err
 	}
-	return savePaymentMethod(req.Email, req.PaymentMethod)
+	err = savePaymentMethod(req.Email, req.PaymentMethod)
+	if err != nil {
+		return err
+	}
+
+	// ignoring all errors from here, we just want to try and send an event out
+	ev := SignupEvent{Signup: SignupModel{Email: req.Email}, Type: "signup.paymentmethodsaved"}
+	recs, err := mstore.Read(req.Email)
+	if err != nil {
+		logger.Errorf("Error publishing signup.paymentmethodsaved for event %+v", ev)
+		return nil
+	}
+	tok := &tokenToEmail{}
+	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
+		logger.Errorf("Error publishing signup.paymentmethodsaved for event %+v", ev)
+		return nil
+	}
+	ev.Signup.CustomerID = tok.CustomerID
+	if err := mevents.Publish(signupTopic, ev); err != nil {
+		logger.Errorf("Error publishing signup.paymentmethodsaved for event %+v", ev)
+	}
+	return nil
 }
 
 func (e *Signup) HasPaymentMethod(ctx context.Context, req *signup.HasPaymentMethodRequest, rsp *signup.HasPaymentMethodResponse) error {

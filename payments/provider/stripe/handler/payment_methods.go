@@ -48,7 +48,6 @@ func (h *Provider) DeletePaymentMethod(ctx context.Context, req *pb.DeletePaymen
 	if len(req.Id) == 0 {
 		return errors.BadRequest(h.name, "ID required")
 	}
-
 	// Delete the payment method
 	_, err := h.client.PaymentMethods.Detach(req.Id, &stripe.PaymentMethodDetachParams{})
 	if err != nil {
