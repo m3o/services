@@ -48,7 +48,7 @@ func (s *Signup) consumeEvents() {
 func (s *Signup) processSignupEvents(ch <-chan events.Event) {
 	for ev := range ch {
 		sue := &SignupEvent{}
-		if err := json.Unmarshal(ev.Payload, sub); err != nil {
+		if err := json.Unmarshal(ev.Payload, sue); err != nil {
 			ev.Nack()
 			logger.Errorf("Error unmarshalling subscription event: $s", err)
 			continue
@@ -56,7 +56,7 @@ func (s *Signup) processSignupEvents(ch <-chan events.Event) {
 		switch sue.Type {
 		case "signup.completed":
 			// do cleanup of any data so that customer could signup again if they cancelled
-			if err := s.processSignupCompleted(sue); err != nil {
+			if err := s.processSignupCompleted(&sue.Signup); err != nil {
 				ev.Nack()
 				logger.Errorf("Error processing %s event for customer %s. %s", sue.Type, sue.Signup.CustomerID, err)
 				continue
