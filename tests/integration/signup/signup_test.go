@@ -1166,4 +1166,36 @@ func testSubCancellation(t *test.T) {
 		t.Fatalf("Customer should not have any auth remnants %s %s", string(outp), err)
 	}
 
+	// try the signup again with this email. should succeed if we've deleted everything properly
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+	if t.Failed() {
+		return
+	}
+	// check if we've correctly given a new namespace, would be bad if we gave them the same
+	newNS := ""
+	for _, v := range strings.Split(string(outp), "\n") {
+		if !strings.HasPrefix(v, "namespace: ") {
+			continue
+		}
+		newNS = strings.TrimPrefix(v, "namespace: ")
+	}
+	if len(newNS) == 0 {
+		t.Fatalf("Unable to determine the namespace of the user %s", string(outp))
+	}
+	if newNS == ns {
+		t.Fatalf("Error, we've reassigned an old namespace %s", ns)
+	}
+	// check we have a new customer ID
+	outp, err = exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error looking up customer ID %s %s ", string(outp), err)
+	}
+	newCsObj := &rsp{}
+	if err := json.Unmarshal(outp, newCsObj); err != nil {
+		t.Fatalf("Error unmarshalling customer %s %s ", string(outp), err)
+	}
+	if newCsObj.Customer.Id == csObj.Customer.Id {
+		t.Fatalf("Error, we've reassigned an old customerID %s", ns)
+	}
+
 }
