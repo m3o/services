@@ -205,30 +205,8 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 
 func (s Subscriptions) cancelSubscription(ctx context.Context, sub *Subscription) error {
 	// clean up stripe.
-	// delete the payment method and delete the customer so all traces are gone. Deleting the customer will also cancel all subscriptions
-	rsp, err := s.paymentService.ListPaymentMethods(ctx,
-		&paymentsproto.ListPaymentMethodsRequest{
-			CustomerId:   sub.CustomerID,
-			CustomerType: "user",
-		})
-	if err != nil {
-		logger.Errorf("Error listing payment methods with stripe %s %s", sub.ID, err)
-		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
-	}
-
-	for _, pm := range rsp.PaymentMethods {
-		// delete all payment methods from user
-		// we need to do this otherwise attempts to sign up again for this email/credit card combination will fail with Stripe
-		_, err = s.paymentService.DeletePaymentMethod(ctx, &paymentsproto.DeletePaymentMethodRequest{Id: pm.Id})
-		if err != nil {
-			logger.Errorf("Error deleting payment method with stripe %s %s", sub.ID, err)
-			return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
-		}
-
-	}
-
 	// deleting the customer will cancel all subscriptions, including the ones for additional services etc
-	_, err = s.paymentService.DeleteCustomer(ctx, &paymentsproto.DeleteCustomerRequest{CustomerType: "user", CustomerId: sub.CustomerID})
+	_, err := s.paymentService.DeleteCustomer(ctx, &paymentsproto.DeleteCustomerRequest{CustomerType: "user", CustomerId: sub.CustomerID})
 	if err != nil {
 		logger.Errorf("Error cancelling subscription with stripe %s %s", sub.ID, err)
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
