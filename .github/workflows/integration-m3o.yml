@@ -40,7 +40,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
-      - name: Install micro
+    - name: Install micro
       working-directory: micro
       run: |
         go run . init --profile=ci --output=profile.go
