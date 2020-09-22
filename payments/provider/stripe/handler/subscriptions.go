@@ -6,7 +6,6 @@ import (
 	pb "github.com/m3o/services/payments/provider/proto"
 	"github.com/micro/go-micro/v3/errors"
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/scaleway/scaleway-sdk-go/logger"
 
 	stripe "github.com/stripe/stripe-go/v71"
 )
@@ -41,7 +40,7 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 	// Handle the error
 	switch err.(*stripe.Error).Code {
 	case stripe.ErrorCodeParameterInvalidEmpty:
-		logger.Errorf("Error creating subscription: %v", err)
+		log.Errorf("Error creating subscription: %v", err)
 		return errors.BadRequest("payment.stripe", "missing arguments")
 	default:
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
@@ -89,7 +88,7 @@ func (h *Provider) UpdateSubscription(ctx context.Context, req *pb.UpdateSubscri
 	// Handle the error
 	switch err.(*stripe.Error).Code {
 	case stripe.ErrorCodeParameterInvalidEmpty:
-		logger.Errorf("Error updating subscription: %v", err)
+		log.Errorf("Error updating subscription: %v", err)
 		return errors.BadRequest("payment.stripe", "missing arguments")
 	default:
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
