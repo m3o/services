@@ -26,6 +26,7 @@ ENV MICRO_REGISTRY=etcd
 
 # Speeding up tests by predownloading and building dependencies for services used.
 COPY . .
+RUN cd services && go mod download
 RUN cd services/alert && go get
 RUN cd services/billing && go get 
 RUN cd services/builder && go get 
