@@ -31,14 +31,19 @@ jobs:
         ref: '2bc730ad54f2f5afbadab121005b462a8a938667'
 
     - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
       uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-kind-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+    - name: Enable caching2
+      uses: actions/cache@v2
+      with:
+        path: ${{ runner.temp }}/go-build*
+        key: ${{ runner.os }}-go-build-${{ github.ref }}
+        restore-keys: |
+          ${{ runner.os }}-go-build-
 
     - name: Install micro
       working-directory: micro
