@@ -26,18 +26,18 @@ ENV MICRO_REGISTRY=etcd
 
 # Speeding up tests by predownloading and building dependencies for services used.
 COPY . .
-RUN cd alert && go get 
-RUN cd billing && go get 
-RUN cd builder && go get 
-RUN cd customers && go get
-RUN cd emails && go get
-RUN cd invite && go get
-RUN cd namespaces && go get
-RUN cd notifications && go get
-RUN cd payments/provider/stripe && go get
-RUN cd platform && go get
-RUN cd signup && go get
-RUN cd status && go get
-RUN cd subscriptions && go get
+RUN cd services/alert && go get
+RUN cd services/billing && go get 
+RUN cd services/builder && go get 
+RUN cd services/customers && go get
+RUN cd services/emails && go get
+RUN cd services/invite && go get
+RUN cd services/namespaces && go get
+RUN cd services/notifications && go get
+RUN cd services/payments/provider/stripe && go get
+RUN cd services/platform && go get
+RUN cd services/signup && go get
+RUN cd services/status && go get
+RUN cd services/subscriptions && go get
 COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]
