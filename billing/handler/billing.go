@@ -50,16 +50,43 @@ func NewBilling(ns nsproto.NamespacesService,
 	ss sproto.ProviderService,
 	us uproto.UsageService,
 	subs subproto.SubscriptionsService) *Billing {
-	// this is only here for prototyping, should use subscriptions service properly
-	additionalUsersPriceID := mconfig.Get("micro", "subscriptions", "additional_users_price_id").String("")
-	additionalServicesPriceID := mconfig.Get("micro", "subscriptions", "additional_services_price_id").String("")
-	planID := mconfig.Get("micro", "subscriptions", "plan_id").String("")
-	maxIncludedServices := mconfig.Get("micro", "billing", "max_included_services").Int(10)
 
-	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
+	// this is only here for prototyping, should use subscriptions service properly
+	// an upside for that will be also the fact that we don't have to load values one by one but can use Scan
+	val, err := mconfig.Get("micro.subscriptions.additional_users_price_id")
+	if err != nil {
+		log.Warnf("Additional users price id can't be loaded: %v", err)
+	}
+	additionalUsersPriceID := val.String("")
+
+	val, err = mconfig.Get("micro.subscriptions.additional_services_price_id")
+	if err != nil {
+		log.Warnf("Additional services price id can't be loaded: %v", err)
+	}
+	additionalServicesPriceID := val.String("")
+
+	val, err = mconfig.Get("micro.subscriptions.plan_id")
+	if err != nil {
+		log.Warnf("Can't load subscription plan id: %v", err)
+	}
+	planID := val.String("")
+
+	val, err = mconfig.Get("micro.billing.max_included_services")
+	if err != nil {
+		log.Warnf("Can't load max included services: %v", err)
+	}
+	maxIncludedServices := val.Int(10)
+
+	val, err = config.Get("micro.payments.stripe.api_key")
+	if err != nil {
+		log.Warnf("Can't load stripe api key: %v", err)
+	}
+	apiKey := val.String("")
+
 	if len(apiKey) == 0 {
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
 	}
+
 	b := &Billing{
 		stripeClient:              client.New(apiKey, nil),
 		ns:                        ns,
