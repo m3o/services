@@ -12,6 +12,15 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.8
       # Ignore the failure of a step and avoid terminating the job.
       continue-on-error: true
+    - name: Enable caching
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-kind-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Set up Go 1.13
       uses: actions/setup-go@v2

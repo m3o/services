@@ -22,8 +22,6 @@ VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         services/tests/image/run-etcd.sh /bin/run.sh
 
-ENV MICRO_REGISTRY=etcd
-
 # Speeding up tests by predownloading and building dependencies for services used.
 RUN mkdir services
 COPY services/go.* services/
