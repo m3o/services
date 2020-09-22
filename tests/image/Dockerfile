@@ -26,6 +26,18 @@ ENV MICRO_REGISTRY=etcd
 
 # Speeding up tests by predownloading and building dependencies for services used.
 COPY . .
-RUN bash -c 'for d in $(find services -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
+RUN pushd alert && go get && popd
+RUN pushd billing && go get && popd
+RUN pushd builder && go get && popd
+RUN pushd customers && go get && popd
+RUN pushd emails && go get && popd
+RUN pushd invite && go get && popd
+RUN pushd namespaces && go get && popd
+RUN pushd notifications && go get && popd
+RUN pushd payments/provider/stripe && go get && popd
+RUN pushd platform && go get && popd
+RUN pushd signup && go get && popd
+RUN pushd status && go get && popd
+RUN pushd subscriptions && go get && popd
 COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]
