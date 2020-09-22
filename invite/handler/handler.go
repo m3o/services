@@ -38,25 +38,40 @@ type invite struct {
 	Created    int64
 }
 
+type sendgridConfig struct {
+	inviteTemplateID string `json:"invite_template_id"`
+}
+
+type inviteConfig struct {
+	emailFrom string `json:"email_from"`
+	sendgrid  sendgridConfig
+}
+
 // New returns an initialised handler
 func New(srv *service.Service) *Invite {
-	templateID := mconfig.Get("micro", "invite", "sendgrid", "invite_template_id").String("")
-	emailFrom := mconfig.Get("micro", "invite", "email_from").String("Micro Team <support@micro.mu>")
+	conf := inviteConfig{}
+	values, err := mconfig.Get("micro.invite")
+	if err != nil {
+		logger.Warn(err)
+	}
+	err = values.Scan(&conf)
+	if err != nil {
+		logger.Warn(err)
+	}
+
 	eSvc := eproto.NewEmailsService("emails", srv.Client())
 	return &Invite{
-		name:             srv.Name(),
-		inviteTemplateID: templateID,
-		emailFrom:        emailFrom,
-		emailSvc:         eSvc,
+		config:   conf,
+		name:     srv.Name(),
+		emailSvc: eSvc,
 	}
 }
 
 // Invite implements the invite service inteface
 type Invite struct {
-	name             string
-	inviteTemplateID string
-	emailFrom        string
-	emailSvc         eproto.EmailsService
+	config   inviteConfig
+	name     string
+	emailSvc eproto.EmailsService
 }
 
 // Invite a user
@@ -130,7 +145,7 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 		return errors.InternalServerError(h.name, "Failed to save invite %v", err)
 	}
 
-	err = h.sendEmail(ctx, req.Email, h.inviteTemplateID)
+	err = h.sendEmail(ctx, req.Email, h.config.sendgrid.inviteTemplateID)
 	if err != nil {
 		return errors.InternalServerError(h.name, "Failed to send email: %v", err)
 	}
@@ -147,7 +162,7 @@ func (e *Invite) sendEmail(ctx context.Context, email, token string) error {
 	}
 	b, _ := json.Marshal(templateData)
 
-	_, err := e.emailSvc.Send(ctx, &eproto.SendRequest{From: e.emailFrom, To: email, TemplateId: e.inviteTemplateID, TemplateData: b}, client.WithAuthToken())
+	_, err := e.emailSvc.Send(ctx, &eproto.SendRequest{From: e.config.emailFrom, To: email, TemplateId: e.config.sendgrid.inviteTemplateID, TemplateData: b}, client.WithAuthToken())
 	return err
 }
 
