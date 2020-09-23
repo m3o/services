@@ -26,7 +26,7 @@ ADD         services/tests/image/run-etcd.sh /bin/run.sh
 RUN mkdir services
 COPY services/go.* services/
 RUN cd services && go mod download
-COPY services/ services
+#COPY services/ services
 #RUN bash -c 'for d in $(find services -name "main.go" | xargs -n 1 dirname); do pushd $d && go install && popd; done'
 COPY services/alert services/alert
 RUN cd services/alert && go install
