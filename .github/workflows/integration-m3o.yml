@@ -1,6 +1,4 @@
 name: M3O integration tests
-# NOTE: if this is running on a self hosted runner do not change to pull_request otherwise
-# you have a big security risk https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners#self-hosted-runner-security-with-public-repositories
 on: [push]
 
 jobs:
@@ -48,17 +46,15 @@ jobs:
 
     - name: Build container
       run: |
-        cp services/tests/image/.dockerignore .
-        cd micro && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build && cd ..
-        DOCKER_BUILDKIT=1 docker build -t micro -f services/tests/image/Dockerfile .
+        bash services/tests/image/test-docker.sh
 
     - name: Test M3O services
       working-directory: services/tests
       run: |
           # Generate keys for JWT tests
-          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N "" || true
-          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub || true
-          go clean -testcache && GOMAXPROCS=3 go test -timeout 15m --tags=m3o -v ./...
+          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
+          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
+          go clean -testcache && GOMAXPROCS=4 go test -timeout 15m --tags=m3o -v ./...
       env:
         MICRO_STRIPE_API_KEY: ${{ secrets.MICRO_STRIPE_API_KEY }}
         MICRO_SENDGRID_API_KEY: ${{ secrets.MICRO_SENDGRID_API_KEY }}
