@@ -55,7 +55,13 @@ jobs:
 
     - name: Build container
       run: |
-        bash services/tests/image/test-docker.sh
+        echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u domwong --password-stdin
+        docker pull ghcr.io/m3o/services-build-cache || true
+        cd micro && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build && cd ..
+        docker build -t micro -f services/tests/image/Dockerfile . --cache-from=ghcr.io/m3o/services-build-cache
+        docker tag micro ghcr.io/m3o/services-build-cache && docker push ghcr.io/m3o/services-build-cache || true
+
+
 
     - name: Test M3O services
       working-directory: services/tests
