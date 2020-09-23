@@ -113,7 +113,7 @@ func setupM3Tests(serv test.Server, t *test.T) {
 			return outp, errors.New("Can't find required services in list")
 		}
 		return outp, err
-	}, 60*time.Second); err != nil {
+	}, 180*time.Second); err != nil {
 		return
 	}
 
