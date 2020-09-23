@@ -28,16 +28,27 @@ COPY services/go.* services/
 RUN cd services && go mod download
 COPY services/ services
 #RUN bash -c 'for d in $(find services -name "main.go" | xargs -n 1 dirname); do pushd $d && go install && popd; done'
+COPY services/alert services/alert
 RUN cd services/alert && go install
+COPY services/billing services/billing
 RUN cd services/billing && go install
+COPY services/builder services/builder
 RUN cd services/builder && go install
+COPY services/emails services/emails
 RUN cd services/emails && go install
+COPY services/invite services/invite
 RUN cd services/invite && go install
+COPY services/customers services/customers
 RUN cd services/customers && go install
+COPY services/namespaces services/namespaces
 RUN cd services/namespaces && go install
-RUN cd services/payments/provider/stripe && go install
+COPY services/platform services/platform
 RUN cd services/platform && go install
-RUN cd services/signup && go install
+COPY services/payments services/payments
+RUN cd services/payments/provider/stripe && go install
+COPY services/subscriptions services/subscriptions
 RUN cd services/subscriptions && go install
+COPY services/signup services/signup
+RUN cd services/signup && go install
 COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]
