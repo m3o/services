@@ -39,4 +39,5 @@ RUN cd services/platform && go install
 RUN cd services/payments/provider/stripe && go install
 RUN cd services/subscriptions && go install
 RUN cd services/signup && go install
+COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]
