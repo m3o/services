@@ -14,11 +14,16 @@ func main() {
 	)
 
 	// grab services to monitor
-	svcs := config.Get("micro", "status", "services").StringSlice(nil)
-	log.Infof("Services to monitor %+v", svcs)
+	val, err := config.Get("micro.status.services")
+	if err != nil {
+		log.Warnf("Error loading config: %v", err)
+	}
+
+	services := val.StringSlice(nil)
+	log.Infof("Services to monitor %+v", services)
 
 	// Register Handler
-	srv.Handle(handler.NewStatusHandler(svcs))
+	srv.Handle(handler.NewStatusHandler(services))
 
 	// Run service
 	if err := srv.Run(); err != nil {
