@@ -107,13 +107,15 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		}
 		list := []string{"stripe", "signup", "invite", "emails", "customers"}
 		logOutp := []byte{}
+		fail := false
 		for _, s := range list {
 			if !strings.Contains(string(outp), s) {
 				o, _ := serv.Command().Exec("logs", s)
 				logOutp = append(logOutp, o...)
+				fail = true
 			}
 		}
-		if len(logOutp) > 0 {
+		if fail {
 			return append(outp, logOutp...), errors.New("Can't find required services in list")
 		}
 		return outp, err
