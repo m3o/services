@@ -37,6 +37,16 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+      shell: bash
+    - name: Enable docker caching
+      uses: actions/cache@v2
+      with:
+        path: /tmp/docker-registry
+        key: docker-registry-int-${{ steps.get-date.outputs.date }}
 
     - name: Install micro
       working-directory: micro
@@ -48,12 +58,12 @@ jobs:
 
     - name: Build container
       run: |
+        docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
         cp services/tests/image/.dockerignore .
-        echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u domwong --password-stdin
         docker pull ghcr.io/m3o/services-build-cache || true
         cd micro && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build && cd ..
-        docker build -t micro -f services/tests/image/Dockerfile . --cache-from=ghcr.io/m3o/services-build-cache
-        docker tag micro ghcr.io/m3o/services-build-cache && docker push ghcr.io/m3o/services-build-cache || true
+        docker build -t micro -f services/tests/image/Dockerfile . --cache-from=localhost:5000/services-build-cache
+        docker tag micro localhost:5000/services-build-cache && docker push localhost:5000/services-build-cache || true
 
 
 
