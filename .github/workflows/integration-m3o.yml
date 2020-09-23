@@ -37,16 +37,6 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-    - name: Get Date
-      id: get-date
-      run: |
-        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-      shell: bash
-    - name: Enable docker caching
-      uses: actions/cache@v2
-      with:
-        path: /tmp/docker-registry
-        key: docker-registry-int-${{ steps.get-date.outputs.date }}
 
     - name: Install micro
       working-directory: micro
@@ -58,13 +48,9 @@ jobs:
 
     - name: Build container
       run: |
-        docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
         cp services/tests/image/.dockerignore .
         cd micro && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build && cd ..
-        DOCKER_BUILDKIT=1 docker build -t micro -f services/tests/image/Dockerfile . --cache-from=localhost:5000/services-build-cache --build-arg BUILDKIT_INLINE_CACHE=1
-        docker tag micro localhost:5000/services-build-cache && docker push localhost:5000/services-build-cache || true
-
-
+        DOCKER_BUILDKIT=1 docker build -t micro -f services/tests/image/Dockerfile .
 
     - name: Test M3O services
       working-directory: services/tests
@@ -72,7 +58,7 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N "" || true
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub || true
-          go clean -testcache && GOMAXPROCS=6 go test -timeout 15m --tags=m3o -v ./...
+          go clean -testcache && GOMAXPROCS=3 go test -timeout 15m --tags=m3o -v ./...
       env:
         MICRO_STRIPE_API_KEY: ${{ secrets.MICRO_STRIPE_API_KEY }}
         MICRO_SENDGRID_API_KEY: ${{ secrets.MICRO_SENDGRID_API_KEY }}
