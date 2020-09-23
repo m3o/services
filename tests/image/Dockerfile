@@ -27,16 +27,6 @@ RUN mkdir services
 COPY services/go.* services/
 RUN cd services && go mod download
 COPY . .
-RUN go install services/alert/main.go
-RUN go install services/billing/main.go
-RUN go install services/builder/main.go
-RUN go install services/customers/main.go
-RUN go install services/emails/main.go
-RUN go install services/invite/main.go
-RUN go install services/namespaces/main.go
-RUN go install services/payments/provider/stripe/main.go
-RUN go install services/platform/main.go
-RUN go install services/signup/main.go
-RUN go install services/subscriptions/main.go
+RUN bash -c 'for d in $(find services -name "main.go" | xargs -n 1 dirname); do pushd $d && go install && popd; done'
 COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]

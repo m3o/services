@@ -55,6 +55,7 @@ jobs:
 
     - name: Build container
       run: |
+        cp services/tests/image/.dockerignore .
         echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u domwong --password-stdin
         docker pull ghcr.io/m3o/services-build-cache || true
         cd micro && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build && cd ..
