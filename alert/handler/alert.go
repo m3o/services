@@ -39,9 +39,9 @@ type event struct {
 }
 
 type conf struct {
-	slackToken   string `json:"slack_token"`
-	slackEnabled bool   `json:"slack_enabled"`
-	gaPropertyID string `json:"ga_property_id"`
+	SlackToken   string `json:"slack_token"`
+	SlackEnabled bool   `json:"slack_enabled"`
+	GaPropertyID string `json:"ga_property_id"`
 }
 
 func NewAlert(store store.Store) *Alert {
@@ -54,16 +54,16 @@ func NewAlert(store store.Store) *Alert {
 	if err != nil {
 		logger.Warnf("Error scanning config: %v", err)
 	}
-	if c.slackEnabled && len(c.slackToken) == 0 {
+	if c.SlackEnabled && len(c.SlackToken) == 0 {
 		log.Errorf("Slack token missing")
 	}
-	if len(c.gaPropertyID) == 0 {
+	if len(c.GaPropertyID) == 0 {
 		log.Errorf("Google Analytics key (property ID) is missing")
 	}
-	log.Infof("Slack enabled: %v", c.slackEnabled)
+	log.Infof("Slack enabled: %v", c.SlackEnabled)
 
 	return &Alert{
-		slackClient: slack.New(c.slackToken),
+		slackClient: slack.New(c.SlackToken),
 		config:      c,
 	}
 }
@@ -91,7 +91,7 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 	if err != nil {
 		log.Warnf("Error sending event to google analytics: %v", err)
 	}
-	if e.config.slackEnabled {
+	if e.config.SlackEnabled {
 		jsond, err := json.MarshalIndent(req.Event, "", "   ")
 		if err != nil {
 			return err
@@ -106,7 +106,7 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 }
 
 func (e *Alert) sendToGA(td *event) error {
-	if e.config.gaPropertyID == "" {
+	if e.config.GaPropertyID == "" {
 		return errors.New("analytics: GA_TRACKING_ID environment variable is missing")
 	}
 	if td.Category == "" || td.Action == "" {
@@ -120,7 +120,7 @@ func (e *Alert) sendToGA(td *event) error {
 	}
 	v := url.Values{
 		"v":   {"1"},
-		"tid": {e.config.gaPropertyID},
+		"tid": {e.config.GaPropertyID},
 		// Anonymously identifies a particular user. See the parameter guide for
 		// details:
 		// https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#cid

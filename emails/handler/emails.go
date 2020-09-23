@@ -21,13 +21,13 @@ const (
 )
 
 type sendgridConf struct {
-	apiKey string `json:"api_key"`
+	ApiKey string `json:"api_key"`
 }
 
 type conf struct {
-	sendingEnabled bool   `json:"enabled"`
-	defaultFrom    string `json:"email_from"`
-	sendgrid       sendgridConf
+	SendingEnabled bool         `json:"enabled"`
+	DefaultFrom    string       `json:"email_from"`
+	Sendgrid       sendgridConf `json:"sendgrid"`
 }
 
 func NewEmailsHandler() *Emails {
@@ -40,7 +40,7 @@ func NewEmailsHandler() *Emails {
 	if err != nil {
 		log.Warnf("Error scanning config: %v", err)
 	}
-	if c.sendingEnabled && len(c.sendgrid.apiKey) == 0 {
+	if c.SendingEnabled && len(c.Sendgrid.ApiKey) == 0 {
 		log.Fatalf("Sendgrid API key not configured")
 	}
 	return &Emails{
@@ -80,7 +80,7 @@ func (e *Emails) Send(ctx context.Context, request *emails.SendRequest, response
 // sendEmail sends an email invite via the sendgrid API using the
 // pre-designed email template. Docs: https://bit.ly/2VYPQD1
 func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]interface{}) error {
-	if !e.config.sendingEnabled {
+	if !e.config.SendingEnabled {
 		masked := to
 		if len(to) > 4 {
 			masked = masked[:4] + strings.Repeat("*", len(masked[4:]))
@@ -92,7 +92,7 @@ func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]
 	}
 	emailFrom := from
 	if len(emailFrom) == 0 {
-		emailFrom = e.config.defaultFrom // TODO only works while this is an internal M3O service
+		emailFrom = e.config.DefaultFrom // TODO only works while this is an internal M3O service
 	}
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": templateID,
@@ -111,7 +111,7 @@ func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]
 		},
 		"mail_settings": map[string]interface{}{
 			"sandbox_mode": map[string]bool{
-				"enable": !e.config.sendingEnabled,
+				"enable": !e.config.SendingEnabled,
 			},
 		},
 	})
@@ -121,7 +121,7 @@ func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]
 		return err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+e.config.sendgrid.apiKey)
+	req.Header.Set("Authorization", "Bearer "+e.config.Sendgrid.ApiKey)
 	req.Header.Set("Content-Type", "application/json")
 	rsp, err := new(http.Client).Do(req)
 	if err != nil {

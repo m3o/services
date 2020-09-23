@@ -64,14 +64,14 @@ var (
 )
 
 type sendgridConf struct {
-	templateID         string `json:"template_id"`
-	recoveryTemplateID string `json:"recovery_template_id"`
+	TemplateID         string `json:"template_id"`
+	RecoveryTemplateID string `json:"recovery_template_id"`
 }
 
 type conf struct {
-	testMode       bool   `json:"test_env"`
-	paymentMessage string `json:"message"`
-	sendgrid       sendgridConf
+	TestMode       bool         `json:"test_env"`
+	PaymentMessage string       `json:"message"`
+	Sendgrid       sendgridConf `json:"sendgrid"`
 }
 
 func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
@@ -85,7 +85,7 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		logger.Warnf("Error scanning config: %v", err)
 	}
 
-	if !c.testMode && len(c.sendgrid.templateID) == 0 {
+	if !c.TestMode && len(c.Sendgrid.TemplateID) == 0 {
 		logger.Fatalf("No sendgrid template ID provided")
 	}
 
@@ -200,7 +200,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		return err
 	}
 
-	if e.config.testMode {
+	if e.config.TestMode {
 		logger.Infof("Sending verification token '%v'", k)
 	}
 
@@ -208,7 +208,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
 
-	err = e.sendEmail(ctx, req.Email, e.config.sendgrid.templateID, map[string]interface{}{
+	err = e.sendEmail(ctx, req.Email, e.config.Sendgrid.TemplateID, map[string]interface{}{
 		"token": k,
 	})
 	if err != nil {
@@ -280,7 +280,7 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	}
 
 	// set the response message
-	rsp.Message = fmt.Sprintf(e.config.paymentMessage, req.Email)
+	rsp.Message = fmt.Sprintf(e.config.PaymentMessage, req.Email)
 	// we require payment for any signup
 	// if not set the CLI will try complete signup without payment id
 	rsp.PaymentRequired = true
@@ -439,7 +439,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	}
 
 	logger.Infof("Sending email with data %v", namespaces)
-	err = e.sendEmail(ctx, req.Email, e.config.sendgrid.recoveryTemplateID, map[string]interface{}{
+	err = e.sendEmail(ctx, req.Email, e.config.Sendgrid.RecoveryTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
 	})
 	if err == nil {

@@ -33,7 +33,6 @@ const (
 type Subscriptions struct {
 	config         config
 	paymentService paymentsproto.ProviderService
-	planID         string
 }
 
 type SubscriptionType struct {
@@ -42,8 +41,8 @@ type SubscriptionType struct {
 }
 
 type config struct {
-	additionalUsersPriceID string `json:"additional_users_price_id"`
-	planID                 string `json:"plan_id"`
+	AdditionalUsersPriceID string `json:"additional_users_price_id"`
+	PlanID                 string `json:"plan_id"`
 }
 
 func New(paySvc paymentsproto.ProviderService) *Subscriptions {
@@ -57,10 +56,10 @@ func New(paySvc paymentsproto.ProviderService) *Subscriptions {
 		logger.Warn(err)
 	}
 
-	if len(conf.planID) == 0 {
+	if len(conf.PlanID) == 0 {
 		logger.Error("No stripe plan id")
 	}
-	if len(conf.additionalUsersPriceID) == 0 {
+	if len(conf.AdditionalUsersPriceID) == 0 {
 		logger.Error("No addition user plan id")
 	}
 
@@ -134,7 +133,7 @@ func (s Subscriptions) Create(ctx context.Context, request *subscription.CreateR
 	rsp, err := s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
 		CustomerId:   customerID,
 		CustomerType: "user",
-		PlanId:       s.planID,
+		PlanId:       s.config.PlanID,
 		Quantity:     1,
 	}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	if err != nil {
@@ -274,7 +273,7 @@ func (s Subscriptions) cancelChildSubscription(ctx context.Context, sub *Subscri
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
 	}
 
-	if err := s.updatePaymentSubscription(ctx, parentSub.CustomerID, s.config.additionalUsersPriceID, -1, true); err != nil {
+	if err := s.updatePaymentSubscription(ctx, parentSub.CustomerID, s.config.AdditionalUsersPriceID, -1, true); err != nil {
 		logger.Errorf("Error updating subscription quantity from delete %s %s", sub.ID, err)
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
 	}
@@ -298,7 +297,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 	subs, err := s.paymentService.ListSubscriptions(ctx, &paymentsproto.ListSubscriptionsRequest{
 		CustomerId:   request.OwnerID,
 		CustomerType: "user",
-		PriceId:      s.config.additionalUsersPriceID,
+		PriceId:      s.config.AdditionalUsersPriceID,
 	}, client.WithAuthToken())
 	if err != nil {
 		return merrors.InternalServerError("subscriptions.adduser.read", "Error finding sub: %v", err)
@@ -313,7 +312,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		_, err = s.paymentService.CreateSubscription(ctx, &paymentsproto.CreateSubscriptionRequest{
 			CustomerId:   request.OwnerID,
 			CustomerType: "user",
-			PriceId:      s.config.additionalUsersPriceID,
+			PriceId:      s.config.AdditionalUsersPriceID,
 			Quantity:     1,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	} else {
@@ -322,7 +321,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 			SubscriptionId: sub.Id,
 			CustomerId:     request.OwnerID,
 			CustomerType:   "user",
-			PriceId:        s.config.additionalUsersPriceID,
+			PriceId:        s.config.AdditionalUsersPriceID,
 			Quantity:       sub.Quantity + 1,
 		}, client.WithRequestTimeout(10*time.Second), client.WithAuthToken())
 	}
