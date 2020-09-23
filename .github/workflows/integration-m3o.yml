@@ -37,13 +37,6 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-    - name: Enable caching of go build
-      uses: actions/cache@v2
-      with:
-        path: ${{ runner.temp }}/go-build*
-        key: ${{ runner.os }}-go-build-${{ github.ref }}
-        restore-keys: |
-          ${{ runner.os }}-go-build-
 
     - name: Install micro
       working-directory: micro
