@@ -26,19 +26,17 @@ ADD         services/tests/image/run-etcd.sh /bin/run.sh
 RUN mkdir services
 COPY services/go.* services/
 RUN cd services && go mod download
-#COPY . .
-#RUN cd services/alert && go install
-#RUN cd services/billing && go install
-#RUN cd services/builder && go install
-#RUN cd services/customers && go install
-#RUN cd services/emails && go install
-#RUN cd services/invite && go install
-#RUN cd services/namespaces && go install
-#RUN cd services/notifications && go install
-#RUN cd services/payments/provider/stripe && go install
-#RUN cd services/platform && go install
-#RUN cd services/signup && go install
-#RUN cd services/status && go install
-#RUN cd services/subscriptions && go install
+COPY . .
+RUN go install services/alert/main.go
+RUN go install services/billing/main.go
+RUN go install services/builder/main.go
+RUN go install services/customers/main.go
+RUN go install services/emails/main.go
+RUN go install services/invite/main.go
+RUN go install services/namespaces/main.go
+RUN go install services/payments/provider/stripe/main.go
+RUN go install services/platform/main.go
+RUN go install services/signup/main.go
+RUN go install services/subscriptions/main.go
 COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]
