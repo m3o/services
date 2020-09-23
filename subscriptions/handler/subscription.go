@@ -51,7 +51,7 @@ func New(paySvc paymentsproto.ProviderService) *Subscriptions {
 	if err != nil {
 		logger.Warn(err)
 	}
-	err = values.Scan(conf)
+	err = values.Scan(&conf)
 	if err != nil {
 		logger.Warn(err)
 	}
