@@ -22,10 +22,11 @@ VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         services/tests/image/run-etcd.sh /bin/run.sh
 
-ENV MICRO_REGISTRY=etcd
-
 # Speeding up tests by predownloading and building dependencies for services used.
-COPY . .
-RUN bash -c 'for d in $(find services -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
+RUN mkdir services
+COPY services/go.* services/
+RUN cd services && go mod download
+COPY services/ services
+RUN bash -c 'for d in $(find services -name "main.go" | xargs -n 1 dirname); do pushd $d && go install && popd; done'
 COPY ./micro/micro /microserver
 ENTRYPOINT ["sh", "/bin/run.sh"]

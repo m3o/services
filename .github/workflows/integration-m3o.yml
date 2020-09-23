@@ -7,7 +7,6 @@ jobs:
     name: Micro server m3o integration tests
     runs-on: ubuntu-latest
     steps:
-
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
       with:
@@ -27,6 +26,15 @@ jobs:
       with:
         repository: 'micro/micro'
         path: 'micro'
+        ref: '2bc730ad54f2f5afbadab121005b462a8a938667'
+
+    - name: Enable caching
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Install micro
       working-directory: micro
@@ -46,7 +54,7 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test -timeout 15m --tags=m3o -v ./...
+          go clean -testcache && GOMAXPROCS=4 go test -timeout 15m --tags=m3o -v ./...
       env:
         MICRO_STRIPE_API_KEY: ${{ secrets.MICRO_STRIPE_API_KEY }}
         MICRO_SENDGRID_API_KEY: ${{ secrets.MICRO_SENDGRID_API_KEY }}
