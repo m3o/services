@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/micro/go-micro/v2/logger"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/config"
@@ -23,9 +24,8 @@ const (
 )
 
 type Alert struct {
-	slackClient  *slack.Client
-	gaPropertyID string
-	slackEnabled bool
+	slackClient *slack.Client
+	config      conf
 }
 
 type event struct {
@@ -38,22 +38,33 @@ type event struct {
 	Metadata map[string]string `json:"metadata"`
 }
 
+type conf struct {
+	slackToken   string `json:"slack_token"`
+	slackEnabled bool   `json:"slack_enabled"`
+	gaPropertyID string `json:"ga_property_id"`
+}
+
 func NewAlert(store store.Store) *Alert {
-	slackToken := config.Get("micro", "alert", "slack_token").String("")
-	slackEnabled := config.Get("micro", "alert", "slack_enabled").Bool(true)
-	gaPropertyID := config.Get("micro", "alert", "ga_property_id").String("")
-	if slackEnabled && len(slackToken) == 0 {
+	c := conf{}
+	val, err := config.Get("micro.alert")
+	if err != nil {
+		logger.Warnf("Error getting config: %v", err)
+	}
+	err = val.Scan(&c)
+	if err != nil {
+		logger.Warnf("Error scanning config: %v", err)
+	}
+	if c.slackEnabled && len(c.slackToken) == 0 {
 		log.Errorf("Slack token missing")
 	}
-	if len(gaPropertyID) == 0 {
+	if len(c.gaPropertyID) == 0 {
 		log.Errorf("Google Analytics key (property ID) is missing")
 	}
-	log.Infof("Slack enabled: %v", slackEnabled)
+	log.Infof("Slack enabled: %v", c.slackEnabled)
 
 	return &Alert{
-		slackClient:  slack.New(slackToken),
-		gaPropertyID: gaPropertyID,
-		slackEnabled: slackEnabled,
+		slackClient: slack.New(c.slackToken),
+		config:      c,
 	}
 }
 
@@ -80,7 +91,7 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 	if err != nil {
 		log.Warnf("Error sending event to google analytics: %v", err)
 	}
-	if e.slackEnabled {
+	if e.config.slackEnabled {
 		jsond, err := json.MarshalIndent(req.Event, "", "   ")
 		if err != nil {
 			return err
@@ -95,7 +106,7 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 }
 
 func (e *Alert) sendToGA(td *event) error {
-	if e.gaPropertyID == "" {
+	if e.config.gaPropertyID == "" {
 		return errors.New("analytics: GA_TRACKING_ID environment variable is missing")
 	}
 	if td.Category == "" || td.Action == "" {
@@ -109,7 +120,7 @@ func (e *Alert) sendToGA(td *event) error {
 	}
 	v := url.Values{
 		"v":   {"1"},
-		"tid": {e.gaPropertyID},
+		"tid": {e.config.gaPropertyID},
 		// Anonymously identifies a particular user. See the parameter guide for
 		// details:
 		// https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#cid
