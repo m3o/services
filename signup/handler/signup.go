@@ -30,7 +30,10 @@ import (
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
-var internalError = errors.New("Something went wrong during signup. Please try again a bit later. If the issue persists, let us know on Slack")
+const (
+	internalErrorMsg  = "Something went wrong during signup. Please try again a bit later. If the issue persists, let us know on Slack"
+	notInvitedErroMsg = "We're currently operating an invite only beta and this email address has not been invited"
+)
 
 const (
 	expiryDuration      = 5 * time.Minute
@@ -154,7 +157,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 
 	_, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.notallowed", "user %v has not been invited to sign up", req.Email)
+		return merrors.Forbidden("signup.notallowed", notInvitedErroMsg)
 	}
 
 	custResp, err := e.customerService.Create(ctx, &cproto.CreateRequest{
@@ -162,7 +165,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	}, client.WithAuthToken())
 	if err != nil {
 		logger.Error(err)
-		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 
 	k := randStringBytesMaskImprSrc(8)
@@ -176,7 +179,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	bytes, err := json.Marshal(tok)
 	if err != nil {
 		logger.Error(err)
-		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 
 	if err := mstore.Write(&mstore.Record{
@@ -184,7 +187,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		Value: bytes,
 	}); err != nil {
 		logger.Error(err)
-		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 	// HasPaymentMethod needs to resolve email from token, so we save the
 	// same record under a token too
@@ -193,7 +196,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		Value: bytes,
 	}); err != nil {
 		logger.Error(err)
-		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 
 	if e.testMode {
@@ -209,7 +212,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	})
 	if err != nil {
 		logger.Errorf("Error when sending email to %v: %v", req.Email, err)
-		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 
 	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verificationemail"}
@@ -263,10 +266,10 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	recs, err := mstore.Read(req.Email)
 	if err == mstore.ErrNotFound {
 		logger.Errorf("Can't verify, record for %v is not found", req.Email)
-		return merrors.InternalServerError("signup.Verify", internalError.Error())
+		return merrors.InternalServerError("signup.Verify", internalErrorMsg)
 	} else if err != nil {
 		logger.Errorf("email verification error: %v", err)
-		return merrors.InternalServerError("signup.Verify", internalError.Error())
+		return merrors.InternalServerError("signup.Verify", internalErrorMsg)
 	}
 
 	tok := &tokenToEmail{}
@@ -292,13 +295,13 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		Email: req.Email,
 	}, client.WithAuthToken()); err != nil {
 		logger.Errorf("Error when marking %v verified: %v", req.Email, err)
-		return merrors.InternalServerError("signup.Verify", internalError.Error())
+		return merrors.InternalServerError("signup.Verify", internalErrorMsg)
 	}
 
 	// At this point the user should be allowed, only making this call to return namespaces
 	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.Verify.not_allowed", "user %v has not been invited to sign up", req.Email)
+		return merrors.Forbidden("signup.Verify.not_allowed", notInvitedErroMsg)
 	}
 	rsp.Namespaces = namespaces
 	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verify"}
@@ -348,16 +351,16 @@ func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 	recs, err := mstore.Read(req.Email)
 	if err == mstore.ErrNotFound {
 		logger.Errorf("Can't verify record for %v: record not found", req.Email)
-		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup", internalErrorMsg)
 	} else if err != nil {
 		logger.Errorf("Error reading store: err")
-		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup", internalErrorMsg)
 	}
 
 	tok := &tokenToEmail{}
 	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
 		logger.Errorf("Error when unmarshaling stored token object for %v: %v", req.Email, err)
-		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup", internalErrorMsg)
 	}
 	if tok.Token != req.Token { // not checking expiry here because we've already checked it during Verify() step
 		return merrors.Forbidden("signup.CompleteSignup.invalid_token", "The token you provided is incorrect")
@@ -371,7 +374,7 @@ func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 		pm, err := getPaymentMethod(tok.Email)
 		if err != nil || len(pm) == 0 {
 			logger.Errorf("Error getting payment method: %v", err)
-			return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
+			return merrors.InternalServerError("signup.CompleteSignup", internalErrorMsg)
 		}
 		newNs, err := e.signupWithNewNamespace(ctx, tok.CustomerID, tok.Email, pm)
 		if err != nil {
@@ -392,13 +395,13 @@ func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 	_, err = e.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithName(req.Email))
 	if err != nil {
 		logger.Errorf("Error generating token for %v: %v", tok.CustomerID, err)
-		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup", internalErrorMsg)
 	}
 
 	t, err := e.auth.Token(auth.WithCredentials(tok.CustomerID, secret), auth.WithTokenIssuer(ns))
 	if err != nil {
 		logger.Errorf("Can't get token for %v: %v", tok.CustomerID, err)
-		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup", internalErrorMsg)
 	}
 	rsp.AuthToken = &signup.AuthToken{
 		AccessToken:  t.AccessToken,
@@ -541,11 +544,11 @@ func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email, 
 	_, err := e.subscriptionService.Create(ctx, &sproto.CreateRequest{CustomerID: customerID, Type: "developer", PaymentMethodID: paymentMethodID, Email: email}, client.WithAuthToken())
 	if err != nil {
 		logger.Errorf("Error creating subscription for customer %v: %v", customerID, err)
-		return "", merrors.InternalServerError("signup.CompleteSignup.new_namespace", internalError.Error())
+		return "", merrors.InternalServerError("signup.CompleteSignup.new_namespace", internalErrorMsg)
 	}
 	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners: []string{customerID}}, client.WithAuthToken())
 	if err != nil {
-		return "", merrors.InternalServerError("signup.CompleteSignup.join.subscription", internalError.Error())
+		return "", merrors.InternalServerError("signup.CompleteSignup.join.subscription", internalErrorMsg)
 	}
 	return nsRsp.Namespace.Id, nil
 }
@@ -556,20 +559,20 @@ func (e *Signup) joinNamespace(ctx context.Context, customerID, ns string) error
 	}, client.WithAuthToken())
 	if err != nil {
 		logger.Errorf("Error reading namespace %v: %v", ns, err)
-		return merrors.InternalServerError("signup.CompleteSignup.join_namespace", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup.join_namespace", internalErrorMsg)
 	}
 	ownerID := rsp.Namespace.Owners[0]
 
 	_, err = e.subscriptionService.AddUser(ctx, &sproto.AddUserRequest{OwnerID: ownerID, NewUserID: customerID}, client.WithAuthToken())
 	if err != nil {
 		logger.Errorf("Error adding user to subscription %s", err)
-		return merrors.InternalServerError("signup.CompleteSignup.join_namespace", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup.join_namespace", internalErrorMsg)
 	}
 
 	_, err = e.namespaceService.AddUser(ctx, &nproto.AddUserRequest{Namespace: ns, User: customerID}, client.WithAuthToken())
 	if err != nil {
 		logger.Errorf("Error adding user %v to namespace %s", customerID, err)
-		return merrors.InternalServerError("signup.CompleteSignup.join_amespace", internalError.Error())
+		return merrors.InternalServerError("signup.CompleteSignup.join_amespace", internalErrorMsg)
 	}
 
 	return nil
