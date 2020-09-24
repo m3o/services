@@ -154,14 +154,15 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 
 	_, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
+		return merrors.Forbidden("signup.notallowed", "user %v has not been invited to sign up", req.Email)
 	}
 
 	custResp, err := e.customerService.Create(ctx, &cproto.CreateRequest{
 		Email: req.Email,
 	}, client.WithAuthToken())
 	if err != nil {
-		return err
+		logger.Error(err)
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
 	}
 
 	k := randStringBytesMaskImprSrc(8)
@@ -174,14 +175,16 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 
 	bytes, err := json.Marshal(tok)
 	if err != nil {
-		return err
+		logger.Error(err)
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
 	}
 
 	if err := mstore.Write(&mstore.Record{
 		Key:   req.Email,
 		Value: bytes,
 	}); err != nil {
-		return err
+		logger.Error(err)
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
 	}
 	// HasPaymentMethod needs to resolve email from token, so we save the
 	// same record under a token too
@@ -189,7 +192,8 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		Key:   tok.Token,
 		Value: bytes,
 	}); err != nil {
-		return err
+		logger.Error(err)
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
 	}
 
 	if e.testMode {
@@ -204,7 +208,8 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		"token": k,
 	})
 	if err != nil {
-		return err
+		logger.Errorf("Error when sending email to %v: %v", req.Email, err)
+		return merrors.InternalServerError("signup.SendVerificationEmail", internalError.Error())
 	}
 
 	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verificationemail"}
@@ -257,9 +262,11 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 
 	recs, err := mstore.Read(req.Email)
 	if err == mstore.ErrNotFound {
-		return errors.New("can't verify: record not found")
+		logger.Errorf("Can't verify, record for %v is not found", req.Email)
+		return merrors.InternalServerError("signup.Verify", internalError.Error())
 	} else if err != nil {
-		return fmt.Errorf("email verification error: %v", err)
+		logger.Errorf("email verification error: %v", err)
+		return merrors.InternalServerError("signup.Verify", internalError.Error())
 	}
 
 	tok := &tokenToEmail{}
@@ -267,8 +274,12 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		return err
 	}
 
-	if tok.Token != req.Token || time.Since(time.Unix(tok.Created, 0)) > expiryDuration {
-		return errors.New("Invalid token")
+	if tok.Token != req.Token {
+		return merrors.Forbidden("signup.Verify", "The token you provided is invalid")
+	}
+
+	if time.Since(time.Unix(tok.Created, 0)) > expiryDuration {
+		return merrors.Forbidden("signup.Verify", "The token you provided has expired")
 	}
 
 	// set the response message
@@ -280,13 +291,14 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{
 		Email: req.Email,
 	}, client.WithAuthToken()); err != nil {
-		return err
+		logger.Errorf("Error when marking %v verified: %v", req.Email, err)
+		return merrors.InternalServerError("signup.Verify", internalError.Error())
 	}
 
 	// At this point the user should be allowed, only making this call to return namespaces
 	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.notallowed", "user has not been invited to sign up")
+		return merrors.Forbidden("signup.Verify.not_allowed", "user %v has not been invited to sign up", req.Email)
 	}
 	rsp.Namespaces = namespaces
 	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verify"}
@@ -379,12 +391,14 @@ func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 	}
 	_, err = e.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithName(req.Email))
 	if err != nil {
-		return err
+		logger.Errorf("Error generating token for %v: %v", tok.CustomerID, err)
+		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
 	}
 
 	t, err := e.auth.Token(auth.WithCredentials(tok.CustomerID, secret), auth.WithTokenIssuer(ns))
 	if err != nil {
-		return err
+		logger.Errorf("Can't get token for %v: %v", tok.CustomerID, err)
+		return merrors.InternalServerError("signup.CompleteSignup", internalError.Error())
 	}
 	rsp.AuthToken = &signup.AuthToken{
 		AccessToken:  t.AccessToken,
