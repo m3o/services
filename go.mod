@@ -15,5 +15,6 @@ require (
 	github.com/slack-go/slack v0.6.5
 	github.com/stretchr/testify v1.6.1
 	github.com/stripe/stripe-go/v71 v71.28.0
+	google.golang.org/appengine v1.6.1
 	google.golang.org/protobuf v1.25.0
 )
