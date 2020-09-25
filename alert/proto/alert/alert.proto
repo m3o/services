@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package alert;
+package m3o_alert;
 
 service Alert {
 	// ReportEvent does event ingestions.

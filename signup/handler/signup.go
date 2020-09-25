@@ -58,10 +58,7 @@ type Signup struct {
 	paymentService      pproto.ProviderService
 	emailService        eproto.EmailsService
 	auth                auth.Auth
-	sendgridTemplateID  string
-	recoverTemplateID   string
-	paymentMessage      string
-	testMode            bool
+	config              conf
 	cache               *cache.Cache
 }
 
@@ -71,13 +68,29 @@ var (
 	Message = "Please complete signup at https://m3o.com/subscribe?email=%s. This command will now wait for you to finish."
 )
 
-func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
-	templateID := mconfig.Get("micro", "signup", "sendgrid", "template_id").String("")
-	recoverTemplateID := mconfig.Get("micro", "signup", "sendgrid", "recovery_template_id").String("")
-	testMode := mconfig.Get("micro", "signup", "test_env").Bool(false)
-	paymentMessage := mconfig.Get("micro", "signup", "message").String(Message)
+type sendgridConf struct {
+	TemplateID         string `json:"template_id"`
+	RecoveryTemplateID string `json:"recovery_template_id"`
+}
 
-	if !testMode && len(templateID) == 0 {
+type conf struct {
+	TestMode       bool         `json:"test_env"`
+	PaymentMessage string       `json:"message"`
+	Sendgrid       sendgridConf `json:"sendgrid"`
+}
+
+func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
+	c := conf{}
+	val, err := mconfig.Get("micro.signup")
+	if err != nil {
+		logger.Warnf("Error getting config: %v", err)
+	}
+	err = val.Scan(&c)
+	if err != nil {
+		logger.Warnf("Error scanning config: %v", err)
+	}
+
+	if !c.TestMode && len(c.Sendgrid.TemplateID) == 0 {
 		logger.Fatalf("No sendgrid template ID provided")
 	}
 
@@ -89,10 +102,7 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		paymentService:      pproto.NewProviderService("payment.stripe", srv.Client()),
 		emailService:        eproto.NewEmailsService("emails", srv.Client()),
 		auth:                auth,
-		sendgridTemplateID:  templateID,
-		testMode:            testMode,
-		paymentMessage:      paymentMessage,
-		recoverTemplateID:   recoverTemplateID,
+		config:              c,
 		cache:               cache.New(1*time.Minute, 5*time.Minute),
 		alertService:        aproto.NewAlertService("alert", srv.Client()),
 	}
@@ -199,7 +209,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 
-	if e.testMode {
+	if e.config.TestMode {
 		logger.Infof("Sending verification token '%v'", k)
 	}
 
@@ -207,7 +217,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
 
-	err = e.sendEmail(ctx, req.Email, e.sendgridTemplateID, map[string]interface{}{
+	err = e.sendEmail(ctx, req.Email, e.config.Sendgrid.TemplateID, map[string]interface{}{
 		"token": k,
 	})
 	if err != nil {
@@ -286,7 +296,7 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	}
 
 	// set the response message
-	rsp.Message = fmt.Sprintf(e.paymentMessage, req.Email)
+	rsp.Message = fmt.Sprintf(e.config.PaymentMessage, req.Email)
 	// we require payment for any signup
 	// if not set the CLI will try complete signup without payment id
 	rsp.PaymentRequired = true
@@ -452,7 +462,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 	}
 
 	logger.Infof("Sending email with data %v", namespaces)
-	err = e.sendEmail(ctx, req.Email, e.recoverTemplateID, map[string]interface{}{
+	err = e.sendEmail(ctx, req.Email, e.config.Sendgrid.RecoveryTemplateID, map[string]interface{}{
 		"namespaces": namespaces,
 	})
 	if err == nil {

@@ -57,20 +57,36 @@ func main() {
 	}
 }
 
+type conf struct {
+	Token      string `json:"token"`
+	Webhook    string `json:"webhook"`
+	Branch     string `json:"branch"`
+	Repository string `json:"repository"`
+}
+
 // loadConfig will load the configuration. If a required value if not provided the missing key will
 // be logged fatally.
 func loadConfig() {
-	Token = config.Get("micro", "gitops", "token").String("")
+	val, err := config.Get("micro.gitops")
+	if err != nil {
+		logger.Warnf("Error getting config: %v", err)
+	}
+	c := conf{}
+	err = val.Scan(&c)
+	if err != nil {
+		logger.Warnf("Error scanning config: %v", err)
+	}
+	Token = c.Token
 	if len(Token) == 0 {
 		logger.Fatalf("Missing required config: micro.gitops.token")
 	}
-	WebhookURL = config.Get("micro", "gitops", "webhook").String("")
+	WebhookURL = c.Webhook
 	if len(WebhookURL) == 0 {
 		logger.Fatalf("Missing required config: micro.gitops.webhook")
 	}
 
-	Branch = config.Get("micro", "gitops", "branch").String("master")
-	Repository = config.Get("micro", "gitops", "repository").String("m3o/services")
+	Branch = c.Branch
+	Repository = c.Repository
 }
 
 // webhookExists returns a boolean indicating if a webhook has already been registered for the

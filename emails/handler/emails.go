@@ -20,27 +20,36 @@ const (
 	defaultIssuer = "micro"
 )
 
+type sendgridConf struct {
+	ApiKey string `json:"api_key"`
+}
+
+type conf struct {
+	SendingEnabled bool         `json:"enabled"`
+	DefaultFrom    string       `json:"email_from"`
+	Sendgrid       sendgridConf `json:"sendgrid"`
+}
+
 func NewEmailsHandler() *Emails {
-	enabled := config.Get("micro", "emails", "enabled").Bool(false)
-	emailFrom := config.Get("micro", "emails", "email_from").String("Micro Team <support@micro.mu>")
-	apiKey := ""
-	if enabled {
-		apiKey = config.Get("micro", "emails", "sendgrid", "api_key").String("")
-		if len(apiKey) == 0 {
-			log.Fatalf("Sendgrid API key not configured")
-		}
+	c := conf{}
+	val, err := config.Get("micro.emails")
+	if err != nil {
+		log.Warnf("Error getting config: %v", err)
+	}
+	err = val.Scan(&c)
+	if err != nil {
+		log.Warnf("Error scanning config: %v", err)
+	}
+	if c.SendingEnabled && len(c.Sendgrid.ApiKey) == 0 {
+		log.Fatalf("Sendgrid API key not configured")
 	}
 	return &Emails{
-		sendingEnabled: enabled,
-		apiKey:         apiKey,
-		defaultFrom:    emailFrom,
+		c,
 	}
 }
 
 type Emails struct {
-	sendingEnabled bool
-	apiKey         string
-	defaultFrom    string
+	config conf
 }
 
 func (e *Emails) Send(ctx context.Context, request *emails.SendRequest, response *emails.SendResponse) error {
@@ -71,7 +80,7 @@ func (e *Emails) Send(ctx context.Context, request *emails.SendRequest, response
 // sendEmail sends an email invite via the sendgrid API using the
 // pre-designed email template. Docs: https://bit.ly/2VYPQD1
 func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]interface{}) error {
-	if !e.sendingEnabled {
+	if !e.config.SendingEnabled {
 		masked := to
 		if len(to) > 4 {
 			masked = masked[:4] + strings.Repeat("*", len(masked[4:]))
@@ -83,7 +92,7 @@ func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]
 	}
 	emailFrom := from
 	if len(emailFrom) == 0 {
-		emailFrom = e.defaultFrom // TODO only works while this is an internal M3O service
+		emailFrom = e.config.DefaultFrom // TODO only works while this is an internal M3O service
 	}
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"template_id": templateID,
@@ -102,7 +111,7 @@ func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]
 		},
 		"mail_settings": map[string]interface{}{
 			"sandbox_mode": map[string]bool{
-				"enable": !e.sendingEnabled,
+				"enable": !e.config.SendingEnabled,
 			},
 		},
 	})
@@ -112,7 +121,7 @@ func (e *Emails) sendEmail(from, to, templateID string, templateData map[string]
 		return err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+e.apiKey)
+	req.Header.Set("Authorization", "Bearer "+e.config.Sendgrid.ApiKey)
 	req.Header.Set("Content-Type", "application/json")
 	rsp, err := new(http.Client).Do(req)
 	if err != nil {

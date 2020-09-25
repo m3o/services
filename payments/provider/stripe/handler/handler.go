@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
@@ -23,7 +24,11 @@ type Provider struct {
 // NewProvider returns an initialised Provider, it will error if any of
 // the required enviroment variables are not set
 func New(srv *service.Service) *Provider {
-	apiKey := config.Get("micro", "payments", "stripe", "api_key").String("")
+	val, err := config.Get("micro.payments.stripe.api_key")
+	if err != nil {
+		logger.Warnf("Error getting config: %v", err)
+	}
+	apiKey := val.String("")
 
 	if len(apiKey) == 0 {
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
