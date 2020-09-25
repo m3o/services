@@ -26,7 +26,6 @@ jobs:
       with:
         repository: 'micro/micro'
         path: 'micro'
-        ref: '035f18fdf4fed98ddf82c6735060a1a5983bdd2c'
 
     - name: Enable caching
       uses: actions/cache@v2
