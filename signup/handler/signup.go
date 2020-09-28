@@ -33,7 +33,7 @@ import (
 
 const (
 	internalErrorMsg   = "An error occurred during signup. Contact #m3o-support at slack.m3o.com if the issue persists"
-	notInvitedErrorMsg = "We're currently operating an invite only beta and this email address has not been invited"
+	notInvitedErrorMsg = "You have not been invited to the service. Please request an invite on m3o.com"
 )
 
 const (
