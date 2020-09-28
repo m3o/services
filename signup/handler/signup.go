@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	mevents "github.com/micro/micro/v3/service/events"
@@ -90,6 +91,9 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		logger.Warnf("Error scanning config: %v", err)
 	}
 
+	if len(strings.TrimSpace(c.PaymentMessage)) == 0 {
+		c.PaymentMessage = Message
+	}
 	if !c.TestMode && len(c.Sendgrid.TemplateID) == 0 {
 		logger.Fatalf("No sendgrid template ID provided")
 	}

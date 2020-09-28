@@ -822,6 +822,12 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			t.Fatal(string(outp))
 			return
 		}
+		if !opts.shouldJoin {
+			if !strings.Contains(string(outp), "Please complete signup at") {
+				t.Fatal(string(outp))
+				return
+			}
+		}
 	}()
 	go func() {
 		time.Sleep(60 * time.Second)
