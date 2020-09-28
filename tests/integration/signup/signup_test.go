@@ -200,7 +200,7 @@ func testSignupFlow(t *test.T) {
 		outp, err := cmd.CombinedOutput()
 		if err == nil {
 			t.Fatalf("Expected an error for login but got none")
-		} else if !strings.Contains(string(outp), "signup.notallowed") {
+		} else if !strings.Contains(string(outp), "You have not been invited to the service") {
 			t.Fatal(string(outp))
 		}
 		wg.Done()
