@@ -31,8 +31,8 @@ import (
 )
 
 const (
-	internalErrorMsg  = "Something went wrong during signup. Please try again a bit later. If the issue persists, let us know on Slack"
-	notInvitedErroMsg = "We're currently operating an invite only beta and this email address has not been invited"
+	internalErrorMsg   = "Something went wrong during signup. Please try again a bit later. If the issue persists, let us know on Slack"
+	notInvitedErrorMsg = "We're currently operating an invite only beta and this email address has not been invited"
 )
 
 const (
@@ -157,7 +157,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 
 	_, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.notallowed", notInvitedErroMsg)
+		return merrors.Forbidden("signup.notallowed", notInvitedErrorMsg)
 	}
 
 	custResp, err := e.customerService.Create(ctx, &cproto.CreateRequest{
@@ -301,7 +301,7 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 	// At this point the user should be allowed, only making this call to return namespaces
 	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.Verify.not_allowed", notInvitedErroMsg)
+		return merrors.Forbidden("signup.Verify.NotAllowed", notInvitedErrorMsg)
 	}
 	rsp.Namespaces = namespaces
 	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verify"}
@@ -340,7 +340,7 @@ func (e *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 
 	namespaces, isAllowed := e.isAllowedToSignup(ctx, req.Email)
 	if !isAllowed {
-		return merrors.Forbidden("signup.CompleteSignup.not_allowed", "Email '%v' has not been invited to sign up", req.Email)
+		return merrors.Forbidden("signup.CompleteSignup.NotAllowed", "Email '%v' has not been invited to sign up", req.Email)
 	}
 	ns := ""
 	isJoining := len(namespaces) > 0 && len(req.Namespace) > 0 && namespaces[0] == req.Namespace
