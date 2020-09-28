@@ -40,7 +40,11 @@ func main() {
 	)
 
 	// Create a Slack client
-	slackToken := config.Get("micro", "alert", "slack_token").String("")
+	val, err := config.Get("micro.alert.slack_token")
+	if err != nil {
+		logger.Warnf("Error getting config: %v", err)
+	}
+	slackToken := val.String("")
 	if len(slackToken) == 0 {
 		logger.Fatal("Missing required config micro.alert.slack_token")
 	}
@@ -75,9 +79,12 @@ func main() {
 }
 
 func getConfig(key string) string {
-	val := config.Get("micro", "infrastructure", "scaleway", key).String("")
-	if len(val) == 0 {
+	val, err := config.Get("micro.infrastructure.scaleway." + key)
+	if err != nil {
+		logger.Warnf("Error getting config: %v", err)
+	}
+	if len(val.String("")) == 0 {
 		logger.Fatalf("Missing required config: micro.infrastructure.scaleway.%v", key)
 	}
-	return val
+	return val.String("")
 }
