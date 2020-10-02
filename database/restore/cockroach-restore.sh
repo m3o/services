@@ -16,6 +16,6 @@ while read -r line
 do
   # pull db name from name of dump file. dump of db foobar is named foobar-dump.sql
   db=$(echo $line | sed 's|dumps/\(.*\)-dump.sql|\1|g')
-  cockroach sql --execute "DROP DATABASE $db; CREATE DATABASE $db" --certs-dir=crts --host cockroachdb-cluster
+  cockroach sql --execute "DROP DATABASE IF EXISTS $db; CREATE DATABASE $db" --certs-dir=crts --host cockroachdb-cluster
   cockroach sql --database $db --certs-dir=crts --host cockroachdb-cluster < $line
 done < <(ls dumps/*.sql)
