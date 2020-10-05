@@ -55,19 +55,19 @@ func NewBilling(ns nsproto.NamespacesService,
 	// an upside for that will be also the fact that we don't have to load values one by one but can use Scan
 	val, err := mconfig.Get("micro.subscriptions.additional_users_price_id")
 	if err != nil {
-		log.Warnf("Additional users price id can't be loaded: %v", err)
+		log.Fatalf("Additional users price id can't be loaded: %v", err)
 	}
 	additionalUsersPriceID := val.String("")
 
 	val, err = mconfig.Get("micro.subscriptions.additional_services_price_id")
 	if err != nil {
-		log.Warnf("Additional services price id can't be loaded: %v", err)
+		log.Fatalf("Additional services price id can't be loaded: %v", err)
 	}
 	additionalServicesPriceID := val.String("")
 
 	val, err = mconfig.Get("micro.subscriptions.plan_id")
 	if err != nil {
-		log.Warnf("Can't load subscription plan id: %v", err)
+		log.Fatalf("Can't load subscription plan id: %v", err)
 	}
 	planID := val.String("")
 
@@ -339,6 +339,8 @@ func (b *Billing) loop() {
 					quantityShouldBe = 0
 				}
 				if quantity != quantityShouldBe {
+					log.Infof("Services count needs amending. Saving")
+
 					err = saveUpdate(update{
 						ID:           uuid.New().String(),
 						PriceID:      b.additionalServicesPriceID,
