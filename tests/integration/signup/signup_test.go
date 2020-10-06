@@ -64,7 +64,7 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		"MICRO_STRIPE_ADDITIONAL_SERVICES_PRICE_ID": {"micro.subscriptions.additional_services_price_id"},
 	}
 
-	if err := test.Try("Find signup, invite and stripe in list", t, func() ([]byte, error) {
+	if err := test.Try("Set up config values", t, func() ([]byte, error) {
 		for envKey, configKeys := range envToConfigKey {
 			val := os.Getenv(envKey)
 			if len(val) == 0 {
