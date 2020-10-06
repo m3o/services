@@ -59,7 +59,7 @@ func NewBilling(ns nsproto.NamespacesService,
 	}
 	additionalUsersPriceID := val.String("")
 	if len(additionalUsersPriceID) == 0 {
-		log.Fatalf("Additional userss price id is empty")
+		log.Fatal("Additional userss price id is empty")
 	}
 
 	val, err = mconfig.Get("micro.subscriptions.additional_services_price_id")
