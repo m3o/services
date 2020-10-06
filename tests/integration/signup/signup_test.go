@@ -640,32 +640,34 @@ func testServicesSubscription(t *test.T) {
 	changeId := ""
 	test.Try("Get changes", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
+		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
+		fulloutp := append(outp, outp1...)
 		if err != nil {
-			return outp, err
+			return fulloutp, err
 		}
 		updatesRsp := map[string]interface{}{}
 		err = json.Unmarshal(outp, &updatesRsp)
 		if err != nil {
-			return outp, err
+			return fulloutp, err
 		}
 		updates, ok := updatesRsp["updates"].([]interface{})
 		if !ok {
-			return outp, errors.New("Unexpected output")
+			return fulloutp, errors.New("Unexpected output")
 		}
 		if len(updates) == 0 {
-			return outp, errors.New("No updates found")
+			return fulloutp, errors.New("No updates found")
 		}
 		if updates[0].(map[string]interface{})["quantityTo"].(string) != "1" {
-			return outp, errors.New("Quantity should be 1")
+			return fulloutp, errors.New("Quantity should be 1")
 		}
 		changeId = updates[0].(map[string]interface{})["id"].(string)
 		if !strings.Contains(string(outp), "Additional services") {
-			return outp, errors.New("unexpected output")
+			return fulloutp, errors.New("unexpected output")
 		}
 		if strings.Contains(string(outp), "Additional users") {
-			return outp, errors.New("unexpected output")
+			return fulloutp, errors.New("unexpected output")
 		}
-		return outp, err
+		return fulloutp, err
 	}, 90*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
@@ -689,16 +691,18 @@ func testServicesSubscription(t *test.T) {
 		if err != nil {
 			return outp, err
 		}
+		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
+		fulloutp := append(outp, outp1...)
 		updatesRsp := map[string]interface{}{}
 		err = json.Unmarshal(outp, &updatesRsp)
 		if err != nil {
-			return outp, err
+			return fulloutp, err
 		}
 		updates, ok := updatesRsp["updates"].([]interface{})
 		if ok && len(updates) > 0 {
-			return outp, errors.New("Updates found when there should be none")
+			return fulloutp, errors.New("Updates found when there should be none")
 		}
-		return outp, err
+		return fulloutp, err
 	}, 20*time.Second)
 }
 
