@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/m3o/services/builder/handler"
-	"github.com/micro/go-micro/v3/runtime/builder/golang"
-	pb "github.com/micro/micro/v3/proto/runtime/builder"
+	pb "github.com/micro/micro/v3/proto/runtime/build"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime/builder/golang"
 )
 
 func main() {
