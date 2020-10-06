@@ -111,6 +111,8 @@ func NewBilling(ns nsproto.NamespacesService,
 	return b
 }
 
+// Updates returns currently active update suggestions for the current month.
+// Once the update is applied, it should disappear from this list.
 func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp *billing.UpdatesResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
@@ -125,9 +127,13 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 		req.Namespace = acc.Issuer
 	}
 
-	key := updatePrefix
+	month := time.Now().Format(monthFormat)
+	// @todo accept a month request parameter
+	// for listing historic update suggestions
+
+	key := updatePrefix + "/" + month
 	if len(req.Namespace) > 0 {
-		key = updateByNamespacePrefix + req.Namespace + "/"
+		key = updateByNamespacePrefix + req.Namespace + "/" + month
 	}
 	limit := req.Limit
 	if limit == 0 {
@@ -192,7 +198,13 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 		OwnerID:  u.Customer,
 		Quantity: u.QuantityTo,
 	})
-	return err
+	if err != nil {
+		return merrors.InternalServerError("billing.Apply", "Error calling subscriptions update: %v", err)
+	}
+
+	// Once the Update is applied, we don't want them to appear
+	// in the list returned by the `Updates` endpoint
+	return deleteMonth(time.Unix(u.Created, 0).Format(monthFormat), u.Namespace)
 }
 
 // Portal returns the billing portal address the customers can go to to manager their subscriptons
@@ -290,6 +302,14 @@ func (b *Billing) loop() {
 
 			for _, max := range maxs {
 				log.Infof("Processing namespace '%v'", max.namespace)
+
+				// First we delete the existing record
+				month := time.Now().Format(monthFormat)
+				err = deleteMonth(month, max.namespace)
+				if err != nil {
+					log.Errorf("Error deleting month %v for namespace %v", month, max.namespace)
+				}
+
 				customer, found := namespaceToOwner[max.namespace]
 				if !found || len(customer) == 0 {
 					log.Warnf("Owner customer id not found for namespace '%v'", max.namespace)
@@ -393,6 +413,14 @@ func saveUpdate(record update) error {
 		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, month),
 		Value: val,
 	})
+}
+
+func deleteMonth(month, namespace string) error {
+	err := mstore.Delete(fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, namespace, month))
+	if err != nil {
+		return err
+	}
+	return mstore.Delete(fmt.Sprintf("%v%v/%v", updatePrefix, month, namespace))
 }
 
 type max struct {

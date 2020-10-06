@@ -683,6 +683,23 @@ func testServicesSubscription(t *test.T) {
 	if sub.Quantity != 1 {
 		t.Fatalf("Quantity should be 1, but it's %v", sub.Quantity)
 	}
+
+	test.Try("Get changes again", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		updatesRsp := map[string]interface{}{}
+		err = json.Unmarshal(outp, &updatesRsp)
+		if err != nil {
+			return outp, err
+		}
+		updates, ok := updatesRsp["updates"].([]interface{})
+		if ok && len(updates) > 0 {
+			return outp, errors.New("Updates found when there should be none")
+		}
+		return outp, err
+	}, 20*time.Second)
 }
 
 func TestUsersSubscription(t *testing.T) {
