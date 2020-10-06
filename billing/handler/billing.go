@@ -58,18 +58,27 @@ func NewBilling(ns nsproto.NamespacesService,
 		log.Fatalf("Additional users price id can't be loaded: %v", err)
 	}
 	additionalUsersPriceID := val.String("")
+	if len(additionalUsersPriceID) == 0 {
+		log.Fatalf("Additional userss price id is empty")
+	}
 
 	val, err = mconfig.Get("micro.subscriptions.additional_services_price_id")
 	if err != nil {
 		log.Fatalf("Additional services price id can't be loaded: %v", err)
 	}
 	additionalServicesPriceID := val.String("")
+	if len(additionalServicesPriceID) == 0 {
+		log.Fatal("Additional services price id is empty")
+	}
 
 	val, err = mconfig.Get("micro.subscriptions.plan_id")
 	if err != nil {
 		log.Fatalf("Can't load subscription plan id: %v", err)
 	}
 	planID := val.String("")
+	if len(planID) == 0 {
+		log.Fatal("Plan id is empty")
+	}
 
 	val, err = mconfig.Get("micro.billing.max_included_services")
 	if err != nil {
