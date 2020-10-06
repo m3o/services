@@ -131,7 +131,7 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 	// @todo accept a month request parameter
 	// for listing historic update suggestions
 
-	key := updatePrefix + "/" + month
+	key := updatePrefix + month
 	if len(req.Namespace) > 0 {
 		key = updateByNamespacePrefix + req.Namespace + "/" + month
 	}
