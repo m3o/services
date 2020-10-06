@@ -64,19 +64,24 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		"MICRO_STRIPE_ADDITIONAL_SERVICES_PRICE_ID": {"micro.subscriptions.additional_services_price_id"},
 	}
 
-	for envKey, configKeys := range envToConfigKey {
-		val := os.Getenv(envKey)
-		if len(val) == 0 {
-			t.Fatalf("'%v' flag is missing", envKey)
-		}
-		for _, configKey := range configKeys {
-			outp, err := serv.Command().Exec("config", "set", configKey, val)
-			if err != nil {
-				t.Fatal(string(outp))
+	if err := test.Try("Find signup, invite and stripe in list", t, func() ([]byte, error) {
+		for envKey, configKeys := range envToConfigKey {
+			val := os.Getenv(envKey)
+			if len(val) == 0 {
+				t.Fatalf("'%v' flag is missing", envKey)
+			}
+			for _, configKey := range configKeys {
+				outp, err := serv.Command().Exec("config", "set", configKey, val)
+				if err != nil {
+					return outp, err
+				}
 			}
 		}
+		return serv.Command().Exec("config", "set", "micro.billing.max_included_services", "3")
+	}, 10*time.Second); err != nil {
+		t.Fatal(err)
+		return
 	}
-	serv.Command().Exec("config", "set", "micro.billing.max_included_services", "3")
 
 	services := []struct {
 		envVar string
