@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Register the handler
-	pb.RegisterBuilderHandler(srv.Server(), &handler.Handler{Builder: builder})
+	pb.RegisterBuildHandler(srv.Server(), &handler.Handler{Builder: builder})
 
 	// Run the service
 	if err := srv.Run(); err != nil {

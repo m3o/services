@@ -18,7 +18,7 @@ type Handler struct {
 }
 
 // Build source
-func (h *Handler) Build(ctx context.Context, stream pb.Builder_BuildStream) error {
+func (h *Handler) Build(ctx context.Context, stream pb.Build_BuildStream) error {
 	defer stream.Close()
 
 	// the key and options are passed on each message but we only need to extract them once
