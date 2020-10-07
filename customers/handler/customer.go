@@ -251,7 +251,7 @@ func (c *Customers) deleteCustomer(ctx context.Context, customerID string) error
 			Id:      customerID,
 			Options: &aproto.Options{Namespace: ns.Id},
 		}, client.WithAuthToken())
-		if err != nil {
+		if ignoreDeleteError(err) != nil {
 			return err
 		}
 		// are we the owner
@@ -263,7 +263,7 @@ func (c *Customers) deleteCustomer(ctx context.Context, customerID string) error
 	// delete any owned namespaces
 	for _, ns := range owned {
 		_, err := c.namespacesService.Delete(ctx, &nsproto.DeleteRequest{Id: ns}, client.WithAuthToken())
-		if err != nil {
+		if ignoreDeleteError(err) != nil {
 			return err
 		}
 	}
@@ -277,6 +277,21 @@ func (c *Customers) deleteCustomer(ctx context.Context, customerID string) error
 	ev := CustomerEvent{Customer: *cust, Type: "customers.deleted"}
 	if err := mevents.Publish(custTopic, ev); err != nil {
 		log.Errorf("Error publishing customers.deleted event %+v", ev)
+	}
+	return nil
+}
+
+// ignoreDeleteError will ignore any 400 or 404 errors returned, useful for idempotent deletes
+func ignoreDeleteError(err error) error {
+	if err != nil {
+		merr, ok := err.(*errors.Error)
+		if !ok {
+			return err
+		}
+		if merr.Code == 400 || merr.Code == 404 {
+			return nil
+		}
+		return err
 	}
 	return nil
 }
