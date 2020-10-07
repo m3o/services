@@ -25,16 +25,24 @@ func New(service *service.Service) *Platform {
 
 // CreateNamespace
 func (k *Platform) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceRequest, rsp *pb.CreateNamespaceResponse) error {
-	_, err := k.runtime.CreateNamespace(ctx, &rproto.CreateNamespaceRequest{
-		Namespace: req.Name,
+	_, err := k.runtime.Create(ctx, &rproto.CreateRequest{
+		Resource: &rproto.Resource{
+			Namespace: &rproto.Namespace{
+				Name: req.Name,
+			},
+		},
 	})
 	return err
 }
 
 // DeleteNamespace
 func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
-	_, err := k.runtime.DeleteNamespace(ctx, &rproto.DeleteNamespaceRequest{
-		Namespace: req.Name,
+	_, err := k.runtime.Delete(ctx, &rproto.DeleteRequest{
+		Resource: &rproto.Resource{
+			Namespace: &rproto.Namespace{
+				Name: req.Name,
+			},
+		},
 	})
 	return err
 }
