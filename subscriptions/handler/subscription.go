@@ -218,7 +218,7 @@ func (s Subscriptions) cancelSubscription(ctx context.Context, sub *Subscription
 	// clean up stripe.
 	// deleting the customer will cancel all subscriptions, including the ones for additional services etc
 	_, err := s.paymentService.DeleteCustomer(ctx, &paymentsproto.DeleteCustomerRequest{CustomerType: "user", CustomerId: sub.CustomerID})
-	if err != nil {
+	if ignoreDeleteError(err) != nil {
 		logger.Errorf("Error cancelling subscription with stripe %s %s", sub.ID, err)
 		return errors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
 	}
@@ -287,6 +287,21 @@ func (s Subscriptions) cancelChildSubscription(ctx context.Context, sub *Subscri
 		logger.Errorf("Error publishing subscriptions.cancelled for event %+v", ev)
 	}
 
+	return nil
+}
+
+// ignoreDeleteError will ignore any 400 or 404 errors returned, useful for idempotent deletes
+func ignoreDeleteError(err error) error {
+	if err != nil {
+		merr, ok := err.(*errors.Error)
+		if !ok {
+			return err
+		}
+		if merr.Code == 400 || merr.Code == 404 {
+			return nil
+		}
+		return err
+	}
 	return nil
 }
 
@@ -381,7 +396,7 @@ func (s Subscriptions) updatePaymentSubscription(ctx context.Context, customerID
 		PriceId:      priceID,
 	}, client.WithAuthToken())
 	if err != nil {
-		return merrors.InternalServerError("subscriptions.update.read", "Error finding sub: %v", err)
+		return merrors.NotFound("subscriptions.update.read", "Error finding sub: %v", err)
 	}
 	var sub *paymentsproto.Subscription
 	if len(subs.Subscriptions) > 0 {
