@@ -288,9 +288,10 @@ func ignoreError(err error) error {
 		if !ok {
 			return err
 		}
-		if merr.Code != 400 && merr.Code != 404 {
-			return err
+		if merr.Code == 400 || merr.Code == 404 {
+			return nil
 		}
+		return err
 	}
 	return nil
 }

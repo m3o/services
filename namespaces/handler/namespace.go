@@ -194,7 +194,7 @@ func (n Namespaces) Delete(ctx context.Context, request *namespace.DeleteRequest
 	}
 
 	_, err = n.platformService.DeleteNamespace(ctx, &plproto.DeleteNamespaceRequest{Name: request.Id}, client.WithAuthToken())
-	if err != nil {
+	if ignoreError(err) != nil {
 		return err
 	}
 	// delete any stray accounts
@@ -209,23 +209,25 @@ func (n Namespaces) Delete(ctx context.Context, request *namespace.DeleteRequest
 				Id:      acc.Id,
 				Options: &aproto.Options{Namespace: acc.Issuer},
 			})
-		if err != nil {
+		if ignoreError(err) != nil {
 			return err
 		}
 	}
 
 	// delete any stray auth rules
 	rrsp, err := n.rulesService.List(ctx, &aproto.ListRequest{Options: &aproto.Options{Namespace: ns.ID}})
-	if err != nil {
+	if ignoreError(err) != nil {
 		return err
 	}
-	for _, rule := range rrsp.Rules {
-		_, err := n.rulesService.Delete(ctx, &aproto.DeleteRequest{
-			Id:      rule.Id,
-			Options: &aproto.Options{Namespace: ns.ID},
-		})
-		if err != nil {
-			return err
+	if rrsp != nil {
+		for _, rule := range rrsp.Rules {
+			_, err := n.rulesService.Delete(ctx, &aproto.DeleteRequest{
+				Id:      rule.Id,
+				Options: &aproto.Options{Namespace: ns.ID},
+			})
+			if ignoreError(err) != nil {
+				return err
+			}
 		}
 	}
 
@@ -277,6 +279,24 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 		res = append(res, objToProto(ns))
 	}
 	response.Namespaces = res
+	return nil
+}
+
+// ignoreError will ignore any 400 or 404 errors returned, useful for idempotent deletes
+func ignoreError(err error) error {
+	if err != nil {
+		merr, ok := err.(*errors.Error)
+		if !ok {
+			return err
+		}
+		if strings.Contains(merr.Detail, "not found") {
+			return nil
+		}
+		if merr.Code == 400 || merr.Code == 404 {
+			return nil
+		}
+		return err
+	}
 	return nil
 }
 
