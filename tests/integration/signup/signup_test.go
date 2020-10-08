@@ -31,6 +31,7 @@ const (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
 
 func randStringRunes(n int) string {
+	rand.Seed(time.Now().Unix())
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
@@ -44,7 +45,7 @@ func testEmail(nth int) string {
 	if nth == 0 {
 		return fmt.Sprintf("platform+citest+%v@m3o.com", uid)
 	}
-	return fmt.Sprintf("platform+cites+%v+%v@m3o.com", nth, uid)
+	return fmt.Sprintf("platform+citest+%v+%v@m3o.com", nth, uid)
 }
 
 func TestSignupFlow(t *testing.T) {
