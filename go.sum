@@ -305,10 +305,10 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
 github.com/micro/go-micro/v2 v2.9.1 h1:+S9koIrNWARjpP6k2TZ7kt0uC9zUJtNXzIdZTZRms7Q=
 github.com/micro/go-micro/v2 v2.9.1/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
-github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200929123717-2008746875f5 h1:H7Or8ADZM1EUA7Lj3S/N30u6YyZGJan6ykeWTxXef8k=
-github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200929123717-2008746875f5/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
-github.com/micro/micro/v3 v3.0.0-beta.4.0.20200929124258-9e0af362ccae h1:DpOgBo4GCcli6l9Lf3sfuWLcTqQElBanDHO/wb5pHfA=
-github.com/micro/micro/v3 v3.0.0-beta.4.0.20200929124258-9e0af362ccae/go.mod h1:oIXKY+ya0KKmR8zvHWpErw/rqdtA9CZVTvbo5Ab7P8k=
+github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201007113728-c701f96a09da h1:Qopn9CEcN/MX4CjjDX7wh0w/VY2GYpPQf0CkZuB4+2U=
+github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201007113728-c701f96a09da/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
+github.com/micro/micro/v3 v3.0.0-beta.5.0.20201007160959-41bf7d0c9eb6 h1:A7cUTRSNWLPW8DlJxD+oKhhqnIIN/ohrRTIvWk/qpak=
+github.com/micro/micro/v3 v3.0.0-beta.5.0.20201007160959-41bf7d0c9eb6/go.mod h1:vhD/hKjyVNx+0JLYpuYfnIzDi26A/Jusc645HqOfygY=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
