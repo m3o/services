@@ -6,7 +6,6 @@ require (
 	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
-	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201007113728-c701f96a09da
 	github.com/micro/micro/v3 v3.0.0-beta.5.0.20201007160959-41bf7d0c9eb6
 	github.com/patrickmn/go-cache v2.1.0+incompatible
