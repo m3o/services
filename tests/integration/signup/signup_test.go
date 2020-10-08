@@ -231,6 +231,7 @@ func testSignupFlow(t *test.T) {
 	if t.Failed() {
 		return
 	}
+	t.Logf("Signup 1 complete %s", time.Now())
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
 		t.Fatalf("Error getting namespace: %v", err)
@@ -283,6 +284,7 @@ func testSignupFlow(t *test.T) {
 	if t.Failed() {
 		return
 	}
+	t.Logf("Signup 2 complete %s", time.Now())
 	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
 		t.Fatalf("Error getting namespace: %v", err)
@@ -299,6 +301,7 @@ func testSignupFlow(t *test.T) {
 	logout(serv, t)
 
 	signup(serv, t, newEmail2, password, signupOptions{inviterEmail: email, xthInvitee: 2, isInvitedToNamespace: true, shouldJoin: true})
+	t.Logf("Signup 3 complete %s", time.Now())
 	if t.Failed() {
 		return
 	}
@@ -949,8 +952,6 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	// shows prices and plans being separate entitires, even v71 version of the
 	// go library only has plans. However, it seems like the prices are under plans too.
 	test.Try("Check subscription in stripe", t, func() ([]byte, error) {
-		t.Logf("Check subscription in stripe")
-		defer t.Logf("Check subscription in stripe finished")
 		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
 		subListParams := &stripe.SubscriptionListParams{}
 		subListParams.Limit = stripe.Int64(20)
@@ -998,13 +999,11 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 				return nil, fmt.Errorf("Subscription quantity should be 1 but is %v", sub.Quantity)
 			}
 		}
-
+		t.Logf("Subscription checked")
 		return nil, nil
 	}, 50*time.Second)
 
 	test.Try("Check customer marked active", t, func() ([]byte, error) {
-		t.Logf("Check customer marked active")
-		defer t.Logf("Check customer marked active finished")
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
 		if err != nil {
 			t.Logf("Error checking customer status %s %s", string(outp), err)
@@ -1016,6 +1015,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			t.Logf("Customer logs %s", string(outp))
 			return outp, fmt.Errorf("Customer status is not active")
 		}
+		t.Logf("Customer marked active")
 		return nil, nil
 	}, 60*time.Second)
 
