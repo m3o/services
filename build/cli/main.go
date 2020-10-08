@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/micro/go-micro/v3/runtime/builder"
+	"github.com/micro/micro/v3/service/runtime/builder"
 	"github.com/micro/micro/v3/service/runtime/builder/client"
 )
 

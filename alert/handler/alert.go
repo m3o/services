@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/micro/go-micro/v2/logger"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/config"
@@ -48,11 +47,11 @@ func NewAlert(store store.Store) *Alert {
 	c := conf{}
 	val, err := config.Get("micro.alert")
 	if err != nil {
-		logger.Warnf("Error getting config: %v", err)
+		log.Warnf("Error getting config: %v", err)
 	}
 	err = val.Scan(&c)
 	if err != nil {
-		logger.Warnf("Error scanning config: %v", err)
+		log.Warnf("Error scanning config: %v", err)
 	}
 	if c.SlackEnabled && len(c.SlackToken) == 0 {
 		log.Errorf("Slack token missing")

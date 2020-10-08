@@ -31,6 +31,7 @@ const (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
 
 func randStringRunes(n int) string {
+	rand.Seed(time.Now().Unix())
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
@@ -44,7 +45,7 @@ func testEmail(nth int) string {
 	if nth == 0 {
 		return fmt.Sprintf("platform+citest+%v@m3o.com", uid)
 	}
-	return fmt.Sprintf("platform+cites+%v+%v@m3o.com", nth, uid)
+	return fmt.Sprintf("platform+citest+%v+%v@m3o.com", nth, uid)
 }
 
 func TestSignupFlow(t *testing.T) {
@@ -235,6 +236,7 @@ func testSignupFlow(t *test.T) {
 	if t.Failed() {
 		return
 	}
+	t.Logf("Signup 1 complete %s", time.Now())
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
 		t.Fatalf("Error getting namespace: %v", err)
@@ -287,6 +289,7 @@ func testSignupFlow(t *test.T) {
 	if t.Failed() {
 		return
 	}
+	t.Logf("Signup 2 complete %s", time.Now())
 	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
 		t.Fatalf("Error getting namespace: %v", err)
@@ -303,6 +306,7 @@ func testSignupFlow(t *test.T) {
 	logout(serv, t)
 
 	signup(serv, t, newEmail2, password, signupOptions{inviterEmail: email, xthInvitee: 2, isInvitedToNamespace: true, shouldJoin: true})
+	t.Logf("Signup 3 complete %s", time.Now())
 	if t.Failed() {
 		return
 	}
@@ -857,6 +861,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	}()
 	go func() {
 		time.Sleep(60 * time.Second)
+		t.Logf("Killing process")
 		cmd.Process.Kill()
 	}()
 
@@ -939,6 +944,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			t.Fatal(err)
 			return
 		}
+		t.Log("Added a new payment method to Stripe")
 
 		// using a curl here as `call` redirection to micro namespace doesnt work properly, unlike
 		// dynamic commands
@@ -964,6 +970,8 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		if len(rsp) > 0 {
 			t.Fatal(rsp)
 		}
+		t.Log("Added a new payment method to M3O")
+
 	}
 
 	// Some gotchas for this: while the stripe api documentation online
@@ -1017,26 +1025,34 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 				return nil, fmt.Errorf("Subscription quantity should be 1 but is %v", sub.Quantity)
 			}
 		}
+		t.Logf("Subscription checked")
 		return nil, nil
 	}, 50*time.Second)
 
 	test.Try("Check customer marked active", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
 		if err != nil {
+			t.Logf("Error checking customer status %s %s", string(outp), err)
 			return outp, err
 		}
 		if !strings.Contains(string(outp), `"status": "active"`) {
+			outp, _ = exec.Command("micro", envFlag, adminConfFlag, "logs", "customers").CombinedOutput()
 			return outp, fmt.Errorf("Customer status is not active")
 		}
+		t.Logf("Customer marked active")
 		return nil, nil
 	}, 60*time.Second)
 
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.Failed() {
+		t.Logf("Failed signup")
 		return
 	}
+	t.Logf("Waiting at end of signup")
 	wg.Wait()
+	t.Logf("Signup complete for %s", email)
+
 }
 
 func getSrcString(envvar, dflt string) string {

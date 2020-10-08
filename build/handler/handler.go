@@ -5,9 +5,9 @@ import (
 	"context"
 	"io"
 
-	"github.com/micro/go-micro/v3/runtime/builder"
-	pb "github.com/micro/micro/v3/proto/runtime/builder"
+	pb "github.com/micro/micro/v3/proto/runtime/build"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/runtime/builder"
 )
 
 const bufferSize = 100
@@ -18,7 +18,7 @@ type Handler struct {
 }
 
 // Build source
-func (h *Handler) Build(ctx context.Context, stream pb.Builder_BuildStream) error {
+func (h *Handler) Build(ctx context.Context, stream pb.Build_BuildStream) error {
 	defer stream.Close()
 
 	// the key and options are passed on each message but we only need to extract them once

@@ -67,4 +67,5 @@ jobs:
         M3O_STRIPE_SVC: ../../../payments/provider/stripe
         M3O_SIGNUP_SVC: ../../../signup
         M3O_INVITE_SVC: ../../../invite
+        MICRO_TEST_TIMEOUT: 6m
         
