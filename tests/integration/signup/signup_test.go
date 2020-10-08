@@ -832,6 +832,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	}()
 	go func() {
 		time.Sleep(60 * time.Second)
+		t.Logf("Killing process")
 		cmd.Process.Kill()
 	}()
 
@@ -914,6 +915,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			t.Fatal(err)
 			return
 		}
+		t.Log("Added a new payment method to Stripe")
 
 		// using a curl here as `call` redirection to micro namespace doesnt work properly, unlike
 		// dynamic commands
@@ -939,6 +941,8 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		if len(rsp) > 0 {
 			t.Fatal(rsp)
 		}
+		t.Log("Added a new payment method to M3O")
+
 	}
 
 	// Some gotchas for this: while the stripe api documentation online
@@ -1011,7 +1015,10 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	if t.Failed() {
 		return
 	}
+	t.Logf("Waiting at end of signup")
 	wg.Wait()
+	t.Logf("Signup complete for %s", email)
+
 }
 
 func getSrcString(envvar, dflt string) string {
