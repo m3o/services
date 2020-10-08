@@ -65,19 +65,24 @@ func setupM3Tests(serv test.Server, t *test.T) {
 		"MICRO_STRIPE_ADDITIONAL_SERVICES_PRICE_ID": {"micro.subscriptions.additional_services_price_id"},
 	}
 
-	for envKey, configKeys := range envToConfigKey {
-		val := os.Getenv(envKey)
-		if len(val) == 0 {
-			t.Fatalf("'%v' flag is missing", envKey)
-		}
-		for _, configKey := range configKeys {
-			outp, err := serv.Command().Exec("config", "set", configKey, val)
-			if err != nil {
-				t.Fatal(string(outp))
+	if err := test.Try("Set up config values", t, func() ([]byte, error) {
+		for envKey, configKeys := range envToConfigKey {
+			val := os.Getenv(envKey)
+			if len(val) == 0 {
+				t.Fatalf("'%v' flag is missing", envKey)
+			}
+			for _, configKey := range configKeys {
+				outp, err := serv.Command().Exec("config", "set", configKey, val)
+				if err != nil {
+					return outp, err
+				}
 			}
 		}
+		return serv.Command().Exec("config", "set", "micro.billing.max_included_services", "3")
+	}, 10*time.Second); err != nil {
+		t.Fatal(err)
+		return
 	}
-	serv.Command().Exec("config", "set", "micro.billing.max_included_services", "3")
 
 	services := []struct {
 		envVar string
@@ -644,32 +649,34 @@ func testServicesSubscription(t *test.T) {
 	changeId := ""
 	test.Try("Get changes", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
+		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
+		fulloutp := append(outp, outp1...)
 		if err != nil {
-			return outp, err
+			return fulloutp, err
 		}
 		updatesRsp := map[string]interface{}{}
 		err = json.Unmarshal(outp, &updatesRsp)
 		if err != nil {
-			return outp, err
+			return fulloutp, err
 		}
 		updates, ok := updatesRsp["updates"].([]interface{})
 		if !ok {
-			return outp, errors.New("Unexpected output")
+			return fulloutp, errors.New("Unexpected output")
 		}
 		if len(updates) == 0 {
-			return outp, errors.New("No updates found")
+			return fulloutp, errors.New("No updates found")
 		}
 		if updates[0].(map[string]interface{})["quantityTo"].(string) != "1" {
-			return outp, errors.New("Quantity should be 1")
+			return fulloutp, errors.New("Quantity should be 1")
 		}
 		changeId = updates[0].(map[string]interface{})["id"].(string)
 		if !strings.Contains(string(outp), "Additional services") {
-			return outp, errors.New("unexpected output")
+			return fulloutp, errors.New("unexpected output")
 		}
 		if strings.Contains(string(outp), "Additional users") {
-			return outp, errors.New("unexpected output")
+			return fulloutp, errors.New("unexpected output")
 		}
-		return outp, err
+		return fulloutp, err
 	}, 90*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
@@ -687,6 +694,25 @@ func testServicesSubscription(t *test.T) {
 	if sub.Quantity != 1 {
 		t.Fatalf("Quantity should be 1, but it's %v", sub.Quantity)
 	}
+
+	test.Try("Get changes again", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
+		fulloutp := append(outp, outp1...)
+		updatesRsp := map[string]interface{}{}
+		err = json.Unmarshal(outp, &updatesRsp)
+		if err != nil {
+			return fulloutp, err
+		}
+		updates, ok := updatesRsp["updates"].([]interface{})
+		if ok && len(updates) > 0 {
+			return fulloutp, errors.New("Updates found when there should be none")
+		}
+		return fulloutp, err
+	}, 20*time.Second)
 }
 
 func TestUsersSubscription(t *testing.T) {
