@@ -1010,9 +1010,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			return outp, err
 		}
 		if !strings.Contains(string(outp), `"status": "active"`) {
-			t.Logf("Customer is not active %s", string(outp))
 			outp, _ = exec.Command("micro", envFlag, adminConfFlag, "logs", "customers").CombinedOutput()
-			t.Logf("Customer logs %s", string(outp))
 			return outp, fmt.Errorf("Customer status is not active")
 		}
 		t.Logf("Customer marked active")
