@@ -26,6 +26,7 @@ jobs:
       with:
         repository: 'micro/micro'
         path: 'micro'
+        ref: new_runtime_interface
 
     - name: Enable caching
       uses: actions/cache@v2
