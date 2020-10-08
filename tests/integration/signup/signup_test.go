@@ -949,6 +949,8 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	// shows prices and plans being separate entitires, even v71 version of the
 	// go library only has plans. However, it seems like the prices are under plans too.
 	test.Try("Check subscription in stripe", t, func() ([]byte, error) {
+		t.Logf("Check subscription in stripe")
+		defer t.Logf("Check subscription in stripe finished")
 		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
 		subListParams := &stripe.SubscriptionListParams{}
 		subListParams.Limit = stripe.Int64(20)
@@ -996,10 +998,13 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 				return nil, fmt.Errorf("Subscription quantity should be 1 but is %v", sub.Quantity)
 			}
 		}
+
 		return nil, nil
 	}, 50*time.Second)
 
 	test.Try("Check customer marked active", t, func() ([]byte, error) {
+		t.Logf("Check customer marked active")
+		defer t.Logf("Check customer marked active finished")
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -1013,6 +1018,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.Failed() {
+		t.Logf("Failed signup")
 		return
 	}
 	t.Logf("Waiting at end of signup")
