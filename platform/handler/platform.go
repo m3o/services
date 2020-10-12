@@ -38,6 +38,9 @@ func (k *Platform) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceR
 				Name: req.Name,
 			},
 		},
+		Options: &rproto.CreateOptions{
+			Namespace: req.Name,
+		},
 	}); err != nil {
 		return err
 	}
@@ -50,6 +53,9 @@ func (k *Platform) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceR
 				Name:          defaultNetworkPolicyName,
 				Namespace:     req.Name,
 			},
+		},
+		Options: &rproto.CreateOptions{
+			Namespace: req.Name,
 		},
 	})
 
@@ -68,6 +74,9 @@ func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceR
 				Namespace:     req.Name,
 			},
 		},
+		Options: &rproto.DeleteOptions{
+			Namespace: req.Name,
+		},
 	})
 
 	// namespace
@@ -76,6 +85,9 @@ func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceR
 			Namespace: &rproto.Namespace{
 				Name: req.Name,
 			},
+		},
+		Options: &rproto.DeleteOptions{
+			Namespace: req.Name,
 		},
 	})
 	return err
