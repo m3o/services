@@ -438,7 +438,7 @@ func (e *Signup) Recover(ctx context.Context, req *signup.RecoverRequest, rsp *s
 		return merrors.BadRequest("signup.recover", "We have issued a recovery email recently. Please check that.")
 	}
 
-	custResp, err := e.customerService.Read(ctx, &cproto.ReadRequest{Email: req.Email})
+	custResp, err := e.customerService.Read(ctx, &cproto.ReadRequest{Email: req.Email}, client.WithAuthToken())
 	if err != nil {
 		merr := merrors.FromError(err)
 		if merr.Code == 404 { // not found
