@@ -53,6 +53,14 @@ func TestSignupFlow(t *testing.T) {
 }
 
 func setupM3Tests(serv test.Server, t *test.T) {
+	setupM3TestsImpl(serv, t, false)
+}
+
+func setupFreeM3Tests(serv test.Server, t *test.T) {
+	setupM3TestsImpl(serv, t, true)
+}
+
+func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 	envToConfigKey := map[string][]string{
 		"MICRO_STRIPE_API_KEY":                      {"micro.payments.stripe.api_key"},
 		"MICRO_SENDGRID_API_KEY":                    {"micro.emails.sendgrid.api_key"},
@@ -77,6 +85,17 @@ func setupM3Tests(serv test.Server, t *test.T) {
 					return outp, err
 				}
 			}
+		}
+		if freeTier {
+			outp, err := serv.Command().Exec("config", "set", "micro.signup.no_payment", "true")
+			if err != nil {
+				return outp, err
+			}
+			outp, err = serv.Command().Exec("config", "set", "micro.signup.message", "Finishing signup for %s")
+			if err != nil {
+				return outp, err
+			}
+
 		}
 		return serv.Command().Exec("config", "set", "micro.billing.max_included_services", "3")
 	}, 10*time.Second); err != nil {
@@ -827,6 +846,7 @@ type signupOptions struct {
 	shouldJoin           bool
 	inviterEmail         string
 	xthInvitee           int
+	freeTier             bool
 }
 
 func signup(serv test.Server, t *test.T, email, password string, opts signupOptions) {
@@ -927,7 +947,7 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 		}
 	}
 
-	if !opts.shouldJoin {
+	if !opts.shouldJoin && !opts.freeTier {
 		time.Sleep(5 * time.Second)
 		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
 		pm, err := sc.PaymentMethods.New(
@@ -974,61 +994,63 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 
 	}
 
-	// Some gotchas for this: while the stripe api documentation online
-	// shows prices and plans being separate entitires, even v71 version of the
-	// go library only has plans. However, it seems like the prices are under plans too.
-	test.Try("Check subscription in stripe", t, func() ([]byte, error) {
-		sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
-		subListParams := &stripe.SubscriptionListParams{}
-		subListParams.Limit = stripe.Int64(20)
-		subListParams.AddExpand("data.customer")
-		iter := sc.Subscriptions.List(subListParams)
-		count := 0
-		// email -> plan/price id -> subscription
-		userPlans := map[string]*stripe.Subscription{}
-		inviterPlans := map[string]*stripe.Subscription{}
-		for iter.Next() {
-			if count > 20 {
-				break
-			}
-			count++
+	if !opts.freeTier {
 
-			c := iter.Subscription()
-			if len(opts.inviterEmail) > 0 && c.Customer.Email == opts.inviterEmail {
-				if c.Plan != nil {
-					inviterPlans[c.Plan.ID] = c
+		// Some gotchas for this: while the stripe api documentation online
+		// shows prices and plans being separate entities, even v71 version of the
+		// go library only has plans. However, it seems like the prices are under plans too.
+		test.Try("Check subscription in stripe", t, func() ([]byte, error) {
+			sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
+			subListParams := &stripe.SubscriptionListParams{}
+			subListParams.Limit = stripe.Int64(20)
+			subListParams.AddExpand("data.customer")
+			iter := sc.Subscriptions.List(subListParams)
+			count := 0
+			// email -> plan/price id -> subscription
+			userPlans := map[string]*stripe.Subscription{}
+			inviterPlans := map[string]*stripe.Subscription{}
+			for iter.Next() {
+				if count > 20 {
+					break
+				}
+				count++
+
+				c := iter.Subscription()
+				if len(opts.inviterEmail) > 0 && c.Customer.Email == opts.inviterEmail {
+					if c.Plan != nil {
+						inviterPlans[c.Plan.ID] = c
+					}
+				}
+				if c.Customer.Email == email {
+					if c.Plan != nil {
+						userPlans[c.Plan.ID] = c
+					}
 				}
 			}
-			if c.Customer.Email == email {
-				if c.Plan != nil {
-					userPlans[c.Plan.ID] = c
+
+			if opts.shouldJoin {
+				priceID := os.Getenv("MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID")
+				sub, found := inviterPlans[priceID]
+				if !found {
+					return nil, fmt.Errorf("Subscription with price ID %v not found", priceID)
+				}
+				if sub.Quantity != int64(opts.xthInvitee) {
+					return nil, fmt.Errorf("Subscription quantity '%v' should match invitee number '%v", sub.Quantity, opts.xthInvitee)
+				}
+			} else {
+				planID := os.Getenv("MICRO_STRIPE_PLAN_ID")
+				sub, found := userPlans[planID]
+				if !found {
+					return nil, fmt.Errorf("Subscription with plan ID %v not found", planID)
+				}
+				if sub.Quantity != 1 {
+					return nil, fmt.Errorf("Subscription quantity should be 1 but is %v", sub.Quantity)
 				}
 			}
-		}
-
-		if opts.shouldJoin {
-			priceID := os.Getenv("MICRO_STRIPE_ADDITIONAL_USERS_PRICE_ID")
-			sub, found := inviterPlans[priceID]
-			if !found {
-				return nil, fmt.Errorf("Subscription with price ID %v not found", priceID)
-			}
-			if sub.Quantity != int64(opts.xthInvitee) {
-				return nil, fmt.Errorf("Subscription quantity '%v' should match invitee number '%v", sub.Quantity, opts.xthInvitee)
-			}
-		} else {
-			planID := os.Getenv("MICRO_STRIPE_PLAN_ID")
-			sub, found := userPlans[planID]
-			if !found {
-				return nil, fmt.Errorf("Subscription with plan ID %v not found", planID)
-			}
-			if sub.Quantity != 1 {
-				return nil, fmt.Errorf("Subscription quantity should be 1 but is %v", sub.Quantity)
-			}
-		}
-		t.Logf("Subscription checked")
-		return nil, nil
-	}, 50*time.Second)
-
+			t.Logf("Subscription checked")
+			return nil, nil
+		}, 50*time.Second)
+	}
 	test.Try("Check customer marked active", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "customers", "read", "--email="+email).CombinedOutput()
 		if err != nil {
@@ -1257,4 +1279,156 @@ func testSubCancellation(t *test.T) {
 		t.Fatalf("Error, we've reassigned an old customerID %s", ns)
 	}
 
+}
+
+func TestFreeSignupFlow(t *testing.T) {
+	test.TrySuite(t, testFreeSignupFlow, retryCount)
+}
+
+func testFreeSignupFlow(t *test.T) {
+	t.Parallel()
+
+	serv := test.NewServer(t, test.WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	setupFreeM3Tests(serv, t)
+
+	// flags
+	envFlag := "-e=" + serv.Env()
+	confFlag := "-c=" + serv.Command().Config
+
+	email := testEmail(0)
+
+	time.Sleep(5 * time.Second)
+
+	cmd := exec.Command("micro", envFlag, confFlag, "signup")
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		outp, err := cmd.CombinedOutput()
+		if err == nil {
+			t.Fatalf("Expected an error for login but got none")
+		} else if !strings.Contains(string(outp), "You have not been invited to the service") {
+			t.Fatal(string(outp))
+		}
+		wg.Done()
+	}()
+	go func() {
+		time.Sleep(20 * time.Second)
+		cmd.Process.Kill()
+	}()
+	_, err = io.WriteString(stdin, email+"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wg.Wait()
+	if t.Failed() {
+		return
+	}
+
+	test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+email)
+	}, 5*time.Second)
+
+	// Log out of the admin account to start testing signups
+	logout(serv, t)
+
+	password := "PassWord1@"
+	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false, freeTier: true})
+	if t.Failed() {
+		return
+	}
+	t.Logf("Signup 1 complete %s", time.Now())
+	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	ns := strings.TrimSpace(string(outp))
+
+	if strings.Count(ns, "-") != 2 {
+		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
+		return
+	}
+
+	t.T().Logf("Namespace set is %v", ns)
+
+	test.Try("Find account", t, func() ([]byte, error) {
+		outp, err = serv.Command().Exec("auth", "list", "accounts")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), email) {
+			return outp, errors.New("Account not found")
+		}
+		if strings.Contains(string(outp), "default") {
+			return outp, errors.New("Default account should not be present in the namespace")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	newEmail := testEmail(1)
+	newEmail2 := testEmail(2)
+
+	test.Login(serv, t, email, password)
+
+	if err := test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace="+ns)
+	}, 7*time.Second); err != nil {
+		t.Fatal(err)
+		return
+	}
+	if err := test.Try("Send invite", t, func() ([]byte, error) {
+		return serv.Command().Exec("invite", "user", "--email="+newEmail2, "--namespace="+ns)
+	}, 7*time.Second); err != nil {
+		t.Fatal(err)
+		return
+	}
+
+	logout(serv, t)
+
+	signup(serv, t, newEmail, password, signupOptions{inviterEmail: email, xthInvitee: 1, isInvitedToNamespace: true, shouldJoin: true, freeTier: true})
+	if t.Failed() {
+		return
+	}
+	t.Logf("Signup 2 complete %s", time.Now())
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	newNs := strings.TrimSpace(string(outp))
+	if newNs != ns {
+		t.Fatalf("Namespaces should match, old: %v, new: %v", ns, newNs)
+		return
+	}
+
+	t.T().Logf("Namespace joined: %v", string(outp))
+
+	logout(serv, t)
+
+	signup(serv, t, newEmail2, password, signupOptions{inviterEmail: email, xthInvitee: 2, isInvitedToNamespace: true, shouldJoin: true, freeTier: true})
+	t.Logf("Signup 3 complete %s", time.Now())
+	if t.Failed() {
+		return
+	}
+	outp, err = serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err != nil {
+		t.Fatalf("Error getting namespace: %v", err)
+		return
+	}
+	newNs = strings.TrimSpace(string(outp))
+	if newNs != ns {
+		t.Fatalf("Namespaces should match, old: %v, new: %v", ns, newNs)
+		return
+	}
+
+	t.T().Logf("Namespace joined: %v", string(outp))
 }
