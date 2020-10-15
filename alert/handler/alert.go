@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"net/url"
 
-	log "github.com/micro/go-micro/v3/logger"
+	alert "github.com/m3o/services/alert/proto/alert"
 	"github.com/micro/micro/v3/service/config"
+	log "github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 
 	"github.com/google/uuid"
-	alert "github.com/m3o/services/alert/proto/alert"
 	"github.com/slack-go/slack"
 )
 

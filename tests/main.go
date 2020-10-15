@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/m3o/services/tests/handler"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 func main() {

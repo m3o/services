@@ -4,11 +4,8 @@ go 1.14
 
 require (
 	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
-	github.com/coreos/etcd v3.3.25+incompatible
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
-	github.com/gosimple/slug v1.9.0 // indirect
-	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a
 	github.com/micro/micro/v3 v3.0.0-beta.6.0.20201015084013-5adee1bbfb5e
 	github.com/patrickmn/go-cache v2.1.0+incompatible

@@ -9,11 +9,11 @@ import (
 
 	eproto "github.com/m3o/services/emails/proto"
 	pb "github.com/m3o/services/invite/proto"
-	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	mconfig "github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 )

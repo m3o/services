@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	mauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 	mruntime "github.com/micro/micro/v3/service/runtime"
 )
 
