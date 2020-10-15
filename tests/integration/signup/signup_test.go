@@ -109,7 +109,7 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 	}{
 		{envVar: "M3O_INVITE_SVC", deflt: "../../../invite"},
 		{envVar: "M3O_SIGNUP_SVC", deflt: "../../../signup"},
-		{envVar: "M3O_STRIPE_SVC", deflt: "../../../payments/provider/stripe"},
+		{envVar: "M3O_STRIPE_SVC", deflt: "../../../payments"},
 		{envVar: "M3O_CUSTOMERS_SVC", deflt: "../../../customers"},
 		{envVar: "M3O_NAMESPACES_SVC", deflt: "../../../namespaces"},
 		{envVar: "M3O_SUBSCRIPTIONS_SVC", deflt: "../../../subscriptions"},
@@ -130,7 +130,7 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 		if err != nil {
 			return outp, err
 		}
-		list := []string{"stripe", "signup", "invite", "emails", "customers"}
+		list := []string{"payment", "signup", "invite", "emails", "customers"}
 		logOutp := []byte{}
 		fail := false
 		for _, s := range list {
