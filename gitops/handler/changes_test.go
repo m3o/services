@@ -33,7 +33,7 @@ func TestDetermineChanges(t *testing.T) {
 			Name: "ServiceDeleted",
 			Commits: []commit{
 				{
-					Deleted: []string{
+					Removed: []string{
 						"foo/main.go",
 						"foo/handler/handler.go",
 						"foo/api/main.go",
@@ -70,9 +70,7 @@ func TestDetermineChanges(t *testing.T) {
 						"bar/main.go",
 						"bar/handler/handler.go",
 					},
-					Deleted: []string{
-						"bar/api/main.go",
-					},
+					Removed: []string{"bar/api/main.go"},
 				},
 			},
 			Result: map[string]changeType{
