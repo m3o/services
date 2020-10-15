@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	pb "github.com/m3o/services/platform/infrastructure/proto"
+	pb "github.com/m3o/services/infrastructure/proto"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	k8s "github.com/scaleway/scaleway-sdk-go/api/k8s/v1beta4"

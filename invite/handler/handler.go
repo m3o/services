@@ -7,16 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
-
 	eproto "github.com/m3o/services/emails/proto"
 	pb "github.com/m3o/services/invite/proto"
 	"github.com/micro/go-micro/v3/errors"
-	logger "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	mconfig "github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
@@ -115,7 +113,7 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 	if !req.Resend {
 		// in normal circumstances we want to check in case we've sent an invite already
 		recs, err := mstore.Read(req.Email)
-		if err != nil && err != store.ErrNotFound {
+		if err != nil && err != mstore.ErrNotFound {
 			return err
 		}
 		if len(recs) > 0 {
@@ -137,7 +135,7 @@ func (h *Invite) User(ctx context.Context, req *pb.CreateRequest, rsp *pb.Create
 		Created:    time.Now().Unix(),
 	})
 	// write the email to the store
-	err := mstore.Write(&store.Record{
+	err := mstore.Write(&mstore.Record{
 		Key:   req.Email,
 		Value: b,
 	})
@@ -171,7 +169,7 @@ func (e *Invite) sendEmail(ctx context.Context, email, token string) error {
 // -> { forbidden }
 func (h *Invite) canInvite(userID string, namespaces []string) error {
 	userCounts, err := mstore.Read("", mstore.Prefix(path.Join(userCountPrefix, userID)))
-	if err != nil && err != store.ErrNotFound {
+	if err != nil && err != mstore.ErrNotFound {
 		return errors.InternalServerError(h.name, "can't read user invite count")
 	}
 	if len(userCounts) >= maxUserInvites {
@@ -183,7 +181,7 @@ func (h *Invite) canInvite(userID string, namespaces []string) error {
 	}
 
 	namespaceCounts, err := mstore.Read("", mstore.Prefix(path.Join(namespaceCountPrefix, userID)))
-	if err != nil && err != store.ErrNotFound {
+	if err != nil && err != mstore.ErrNotFound {
 		return errors.BadRequest(h.name, "can''t read namespace invite count")
 	}
 	if len(namespaceCounts) >= maxNamespaceInvites {
@@ -194,7 +192,7 @@ func (h *Invite) canInvite(userID string, namespaces []string) error {
 }
 
 func (h *Invite) increaseInviteCount(userID string, namespaces []string, emailToBeInvited string) error {
-	err := mstore.Write(&store.Record{
+	err := mstore.Write(&mstore.Record{
 		Key:   path.Join(userCountPrefix, userID, emailToBeInvited),
 		Value: nil,
 	})
@@ -206,7 +204,7 @@ func (h *Invite) increaseInviteCount(userID string, namespaces []string, emailTo
 		return nil
 	}
 
-	err = mstore.Write(&store.Record{
+	err = mstore.Write(&mstore.Record{
 		Key:   path.Join(namespaceCountPrefix, namespaces[0], emailToBeInvited),
 		Value: nil,
 	})
@@ -228,7 +226,7 @@ func (h *Invite) Delete(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 
 	// soft delete by marking as deleted. Note, assumes email was present, doesn't error in case it was never created
 	b, _ := json.Marshal(invite{Email: req.Email, Deleted: true})
-	return mstore.Write(&store.Record{
+	return mstore.Write(&mstore.Record{
 		Key:   req.Email,
 		Value: b,
 	})
@@ -238,7 +236,7 @@ func (h *Invite) Delete(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 func (h *Invite) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
 	// check if the email exists in the store
 	values, err := mstore.Read(req.Email)
-	if err == store.ErrNotFound {
+	if err == mstore.ErrNotFound {
 		return errors.BadRequest(h.name, "invalid email")
 	} else if err != nil {
 		return err

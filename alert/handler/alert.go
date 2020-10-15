@@ -9,7 +9,6 @@ import (
 	"net/url"
 
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/config"
 	mstore "github.com/micro/micro/v3/service/store"
 
@@ -43,7 +42,7 @@ type conf struct {
 	GaPropertyID string `json:"ga_property_id"`
 }
 
-func NewAlert(store store.Store) *Alert {
+func NewAlert() *Alert {
 	c := conf{}
 	val, err := config.Get("micro.alert")
 	if err != nil {
@@ -150,7 +149,7 @@ func (e *Alert) saveEvent(ev *event) error {
 		return err
 	}
 
-	return mstore.Write(&store.Record{
+	return mstore.Write(&mstore.Record{
 		Key:   storePrefixEvents + ev.ID,
 		Value: bytes})
 }

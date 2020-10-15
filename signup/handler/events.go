@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	mstore "github.com/micro/micro/v3/service/store"
-
-	"github.com/micro/go-micro/v3/events"
-	"github.com/micro/go-micro/v3/logger"
 	mevents "github.com/micro/micro/v3/service/events"
+	"github.com/micro/micro/v3/service/logger"
+	mstore "github.com/micro/micro/v3/service/store"
 )
 
 type SignupEvent struct {
@@ -23,13 +21,13 @@ type SignupModel struct {
 }
 
 func (s *Signup) consumeEvents() {
-	var evs <-chan events.Event
+	var evs <-chan mevents.Event
 	start := time.Now()
 	for {
 		var err error
 		evs, err = mevents.Subscribe(signupTopic,
-			events.WithAutoAck(false, 30*time.Second),
-			events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+			mevents.WithAutoAck(false, 30*time.Second),
+			mevents.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 		if err == nil {
 			s.processSignupEvents(evs)
 			start = time.Now()
@@ -45,7 +43,7 @@ func (s *Signup) consumeEvents() {
 
 }
 
-func (s *Signup) processSignupEvents(ch <-chan events.Event) {
+func (s *Signup) processSignupEvents(ch <-chan mevents.Event) {
 	for ev := range ch {
 		sue := &SignupEvent{}
 		if err := json.Unmarshal(ev.Payload, sue); err != nil {

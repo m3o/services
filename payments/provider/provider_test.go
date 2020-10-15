@@ -13,6 +13,10 @@ import (
 
 type testprovider struct{}
 
+func (t testprovider) DeleteCustomer(ctx context.Context, request *pb.DeleteCustomerRequest, response *pb.DeleteCustomerResponse) error {
+	panic("implement me")
+}
+
 func (t testprovider) UpdateSubscription(ctx context.Context, request *pb.UpdateSubscriptionRequest, response *pb.UpdateSubscriptionResponse) error {
 	panic("implement me")
 }

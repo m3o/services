@@ -3,11 +3,9 @@ package provider
 import (
 	"errors"
 
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/registry"
-	mregistry "github.com/micro/micro/v3/service/registry"
-
 	pb "github.com/m3o/services/payments/provider/proto"
+	"github.com/micro/micro/v3/service/client"
+	mregistry "github.com/micro/micro/v3/service/registry"
 )
 
 // Provider is an alias type so clients don't need to also import the pb
@@ -31,7 +29,7 @@ func NewProvider(name string, c client.Client) (pb.ProviderService, error) {
 
 	// Check the service exists in the registry (ensuring we fail fast if not)
 	srvs, err := mregistry.DefaultRegistry.GetService(srvName)
-	if len(srvs) == 0 || err == registry.ErrNotFound {
+	if len(srvs) == 0 || err == mregistry.ErrNotFound {
 		return nil, ErrNotFound
 	} else if err != nil {
 		return nil, err

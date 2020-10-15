@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	pb "github.com/m3o/services/payments/provider/proto"
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	stripe "github.com/stripe/stripe-go/v71"
 )
 

@@ -6,11 +6,11 @@ import (
 	"fmt"
 
 	status "github.com/m3o/services/status/proto/status"
-	api "github.com/micro/go-micro/v3/api/proto"
-	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/errors"
+	api "github.com/micro/micro/v3/proto/api"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
+	goclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 var (

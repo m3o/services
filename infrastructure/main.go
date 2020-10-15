@@ -9,7 +9,7 @@ import (
 	"github.com/scaleway/scaleway-sdk-go/api/lb/v1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 
-	pb "github.com/m3o/services/platform/infrastructure/proto"
+	pb "github.com/m3o/services/infrastructure/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"

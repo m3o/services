@@ -6,9 +6,9 @@ import (
 	"io"
 
 	pb "github.com/m3o/services/api/client/proto/client"
-	"github.com/micro/go-micro/v3/client"
-	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/micro/v3/service/client"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 type Client struct {

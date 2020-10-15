@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/m3o/services/alert/handler"
-	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/store"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 func main() {
@@ -14,7 +13,7 @@ func main() {
 	)
 
 	// Register Handler
-	srv.Handle(handler.NewAlert(store.DefaultStore))
+	srv.Handle(handler.NewAlert())
 
 	// Run service
 	if err := srv.Run(); err != nil {

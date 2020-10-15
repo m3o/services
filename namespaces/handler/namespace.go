@@ -6,18 +6,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/service"
-
 	namespace "github.com/m3o/services/namespaces/proto"
 	plproto "github.com/m3o/services/platform/proto"
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/events"
-	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/store"
 	aproto "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/events"
 	mevents "github.com/micro/micro/v3/service/events"
+	log "github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 
 	"github.com/sethvargo/go-diceware/diceware"
@@ -119,7 +117,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	if err != nil {
 		return err
 	}
-	if err := mstore.Write(&store.Record{
+	if err := mstore.Write(&mstore.Record{
 		Key:   prefixNs + ns.ID,
 		Value: b,
 	}); err != nil {
@@ -127,7 +125,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	}
 	// index by owner
 	for _, owner := range ns.Owners {
-		if err := mstore.Write(&store.Record{
+		if err := mstore.Write(&mstore.Record{
 			Key:   prefixOwner + owner + "/" + ns.ID,
 			Value: b,
 		}); err != nil {
@@ -136,7 +134,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	}
 	// index by user
 	for _, user := range ns.Users {
-		if err := mstore.Write(&store.Record{
+		if err := mstore.Write(&mstore.Record{
 			Key:   prefixUser + user + "/" + ns.ID,
 			Value: b,
 		}); err != nil {

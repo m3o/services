@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/m3o/services/signup/handler"
-	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
 	mauth "github.com/micro/micro/v3/service/auth/client"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 func main() {

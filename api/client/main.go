@@ -4,9 +4,9 @@ import (
 	"github.com/m3o/services/api/client/handler"
 	client "github.com/m3o/services/api/client/proto/client"
 
-	"github.com/micro/go-micro/v3/api"
-	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/api"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 func main() {

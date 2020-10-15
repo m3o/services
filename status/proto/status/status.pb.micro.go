@@ -6,15 +6,15 @@ package api_status
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	proto1 "github.com/micro/go-micro/v3/api/proto"
+	api1 "github.com/micro/micro/v3/proto/api"
 	math "math"
 )
 
 import (
 	context "context"
-	api "github.com/micro/go-micro/v3/api"
-	client "github.com/micro/go-micro/v3/client"
-	server "github.com/micro/go-micro/v3/server"
+	api "github.com/micro/micro/v3/service/api"
+	client "github.com/micro/micro/v3/service/client"
+	server "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -43,7 +43,7 @@ func NewStatusEndpoints() []*api.Endpoint {
 // Client API for Status service
 
 type StatusService interface {
-	Call(ctx context.Context, in *proto1.Request, opts ...client.CallOption) (*proto1.Response, error)
+	Call(ctx context.Context, in *api1.Request, opts ...client.CallOption) (*api1.Response, error)
 }
 
 type statusService struct {
@@ -58,9 +58,9 @@ func NewStatusService(name string, c client.Client) StatusService {
 	}
 }
 
-func (c *statusService) Call(ctx context.Context, in *proto1.Request, opts ...client.CallOption) (*proto1.Response, error) {
+func (c *statusService) Call(ctx context.Context, in *api1.Request, opts ...client.CallOption) (*api1.Response, error) {
 	req := c.c.NewRequest(c.name, "Status.Call", in)
-	out := new(proto1.Response)
+	out := new(api1.Response)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -71,12 +71,12 @@ func (c *statusService) Call(ctx context.Context, in *proto1.Request, opts ...cl
 // Server API for Status service
 
 type StatusHandler interface {
-	Call(context.Context, *proto1.Request, *proto1.Response) error
+	Call(context.Context, *api1.Request, *api1.Response) error
 }
 
 func RegisterStatusHandler(s server.Server, hdlr StatusHandler, opts ...server.HandlerOption) error {
 	type status interface {
-		Call(ctx context.Context, in *proto1.Request, out *proto1.Response) error
+		Call(ctx context.Context, in *api1.Request, out *api1.Response) error
 	}
 	type Status struct {
 		status
@@ -89,6 +89,6 @@ type statusHandler struct {
 	StatusHandler
 }
 
-func (h *statusHandler) Call(ctx context.Context, in *proto1.Request, out *proto1.Response) error {
+func (h *statusHandler) Call(ctx context.Context, in *api1.Request, out *api1.Response) error {
 	return h.StatusHandler.Call(ctx, in, out)
 }

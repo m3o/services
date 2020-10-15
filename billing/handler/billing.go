@@ -12,11 +12,10 @@ import (
 	sproto "github.com/m3o/services/payments/provider/proto"
 	subproto "github.com/m3o/services/subscriptions/proto"
 	uproto "github.com/m3o/services/usage/proto"
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
 	merrors "github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/auth"
+	goclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	mconfig "github.com/micro/micro/v3/service/config"
 	log "github.com/micro/micro/v3/service/logger"
@@ -143,7 +142,7 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 	log.Infof("Received Billing.Updates request, listing with key '%v', limit '%v'", key, limit)
 
 	records, err := mstore.Read("", mstore.Prefix(key), mstore.Limit(uint(limit)), mstore.Offset(uint(req.Offset)))
-	if err != nil && err != store.ErrNotFound {
+	if err != nil && err != mstore.ErrNotFound {
 		return merrors.InternalServerError("billing.Updates", "Error listing store: %v", err)
 	}
 
@@ -395,21 +394,21 @@ func saveUpdate(record update) error {
 	record.Created = tim.Unix()
 	val, _ := json.Marshal(record)
 	month := tim.Format(monthFormat)
-	err := mstore.Write(&store.Record{
+	err := mstore.Write(&mstore.Record{
 		Key:   fmt.Sprintf("%v%v/%v", updatePrefix, month, record.Namespace),
 		Value: val,
 	})
 	if err != nil {
 		return err
 	}
-	err = mstore.Write(&store.Record{
+	err = mstore.Write(&mstore.Record{
 		Key:   record.ID,
 		Value: val,
 	})
 	if err != nil {
 		return err
 	}
-	return mstore.Write(&store.Record{
+	return mstore.Write(&mstore.Record{
 		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, month),
 		Value: val,
 	})

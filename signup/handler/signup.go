@@ -9,11 +9,9 @@ import (
 	"strings"
 	"time"
 
-	mevents "github.com/micro/micro/v3/service/events"
-
+	"github.com/google/uuid"
 	"github.com/patrickmn/go-cache"
 
-	"github.com/google/uuid"
 	aproto "github.com/m3o/services/alert/proto/alert"
 	cproto "github.com/m3o/services/customers/proto"
 	eproto "github.com/m3o/services/emails/proto"
@@ -22,12 +20,13 @@ import (
 	pproto "github.com/m3o/services/payments/provider/proto"
 	signup "github.com/m3o/services/signup/proto/signup"
 	sproto "github.com/m3o/services/subscriptions/proto"
-	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/client"
-	merrors "github.com/micro/go-micro/v3/errors"
-	logger "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	mconfig "github.com/micro/micro/v3/service/config"
+	merrors "github.com/micro/micro/v3/service/errors"
+	mevents "github.com/micro/micro/v3/service/events"
+	logger "github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 

@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 
 	"github.com/alexellis/hmac"
+
 	"github.com/micro/go-micro/v3/codec/bytes"
-	"github.com/micro/go-micro/v3/metadata"
-	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -58,7 +58,7 @@ func (g *Gitops) Webhook(ctx context.Context, req *bytes.Frame, rsp *WebhookResp
 	// create any new services and delete any removed ones
 	changes := determineChanges(payload.Commits)
 	for dir, cType := range changes {
-		srv := &gorun.Service{
+		srv := &runtime.Service{
 			Name:    filepath.Base(dir),
 			Version: "latest",
 			Source:  fmt.Sprintf("github.com/%v/%v", g.Repository, dir),
@@ -66,13 +66,13 @@ func (g *Gitops) Webhook(ctx context.Context, req *bytes.Frame, rsp *WebhookResp
 
 		switch cType {
 		case created:
-			if err := runtime.Create(srv, gorun.CreateNamespace("micro")); err != nil && err != gorun.ErrAlreadyExists {
+			if err := runtime.Create(srv, runtime.CreateNamespace("micro")); err != nil && err != runtime.ErrAlreadyExists {
 				logger.Errorf("Error creating service %v: %v", dir, err)
 			} else {
 				logger.Infof("Created service %v", srv.Name)
 			}
 		case deleted:
-			if err := runtime.Delete(srv, gorun.DeleteNamespace("micro")); err != nil {
+			if err := runtime.Delete(srv, runtime.DeleteNamespace("micro")); err != nil {
 				logger.Errorf("Error deleting service %v: %v", srv.Name, err)
 			} else {
 				logger.Infof("Deleted service %v", srv.Name)
@@ -81,7 +81,7 @@ func (g *Gitops) Webhook(ctx context.Context, req *bytes.Frame, rsp *WebhookResp
 	}
 
 	// update all other services
-	srvs, err := runtime.Read(gorun.ReadNamespace("micro"))
+	srvs, err := runtime.Read(runtime.ReadNamespace("micro"))
 	if err != nil {
 		logger.Errorf("Error reading services: %v", err)
 		return nil
@@ -100,7 +100,7 @@ func (g *Gitops) Webhook(ctx context.Context, req *bytes.Frame, rsp *WebhookResp
 			continue
 		}
 
-		if err := runtime.Update(srv, gorun.UpdateNamespace("micro")); err != nil {
+		if err := runtime.Update(srv, runtime.UpdateNamespace("micro")); err != nil {
 			logger.Errorf("Error updating service %v: %v", srv.Name, err)
 		} else {
 			logger.Infof("Updated service %v", srv.Name)

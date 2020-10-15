@@ -8,8 +8,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/m3o/services/platform/gitops/handler"
-	gostore "github.com/micro/go-micro/v3/store"
+	"github.com/m3o/services/gitops/handler"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
@@ -97,7 +96,7 @@ func webhookExists() bool {
 	case nil:
 		// the record exists
 		return true
-	case gostore.ErrNotFound:
+	case store.ErrNotFound:
 		// the record does not exit
 		return false
 	default:
@@ -147,7 +146,7 @@ func registerWebhook() {
 	}
 
 	// write the secret to the store
-	record := &gostore.Record{
+	record := &store.Record{
 		Key:   Repository,
 		Value: []byte(secret),
 	}

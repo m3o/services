@@ -6,21 +6,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
-
-	nsproto "github.com/m3o/services/namespaces/proto"
-
-	"github.com/micro/micro/v3/service"
-
 	"github.com/google/uuid"
 
 	customer "github.com/m3o/services/customers/proto"
-	"github.com/micro/go-micro/v3/errors"
-	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/store"
+	nsproto "github.com/m3o/services/namespaces/proto"
 	aproto "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 	mevents "github.com/micro/micro/v3/service/events"
+	log "github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 
@@ -211,14 +207,14 @@ func writeCustomer(cust *CustomerModel) error {
 	}
 	cust.Updated = now
 	b, _ := json.Marshal(*cust)
-	if err := mstore.Write(&store.Record{
+	if err := mstore.Write(&mstore.Record{
 		Key:   prefixCustomer + cust.ID,
 		Value: b,
 	}); err != nil {
 		return err
 	}
 
-	if err := mstore.Write(&store.Record{
+	if err := mstore.Write(&mstore.Record{
 		Key:   prefixCustomerEmail + cust.Email,
 		Value: b,
 	}); err != nil {

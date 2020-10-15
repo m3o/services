@@ -11,12 +11,12 @@ import (
 
 	"github.com/google/uuid"
 	nsproto "github.com/m3o/services/namespaces/proto"
-	"github.com/micro/go-micro/v3/client"
-	merrors "github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/proto/auth"
 	rproto "github.com/micro/micro/v3/proto/runtime"
+	"github.com/micro/micro/v3/service/client"
+	merrors "github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 	mstore "github.com/micro/micro/v3/service/store"
 )
 

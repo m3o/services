@@ -6,9 +6,7 @@ import (
 	"time"
 
 	mevents "github.com/micro/micro/v3/service/events"
-
-	"github.com/micro/go-micro/v3/events"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 type CustomerEvent struct {
@@ -38,13 +36,13 @@ type SubscriptionModel struct {
 }
 
 func (c *Customers) consumeEvents() {
-	var evs <-chan events.Event
+	var evs <-chan mevents.Event
 	start := time.Now()
 	for {
 		var err error
 		evs, err = mevents.Subscribe("subscriptions",
-			events.WithAutoAck(false, 30*time.Second),
-			events.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+			mevents.WithAutoAck(false, 30*time.Second),
+			mevents.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 		if err == nil {
 			c.processSubscriptionEvents(evs)
 			start = time.Now()
@@ -60,7 +58,7 @@ func (c *Customers) consumeEvents() {
 
 }
 
-func (c *Customers) processSubscriptionEvents(ch <-chan events.Event) {
+func (c *Customers) processSubscriptionEvents(ch <-chan mevents.Event) {
 	for ev := range ch {
 		sub := &SubscriptionEvent{}
 		if err := json.Unmarshal(ev.Payload, sub); err != nil {
