@@ -873,7 +873,11 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 			return
 		}
 		if !opts.shouldJoin {
-			if !strings.Contains(string(outp), "Please complete signup at") {
+			if !opts.freeTier && !strings.Contains(string(outp), "Please complete signup at") {
+				t.Fatal(string(outp))
+				return
+			}
+			if opts.freeTier && !strings.Contains(string(outp), "Finishing signup for") {
 				t.Fatal(string(outp))
 				return
 			}
