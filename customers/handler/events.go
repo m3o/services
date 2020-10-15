@@ -35,27 +35,63 @@ type SubscriptionModel struct {
 	ParentSubscriptionID string
 }
 
-func (c *Customers) consumeEvents() {
-	var evs <-chan mevents.Event
-	start := time.Now()
-	for {
-		var err error
-		evs, err = mevents.Subscribe("subscriptions",
-			mevents.WithAutoAck(false, 30*time.Second),
-			mevents.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-		if err == nil {
-			c.processSubscriptionEvents(evs)
-			start = time.Now()
-			continue // if for some reason evs closes we loop and try subscribing again
-		}
-		// TODO fix me
-		if time.Since(start) > 2*time.Minute {
-			logger.Fatalf("Failed to subscribe to subscriptions topic %s", err)
-		}
-		logger.Warnf("Unable to subscribe to evs %s. Will retry in 20 secs", err)
-		time.Sleep(20 * time.Second)
-	}
+type SignupEvent struct {
+	Type   string
+	Signup SignupModel
+}
 
+type SignupModel struct {
+	Email      string
+	Namespace  string
+	CustomerID string
+}
+
+func (c *Customers) consumeEvents() {
+	processTopic := func(topic string, handler func(ch <-chan mevents.Event)) {
+		var evs <-chan mevents.Event
+		start := time.Now()
+		for {
+			var err error
+			evs, err = mevents.Subscribe(topic,
+				mevents.WithAutoAck(false, 30*time.Second),
+				mevents.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+			if err == nil {
+				handler(evs)
+				start = time.Now()
+				continue // if for some reason evs closes we loop and try subscribing again
+			}
+			// TODO fix me
+			if time.Since(start) > 2*time.Minute {
+				logger.Fatalf("Failed to subscribe to topic %s: %s", topic, err)
+			}
+			logger.Warnf("Unable to subscribe to topic %s. Will retry in 20 secs. %s", topic, err)
+			time.Sleep(20 * time.Second)
+		}
+	}
+	go processTopic("subscriptions", c.processSubscriptionEvents)
+	go processTopic("signup", c.processSignupEvents)
+
+}
+
+func (c *Customers) processSignupEvents(ch <-chan mevents.Event) {
+	for ev := range ch {
+		se := &SignupEvent{}
+		if err := json.Unmarshal(ev.Payload, se); err != nil {
+			ev.Nack()
+			logger.Errorf("Error unmarshalling signup event: $s", err)
+			continue
+		}
+		switch se.Type {
+		case "signup.completed":
+			if _, err := updateCustomerStatusByID(se.Signup.CustomerID, statusActive); err != nil {
+				ev.Nack()
+				logger.Errorf("Error updating customers status for customer %s. %s", se.Signup.CustomerID, err)
+				continue
+			}
+			logger.Infof("Updated customer status to active from signup.completed event %+v", se)
+		}
+		ev.Ack()
+	}
 }
 
 func (c *Customers) processSubscriptionEvents(ch <-chan mevents.Event) {
