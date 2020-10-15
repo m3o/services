@@ -41,7 +41,7 @@ func (h *Provider) CreateSubscription(ctx context.Context, req *pb.CreateSubscri
 	switch err.(*stripe.Error).Code {
 	case stripe.ErrorCodeParameterInvalidEmpty:
 		log.Errorf("Error creating subscription: %v", err)
-		return errors.BadRequest("payment.stripe", "missing arguments")
+		return errors.BadRequest("payment", "missing arguments")
 	default:
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
 	}
@@ -89,7 +89,7 @@ func (h *Provider) UpdateSubscription(ctx context.Context, req *pb.UpdateSubscri
 	switch err.(*stripe.Error).Code {
 	case stripe.ErrorCodeParameterInvalidEmpty:
 		log.Errorf("Error updating subscription: %v", err)
-		return errors.BadRequest("payment.stripe", "missing arguments")
+		return errors.BadRequest("payment", "missing arguments")
 	default:
 		return errors.InternalServerError(h.name, "Unexpected stripe error: %v", err)
 	}

@@ -13,5 +13,5 @@ $ curl localhost:8080/status/call
 The set of services to monitor can be loaded from config under the path `micro.status.services`. To set the list you can use the following call
 
 ```
-micro call go.micro.config Config.Create '{"change":{"namespace":"micro","path":"micro.status.services","changeSet":{"format":"json","data":"go.micro.api,go.micro.auth,go.micro.broker,go.micro.config,go.micro.debug,go.micro.network,go.micro.proxy,go.micro.registry,go.micro.runtime,go.micro.server,go.micro.status,go.micro.store,go.micro.service.signup,go.micro.service.kubernetes,go.micro.service.invite,go.micro.service.payment.stripe"}}}'
+micro call go.micro.config Config.Create '{"change":{"namespace":"micro","path":"micro.status.services","changeSet":{"format":"json","data":"go.micro.api,go.micro.auth,go.micro.broker,go.micro.config,go.micro.debug,go.micro.network,go.micro.proxy,go.micro.registry,go.micro.runtime,go.micro.server,go.micro.status,go.micro.store,go.micro.service.signup,go.micro.service.kubernetes,go.micro.service.invite,go.micro.service.payment"}}}'
 ```

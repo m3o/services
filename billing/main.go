@@ -21,7 +21,7 @@ func main() {
 	// Register handler
 	srv.Handle(handler.NewBilling(
 		nsproto.NewNamespacesService("namespaces", srv.Client()),
-		pproto.NewProviderService("payment.stripe", srv.Client()),
+		pproto.NewProviderService("payment", srv.Client()),
 		uproto.NewUsageService("usage", srv.Client()),
 		subproto.NewSubscriptionsService("subscriptions", srv.Client()),
 	))

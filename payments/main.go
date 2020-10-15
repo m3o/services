@@ -1,8 +1,7 @@
 package main
 
 import (
-	"github.com/m3o/services/payments/provider"
-	"github.com/m3o/services/payments/provider/stripe/handler"
+	"github.com/m3o/services/payments/handler"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 )
@@ -10,7 +9,7 @@ import (
 func main() {
 	// Setup the service
 	srv := service.New(
-		service.Name(provider.ServicePrefix + "stripe"),
+		service.Name("payment"),
 	)
 
 	// Register the provider

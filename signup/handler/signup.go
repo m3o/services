@@ -104,7 +104,7 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		customerService:     cproto.NewCustomersService("customers", srv.Client()),
 		namespaceService:    nproto.NewNamespacesService("namespaces", srv.Client()),
 		subscriptionService: sproto.NewSubscriptionsService("subscriptions", srv.Client()),
-		paymentService:      pproto.NewProviderService("payment.stripe", srv.Client()),
+		paymentService:      pproto.NewProviderService("payment", srv.Client()),
 		emailService:        eproto.NewEmailsService("emails", srv.Client()),
 		auth:                auth,
 		config:              c,
