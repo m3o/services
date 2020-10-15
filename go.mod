@@ -6,8 +6,8 @@ require (
 	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
-	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201007113728-c701f96a09da
-	github.com/micro/micro/v3 v3.0.0-beta.5.0.20201002112013-43399372bd3b
+	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a
+	github.com/micro/micro/v3 v3.0.0-beta.6.0.20201013144556-904783c05c16
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron v1.2.0
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.6
