@@ -5,16 +5,16 @@ import (
 	"context"
 	"io"
 
-	pb "github.com/micro/micro/v3/proto/runtime/build"
+	pb "github.com/micro/micro/v3/proto/build"
+	"github.com/micro/micro/v3/service/build"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/runtime/builder"
 )
 
 const bufferSize = 100
 
-// Handler implements the builder handler interface
+// Handler implements the build handler interface
 type Handler struct {
-	Builder builder.Builder
+	Builder build.Builder
 }
 
 // Build source
@@ -46,16 +46,16 @@ func (h *Handler) Build(ctx context.Context, stream pb.Build_BuildStream) error 
 
 	// ensure the source was sent over the stream
 	if buf == nil {
-		return errors.BadRequest("builder.Build", "No source was sent")
+		return errors.BadRequest("build.Build", "No source was sent")
 	}
 
 	// parse the options
-	var options []builder.Option
+	var options []build.Option
 	if len(opts.Archive) > 0 {
-		options = append(options, builder.Archive(opts.Archive))
+		options = append(options, build.Archive(opts.Archive))
 	}
 	if len(opts.Entrypoint) > 0 {
-		options = append(options, builder.Entrypoint(opts.Entrypoint))
+		options = append(options, build.Entrypoint(opts.Entrypoint))
 	}
 
 	// run the builer

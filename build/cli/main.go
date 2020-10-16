@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/micro/micro/v3/service/runtime/builder"
-	"github.com/micro/micro/v3/service/runtime/builder/client"
+	"github.com/micro/micro/v3/service/build"
+	"github.com/micro/micro/v3/service/build/client"
 )
 
 const testDir = "test"
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// build the source using the client
-	res, err := client.Build(buf, builder.Archive("zip"))
+	res, err := client.Build(buf, build.Archive("zip"))
 	if err != nil {
 		log.Fatalf("Error building source: %v", err)
 	}

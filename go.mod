@@ -4,10 +4,10 @@ go 1.14
 
 require (
 	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.3
-	github.com/micro/micro/v3 v3.0.0-beta.6.0.20201015084013-5adee1bbfb5e
+	github.com/micro/micro/v3 v3.0.0-beta.6.0.20201016121622-09d99cd77993
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron v1.2.0
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.6
