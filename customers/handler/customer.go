@@ -80,7 +80,7 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 	existingCust, err := readCustomerByEmail(email)
 	if err != nil {
 		merr, ok := err.(*errors.Error)
-		if !ok || merr.Id != "customers.read.notfound" {
+		if !ok || !strings.Contains(merr.Detail, "not found") {
 			return err
 		}
 		// not seen before so let's mint a new customer object
