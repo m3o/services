@@ -75,11 +75,29 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 	if strings.TrimSpace(email) == "" {
 		return errors.BadRequest("customers.create", "Email is required")
 	}
-	cust := &CustomerModel{
-		ID:     uuid.New().String(),
-		Status: statusUnverified,
-		Email:  email,
+	// have we seen this before?
+	var cust *CustomerModel
+	existingCust, err := readCustomerByEmail(email)
+	if err != nil {
+		merr, ok := err.(*errors.Error)
+		if !ok || merr.Id != "customers.read.notfound" {
+			return err
+		}
+		// not seen before so let's mint a new customer object
+		cust = &CustomerModel{
+			ID:     uuid.New().String(),
+			Status: statusUnverified,
+			Email:  email,
+		}
+	} else {
+		if existingCust.Status == statusUnverified {
+			// idempotency
+			cust = existingCust
+		} else {
+			return errors.BadRequest("customers.create.exists", "Customer with this email already exists")
+		}
 	}
+
 	if err := writeCustomer(cust); err != nil {
 		return err
 	}

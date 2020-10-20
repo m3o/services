@@ -180,6 +180,10 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	}, client.WithAuthToken())
 	if err != nil {
 		logger.Error(err)
+		merr, ok := err.(*merrors.Error)
+		if ok && merr.Id == "customers.create.exists" {
+			return merrors.BadRequest("signup", "Customer with this email address already exists")
+		}
 		return merrors.InternalServerError("signup.SendVerificationEmail", internalErrorMsg)
 	}
 
