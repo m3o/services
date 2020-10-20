@@ -39,6 +39,7 @@ type event struct {
 type conf struct {
 	SlackToken   string `json:"slack_token"`
 	SlackEnabled bool   `json:"slack_enabled"`
+	SlackChannel string `json:"slack_channel"`
 	GaPropertyID string `json:"ga_property_id"`
 }
 
@@ -59,6 +60,9 @@ func NewAlert() *Alert {
 		log.Errorf("Google Analytics key (property ID) is missing")
 	}
 	log.Infof("Slack enabled: %v", c.SlackEnabled)
+	if len(c.SlackChannel) == 0 {
+		c.SlackChannel = "alerts"
+	}
 
 	return &Alert{
 		slackClient: slack.New(c.SlackToken),
@@ -89,14 +93,14 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 	if err != nil {
 		log.Warnf("Error sending event to google analytics: %v", err)
 	}
-	if e.config.SlackEnabled {
+	if e.config.SlackEnabled && req.Event.Action != "success" { // don't care about success actions right now
 		jsond, err := json.MarshalIndent(req.Event, "", "   ")
 		if err != nil {
 			return err
 		}
 		msg := fmt.Sprintf("Event received:\n```\n%v\n```", string(jsond))
 		// TODO make this channel configurable
-		_, _, _, err = e.slackClient.SendMessage("alerts", slack.MsgOptionUsername("Alert Service"), slack.MsgOptionText(msg, false))
+		_, _, _, err = e.slackClient.SendMessage(e.config.SlackChannel, slack.MsgOptionUsername("Alert Service"), slack.MsgOptionText(msg, false))
 		if err != nil {
 			return err
 		}
