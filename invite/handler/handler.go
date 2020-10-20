@@ -41,8 +41,9 @@ type sendgridConfig struct {
 }
 
 type inviteConfig struct {
-	EmailFrom string         `json:"email_from"`
-	Sendgrid  sendgridConfig `json:"sendgrid"`
+	EmailFrom  string         `json:"email_from"`
+	Sendgrid   sendgridConfig `json:"sendgrid"`
+	InviteOnly bool           `json:"invite_only"`
 }
 
 // New returns an initialised handler
@@ -237,7 +238,10 @@ func (h *Invite) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.
 	// check if the email exists in the store
 	values, err := mstore.Read(req.Email)
 	if err == mstore.ErrNotFound {
-		return errors.BadRequest(h.name, "invalid email")
+		if h.config.InviteOnly {
+			return errors.BadRequest(h.name, "invalid email")
+		}
+		return nil
 	} else if err != nil {
 		return err
 	}
