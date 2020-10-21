@@ -196,7 +196,7 @@ func logout(serv test.Server, t *test.T) {
 }
 
 func testSignupFlow(t *test.T) {
-	//t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -1290,7 +1290,7 @@ func TestFreeSignupFlow(t *testing.T) {
 }
 
 func testFreeSignupFlow(t *test.T) {
-	//t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
