@@ -648,7 +648,7 @@ func testServicesSubscription(t *test.T) {
 	serv.Command().Exec("run", "github.com/micro/services/helloworld")
 	serv.Command().Exec("run", "github.com/micro/services/blog/posts")
 	serv.Command().Exec("run", "github.com/micro/services/blog/tags")
-	serv.Command().Exec("run", "github.com/micro/services/pubsub")
+	serv.Command().Exec("run", "github.com/micro/services/test/pubsub")
 
 	test.Try("Wait for services", t, func() ([]byte, error) {
 		outp, err := serv.Command().Exec("status")
