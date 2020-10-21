@@ -36,11 +36,16 @@ type event struct {
 	Metadata map[string]string `json:"metadata"`
 }
 
+type slackConf struct {
+	Token    string `json:"token"`
+	Enabled  bool   `json:"enabled"`
+	Channel  string `json:"channel"`
+	Username string `json:"user_name"`
+}
+
 type conf struct {
-	SlackToken   string `json:"slack_token"`
-	SlackEnabled bool   `json:"slack_enabled"`
-	SlackChannel string `json:"slack_channel"`
-	GaPropertyID string `json:"ga_property_id"`
+	Slack        slackConf `json:"slack"`
+	GaPropertyID string    `json:"ga_property_id"`
 }
 
 func NewAlert() *Alert {
@@ -53,19 +58,22 @@ func NewAlert() *Alert {
 	if err != nil {
 		log.Warnf("Error scanning config: %v", err)
 	}
-	if c.SlackEnabled && len(c.SlackToken) == 0 {
+	if c.Slack.Enabled && len(c.Slack.Token) == 0 {
 		log.Errorf("Slack token missing")
 	}
 	if len(c.GaPropertyID) == 0 {
 		log.Errorf("Google Analytics key (property ID) is missing")
 	}
-	log.Infof("Slack enabled: %v", c.SlackEnabled)
-	if len(c.SlackChannel) == 0 {
-		c.SlackChannel = "alerts"
+	log.Infof("Slack enabled: %v", c.Slack.Enabled)
+	if len(c.Slack.Channel) == 0 {
+		c.Slack.Channel = "alerts"
+	}
+	if len(c.Slack.Username) == 0 {
+		c.Slack.Username = "Alert Service"
 	}
 
 	return &Alert{
-		slackClient: slack.New(c.SlackToken),
+		slackClient: slack.New(c.Slack.Token),
 		config:      c,
 	}
 }
@@ -93,14 +101,14 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 	if err != nil {
 		log.Warnf("Error sending event to google analytics: %v", err)
 	}
-	if e.config.SlackEnabled && req.Event.Action != "success" { // don't care about success actions right now
+	if e.config.Slack.Enabled && req.Event.Action != "success" { // don't care about success actions right now
 		jsond, err := json.MarshalIndent(req.Event, "", "   ")
 		if err != nil {
 			return err
 		}
 		msg := fmt.Sprintf("Event received:\n```\n%v\n```", string(jsond))
 		// TODO make this channel configurable
-		_, _, _, err = e.slackClient.SendMessage(e.config.SlackChannel, slack.MsgOptionUsername("Alert Service"), slack.MsgOptionText(msg, false))
+		_, _, _, err = e.slackClient.SendMessage(e.config.Slack.Channel, slack.MsgOptionUsername(e.config.Slack.Username), slack.MsgOptionText(msg, false))
 		if err != nil {
 			return err
 		}
