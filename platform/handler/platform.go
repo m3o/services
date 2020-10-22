@@ -62,8 +62,22 @@ func (k *Platform) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceR
 	return err
 }
 
-// DeleteNamespace deletes a namespace, as well as its default network policy
+// DeleteNamespace deletes a namespace, as well as anything inside it (services, network policies, etc)
 func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
+	// kill all the services
+	rrsp, err := k.runtime.Read(ctx, &rproto.ReadRequest{Options: &rproto.ReadOptions{Namespace: req.Name}})
+	if err != nil {
+		return err
+	}
+	for _, s := range rrsp.Services {
+		k.runtime.Delete(ctx, &rproto.DeleteRequest{
+			Resource: &rproto.Resource{
+				Service: s,
+			},
+			Options: &rproto.DeleteOptions{Namespace: req.Name},
+		})
+
+	}
 
 	// networkpolicy (ignoring any error)
 	k.runtime.Delete(ctx, &rproto.DeleteRequest{
@@ -80,7 +94,7 @@ func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceR
 	})
 
 	// namespace
-	_, err := k.runtime.Delete(ctx, &rproto.DeleteRequest{
+	_, err = k.runtime.Delete(ctx, &rproto.DeleteRequest{
 		Resource: &rproto.Resource{
 			Namespace: &rproto.Namespace{
 				Name: req.Name,

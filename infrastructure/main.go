@@ -1,9 +1,12 @@
 package main
 
 import (
+	nsproto "github.com/m3o/services/namespaces/proto"
 	"github.com/robfig/cron"
 	"github.com/slack-go/slack"
 
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	k8s "github.com/scaleway/scaleway-sdk-go/api/k8s/v1beta4"
 	"github.com/scaleway/scaleway-sdk-go/api/lb/v1"
@@ -30,6 +33,9 @@ var (
 
 	// slackbot client
 	slackbot *slack.Client
+
+	s3Client  *minio.Client
+	nsService nsproto.NamespacesService
 )
 
 func main() {
@@ -50,19 +56,33 @@ func main() {
 	}
 	slackbot = slack.New(slackToken)
 
+	accessKey := getConfig("access-key")
+	secretKey := getConfig("secret-key")
 	// Create a Scaleway client
 	client, err := scw.NewClient(
 		scw.WithDefaultOrganizationID(getConfig("org-id")),
-		scw.WithAuth(getConfig("access-key"), getConfig("secret-key")),
+		scw.WithAuth(accessKey, secretKey),
 	)
 	if err != nil {
 		logger.Fatalf("Error creating scaleway client: %v", err)
+	}
+
+	minioOpts := &minio.Options{
+		Secure: true,
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+	}
+	s3client, err := minio.New(getConfig("s3-endpoint"), minioOpts)
+	if err != nil {
+		logger.Fatalf("Error creating object storage client: %v")
 	}
 
 	// Setup the clients
 	lbAPI = lb.NewAPI(client)
 	k8sAPI = k8s.NewAPI(client)
 	inAPI = instance.NewAPI(client)
+	s3Client = s3client
+
+	nsService = nsproto.NewNamespacesService("namespaces", svr.Client())
 
 	// Check infra daily and report any wastage
 	c := cron.New()

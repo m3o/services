@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
+
+	nsproto "github.com/m3o/services/namespaces/proto"
+
+	"github.com/minio/minio-go/v7"
 
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
@@ -123,6 +128,27 @@ svrLoop:
 
 		if _, ok := serverIDs[v.Server.ID]; !ok {
 			issues = append(issues, fmt.Sprintf("Volume #%v's belongs to Server %v which doesn't exist", v.ID, v.Server.ID))
+		}
+	}
+
+	rsp, err := nsService.List(context.TODO(), &nsproto.ListRequest{})
+	if err != nil {
+		logger.Errorf("Error listing namespaces: %v", err)
+		return
+	}
+	nsMap := map[string]bool{}
+	for _, ns := range rsp.Namespaces {
+		nsMap[ns.Id] = true
+	}
+
+	// check S3 buckets
+	for obj := range s3Client.ListObjects(context.TODO(), getConfig("s3-bucket-name"), minio.ListObjectsOptions{}) {
+		nm := strings.TrimSuffix(obj.Key, "/")
+		if nm == "micro" {
+			continue
+		}
+		if nsMap[nm] {
+			issues = append(issues, fmt.Sprintf("S3 bucket %s is not associated with a namespace", nm))
 		}
 	}
 
