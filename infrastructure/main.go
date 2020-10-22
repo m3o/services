@@ -1,7 +1,6 @@
 package main
 
 import (
-	nsproto "github.com/m3o/services/namespaces/proto"
 	"github.com/robfig/cron"
 	"github.com/slack-go/slack"
 
@@ -13,6 +12,8 @@ import (
 	"github.com/scaleway/scaleway-sdk-go/scw"
 
 	pb "github.com/m3o/services/infrastructure/proto"
+	nsproto "github.com/m3o/services/namespaces/proto"
+	storeproto "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
@@ -36,6 +37,7 @@ var (
 
 	s3Client  *minio.Client
 	nsService nsproto.NamespacesService
+	stService storeproto.StoreService
 )
 
 func main() {
@@ -83,6 +85,7 @@ func main() {
 	s3Client = s3client
 
 	nsService = nsproto.NewNamespacesService("namespaces", svr.Client())
+	stService = storeproto.NewStoreService("store", svr.Client())
 
 	// Check infra daily and report any wastage
 	c := cron.New()

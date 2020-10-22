@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	storeproto "github.com/micro/micro/v3/proto/store"
+
 	"github.com/micro/micro/v3/service/client"
 
 	nsproto "github.com/m3o/services/namespaces/proto"
@@ -167,6 +169,21 @@ svrLoop:
 		}
 		if !nsMap[nm] {
 			issues = append(issues, fmt.Sprintf("S3 object %s/%s is not associated with a namespace", bucketName, nm))
+		}
+	}
+
+	// check store databases
+	drsp, err := stService.Databases(context.TODO(), &storeproto.DatabasesRequest{}, client.WithAuthToken())
+	if err != nil {
+		logger.Errorf("Error listing databases: %v", err)
+		return nil, err
+	}
+	for _, db := range drsp.Databases {
+		if db == "micro" {
+			continue
+		}
+		if !nsMap[db] {
+			issues = append(issues, fmt.Sprintf("Database %s is not associated with a namespace", db))
 		}
 	}
 
