@@ -43,6 +43,7 @@ func NewInfrastructureEndpoints() []*api.Endpoint {
 
 type InfrastructureService interface {
 	Summary(ctx context.Context, in *SummaryRequest, opts ...client.CallOption) (*SummaryResponse, error)
+	Check(ctx context.Context, in *CheckRequest, opts ...client.CallOption) (*CheckResponse, error)
 }
 
 type infrastructureService struct {
@@ -67,15 +68,27 @@ func (c *infrastructureService) Summary(ctx context.Context, in *SummaryRequest,
 	return out, nil
 }
 
+func (c *infrastructureService) Check(ctx context.Context, in *CheckRequest, opts ...client.CallOption) (*CheckResponse, error) {
+	req := c.c.NewRequest(c.name, "Infrastructure.Check", in)
+	out := new(CheckResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Infrastructure service
 
 type InfrastructureHandler interface {
 	Summary(context.Context, *SummaryRequest, *SummaryResponse) error
+	Check(context.Context, *CheckRequest, *CheckResponse) error
 }
 
 func RegisterInfrastructureHandler(s server.Server, hdlr InfrastructureHandler, opts ...server.HandlerOption) error {
 	type infrastructure interface {
 		Summary(ctx context.Context, in *SummaryRequest, out *SummaryResponse) error
+		Check(ctx context.Context, in *CheckRequest, out *CheckResponse) error
 	}
 	type Infrastructure struct {
 		infrastructure
@@ -90,4 +103,8 @@ type infrastructureHandler struct {
 
 func (h *infrastructureHandler) Summary(ctx context.Context, in *SummaryRequest, out *SummaryResponse) error {
 	return h.InfrastructureHandler.Summary(ctx, in, out)
+}
+
+func (h *infrastructureHandler) Check(ctx context.Context, in *CheckRequest, out *CheckResponse) error {
+	return h.InfrastructureHandler.Check(ctx, in, out)
 }

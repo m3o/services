@@ -6,6 +6,7 @@ option go_package="github.com/m3o/services/platform/infrastructure";
 
 service Infrastructure {
   rpc Summary (SummaryRequest) returns (SummaryResponse) {};
+  rpc Check (CheckRequest) returns (CheckResponse) {};
 }
 
 message SummaryRequest {}
@@ -15,4 +16,10 @@ message SummaryResponse {
   int32 load_balancers = 2;
   int32 servers = 3;
   int32 volumes = 4;
+}
+
+message CheckRequest {}
+
+message CheckResponse {
+  repeated string issues = 1;
 }

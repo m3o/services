@@ -86,7 +86,7 @@ func main() {
 
 	// Check infra daily and report any wastage
 	c := cron.New()
-	c.AddFunc("0 9 * * *", checkInfraUsage)
+	c.AddFunc("0 9 * * *", checkInfraUsageCron)
 	c.Start()
 
 	// Register the RPC handler

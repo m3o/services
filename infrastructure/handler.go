@@ -12,6 +12,18 @@ import (
 
 type infrastructure struct{}
 
+func (i *infrastructure) Check(ctx context.Context, request *pb.CheckRequest, response *pb.CheckResponse) error {
+	issues, err := checkInfraUsage()
+	if err != nil {
+		return err
+	}
+	response.Issues = make([]string, len(issues))
+	for i, iss := range issues {
+		response.Issues[i] = iss
+	}
+	return nil
+}
+
 func (i *infrastructure) Summary(ctx context.Context, req *pb.SummaryRequest, rsp *pb.SummaryResponse) error {
 	clRsp, err := k8sAPI.ListClusters(&k8s.ListClustersRequest{Region: scalewayRegion})
 	if err != nil {
