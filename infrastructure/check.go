@@ -142,13 +142,14 @@ svrLoop:
 	}
 
 	// check S3 buckets
-	for obj := range s3Client.ListObjects(context.TODO(), getConfig("s3-bucket-name"), minio.ListObjectsOptions{}) {
+	bucketName := getConfig("s3-bucket-name")
+	for obj := range s3Client.ListObjects(context.TODO(), bucketName, minio.ListObjectsOptions{}) {
 		nm := strings.TrimSuffix(obj.Key, "/")
 		if nm == "micro" {
 			continue
 		}
 		if nsMap[nm] {
-			issues = append(issues, fmt.Sprintf("S3 bucket %s is not associated with a namespace", nm))
+			issues = append(issues, fmt.Sprintf("S3 object %s/%s is not associated with a namespace", bucketName, nm))
 		}
 	}
 
