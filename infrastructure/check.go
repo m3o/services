@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/micro/micro/v3/service/client"
+
 	nsproto "github.com/m3o/services/namespaces/proto"
 
 	"github.com/minio/minio-go/v7"
@@ -146,7 +148,7 @@ svrLoop:
 		}
 	}
 
-	rsp, err := nsService.List(context.TODO(), &nsproto.ListRequest{})
+	rsp, err := nsService.List(context.TODO(), &nsproto.ListRequest{}, client.WithAuthToken())
 	if err != nil {
 		logger.Errorf("Error listing namespaces: %v", err)
 		return nil, err
