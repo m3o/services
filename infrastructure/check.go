@@ -165,7 +165,7 @@ svrLoop:
 		if nm == "micro" {
 			continue
 		}
-		if nsMap[nm] {
+		if !nsMap[nm] {
 			issues = append(issues, fmt.Sprintf("S3 object %s/%s is not associated with a namespace", bucketName, nm))
 		}
 	}
