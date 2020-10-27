@@ -11,7 +11,18 @@ import (
 
 var (
 	defaultNetworkPolicyName = "ingress"
+	defaultResourceQuotaName = "quota"
 	defaultAllowedLabels     = map[string]string{"owner": "micro"}
+	defaultResourceLimits    = &rproto.Resources{
+		CPU:              8000,
+		EphemeralStorage: 8000,
+		Memory:           8000,
+	}
+	defaultResourceRequests = &rproto.Resources{
+		CPU:              8000,
+		EphemeralStorage: 8000,
+		Memory:           8000,
+	}
 )
 
 // Platform implements the platform service interface
@@ -46,12 +57,29 @@ func (k *Platform) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceR
 	}
 
 	// networkpolicy
-	_, err := k.runtime.Create(ctx, &rproto.CreateRequest{
+	if _, err := k.runtime.Create(ctx, &rproto.CreateRequest{
 		Resource: &rproto.Resource{
 			Networkpolicy: &rproto.NetworkPolicy{
 				Allowedlabels: defaultAllowedLabels,
 				Name:          defaultNetworkPolicyName,
 				Namespace:     req.Name,
+			},
+		},
+		Options: &rproto.CreateOptions{
+			Namespace: req.Name,
+		},
+	}); err != nil {
+		return err
+	}
+
+	// resourcequota
+	_, err := k.runtime.Create(ctx, &rproto.CreateRequest{
+		Resource: &rproto.Resource{
+			Resourcequota: &rproto.ResourceQuota{
+				Name:      defaultResourceQuotaName,
+				Namespace: req.Name,
+				Requests:  defaultResourceRequests,
+				Limits:    defaultResourceLimits,
 			},
 		},
 		Options: &rproto.CreateOptions{
@@ -79,13 +107,25 @@ func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceR
 
 	}
 
+	// resourcequota (ignoring any error)
+	k.runtime.Delete(ctx, &rproto.DeleteRequest{
+		Resource: &rproto.Resource{
+			Resourcequota: &rproto.ResourceQuota{
+				Name:      defaultResourceQuotaName,
+				Namespace: req.Name,
+			},
+		},
+		Options: &rproto.DeleteOptions{
+			Namespace: req.Name,
+		},
+	})
+
 	// networkpolicy (ignoring any error)
 	k.runtime.Delete(ctx, &rproto.DeleteRequest{
 		Resource: &rproto.Resource{
 			Networkpolicy: &rproto.NetworkPolicy{
-				Allowedlabels: defaultAllowedLabels,
-				Name:          defaultNetworkPolicyName,
-				Namespace:     req.Name,
+				Name:      defaultNetworkPolicyName,
+				Namespace: req.Name,
 			},
 		},
 		Options: &rproto.DeleteOptions{
