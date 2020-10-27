@@ -255,132 +255,115 @@ type update struct {
 	Customer     string
 }
 
+func (b *Billing) getUpdate(namespace string) error {
+	rsp, err := b.us.Read(context.TODO(), &uproto.ReadRequest{
+		Namespace: namespace,
+	}, goclient.WithAuthToken())
+	if err != nil {
+		return fmt.Errorf("Error getting usage for account service: %v", err)
+	}
+	if len(rsp.Accounts) == 0 {
+		return fmt.Errorf("Account not found for namespace")
+	}
+	usg := rsp.Accounts[0]
+
+	namespaceRsp, err := b.ns.Read(context.TODO(), &nsproto.ReadRequest{
+		Id: namespace,
+	}, goclient.WithAuthToken())
+	if err != nil {
+		return fmt.Errorf("Error listing namespaces: %v", err)
+	}
+	if len(namespaceRsp.Namespace.Owners) == 0 {
+		return fmt.Errorf("No owners for namespace '%v'", namespace)
+	}
+	if len(namespaceRsp.Namespace.Owners) > 1 {
+		return fmt.Errorf("Multiple owners for namespace '%v'", namespace)
+	}
+	customer := namespaceRsp.Namespace.Owners[0]
+
+	log.Infof("Processing namespace '%v'", usg.Namespace)
+
+	subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
+		CustomerId:   customer,
+		CustomerType: "user",
+	}, goclient.WithAuthToken(), goclient.WithRequestTimeout(10*time.Second))
+	if err != nil {
+		return fmt.Errorf("Error listing subscriptions for customer %v: %v", customer, err)
+	}
+	if subsRsp == nil {
+		return fmt.Errorf("Subscriptions listing response seems empty")
+	}
+	log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), namespace)
+
+	planIDToSub := map[string]*sproto.Subscription{}
+	for _, sub := range subsRsp.Subscriptions {
+		planIDToSub[sub.Plan.Id] = sub
+	}
+
+	sub, exists := planIDToSub[b.additionalUsersPriceID]
+	quantity := int64(0)
+	if exists {
+		quantity = sub.Quantity
+	}
+	// 1 user is the owner itself
+	if quantity != usg.Users-1 {
+		log.Infof("Users count needs amending. Saving")
+
+		err = saveUpdate(update{
+			ID:           uuid.New().String(),
+			PriceID:      b.additionalUsersPriceID,
+			QuantityFrom: quantity,
+			QuantityTo:   usg.Users - 1,
+			Namespace:    usg.Namespace,
+			Note:         "Additional users subscription needs changing",
+			Customer:     customer,
+		})
+		if err != nil {
+			log.Warnf("Error saving update: %v", err)
+		}
+	}
+
+	sub, exists = planIDToSub[b.additionalServicesPriceID]
+	quantity = int64(0)
+	if exists {
+		quantity = sub.Quantity
+	}
+
+	quantityShouldBe := usg.Services - int64(b.maxIncludedServices)
+	if quantityShouldBe < 0 {
+		quantityShouldBe = 0
+	}
+	if quantity != quantityShouldBe {
+		log.Infof("Services count needs amending. Saving")
+
+		err = saveUpdate(update{
+			ID:           uuid.New().String(),
+			PriceID:      b.additionalServicesPriceID,
+			QuantityFrom: quantity,
+			QuantityTo:   quantityShouldBe,
+			Namespace:    usg.Namespace,
+			Note:         "Additional services subscription needs changing",
+			Customer:     customer,
+		})
+		if err != nil {
+			return fmt.Errorf("Error saving update: %v", err)
+		}
+	}
+	return nil
+}
+
 func (b *Billing) loop() {
 	for {
 		func() {
-			allAccounts := []*uproto.Account{}
-			offset := int64(0)
-			page := int64(500)
-			for {
-				log.Infof("Listing usage with offset %v", offset)
-
-				rsp, err := b.us.List(context.TODO(), &uproto.ListRequest{
-					Distinct: true,
-					Offset:   offset,
-					Limit:    page,
-				}, goclient.WithAuthToken())
-				if err != nil {
-					log.Errorf("Error calling namespace service: %v", err)
-					return
-				}
-				allAccounts = append(allAccounts, rsp.Accounts...)
-				if len(rsp.Accounts) < int(page) {
-					break
-				}
-				offset += page
-			}
-
-			log.Infof("Processing %v number of distinct account values to get max", len(allAccounts))
-			maxs := getMax(allAccounts)
-
-			log.Infof("Got %v namespaces to check subscriptions for", len(maxs))
-
 			rsp, err := b.ns.List(context.TODO(), &nsproto.ListRequest{}, goclient.WithAuthToken())
 			if err != nil {
 				log.Warnf("Error listing namespaces: %v", err)
 				return
 			}
-			namespaceToOwner := map[string]string{}
 			for _, namespace := range rsp.Namespaces {
-				if len(namespace.Owners) == 0 {
-					log.Warnf("Namespace %v has no owner", namespace.Id)
-					continue
-				}
-				namespaceToOwner[namespace.Id] = namespace.Owners[0]
-			}
-
-			for _, max := range maxs {
-				log.Infof("Processing namespace '%v'", max.namespace)
-
-				// First we delete the existing record
-				month := time.Now().Format(monthFormat)
-				err = deleteMonth(month, max.namespace)
+				err := b.getUpdate(namespace.Id)
 				if err != nil {
-					log.Errorf("Error deleting month %v for namespace %v", month, max.namespace)
-				}
-
-				customer, found := namespaceToOwner[max.namespace]
-				if !found || len(customer) == 0 {
-					log.Warnf("Owner customer id not found for namespace '%v'", max.namespace)
-					continue
-				}
-				subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
-					CustomerId:   customer,
-					CustomerType: "user",
-				}, goclient.WithAuthToken(), goclient.WithRequestTimeout(10*time.Second))
-				if err != nil {
-					log.Warnf("Error listing subscriptions for customer %v: %v", customer, err)
-					continue
-				}
-				if subsRsp == nil {
-					log.Warnf("Subscriptions listing response seems empty")
-					continue
-				}
-				log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), max.namespace)
-
-				planIDToSub := map[string]*sproto.Subscription{}
-				for _, sub := range subsRsp.Subscriptions {
-					planIDToSub[sub.Plan.Id] = sub
-				}
-
-				sub, exists := planIDToSub[b.additionalUsersPriceID]
-				quantity := int64(0)
-				if exists {
-					quantity = sub.Quantity
-				}
-				// 1 user is the owner itself
-				if quantity != max.users-1 {
-					log.Infof("Users count needs amending. Saving")
-
-					err = saveUpdate(update{
-						ID:           uuid.New().String(),
-						PriceID:      b.additionalUsersPriceID,
-						QuantityFrom: quantity,
-						QuantityTo:   max.users - 1,
-						Namespace:    max.namespace,
-						Note:         "Additional users subscription needs changing",
-						Customer:     customer,
-					})
-					if err != nil {
-						log.Warnf("Error saving update: %v", err)
-					}
-				}
-
-				sub, exists = planIDToSub[b.additionalServicesPriceID]
-				quantity = int64(0)
-				if exists {
-					quantity = sub.Quantity
-				}
-
-				quantityShouldBe := max.services - int64(b.maxIncludedServices)
-				if quantityShouldBe < 0 {
-					quantityShouldBe = 0
-				}
-				if quantity != quantityShouldBe {
-					log.Infof("Services count needs amending. Saving")
-
-					err = saveUpdate(update{
-						ID:           uuid.New().String(),
-						PriceID:      b.additionalServicesPriceID,
-						QuantityFrom: quantity,
-						QuantityTo:   quantityShouldBe,
-						Namespace:    max.namespace,
-						Note:         "Additional services subscription needs changing",
-						Customer:     customer,
-					})
-					if err != nil {
-						log.Warnf("Error saving update: %v", err)
-					}
+					log.Errorf("Error while getting update for namespace '%v': %v", err)
 				}
 			}
 		}()
@@ -426,23 +409,4 @@ type max struct {
 	namespace string
 	users     int64
 	services  int64
-}
-
-func getMax(accounts []*uproto.Account) map[string]*max {
-	index := map[string]*max{}
-	for _, account := range accounts {
-		m, ok := index[account.Namespace]
-		if !ok {
-			m = &max{}
-		}
-		if account.Users > m.users {
-			m.users = account.Users
-		}
-		if account.Services > m.services {
-			m.services = account.Services
-		}
-		m.namespace = account.Namespace
-		index[account.Namespace] = m
-	}
-	return index
 }
