@@ -26,8 +26,10 @@ message Update {
 	int64 quantityTo = 6;
 	string note = 7;
 	int64 created = 8;
-	// customer email, not a stripe customer id
-	string customer = 9;
+	// micro customer ID
+	string customerID = 9;
+	// micro customer email
+	string customerEmail = 10;
 }
 
 message UpdatesRequest {

@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/m3o/services/billing/handler"
 
+	asproto "github.com/m3o/services/alert/proto/alert"
+	csproto "github.com/m3o/services/customers/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
 	pproto "github.com/m3o/services/payments/provider/proto"
 	subproto "github.com/m3o/services/subscriptions/proto"
@@ -24,6 +26,8 @@ func main() {
 		pproto.NewProviderService("payment", srv.Client()),
 		uproto.NewUsageService("usage", srv.Client()),
 		subproto.NewSubscriptionsService("subscriptions", srv.Client()),
+		csproto.NewCustomersService("customers", srv.Client()),
+		asproto.NewAlertService("alert", srv.Client()),
 	))
 
 	// Run service

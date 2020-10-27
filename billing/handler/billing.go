@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	asproto "github.com/m3o/services/alert/proto/alert"
 	billing "github.com/m3o/services/billing/proto"
+	csproto "github.com/m3o/services/customers/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
 	sproto "github.com/m3o/services/payments/provider/proto"
 	subproto "github.com/m3o/services/subscriptions/proto"
@@ -38,6 +40,7 @@ type Billing struct {
 	ns                        nsproto.NamespacesService
 	ss                        sproto.ProviderService
 	us                        uproto.UsageService
+	cs                        csproto.CustomersService
 	subs                      subproto.SubscriptionsService
 	additionalUsersPriceID    string
 	additionalServicesPriceID string
@@ -48,7 +51,9 @@ type Billing struct {
 func NewBilling(ns nsproto.NamespacesService,
 	ss sproto.ProviderService,
 	us uproto.UsageService,
-	subs subproto.SubscriptionsService) *Billing {
+	subs subproto.SubscriptionsService,
+	cs csproto.CustomersService,
+	as asproto.AlertService) *Billing {
 
 	// this is only here for prototyping, should use subscriptions service properly
 	// an upside for that will be also the fact that we don't have to load values one by one but can use Scan
@@ -105,6 +110,7 @@ func NewBilling(ns nsproto.NamespacesService,
 		additionalServicesPriceID: additionalServicesPriceID,
 		planID:                    planID,
 		maxIncludedServices:       maxIncludedServices,
+		cs:                        cs,
 	}
 	go b.loop()
 	return b
@@ -154,15 +160,16 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 			return merrors.InternalServerError("billing.Updates", "Error unmarshaling value: %v", err)
 		}
 		updates = append(updates, &billing.Update{
-			Namespace:    u.Namespace,
-			Created:      u.Created,
-			QuantityFrom: u.QuantityFrom,
-			QuantityTo:   u.QuantityTo,
-			PlanID:       u.PlanID,
-			PriceID:      u.PriceID,
-			Note:         u.Note,
-			Customer:     u.Customer,
-			Id:           u.ID,
+			Namespace:     u.Namespace,
+			Created:       u.Created,
+			QuantityFrom:  u.QuantityFrom,
+			QuantityTo:    u.QuantityTo,
+			PlanID:        u.PlanID,
+			PriceID:       u.PriceID,
+			Note:          u.Note,
+			CustomerID:    u.CustomerID,
+			CustomerEmail: u.CustomerEmail,
+			Id:            u.ID,
 		})
 	}
 	rsp.Updates = updates
@@ -194,7 +201,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 
 	_, err = b.subs.Update(ctx, &subproto.UpdateRequest{
 		PriceID:  u.PriceID,
-		OwnerID:  u.Customer,
+		OwnerID:  u.CustomerID,
 		Quantity: u.QuantityTo,
 	})
 	if err != nil {
@@ -244,15 +251,16 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 }
 
 type update struct {
-	ID           string
-	Namespace    string
-	PlanID       string
-	PriceID      string
-	QuantityFrom int64
-	QuantityTo   int64
-	Created      int64
-	Note         string
-	Customer     string
+	ID            string
+	Namespace     string
+	PlanID        string
+	PriceID       string
+	QuantityFrom  int64
+	QuantityTo    int64
+	Created       int64
+	Note          string
+	CustomerID    string
+	CustomerEmail string
 }
 
 func (b *Billing) getUpdate(namespace string) error {
@@ -279,16 +287,27 @@ func (b *Billing) getUpdate(namespace string) error {
 	if len(namespaceRsp.Namespace.Owners) > 1 {
 		return fmt.Errorf("Multiple owners for namespace '%v'", namespace)
 	}
-	customer := namespaceRsp.Namespace.Owners[0]
+	customerID := namespaceRsp.Namespace.Owners[0]
+	if len(customerID) == 0 {
+		return fmt.Errorf("Owner is empty string for namespace '%v", namespace)
+	}
+
+	customerRsp, err := b.cs.Read(context.TODO(), &csproto.ReadRequest{
+		Id: customerID,
+	}, goclient.WithAuthToken())
+	if err != nil {
+		return fmt.Errorf("Error reading customer with id '%v': %v", customerID, err)
+	}
+	customerEmail := customerRsp.GetCustomer().Email
 
 	log.Infof("Processing namespace '%v'", usg.Namespace)
 
 	subsRsp, err := b.ss.ListSubscriptions(context.TODO(), &sproto.ListSubscriptionsRequest{
-		CustomerId:   customer,
+		CustomerId:   customerID,
 		CustomerType: "user",
 	}, goclient.WithAuthToken(), goclient.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		return fmt.Errorf("Error listing subscriptions for customer %v: %v", customer, err)
+		return fmt.Errorf("Error listing subscriptions for customer %v: %v", customerEmail, err)
 	}
 	if subsRsp == nil {
 		return fmt.Errorf("Subscriptions listing response seems empty")
@@ -310,13 +329,14 @@ func (b *Billing) getUpdate(namespace string) error {
 		log.Infof("Users count needs amending. Saving")
 
 		err = saveUpdate(update{
-			ID:           uuid.New().String(),
-			PriceID:      b.additionalUsersPriceID,
-			QuantityFrom: quantity,
-			QuantityTo:   usg.Users - 1,
-			Namespace:    usg.Namespace,
-			Note:         "Additional users subscription needs changing",
-			Customer:     customer,
+			ID:            uuid.New().String(),
+			PriceID:       b.additionalUsersPriceID,
+			QuantityFrom:  quantity,
+			QuantityTo:    usg.Users - 1,
+			Namespace:     usg.Namespace,
+			Note:          "Additional users subscription needs changing",
+			CustomerID:    customerID,
+			CustomerEmail: customerEmail,
 		})
 		if err != nil {
 			log.Warnf("Error saving update: %v", err)
@@ -337,13 +357,14 @@ func (b *Billing) getUpdate(namespace string) error {
 		log.Infof("Services count needs amending. Saving")
 
 		err = saveUpdate(update{
-			ID:           uuid.New().String(),
-			PriceID:      b.additionalServicesPriceID,
-			QuantityFrom: quantity,
-			QuantityTo:   quantityShouldBe,
-			Namespace:    usg.Namespace,
-			Note:         "Additional services subscription needs changing",
-			Customer:     customer,
+			ID:            uuid.New().String(),
+			PriceID:       b.additionalServicesPriceID,
+			QuantityFrom:  quantity,
+			QuantityTo:    quantityShouldBe,
+			Namespace:     usg.Namespace,
+			Note:          "Additional services subscription needs changing",
+			CustomerID:    customerID,
+			CustomerEmail: customerEmail,
 		})
 		if err != nil {
 			return fmt.Errorf("Error saving update: %v", err)
