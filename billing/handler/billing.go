@@ -47,6 +47,7 @@ type Billing struct {
 	additionalServicesPriceID string
 	planID                    string
 	maxIncludedServices       int
+	report                    bool
 }
 
 func NewBilling(ns nsproto.NamespacesService,
@@ -91,6 +92,12 @@ func NewBilling(ns nsproto.NamespacesService,
 	}
 	maxIncludedServices := val.Int(10)
 
+	val, err = mconfig.Get("micro.billing.report")
+	if err != nil {
+		log.Warnf("Can't load max included services: %v", err)
+	}
+	doReporting := val.Bool(false)
+
 	val, err = config.Get("micro.payments.stripe.api_key")
 	if err != nil {
 		log.Warnf("Can't load stripe api key: %v", err)
@@ -113,6 +120,7 @@ func NewBilling(ns nsproto.NamespacesService,
 		maxIncludedServices:       maxIncludedServices,
 		cs:                        cs,
 		as:                        as,
+		report:                    doReporting,
 	}
 	go b.loop()
 	return b
@@ -343,15 +351,17 @@ func (b *Billing) calcUpdate(namespace string) error {
 		if err != nil {
 			return fmt.Errorf("Error saving update: %v", err)
 		}
-		_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
-			Event: &asproto.Event{
-				Category: "billing",
-				Action:   "Users Count Change",
-				Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
-			},
-		})
-		if err != nil {
-			return fmt.Errorf("Error saving update: %v", err)
+		if b.report {
+			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
+				Event: &asproto.Event{
+					Category: "billing",
+					Action:   "Users Count Change",
+					Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("Error saving update: %v", err)
+			}
 		}
 	}
 
@@ -381,15 +391,17 @@ func (b *Billing) calcUpdate(namespace string) error {
 		if err != nil {
 			return fmt.Errorf("Error saving update: %v", err)
 		}
-		_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
-			Event: &asproto.Event{
-				Category: "billing",
-				Action:   "Service Count Change",
-				Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
-			},
-		})
-		if err != nil {
-			return fmt.Errorf("Error sending report: %v", err)
+		if b.report {
+			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
+				Event: &asproto.Event{
+					Category: "billing",
+					Action:   "Service Count Change",
+					Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("Error sending report: %v", err)
+			}
 		}
 	}
 	return nil
@@ -407,13 +419,15 @@ func (b *Billing) loop() {
 				err := b.calcUpdate(namespace.Id)
 				if err != nil {
 					log.Errorf("Error while getting update for namespace '%v': %v", err)
-					_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
-						Event: &asproto.Event{
-							Category: "billing",
-							Action:   "Processing error",
-							Label:    fmt.Sprintf("Error while processing namespace '%v': %v", namespace, err),
-						},
-					})
+					if b.report {
+						_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
+							Event: &asproto.Event{
+								Category: "billing",
+								Action:   "Processing error",
+								Label:    fmt.Sprintf("Error while processing namespace '%v': %v", namespace, err),
+							},
+						})
+					}
 					if err != nil {
 						log.Error(err)
 					}
