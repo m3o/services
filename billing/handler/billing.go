@@ -39,6 +39,7 @@ type Billing struct {
 	stripeClient              *client.API // stripe api client
 	ns                        nsproto.NamespacesService
 	ss                        sproto.ProviderService
+	as                        asproto.AlertService
 	us                        uproto.UsageService
 	cs                        csproto.CustomersService
 	subs                      subproto.SubscriptionsService
@@ -111,6 +112,7 @@ func NewBilling(ns nsproto.NamespacesService,
 		planID:                    planID,
 		maxIncludedServices:       maxIncludedServices,
 		cs:                        cs,
+		as:                        as,
 	}
 	go b.loop()
 	return b
@@ -263,7 +265,7 @@ type update struct {
 	CustomerEmail string
 }
 
-func (b *Billing) getUpdate(namespace string) error {
+func (b *Billing) calcUpdate(namespace string) error {
 	rsp, err := b.us.Read(context.TODO(), &uproto.ReadRequest{
 		Namespace: namespace,
 	}, goclient.WithAuthToken())
@@ -339,7 +341,17 @@ func (b *Billing) getUpdate(namespace string) error {
 			CustomerEmail: customerEmail,
 		})
 		if err != nil {
-			log.Warnf("Error saving update: %v", err)
+			return fmt.Errorf("Error saving update: %v", err)
+		}
+		_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
+			Event: &asproto.Event{
+				Category: "billing",
+				Action:   "Users Count Change",
+				Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("Error saving update: %v", err)
 		}
 	}
 
@@ -369,6 +381,16 @@ func (b *Billing) getUpdate(namespace string) error {
 		if err != nil {
 			return fmt.Errorf("Error saving update: %v", err)
 		}
+		_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
+			Event: &asproto.Event{
+				Category: "billing",
+				Action:   "Service Count Change",
+				Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("Error sending report: %v", err)
+		}
 	}
 	return nil
 }
@@ -378,13 +400,23 @@ func (b *Billing) loop() {
 		func() {
 			rsp, err := b.ns.List(context.TODO(), &nsproto.ListRequest{}, goclient.WithAuthToken())
 			if err != nil {
-				log.Warnf("Error listing namespaces: %v", err)
+				log.Errorf("Error listing namespaces: %v", err)
 				return
 			}
 			for _, namespace := range rsp.Namespaces {
-				err := b.getUpdate(namespace.Id)
+				err := b.calcUpdate(namespace.Id)
 				if err != nil {
 					log.Errorf("Error while getting update for namespace '%v': %v", err)
+					_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
+						Event: &asproto.Event{
+							Category: "billing",
+							Action:   "Processing error",
+							Label:    fmt.Sprintf("Error while processing namespace '%v': %v", namespace, err),
+						},
+					})
+					if err != nil {
+						log.Error(err)
+					}
 				}
 			}
 		}()
