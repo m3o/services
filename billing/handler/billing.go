@@ -288,15 +288,15 @@ type update struct {
 	CustomerEmail string
 }
 
-func (b *Billing) calcUpdate(namespace string) error {
+func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 	rsp, err := b.us.Read(context.TODO(), &uproto.ReadRequest{
 		Namespace: namespace,
 	}, goclient.WithAuthToken())
 	if err != nil {
-		return fmt.Errorf("Error getting usage for account service: %v", err)
+		return nil, fmt.Errorf("Error getting usage for account service: %v", err)
 	}
 	if len(rsp.Accounts) == 0 {
-		return fmt.Errorf("Account not found for namespace")
+		return nil, fmt.Errorf("Account not found for namespace")
 	}
 	usg := rsp.Accounts[0]
 
@@ -304,24 +304,24 @@ func (b *Billing) calcUpdate(namespace string) error {
 		Id: namespace,
 	}, goclient.WithAuthToken())
 	if err != nil {
-		return fmt.Errorf("Error listing namespaces: %v", err)
+		return nil, fmt.Errorf("Error listing namespaces: %v", err)
 	}
 	if len(namespaceRsp.Namespace.Owners) == 0 {
-		return fmt.Errorf("No owners for namespace '%v'", namespace)
+		return nil, fmt.Errorf("No owners for namespace '%v'", namespace)
 	}
 	if len(namespaceRsp.Namespace.Owners) > 1 {
-		return fmt.Errorf("Multiple owners for namespace '%v'", namespace)
+		return nil, fmt.Errorf("Multiple owners for namespace '%v'", namespace)
 	}
 	customerID := namespaceRsp.Namespace.Owners[0]
 	if len(customerID) == 0 {
-		return fmt.Errorf("Owner is empty string for namespace '%v", namespace)
+		return nil, fmt.Errorf("Owner is empty string for namespace '%v", namespace)
 	}
 
 	customerRsp, err := b.cs.Read(context.TODO(), &csproto.ReadRequest{
 		Id: customerID,
 	}, goclient.WithAuthToken())
 	if err != nil {
-		return fmt.Errorf("Error reading customer with id '%v': %v", customerID, err)
+		return nil, fmt.Errorf("Error reading customer with id '%v': %v", customerID, err)
 	}
 	customerEmail := customerRsp.GetCustomer().Email
 
@@ -332,10 +332,10 @@ func (b *Billing) calcUpdate(namespace string) error {
 		CustomerType: "user",
 	}, goclient.WithAuthToken(), goclient.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		return fmt.Errorf("Error listing subscriptions for customer %v: %v", customerEmail, err)
+		return nil, fmt.Errorf("Error listing subscriptions for customer %v: %v", customerEmail, err)
 	}
 	if subsRsp == nil {
-		return fmt.Errorf("Subscriptions listing response seems empty")
+		return nil, fmt.Errorf("Subscriptions listing response seems empty")
 	}
 	log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), namespace)
 
@@ -349,11 +349,12 @@ func (b *Billing) calcUpdate(namespace string) error {
 	if exists {
 		quantity = sub.Quantity
 	}
+	ret := []update{}
 	// 1 user is the owner itself
 	if quantity != usg.Users-1 {
 		log.Infof("Users count needs amending. Saving")
 
-		err = saveUpdate(update{
+		upd := update{
 			ID:            uuid.New().String(),
 			PriceID:       b.config.additionalUsersPriceID,
 			QuantityFrom:  quantity,
@@ -362,9 +363,13 @@ func (b *Billing) calcUpdate(namespace string) error {
 			Note:          "Additional users subscription needs changing",
 			CustomerID:    customerID,
 			CustomerEmail: customerEmail,
-		})
-		if err != nil {
-			return fmt.Errorf("Error saving update: %v", err)
+		}
+		ret = append(ret, upd)
+		if persist {
+			err = saveUpdate(upd)
+			if err != nil {
+				return nil, fmt.Errorf("Error saving update: %v", err)
+			}
 		}
 		if b.config.report {
 			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
@@ -375,7 +380,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 				},
 			})
 			if err != nil {
-				return fmt.Errorf("Error saving update: %v", err)
+				return nil, fmt.Errorf("Error saving update: %v", err)
 			}
 		}
 	}
@@ -393,7 +398,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 	if quantity != quantityShouldBe {
 		log.Infof("Services count needs amending. Saving")
 
-		err = saveUpdate(update{
+		upd := update{
 			ID:            uuid.New().String(),
 			PriceID:       b.config.additionalServicesPriceID,
 			QuantityFrom:  quantity,
@@ -402,9 +407,13 @@ func (b *Billing) calcUpdate(namespace string) error {
 			Note:          "Additional services subscription needs changing",
 			CustomerID:    customerID,
 			CustomerEmail: customerEmail,
-		})
-		if err != nil {
-			return fmt.Errorf("Error saving update: %v", err)
+		}
+		ret = append(ret, upd)
+		if persist {
+			err = saveUpdate(upd)
+			if err != nil {
+				return nil, fmt.Errorf("Error saving update: %v", err)
+			}
 		}
 		if b.config.report {
 			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
@@ -415,11 +424,11 @@ func (b *Billing) calcUpdate(namespace string) error {
 				},
 			})
 			if err != nil {
-				return fmt.Errorf("Error sending report: %v", err)
+				return nil, fmt.Errorf("Error sending report: %v", err)
 			}
 		}
 	}
-	return nil
+	return ret, nil
 }
 
 func (b *Billing) loop() {
@@ -431,7 +440,7 @@ func (b *Billing) loop() {
 				return
 			}
 			for _, namespace := range rsp.Namespaces {
-				err := b.calcUpdate(namespace.Id)
+				_, err := b.calcUpdate(namespace.Id, true)
 				if err != nil {
 					log.Errorf("Error while getting update for namespace '%v': %v", err)
 					if b.config.report {
@@ -445,6 +454,7 @@ func (b *Billing) loop() {
 					}
 					if err != nil {
 						log.Error(err)
+						continue
 					}
 				}
 			}
