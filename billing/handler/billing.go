@@ -31,7 +31,6 @@ const (
 	updatePrefix = "update/"
 	// format: `update-by-namespace/namespace/2020-09`
 	updateByNamespacePrefix = "update-by-namespace/"
-	monthFormat             = "2006-01"
 	defaultNamespace        = "micro"
 )
 
@@ -157,13 +156,12 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 		req.Namespace = acc.Issuer
 	}
 
-	month := time.Now().Format(monthFormat)
 	// @todo accept a month request parameter
 	// for listing historic update suggestions
 
-	key := updatePrefix + month
+	key := updatePrefix
 	if len(req.Namespace) > 0 {
-		key = updateByNamespacePrefix + req.Namespace + "/" + month
+		key = updateByNamespacePrefix + req.Namespace + "/"
 	}
 	limit := req.Limit
 	if limit == 0 {
@@ -232,10 +230,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	if err != nil {
 		return merrors.InternalServerError("billing.Apply", "Error calling subscriptions update: %v", err)
 	}
-
-	// Once the Update is applied, we don't want them to appear
-	// in the list returned by the `Updates` endpoint
-	return deleteMonth(time.Unix(u.Created, 0).Format(monthFormat), u.Namespace)
+	return nil
 }
 
 // Portal returns the billing portal address the customers can go to to manager their subscriptons
@@ -337,7 +332,7 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 	if subsRsp == nil {
 		return nil, fmt.Errorf("Subscriptions listing response seems empty")
 	}
-	log.Infof("Found %v subscription for the owner of namespace '%v'", len(subsRsp.Subscriptions), namespace)
+	log.Infof("Found %v subscription for the owner of namespace '%v', customer ID: '%v'", len(subsRsp.Subscriptions), namespace, customerID)
 
 	planIDToSub := map[string]*sproto.Subscription{}
 	for _, sub := range subsRsp.Subscriptions {
@@ -442,7 +437,7 @@ func (b *Billing) loop() {
 			for _, namespace := range rsp.Namespaces {
 				_, err := b.calcUpdate(namespace.Id, true)
 				if err != nil {
-					log.Errorf("Error while getting update for namespace '%v': %v", err)
+					log.Errorf("Error while getting update for namespace '%v': %v", namespace, err)
 					if b.config.report {
 						_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
 							Event: &asproto.Event{
@@ -468,9 +463,8 @@ func saveUpdate(record update) error {
 	tim := time.Now()
 	record.Created = tim.Unix()
 	val, _ := json.Marshal(record)
-	month := tim.Format(monthFormat)
 	err := mstore.Write(&mstore.Record{
-		Key:   fmt.Sprintf("%v%v/%v", updatePrefix, month, record.Namespace),
+		Key:   fmt.Sprintf("%v%v", updatePrefix, record.Namespace),
 		Value: val,
 	})
 	if err != nil {
@@ -484,17 +478,9 @@ func saveUpdate(record update) error {
 		return err
 	}
 	return mstore.Write(&mstore.Record{
-		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, month),
+		Key:   fmt.Sprintf("%v%v", updateByNamespacePrefix, record.Namespace),
 		Value: val,
 	})
-}
-
-func deleteMonth(month, namespace string) error {
-	err := mstore.Delete(fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, namespace, month))
-	if err != nil {
-		return err
-	}
-	return mstore.Delete(fmt.Sprintf("%v%v/%v", updatePrefix, month, namespace))
 }
 
 type max struct {
