@@ -36,18 +36,23 @@ const (
 )
 
 type Billing struct {
-	stripeClient              *client.API // stripe api client
-	ns                        nsproto.NamespacesService
-	ss                        sproto.ProviderService
-	as                        asproto.AlertService
-	us                        uproto.UsageService
-	cs                        csproto.CustomersService
-	subs                      subproto.SubscriptionsService
+	stripeClient *client.API // stripe api client
+	ns           nsproto.NamespacesService
+	ss           sproto.ProviderService
+	as           asproto.AlertService
+	us           uproto.UsageService
+	cs           csproto.CustomersService
+	subs         subproto.SubscriptionsService
+	config       *Conf
+}
+
+type Conf struct {
 	additionalUsersPriceID    string
 	additionalServicesPriceID string
 	planID                    string
 	maxIncludedServices       int
 	report                    bool
+	apiKey                    string
 }
 
 func NewBilling(ns nsproto.NamespacesService,
@@ -55,8 +60,27 @@ func NewBilling(ns nsproto.NamespacesService,
 	us uproto.UsageService,
 	subs subproto.SubscriptionsService,
 	cs csproto.CustomersService,
-	as asproto.AlertService) *Billing {
+	as asproto.AlertService,
+	conf *Conf) *Billing {
+	if conf == nil {
+		conf = getConfig()
+	}
 
+	b := &Billing{
+		stripeClient: client.New(conf.apiKey, nil),
+		ns:           ns,
+		ss:           ss,
+		us:           us,
+		subs:         subs,
+		config:       conf,
+		cs:           cs,
+		as:           as,
+	}
+	go b.loop()
+	return b
+}
+
+func getConfig() *Conf {
 	// this is only here for prototyping, should use subscriptions service properly
 	// an upside for that will be also the fact that we don't have to load values one by one but can use Scan
 	val, err := mconfig.Get("micro.subscriptions.additional_users_price_id")
@@ -65,7 +89,7 @@ func NewBilling(ns nsproto.NamespacesService,
 	}
 	additionalUsersPriceID := val.String("")
 	if len(additionalUsersPriceID) == 0 {
-		log.Fatal("Additional userss price id is empty")
+		log.Fatal("Additional users price id is empty")
 	}
 
 	val, err = mconfig.Get("micro.subscriptions.additional_services_price_id")
@@ -107,23 +131,14 @@ func NewBilling(ns nsproto.NamespacesService,
 	if len(apiKey) == 0 {
 		log.Fatalf("Missing required config: micro.payments.stripe.api_key")
 	}
-
-	b := &Billing{
-		stripeClient:              client.New(apiKey, nil),
-		ns:                        ns,
-		ss:                        ss,
-		us:                        us,
-		subs:                      subs,
+	return &Conf{
+		apiKey:                    apiKey,
 		additionalUsersPriceID:    additionalUsersPriceID,
 		additionalServicesPriceID: additionalServicesPriceID,
 		planID:                    planID,
 		maxIncludedServices:       maxIncludedServices,
-		cs:                        cs,
-		as:                        as,
 		report:                    doReporting,
 	}
-	go b.loop()
-	return b
 }
 
 // Updates returns currently active update suggestions for the current month.
@@ -329,7 +344,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 		planIDToSub[sub.Plan.Id] = sub
 	}
 
-	sub, exists := planIDToSub[b.additionalUsersPriceID]
+	sub, exists := planIDToSub[b.config.additionalUsersPriceID]
 	quantity := int64(0)
 	if exists {
 		quantity = sub.Quantity
@@ -340,7 +355,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 
 		err = saveUpdate(update{
 			ID:            uuid.New().String(),
-			PriceID:       b.additionalUsersPriceID,
+			PriceID:       b.config.additionalUsersPriceID,
 			QuantityFrom:  quantity,
 			QuantityTo:    usg.Users - 1,
 			Namespace:     usg.Namespace,
@@ -351,7 +366,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 		if err != nil {
 			return fmt.Errorf("Error saving update: %v", err)
 		}
-		if b.report {
+		if b.config.report {
 			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
 				Event: &asproto.Event{
 					Category: "billing",
@@ -365,13 +380,13 @@ func (b *Billing) calcUpdate(namespace string) error {
 		}
 	}
 
-	sub, exists = planIDToSub[b.additionalServicesPriceID]
+	sub, exists = planIDToSub[b.config.additionalServicesPriceID]
 	quantity = int64(0)
 	if exists {
 		quantity = sub.Quantity
 	}
 
-	quantityShouldBe := usg.Services - int64(b.maxIncludedServices)
+	quantityShouldBe := usg.Services - int64(b.config.maxIncludedServices)
 	if quantityShouldBe < 0 {
 		quantityShouldBe = 0
 	}
@@ -380,7 +395,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 
 		err = saveUpdate(update{
 			ID:            uuid.New().String(),
-			PriceID:       b.additionalServicesPriceID,
+			PriceID:       b.config.additionalServicesPriceID,
 			QuantityFrom:  quantity,
 			QuantityTo:    quantityShouldBe,
 			Namespace:     usg.Namespace,
@@ -391,7 +406,7 @@ func (b *Billing) calcUpdate(namespace string) error {
 		if err != nil {
 			return fmt.Errorf("Error saving update: %v", err)
 		}
-		if b.report {
+		if b.config.report {
 			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
 				Event: &asproto.Event{
 					Category: "billing",
@@ -419,7 +434,7 @@ func (b *Billing) loop() {
 				err := b.calcUpdate(namespace.Id)
 				if err != nil {
 					log.Errorf("Error while getting update for namespace '%v': %v", err)
-					if b.report {
+					if b.config.report {
 						_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
 							Event: &asproto.Event{
 								Category: "billing",

@@ -28,6 +28,7 @@ func main() {
 		subproto.NewSubscriptionsService("subscriptions", srv.Client()),
 		csproto.NewCustomersService("customers", srv.Client()),
 		asproto.NewAlertService("alert", srv.Client()),
+		nil,
 	))
 
 	// Run service
