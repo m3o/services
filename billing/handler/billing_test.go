@@ -138,12 +138,31 @@ func TestNoSubscription(t *testing.T) {
 			}, nil
 		},
 	}, &Conf{
-		additionalServicesPriceID: "priceid1",
-		additionalUsersPriceID: "priceid2",
+		additionalServicesPriceID: "servicesprice",
+		additionalUsersPriceID: "usersprice",
 		planID: "planid",
-		maxIncludedServices: 3,
+		maxIncludedServices: 2,
 		report: false,
 		apiKey: "none",
 	})
-	bs.calcUpdate("ns1", false)
+	updates, err := bs.calcUpdate("ns1", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(updates) < 2 {
+		t.Fatal(updates)
+	}
+	if updates[0].CustomerID != "someid" ||
+		updates[0].CustomerEmail != "email@address.com" || 
+		updates[0].QuantityFrom != 0 || updates[0].QuantityTo != 1 ||
+		updates[0].PriceID != "usersprice" {
+			t.Fatal(updates[0])
+	}
+
+	if updates[1].CustomerID != "someid" ||
+		updates[1].CustomerEmail != "email@address.com" || 
+		updates[1].QuantityFrom != 0 || updates[1].QuantityTo != 2 ||
+		updates[1].PriceID != "servicesprice" {
+		t.Fatal(updates[0])
+	}
 }
