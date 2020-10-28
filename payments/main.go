@@ -8,7 +8,9 @@ import (
 
 func main() {
 	// Setup the service
-	srv := service.New()
+	srv := service.New(
+		service.Name("payment"),
+	)
 
 	// Register the provider
 	srv.Handle(handler.New(srv))
