@@ -44,6 +44,7 @@ message UpdatesResponse {
 
 message ApplyRequest {
 	string id = 1;
+	bool all = 2;
 }
 
 message ApplyResponse {

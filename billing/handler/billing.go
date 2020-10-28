@@ -211,6 +211,41 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	default:
 		return errors.Unauthorized("billing.Apply", "Unauthorized")
 	}
+	if req.All {
+		c := -1
+		for {
+			c++
+			// we will keep reading and deleting until there are no more records
+			records, err := mstore.Read("", mstore.Prefix(updatePrefix))
+			if err != nil && err != mstore.ErrNotFound {
+				return merrors.InternalServerError("billing.Updates", "Error listing store: %v", err)
+			}
+			if err == mstore.ErrNotFound || len(records) == 0 {
+				log.Infof("Breaking out of apply all loop after %v runs", c)
+				break
+			}
+
+			for _, v := range records {
+				u := &update{}
+				err = json.Unmarshal(v.Value, u)
+				if err != nil {
+					return merrors.InternalServerError("billing.Updates", "Error unmarshaling value: %v", err)
+				}
+				_, err = b.subs.Update(ctx, &subproto.UpdateRequest{
+					PriceID:  u.PriceID,
+					OwnerID:  u.CustomerID,
+					Quantity: u.QuantityTo,
+				})
+				if err != nil {
+					return merrors.InternalServerError("billing.Apply.all", "Error calling subscriptions update: %v", err)
+				}
+				err = deleteUpdate(u)
+				if err != nil {
+					return merrors.InternalServerError("billing.Apply.all.delete", "Error deleting update: %v", err)
+				}
+			}
+		}
+	}
 
 	records, err := mstore.Read(req.Id)
 	if err != nil || len(records) == 0 {
@@ -230,7 +265,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	if err != nil {
 		return merrors.InternalServerError("billing.Apply", "Error calling subscriptions update: %v", err)
 	}
-	return nil
+	return deleteUpdate(u)
 }
 
 // Portal returns the billing portal address the customers can go to to manager their subscriptons
@@ -426,6 +461,17 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 	return ret, nil
 }
 
+func deleteUpdate(record *update) error {
+	err := mstore.Delete(fmt.Sprintf("%v%v", updatePrefix, record.ID))
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	return mstore.Delete(fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.ID))
+}
+
 func (b *Billing) loop() {
 	for {
 		func() {
@@ -464,7 +510,7 @@ func saveUpdate(record update) error {
 	record.Created = tim.Unix()
 	val, _ := json.Marshal(record)
 	err := mstore.Write(&mstore.Record{
-		Key:   fmt.Sprintf("%v%v", updatePrefix, record.Namespace),
+		Key:   fmt.Sprintf("%v%v", updatePrefix, record.ID),
 		Value: val,
 	})
 	if err != nil {
@@ -478,13 +524,7 @@ func saveUpdate(record update) error {
 		return err
 	}
 	return mstore.Write(&mstore.Record{
-		Key:   fmt.Sprintf("%v%v", updateByNamespacePrefix, record.Namespace),
+		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.ID),
 		Value: val,
 	})
-}
-
-type max struct {
-	namespace string
-	users     int64
-	services  int64
 }
