@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"strings"
 
 	pb "github.com/m3o/services/payments/provider/proto"
 	"github.com/micro/micro/v3/service/errors"
@@ -51,6 +52,9 @@ func (h *Provider) ListSubscriptions(ctx context.Context, req *pb.ListSubscripti
 	id, err := h.getStripeIDForCustomer(req.CustomerType, req.CustomerId)
 	if err != nil {
 		return err
+	}
+	if len(strings.TrimSpace(id)) == 0 {
+		return errors.InternalServerError(h.name, "Stripe id for customer type '%v' and id '%v' is empty", req.CustomerType, req.CustomerId)
 	}
 	iter := h.client.Subscriptions.List(&stripe.SubscriptionListParams{
 		Customer: id,
