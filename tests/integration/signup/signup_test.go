@@ -130,7 +130,7 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 		if err != nil {
 			return outp, err
 		}
-		list := []string{"payment", "signup", "invite", "emails", "customers"}
+		list := []string{"payments", "signup", "invite", "emails", "customers"}
 		logOutp := []byte{}
 		fail := false
 		for _, s := range list {
