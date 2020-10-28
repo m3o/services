@@ -3,7 +3,6 @@ package handler
 import(
 	"context"
 	"testing"
-	"fmt"
 	"errors"
 
 	client "github.com/micro/micro/v3/service/client"
@@ -107,9 +106,13 @@ func TestNoSubscription(t *testing.T) {
 		},
 	}, &usageMock{
 		ReadFunc: func (ctx context.Context, in *uproto.ReadRequest, opts ...client.CallOption) (*uproto.ReadResponse, error) {
+			if in.Namespace != "ns1" {
+				return nil, errors.New("Namespace should be ns1")
+			}
 			return &uproto.ReadResponse{
 				Accounts: []*uproto.Account{
 					{
+						Namespace: "ns1",
 						Services: 4,
 						Users: 2,
 					},
@@ -118,7 +121,16 @@ func TestNoSubscription(t *testing.T) {
 		},
 	}, &subscriptionMock{
 		UpdateFunc: func(ctx context.Context, in *subproto.UpdateRequest, opts ...client.CallOption) (*subproto.UpdateResponse, error) {
-			fmt.Println(in)
+			switch in.PriceID {
+			case "usersprice":
+				if in.Quantity != 1 {
+					return nil, errors.New("Should update users to 1")
+				}
+			case "servicesprice":
+				if in.Quantity != 2 {
+					return nil, errors.New("Should upate services to 2")
+				}
+			}
 			return nil, nil
 		},
 	}, &customersMock{
@@ -164,5 +176,208 @@ func TestNoSubscription(t *testing.T) {
 		updates[1].QuantityFrom != 0 || updates[1].QuantityTo != 2 ||
 		updates[1].PriceID != "servicesprice" {
 		t.Fatal(updates[0])
+	}
+}
+
+func TestSubscriptionDecrease(t *testing.T) {
+	bs := NewBilling(&namespaceMock{
+		ListFunc: func(ctx context.Context, in *nsproto.ListRequest, opts ...client.CallOption) (*nsproto.ListResponse, error) {
+			return &nsproto.ListResponse{
+				Namespaces: []*nsproto.Namespace{
+					{
+						Id: "ns1",
+					},
+				},
+			}, nil
+		},
+		ReadFunc: func (ctx context.Context, in *nsproto.ReadRequest, opts ...client.CallOption) (*nsproto.ReadResponse, error) {
+			return &nsproto.ReadResponse{
+				Namespace: &nsproto.Namespace{
+					Id: "ns1",
+					Owners: []string{"someid"},
+				},
+			}, nil
+		},
+	}, &paymentMock{
+		ListSubscriptionsFunc: func(ctx context.Context, in *sproto.ListSubscriptionsRequest, opts ...client.CallOption) (*sproto.ListSubscriptionsResponse, error) {
+			return &sproto.ListSubscriptionsResponse{
+				Subscriptions: []*sproto.Subscription{
+					{
+						Plan: &sproto.Plan{
+							Id: "servicesprice",
+						},
+						Quantity: 7,
+					},
+					{
+						Plan: &sproto.Plan{
+							Id: "usersprice",
+						},
+						Quantity: 5,
+					},
+				},
+			}, nil
+		},
+	}, &usageMock{
+		ReadFunc: func (ctx context.Context, in *uproto.ReadRequest, opts ...client.CallOption) (*uproto.ReadResponse, error) {
+			if in.Namespace != "ns1" {
+				return nil, errors.New("Namespace should be ns1")
+			}
+			return &uproto.ReadResponse{
+				Accounts: []*uproto.Account{
+					{
+						Namespace: "ns1",
+						Services: 5,
+						Users: 3,
+					},
+				},
+			}, nil
+		},
+	}, &subscriptionMock{
+		UpdateFunc: func(ctx context.Context, in *subproto.UpdateRequest, opts ...client.CallOption) (*subproto.UpdateResponse, error) {
+			switch in.PriceID {
+			case "usersprice":
+				if in.Quantity != 2 {
+					return nil, errors.New("Should update users to 1")
+				}
+			case "servicesprice":
+				if in.Quantity != 3 {
+					return nil, errors.New("Should upate services to 2")
+				}
+			}
+			return nil, nil
+		},
+	}, &customersMock{
+		ReadFunc: func(ctx context.Context, in *csproto.ReadRequest, opts ...client.CallOption) (*csproto.ReadResponse, error) {
+			if in.Id != "someid" {
+				return nil, errors.New("Can't find")
+			}
+			return &csproto.ReadResponse{
+				Customer: &csproto.Customer{
+					Email: "email@address.com",
+				},
+			}, nil
+		},
+	}, &alertMock{
+		ReportEventFunc: func(ctx context.Context, in *asproto.ReportEventRequest, opts ...client.CallOption) (*asproto.ReportEventResponse, error) {
+			return &asproto.ReportEventResponse{
+			}, nil
+		},
+	}, &Conf{
+		additionalServicesPriceID: "servicesprice",
+		additionalUsersPriceID: "usersprice",
+		planID: "planid",
+		maxIncludedServices: 2,
+		report: false,
+		apiKey: "none",
+	})
+	updates, err := bs.calcUpdate("ns1", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(updates) < 2 {
+		t.Fatal(updates)
+	}
+	if updates[0].CustomerID != "someid" ||
+		updates[0].CustomerEmail != "email@address.com" || 
+		updates[0].QuantityFrom != 5 || updates[0].QuantityTo != 2 ||
+		updates[0].PriceID != "usersprice" {
+			t.Fatal(updates[0])
+	}
+
+	if updates[1].CustomerID != "someid" ||
+		updates[1].CustomerEmail != "email@address.com" || 
+		updates[1].QuantityFrom != 7 || updates[1].QuantityTo != 3 ||
+		updates[1].PriceID != "servicesprice" {
+		t.Fatal(updates[0])
+	}
+}
+
+func TestNoChange(t *testing.T) {
+	bs := NewBilling(&namespaceMock{
+		ListFunc: func(ctx context.Context, in *nsproto.ListRequest, opts ...client.CallOption) (*nsproto.ListResponse, error) {
+			return &nsproto.ListResponse{
+				Namespaces: []*nsproto.Namespace{
+					{
+						Id: "ns1",
+					},
+				},
+			}, nil
+		},
+		ReadFunc: func (ctx context.Context, in *nsproto.ReadRequest, opts ...client.CallOption) (*nsproto.ReadResponse, error) {
+			return &nsproto.ReadResponse{
+				Namespace: &nsproto.Namespace{
+					Id: "ns1",
+					Owners: []string{"someid"},
+				},
+			}, nil
+		},
+	}, &paymentMock{
+		ListSubscriptionsFunc: func(ctx context.Context, in *sproto.ListSubscriptionsRequest, opts ...client.CallOption) (*sproto.ListSubscriptionsResponse, error) {
+			return &sproto.ListSubscriptionsResponse{
+				Subscriptions: []*sproto.Subscription{
+					{
+						Plan: &sproto.Plan{
+							Id: "servicesprice",
+						},
+						Quantity: 7,
+					},
+					{
+						Plan: &sproto.Plan{
+							Id: "usersprice",
+						},
+						Quantity: 5,
+					},
+				},
+			}, nil
+		},
+	}, &usageMock{
+		ReadFunc: func (ctx context.Context, in *uproto.ReadRequest, opts ...client.CallOption) (*uproto.ReadResponse, error) {
+			if in.Namespace != "ns1" {
+				return nil, errors.New("Namespace should be ns1")
+			}
+			return &uproto.ReadResponse{
+				Accounts: []*uproto.Account{
+					{
+						Namespace: "ns1",
+						Services: 9,
+						Users: 6,
+					},
+				},
+			}, nil
+		},
+	}, &subscriptionMock{
+		UpdateFunc: func(ctx context.Context, in *subproto.UpdateRequest, opts ...client.CallOption) (*subproto.UpdateResponse, error) {
+			return nil, errors.New("This should not be called")
+		},
+	}, &customersMock{
+		ReadFunc: func(ctx context.Context, in *csproto.ReadRequest, opts ...client.CallOption) (*csproto.ReadResponse, error) {
+			if in.Id != "someid" {
+				return nil, errors.New("Can't find")
+			}
+			return &csproto.ReadResponse{
+				Customer: &csproto.Customer{
+					Email: "email@address.com",
+				},
+			}, nil
+		},
+	}, &alertMock{
+		ReportEventFunc: func(ctx context.Context, in *asproto.ReportEventRequest, opts ...client.CallOption) (*asproto.ReportEventResponse, error) {
+			return &asproto.ReportEventResponse{
+			}, nil
+		},
+	}, &Conf{
+		additionalServicesPriceID: "servicesprice",
+		additionalUsersPriceID: "usersprice",
+		planID: "planid",
+		maxIncludedServices: 2,
+		report: false,
+		apiKey: "none",
+	})
+	updates, err := bs.calcUpdate("ns1", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(updates) != 0 {
+		t.Fatal(updates)
 	}
 }
