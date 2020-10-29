@@ -9,7 +9,7 @@ import (
 func main() {
 	// Setup the service
 	srv := service.New(
-		service.Name("payment"),
+		service.Name("payments"),
 	)
 
 	// Register the provider

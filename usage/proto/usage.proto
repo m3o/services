@@ -5,30 +5,20 @@ package usage;
 option go_package = "proto;usage";
 
 service Usage {
-	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Read(ReadRequest) returns (ReadResponse) {}
 }
 
 message Account {
-	string id = 1;
-	string namespace = 2;
-	int64 users = 3;
-	int64 services = 4;
-	int64 created = 5;
-}
-
-message ListRequest {
-	// Optional parameter to filter by namespace.
-	// If namespace is not provided, latest measurement is returned for each namespace.
 	string namespace = 1;
-	int64 offset = 2;
-	int64 limit = 3;
-	// list only distinct values (1 for each services, users etc value) for a namespace and month
-	bool distinct = 4;
-	// month for maximum value, unix timestamp
-	// defaults to current month if not specified
-	int64 distinctTime = 5;
+	int64 users = 2;
+	int64 services = 3;
 }
 
-message ListResponse {
+message ReadRequest {
+	// namespace is required
+	string namespace = 1;
+}
+
+message ReadResponse {
 	repeated Account accounts = 1;
 }

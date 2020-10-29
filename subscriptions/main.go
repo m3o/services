@@ -16,7 +16,7 @@ func main() {
 
 	// Register handler
 	srv.Handle(handler.New(
-		paymentsproto.NewProviderService("payment", srv.Client()),
+		paymentsproto.NewProviderService("payments", srv.Client()),
 	))
 
 	// Run service
