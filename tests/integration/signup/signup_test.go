@@ -975,7 +975,7 @@ func testDuplicateInvites(t *test.T, serv test.Server) {
 
 func testInviteEmailValidation(t *test.T, serv test.Server) {
 	outp, _ := serv.Command().Exec("invite", "user", "--email=notanemail.com")
-	if !strings.Contains(string(outp), "400") {
+	if !strings.Contains(string(outp), "Valid email is required") {
 		t.Fatalf("Expected a 400 bad request error %s", string(outp))
 	}
 
