@@ -529,13 +529,6 @@ func saveUpdate(record update) error {
 	if err != nil {
 		return err
 	}
-	err = mstore.Write(&mstore.Record{
-		Key:   record.ID,
-		Value: val,
-	})
-	if err != nil {
-		return err
-	}
 	return mstore.Write(&mstore.Record{
 		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.CustomerID),
 		Value: val,
