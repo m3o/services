@@ -350,11 +350,11 @@ func testAdminInvites(t *test.T) {
 	t.T().Logf("Namespace joined: %v", string(outp))
 }
 
-func TestAdminInviteNoLimit(t *testing.T) {
-	test.TrySuite(t, testAdminInviteNoLimit, retryCount)
+func TestInviteScenarios(t *testing.T) {
+	test.TrySuite(t, testInviteScenarios, retryCount)
 }
 
-func testAdminInviteNoLimit(t *test.T) {
+func testInviteScenarios(t *test.T) {
 	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
@@ -365,36 +365,25 @@ func testAdminInviteNoLimit(t *test.T) {
 
 	setupM3Tests(serv, t)
 
+	emails := []string{}
 	// Make sure test mod is on otherwise this will spam
 	for i := 0; i < 10; i++ {
 		test.Try("Send invite", t, func() ([]byte, error) {
-			return serv.Command().Exec("invite", "user", "--email="+testEmail(i))
+			emails = append(emails, testEmail(i))
+			return serv.Command().Exec("invite", "user", "--email="+emails[i])
 		}, 5*time.Second)
 	}
-}
-
-func TestUserInviteLimit(t *testing.T) {
-	test.TrySuite(t, testUserInviteLimit, retryCount)
-}
-
-func testUserInviteLimit(t *test.T) {
-	// t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	setupM3Tests(serv, t)
-	email := testEmail(0)
-	password := "PassWord1@"
-
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
 
 	logout(serv, t)
+	testUserInviteLimit(t, serv, emails[0])
+	testUserInviteNoJoin(t, serv, emails[1])
+	testUserInviteJoinDecline(t, serv, emails[2])
+	testUserInviteToNotOwnedNamespace(t, serv, emails[3])
+
+}
+
+func testUserInviteLimit(t *test.T, serv test.Server, email string) {
+	password := "password"
 
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
@@ -411,28 +400,8 @@ func testUserInviteLimit(t *test.T) {
 	}
 }
 
-func TestUserInviteNoJoin(t *testing.T) {
-	test.TrySuite(t, testUserInviteNoJoin, retryCount)
-}
-
-func testUserInviteNoJoin(t *test.T) {
-	// t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	setupM3Tests(serv, t)
-	email := testEmail(0)
+func testUserInviteNoJoin(t *test.T, serv test.Server, email string) {
 	password := "PassWord1@"
-
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
-
-	logout(serv, t)
 
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
@@ -473,29 +442,8 @@ func testUserInviteNoJoin(t *test.T) {
 	}
 }
 
-func TestUserInviteJoinDecline(t *testing.T) {
-	test.TrySuite(t, testUserInviteJoinDecline, retryCount)
-}
-
-func testUserInviteJoinDecline(t *test.T) {
-	// t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	setupM3Tests(serv, t)
-	email := testEmail(0)
+func testUserInviteJoinDecline(t *test.T, serv test.Server, email string) {
 	password := "PassWord1@"
-
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
-
-	logout(serv, t)
-
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
@@ -535,28 +483,8 @@ func testUserInviteJoinDecline(t *test.T) {
 	}
 }
 
-func TestUserInviteToNotOwnedNamespace(t *testing.T) {
-	test.TrySuite(t, testUserInviteToNotOwnedNamespace, retryCount)
-}
-
-func testUserInviteToNotOwnedNamespace(t *test.T) {
-	// t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	setupM3Tests(serv, t)
-	email := testEmail(0)
+func testUserInviteToNotOwnedNamespace(t *test.T, serv test.Server, email string) {
 	password := "PassWord1@"
-
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
-
-	logout(serv, t)
 
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
 
