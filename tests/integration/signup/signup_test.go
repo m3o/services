@@ -628,7 +628,7 @@ func testServicesSubscription(t *test.T) {
 	time.Sleep(4 * time.Second)
 	exec.Command("micro", envFlag, adminConfFlag, "run", "../../../billing").CombinedOutput()
 
-	changeId := ""
+	customerId := ""
 	test.Try("Get changes", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
 		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
@@ -651,7 +651,7 @@ func testServicesSubscription(t *test.T) {
 		if updates[0].(map[string]interface{})["quantityTo"].(string) != "1" {
 			return fulloutp, errors.New("Quantity should be 1")
 		}
-		changeId = updates[0].(map[string]interface{})["id"].(string)
+		customerId = updates[0].(map[string]interface{})["customerID"].(string)
 		if !strings.Contains(string(outp), "Additional services") {
 			return fulloutp, errors.New("unexpected output")
 		}
@@ -662,7 +662,7 @@ func testServicesSubscription(t *test.T) {
 	}, 90*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
-		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--id="+changeId).CombinedOutput()
+		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply",  "--customerID="+customerId).CombinedOutput()
 	}, 5*time.Second)
 
 	time.Sleep(4 * time.Second)
@@ -730,7 +730,7 @@ func testUsersSubscription(t *test.T) {
 	time.Sleep(4 * time.Second)
 	exec.Command("micro", envFlag, adminConfFlag, "run", "../../../billing").CombinedOutput()
 
-	changeId := ""
+	customerId := ""
 	test.Try("Get changes", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
 		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
@@ -753,7 +753,7 @@ func testUsersSubscription(t *test.T) {
 		if updates[0].(map[string]interface{})["quantityTo"].(string) != "1" {
 			return outp, errors.New("Quantity should be 1")
 		}
-		changeId = updates[0].(map[string]interface{})["id"].(string)
+		customerId = changeId = updates[0].(map[string]interface{})["customerID"].(string)
 		if !strings.Contains(string(outp), "Additional users") {
 			return outp, errors.New("unexpected output")
 		}
@@ -764,7 +764,7 @@ func testUsersSubscription(t *test.T) {
 	}, 40*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
-		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--id="+changeId).CombinedOutput()
+		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--customerID="+customerId).CombinedOutput()
 	}, 5*time.Second)
 
 	time.Sleep(4 * time.Second)
