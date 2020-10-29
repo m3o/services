@@ -374,6 +374,9 @@ func testInviteScenarios(t *test.T) {
 		}, 5*time.Second)
 	}
 
+	testDuplicateInvites(t, serv)
+	testInviteEmailValidation(t, serv)
+
 	logout(serv, t)
 	testUserInviteLimit(t, serv, emails[0])
 	testUserInviteNoJoin(t, serv, emails[1])
@@ -979,20 +982,7 @@ func getSrcString(envvar, dflt string) string {
 	return dflt
 }
 
-func TestDuplicateInvites(t *testing.T) {
-	test.TrySuite(t, testDuplicateInvites, retryCount)
-}
-
-func testDuplicateInvites(t *test.T) {
-	// t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	setupM3Tests(serv, t)
+func testDuplicateInvites(t *test.T, serv test.Server) {
 	email := testEmail(0)
 
 	test.Try("Send invite", t, func() ([]byte, error) {
@@ -1027,21 +1017,7 @@ func testDuplicateInvites(t *test.T) {
 
 }
 
-func TestInviteEmailValidation(t *testing.T) {
-	test.TrySuite(t, testInviteEmailValidation, retryCount)
-}
-
-func testInviteEmailValidation(t *test.T) {
-	// t.Parallel()
-
-	serv := test.NewServer(t, test.WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	setupM3Tests(serv, t)
-
+func testInviteEmailValidation(t *test.T, serv test.Server) {
 	outp, _ := serv.Command().Exec("invite", "user", "--email=notanemail.com")
 	if !strings.Contains(string(outp), "400") {
 		t.Fatalf("Expected a 400 bad request error %s", string(outp))
