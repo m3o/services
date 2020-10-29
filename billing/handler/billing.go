@@ -418,8 +418,8 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
 				Event: &asproto.Event{
 					Category: "billing",
-					Action:   "Users Count Change",
-					Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
+					Action:   "User Count Change",
+					Label:    fmt.Sprintf("User '%v' users subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
 				},
 			})
 			if err != nil {
@@ -463,7 +463,7 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 				Event: &asproto.Event{
 					Category: "billing",
 					Action:   "Service Count Change",
-					Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
+					Label:    fmt.Sprintf("User '%v' services subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
 				},
 			})
 			if err != nil {
