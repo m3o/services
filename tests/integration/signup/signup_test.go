@@ -206,46 +206,9 @@ func testSignupFlow(t *test.T) {
 
 	setupM3Tests(serv, t)
 
-	// flags
-	envFlag := "-e=" + serv.Env()
-	confFlag := "-c=" + serv.Command().Config
-
 	email := testEmail(0)
 
 	time.Sleep(5 * time.Second)
-
-	cmd := exec.Command("micro", envFlag, confFlag, "signup")
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		t.Fatal(err)
-	}
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		outp, err := cmd.CombinedOutput()
-		if err == nil {
-			t.Fatalf("Expected an error for login but got none")
-		} else if !strings.Contains(string(outp), "You have not been invited to the service") {
-			t.Fatal(string(outp))
-		}
-		wg.Done()
-	}()
-	go func() {
-		time.Sleep(20 * time.Second)
-		cmd.Process.Kill()
-	}()
-	_, err = io.WriteString(stdin, email+"\n")
-	if err != nil {
-		t.Fatal(err)
-	}
-	wg.Wait()
-	if t.Failed() {
-		return
-	}
-
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
 
 	// Log out of the admin account to start testing signups
 	logout(serv, t)
