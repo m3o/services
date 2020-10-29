@@ -28,7 +28,10 @@ const (
 	signupSuccessString = "Signup complete"
 )
 
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+var (
+	letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+	runLock     sync.Mutex
+)
 
 func randStringRunes(n int) string {
 	rand.Seed(time.Now().Unix())
@@ -117,13 +120,17 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 		{envVar: "M3O_EMAILS_SVC", deflt: "../../../emails"},
 	}
 
+	// HACK calling micro run here is not thread safe because it does a go mod vendor
+	runLock.Lock()
 	for _, v := range services {
 		outp, err := serv.Command().Exec("run", getSrcString(v.envVar, v.deflt))
 		if err != nil {
+			runLock.Unlock()
 			t.Fatal(string(outp))
 			return
 		}
 	}
+	runLock.Unlock()
 
 	if err := test.Try("Find signup, invite and stripe in list", t, func() ([]byte, error) {
 		outp, err := serv.Command().Exec("services")
@@ -196,7 +203,7 @@ func logout(serv test.Server, t *test.T) {
 }
 
 func testSignupFlow(t *test.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -311,7 +318,7 @@ func TestInviteScenarios(t *testing.T) {
 }
 
 func testInviteScenarios(t *test.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -477,7 +484,7 @@ func TestServicesSubscription(t *testing.T) {
 }
 
 func testServicesSubscription(t *test.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -589,7 +596,7 @@ func TestUsersSubscription(t *testing.T) {
 }
 
 func testUsersSubscription(t *test.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -988,7 +995,7 @@ func TestSubCancellation(t *testing.T) {
 }
 
 func testSubCancellation(t *test.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -1115,7 +1122,7 @@ func TestFreeSignupFlow(t *testing.T) {
 }
 
 func testFreeSignupFlow(t *test.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
