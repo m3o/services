@@ -213,6 +213,11 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	}
 	if req.All {
 		c := -1
+		// We loop until there are no more records to process
+		// as after an update is processed, it will get deleted.
+		// subscriptions.Update should be idempotent so it should not
+		// cause in issue if the store is only eventually consistent and
+		// an update gets processed more than once.
 		for {
 			// prevent infinite loops
 			if c > 100 {
