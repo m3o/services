@@ -336,7 +336,6 @@ func testInviteScenarios(t *test.T) {
 			return serv.Command().Exec("invite", "user", "--email="+emails[i])
 		}, 5*time.Second)
 	}
-
 	testDuplicateInvites(t, serv)
 	testInviteEmailValidation(t, serv)
 
@@ -935,12 +934,12 @@ func signup(serv test.Server, t *test.T, email, password string, opts signupOpti
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.Failed() {
-		t.Logf("Failed signup")
+		t.Logf("Failed signup %s %s", email, serv.Env())
 		return
 	}
-	t.Logf("Waiting at end of signup")
+	t.Logf("Waiting at end of signup %s %s", email, serv.Env())
 	wg.Wait()
-	t.Logf("Signup complete for %s", email)
+	t.Logf("Signup complete for %s %s", email, serv.Env())
 
 }
 
