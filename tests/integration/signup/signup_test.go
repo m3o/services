@@ -679,11 +679,11 @@ func testServicesSubscription(t *test.T) {
 
 	test.Try("Get changes again", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
 		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
 		fulloutp := append(outp, outp1...)
+		if err != nil {
+			return fulloutp, err
+		}
 		updatesRsp := map[string]interface{}{}
 		err = json.Unmarshal(outp, &updatesRsp)
 		if err != nil {
@@ -733,8 +733,10 @@ func testUsersSubscription(t *test.T) {
 	changeId := ""
 	test.Try("Get changes", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", envFlag, adminConfFlag, "billing", "updates").CombinedOutput()
+		outp1, _ := exec.Command("micro", envFlag, adminConfFlag, "logs", "billing").CombinedOutput()
+		fulloutp := append(outp, outp1...)
 		if err != nil {
-			return outp, err
+			return fulloutp, err
 		}
 		updatesRsp := map[string]interface{}{}
 		err = json.Unmarshal(outp, &updatesRsp)
