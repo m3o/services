@@ -7,22 +7,15 @@ import (
 	rproto "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 )
 
 var (
 	defaultNetworkPolicyName = "ingress"
 	defaultResourceQuotaName = "quota"
 	defaultAllowedLabels     = map[string]string{"owner": "micro"}
-	defaultResourceLimits    = &rproto.Resources{
-		CPU:              8000,
-		EphemeralStorage: 8000,
-		Memory:           8000,
-	}
-	defaultResourceRequests = &rproto.Resources{
-		CPU:              8000,
-		EphemeralStorage: 8000,
-		Memory:           8000,
-	}
+	defaultResourceLimits    = &rproto.Resources{}
+	defaultResourceRequests  = &rproto.Resources{}
 )
 
 // Platform implements the platform service interface
@@ -33,6 +26,31 @@ type Platform struct {
 
 // New returns an initialised platform handler
 func New(service *service.Service) *Platform {
+
+	if val, err := config.Get("micro.platform.resource_limits.cpu"); err != nil {
+		defaultResourceLimits.CPU = int32(val.Int(8000))
+	}
+
+	if val, err := config.Get("micro.platform.resource_limits.disk"); err != nil {
+		defaultResourceLimits.EphemeralStorage = int32(val.Int(8000))
+	}
+
+	if val, err := config.Get("micro.platform.resource_limits.memory"); err != nil {
+		defaultResourceLimits.Memory = int32(val.Int(8000))
+	}
+
+	if val, err := config.Get("micro.platform.resource_requests.cpu"); err != nil {
+		defaultResourceRequests.CPU = int32(val.Int(8000))
+	}
+
+	if val, err := config.Get("micro.platform.resource_requests.disk"); err != nil {
+		defaultResourceRequests.EphemeralStorage = int32(val.Int(8000))
+	}
+
+	if val, err := config.Get("micro.platform.resource_requests.memory"); err != nil {
+		defaultResourceRequests.Memory = int32(val.Int(8000))
+	}
+
 	return &Platform{
 		name:    service.Name(),
 		runtime: rproto.NewRuntimeService("runtime", client.DefaultClient),
