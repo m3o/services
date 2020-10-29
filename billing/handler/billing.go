@@ -472,11 +472,14 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 }
 
 func deleteUpdate(record *update) error {
-	err := mstore.Delete(fmt.Sprintf("%v%v", updatePrefix, record.ID))
+	if len(record.CustomerID) == 0 {
+		return fmt.Errorf("Can't delete update, customer id is empty")
+	}
+	err := mstore.Delete(fmt.Sprintf("%v%v", updatePrefix, record.CustomerID))
 	if err != nil {
 		return err
 	}
-	return mstore.Delete(fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.ID))
+	return mstore.Delete(fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.CustomerID))
 }
 
 func (b *Billing) loop() {
