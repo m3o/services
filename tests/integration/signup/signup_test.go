@@ -153,21 +153,21 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 	// Adjust rules before we signup into a non admin account
 	outp, err := serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:invite:*\"", "invite")
 	if err != nil {
-		t.Fatalf("Error setting up rules: %v", outp)
+		t.Fatalf("Error setting up rules: %v", string(outp))
 		return
 	}
 
 	// Adjust rules before we signup into a non admin account
 	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:signup:*\"", "signup")
 	if err != nil {
-		t.Fatalf("Error setting up rules: %v", outp)
+		t.Fatalf("Error setting up rules: %v", string(outp))
 		return
 	}
 
 	// Adjust rules before we signup into a non admin account
 	outp, err = serv.Command().Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource=\"service:auth:*\"", "auth")
 	if err != nil {
-		t.Fatalf("Error setting up rules: %v", outp)
+		t.Fatalf("Error setting up rules: %v", string(outp))
 		return
 	}
 
@@ -662,7 +662,7 @@ func testServicesSubscription(t *test.T) {
 	}, 90*time.Second)
 
 	test.Try("Apply change", t, func() ([]byte, error) {
-		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply",  "--customerID="+customerId).CombinedOutput()
+		return exec.Command("micro", envFlag, adminConfFlag, "billing", "apply", "--customerID="+customerId).CombinedOutput()
 	}, 5*time.Second)
 
 	time.Sleep(4 * time.Second)
@@ -753,7 +753,7 @@ func testUsersSubscription(t *test.T) {
 		if updates[0].(map[string]interface{})["quantityTo"].(string) != "1" {
 			return outp, errors.New("Quantity should be 1")
 		}
-		customerId = changeId = updates[0].(map[string]interface{})["customerID"].(string)
+		customerId = updates[0].(map[string]interface{})["customerID"].(string)
 		if !strings.Contains(string(outp), "Additional users") {
 			return outp, errors.New("unexpected output")
 		}

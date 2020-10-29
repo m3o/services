@@ -257,6 +257,9 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 		return nil
 	}
 
+	if len(req.CustomerID) == 0 {
+		return errors.BadRequest("billing.Apply", "Customer ID is empty")
+	}
 	records, err := mstore.Read(fmt.Sprintf("%v%v", updatePrefix, req.CustomerID))
 	if err != nil || len(records) == 0 {
 		return merrors.InternalServerError("billing.Apply", "Error reading change: %v", err)
