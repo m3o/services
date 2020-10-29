@@ -196,7 +196,7 @@ func logout(serv test.Server, t *test.T) {
 }
 
 func testSignupFlow(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -348,7 +348,7 @@ func TestAdminInvites(t *testing.T) {
 }
 
 func testAdminInvites(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -392,7 +392,7 @@ func TestAdminInviteNoLimit(t *testing.T) {
 }
 
 func testAdminInviteNoLimit(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -415,7 +415,7 @@ func TestUserInviteLimit(t *testing.T) {
 }
 
 func testUserInviteLimit(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -453,7 +453,7 @@ func TestUserInviteNoJoin(t *testing.T) {
 }
 
 func testUserInviteNoJoin(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -515,7 +515,7 @@ func TestUserInviteJoinDecline(t *testing.T) {
 }
 
 func testUserInviteJoinDecline(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -577,7 +577,7 @@ func TestUserInviteToNotOwnedNamespace(t *testing.T) {
 }
 
 func testUserInviteToNotOwnedNamespace(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -627,7 +627,7 @@ func TestServicesSubscription(t *testing.T) {
 }
 
 func testServicesSubscription(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -739,7 +739,7 @@ func TestUsersSubscription(t *testing.T) {
 }
 
 func testUsersSubscription(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -1093,7 +1093,7 @@ func TestDuplicateInvites(t *testing.T) {
 }
 
 func testDuplicateInvites(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -1141,7 +1141,7 @@ func TestInviteEmailValidation(t *testing.T) {
 }
 
 func testInviteEmailValidation(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -1163,7 +1163,7 @@ func TestSubCancellation(t *testing.T) {
 }
 
 func testSubCancellation(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
@@ -1290,7 +1290,7 @@ func TestFreeSignupFlow(t *testing.T) {
 }
 
 func testFreeSignupFlow(t *test.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	serv := test.NewServer(t, test.WithLogin())
 	defer serv.Close()
