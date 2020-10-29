@@ -355,7 +355,7 @@ func testUserInviteLimit(t *test.T, serv test.Server, email string) {
 
 	outp, err := serv.Command().Exec("invite", "user", "--email="+testEmail(7))
 	if err == nil {
-		t.Fatalf("Sending 6th invite should fail: %v", outp)
+		t.Fatalf("Sending 6th invite should fail: %v", string(outp))
 	}
 }
 
