@@ -352,6 +352,7 @@ func testUserInviteLimit(t *test.T, serv test.Server, email string) {
 	password := "password"
 
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+	defer logout(serv, t)
 
 	// Make sure test mod is on otherwise this will spam
 	for i := 0; i < 5; i++ {
@@ -370,6 +371,7 @@ func testUserInviteNoJoin(t *test.T, serv test.Server, email string) {
 	password := "PassWord1@"
 
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+	defer logout(serv, t)
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -411,6 +413,7 @@ func testUserInviteNoJoin(t *test.T, serv test.Server, email string) {
 func testUserInviteJoinDecline(t *test.T, serv test.Server, email string) {
 	password := "PassWord1@"
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+	defer logout(serv, t)
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
@@ -453,6 +456,7 @@ func testUserInviteToNotOwnedNamespace(t *test.T, serv test.Server, email string
 	password := "PassWord1@"
 
 	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
+	defer logout(serv, t)
 
 	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
 	if err != nil {
