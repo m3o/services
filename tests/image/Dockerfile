@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.12.1
 RUN apk add make git go gcc libtool musl-dev curl bash
 
 # Configure Go
