@@ -214,6 +214,10 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 	if req.All {
 		c := -1
 		for {
+			// prevent infinite loops
+			if c > 100 {
+				break
+			}
 			c++
 			// we will keep reading and deleting until there are no more records
 			records, err := mstore.Read("", mstore.Prefix(updatePrefix))
