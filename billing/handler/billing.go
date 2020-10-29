@@ -476,9 +476,6 @@ func deleteUpdate(record *update) error {
 	if err != nil {
 		return err
 	}
-	if err != nil {
-		return err
-	}
 	return mstore.Delete(fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.ID))
 }
 
