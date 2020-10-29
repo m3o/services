@@ -473,7 +473,7 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 
 func deleteUpdate(record *update) error {
 	if len(record.CustomerID) == 0 {
-		return fmt.Errorf("Can't delete update, customer id is empty")
+		return fmt.Errorf("Can't delete update, customer ID is empty")
 	}
 	err := mstore.Delete(fmt.Sprintf("%v%v", updatePrefix, record.CustomerID))
 	if err != nil {
@@ -517,7 +517,7 @@ func (b *Billing) loop() {
 
 func saveUpdate(record update) error {
 	if len(record.CustomerID) == 0 {
-		return fmt.Errorf("Customer ID is empty")
+		return fmt.Errorf("Can't save update, customer ID is empty")
 	}
 	tim := time.Now()
 	record.Created = tim.Unix()
