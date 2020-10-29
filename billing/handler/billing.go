@@ -249,6 +249,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 				}
 			}
 		}
+		return nil
 	}
 
 	records, err := mstore.Read(req.Id)
