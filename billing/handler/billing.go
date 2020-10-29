@@ -513,11 +513,14 @@ func (b *Billing) loop() {
 }
 
 func saveUpdate(record update) error {
+	if len(record.CustomerID) == 0 {
+		return fmt.Errorf("Customer ID is empty")
+	}
 	tim := time.Now()
 	record.Created = tim.Unix()
 	val, _ := json.Marshal(record)
 	err := mstore.Write(&mstore.Record{
-		Key:   fmt.Sprintf("%v%v", updatePrefix, record.ID),
+		Key:   fmt.Sprintf("%v%v", updatePrefix, record.CustomerID),
 		Value: val,
 	})
 	if err != nil {
@@ -531,7 +534,7 @@ func saveUpdate(record update) error {
 		return err
 	}
 	return mstore.Write(&mstore.Record{
-		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.ID),
+		Key:   fmt.Sprintf("%v%v/%v", updateByNamespacePrefix, record.Namespace, record.CustomerID),
 		Value: val,
 	})
 }
