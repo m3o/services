@@ -117,7 +117,7 @@ func getConfig() *Conf {
 
 	val, err = mconfig.Get("micro.billing.report")
 	if err != nil {
-		log.Warnf("Can't load max included services: %v", err)
+		log.Warnf("Can't load report config: %v", err)
 	}
 	doReporting := val.Bool(false)
 
