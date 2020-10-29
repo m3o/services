@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.3
-	github.com/micro/micro/v3 v3.0.0-beta.7
+	github.com/micro/micro/v3 v3.0.0-beta.7.0.20201028201939-a2d86fdeb9d7
 	github.com/minio/minio-go/v7 v7.0.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron v1.2.0
