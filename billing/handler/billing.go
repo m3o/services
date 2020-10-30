@@ -257,7 +257,10 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 		return nil
 	}
 
-	records, err := mstore.Read(req.Id)
+	if len(req.CustomerID) == 0 {
+		return errors.BadRequest("billing.Apply", "Customer ID is empty")
+	}
+	records, err := mstore.Read(fmt.Sprintf("%v%v", updatePrefix, req.CustomerID))
 	if err != nil || len(records) == 0 {
 		return merrors.InternalServerError("billing.Apply", "Error reading change: %v", err)
 	}
@@ -415,8 +418,8 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 			_, err = b.as.ReportEvent(context.TODO(), &asproto.ReportEventRequest{
 				Event: &asproto.Event{
 					Category: "billing",
-					Action:   "Users Count Change",
-					Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
+					Action:   "User Count Change",
+					Label:    fmt.Sprintf("User '%v' users subscription value should change from %v to %v", customerEmail, quantity, usg.Users-1),
 				},
 			})
 			if err != nil {
@@ -460,7 +463,7 @@ func (b *Billing) calcUpdate(namespace string, persist bool) ([]update, error) {
 				Event: &asproto.Event{
 					Category: "billing",
 					Action:   "Service Count Change",
-					Label:    fmt.Sprintf("User '%v' service subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
+					Label:    fmt.Sprintf("User '%v' services subscription value should change from %v to %v", customerEmail, quantity, quantityShouldBe),
 				},
 			})
 			if err != nil {
@@ -524,13 +527,6 @@ func saveUpdate(record update) error {
 	val, _ := json.Marshal(record)
 	err := mstore.Write(&mstore.Record{
 		Key:   fmt.Sprintf("%v%v", updatePrefix, record.CustomerID),
-		Value: val,
-	})
-	if err != nil {
-		return err
-	}
-	err = mstore.Write(&mstore.Record{
-		Key:   record.ID,
 		Value: val,
 	})
 	if err != nil {

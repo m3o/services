@@ -43,8 +43,8 @@ message UpdatesResponse {
 }
 
 message ApplyRequest {
-	string id = 1;
-	bool all = 2;
+	string customerID = 2;
+	bool all = 3;
 }
 
 message ApplyResponse {
