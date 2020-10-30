@@ -27,29 +27,23 @@ type Platform struct {
 // New returns an initialised platform handler
 func New(service *service.Service) *Platform {
 
-	if val, err := config.Get("micro.platform.resource_limits.cpu"); err != nil {
-		defaultResourceLimits.CPU = int32(val.Int(8000))
-	}
+	val, _ := config.Get("micro.platform.resource_limits.cpu")
+	defaultResourceLimits.CPU = int32(val.Int(8000))
 
-	if val, err := config.Get("micro.platform.resource_limits.disk"); err != nil {
-		defaultResourceLimits.EphemeralStorage = int32(val.Int(8000))
-	}
+	val, _ = config.Get("micro.platform.resource_limits.disk")
+	defaultResourceLimits.EphemeralStorage = int32(val.Int(8000))
 
-	if val, err := config.Get("micro.platform.resource_limits.memory"); err != nil {
-		defaultResourceLimits.Memory = int32(val.Int(8000))
-	}
+	val, _ = config.Get("micro.platform.resource_limits.memory")
+	defaultResourceLimits.Memory = int32(val.Int(8000))
 
-	if val, err := config.Get("micro.platform.resource_requests.cpu"); err != nil {
-		defaultResourceRequests.CPU = int32(val.Int(8000))
-	}
+	val, _ = config.Get("micro.platform.resource_requests.cpu")
+	defaultResourceRequests.CPU = int32(val.Int(8000))
 
-	if val, err := config.Get("micro.platform.resource_requests.disk"); err != nil {
-		defaultResourceRequests.EphemeralStorage = int32(val.Int(8000))
-	}
+	val, _ = config.Get("micro.platform.resource_requests.disk")
+	defaultResourceRequests.EphemeralStorage = int32(val.Int(8000))
 
-	if val, err := config.Get("micro.platform.resource_requests.memory"); err != nil {
-		defaultResourceRequests.Memory = int32(val.Int(8000))
-	}
+	val, _ = config.Get("micro.platform.resource_requests.memory")
+	defaultResourceRequests.Memory = int32(val.Int(8000))
 
 	return &Platform{
 		name:    service.Name(),
