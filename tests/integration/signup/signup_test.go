@@ -341,7 +341,7 @@ func testInviteScenarios(t *test.T) {
 	if testDuplicateInvites(t, serv); t.Failed() {
 		return
 	}
-	testInviteEmailValidation(t, serv); t.Failed() {
+	if testInviteEmailValidation(t, serv); t.Failed() {
 		return
 	}
 
