@@ -129,6 +129,7 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 			t.Fatal(string(outp))
 			return
 		}
+		time.Sleep(2 * time.Second)
 	}
 	runLock.Unlock()
 
