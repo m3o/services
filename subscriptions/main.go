@@ -1,7 +1,7 @@
 package main
 
 import (
-	paymentsproto "github.com/m3o/services/payments/provider/proto"
+	paymentsproto "github.com/m3o/services/payments/proto"
 	"github.com/m3o/services/subscriptions/handler"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"

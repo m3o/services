@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/m3o/services/payments/provider/proto"
+	pb "github.com/m3o/services/payments/proto"
 	"github.com/micro/micro/v3/service/errors"
 	stripe "github.com/stripe/stripe-go/v71"
 )
