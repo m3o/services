@@ -1,0 +1,53 @@
+replicaCount: 1
+podAnnotations: {}
+podLabels: {}
+image:
+  repository: metabase/metabase
+  tag: v0.37.0.2
+  pullPolicy: IfNotPresent
+
+listen:
+  host: "0.0.0.0"
+  port: 3000
+ssl:
+  enabled: false
+
+# Backend database
+database:
+  type: postgres
+  connectionURI: "postgresql://root@cockroachdb-cluster-public:26257/metabase?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
+
+password:
+  complexity: normal
+  length: 6
+
+timeZone: UTC
+emojiLogging: true
+
+livenessProbe:
+  initialDelaySeconds: 120
+  timeoutSeconds: 30
+  failureThreshold: 6
+
+readinessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 3
+  periodSeconds: 5
+
+service:
+  name: metabase
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 3000
+
+ingress:
+  enabled: true
+  # Used to create Ingress record (should used with service.type: ClusterIP).
+  hosts:
+    - data.m3o.com
+  # The ingress path. Useful to host metabase on a subpath, such as `/metabase`.
+  path: /
+  tls:
+    - secretName: data-tls
+      hosts:
+        - data.m3o.com
