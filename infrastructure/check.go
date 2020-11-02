@@ -25,6 +25,9 @@ func checkInfraUsageCron() {
 	if err != nil {
 		return
 	}
+	if len(issues) == 0 {
+		return
+	}
 	msg := fmt.Sprintf("*Possible infrastructure wastage detected*:")
 	for _, i := range issues {
 		msg += fmt.Sprintf("\n- %v", i)
