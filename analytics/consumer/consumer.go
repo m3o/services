@@ -15,7 +15,7 @@ import (
 
 const (
 	groupName = "analytics"
-	defaultPG = "user=postgres dbname=postgres port=5432 sslmode=disable"
+	defaultPG = "host=localhost user=postgres dbname=postgres sslmode=disable password=password"
 )
 
 // Consumer will subscribe to events and then store them in a database
