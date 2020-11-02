@@ -20,7 +20,8 @@ const (
 
 // Consumer will subscribe to events and then store them in a database
 type Consumer struct {
-	db *gorm.DB
+	db      *gorm.DB
+	ErrChan chan error
 }
 
 type eventHandler func(events.Event) error
@@ -74,7 +75,10 @@ func (c *Consumer) subscribeToTopic(topic string, handler eventHandler) error {
 			ev.Ack()
 		}
 
-		logger.Infof("Stopped reading from topic: %v", topic)
+		// exit the application
+		if c.ErrChan != nil {
+			c.ErrChan <- fmt.Errorf("Stopped reading from topic: %v", topic)
+		}
 	}()
 
 	return nil
