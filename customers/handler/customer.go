@@ -33,7 +33,6 @@ const (
 
 	prefixCustomer      = "customers/"
 	prefixCustomerEmail = "email/"
-	custTopic           = "customers"
 )
 
 type CustomerModel struct {
@@ -101,10 +100,21 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 		return err
 	}
 	response.Customer = objToProto(cust)
-	ev := CustomerEvent{Customer: *cust, Type: "customers.created"}
-	if err := mevents.Publish(custTopic, ev); err != nil {
-		log.Errorf("Error publishing customers.created event %+v", ev)
+
+	// Publish the event
+	var callerID string
+	if acc, ok := auth.AccountFromContext(ctx); ok {
+		callerID = acc.ID
 	}
+	ev := &customer.Event{
+		Type:     customer.EventType_EventTypeCreated,
+		Customer: response.Customer,
+		CallerId: callerID,
+	}
+	if err := mevents.Publish(customer.EventsTopic, ev); err != nil {
+		log.Errorf("Error publishing event %+v", ev)
+	}
+
 	return nil
 }
 
@@ -121,10 +131,26 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 	if strings.TrimSpace(email) == "" {
 		return errors.BadRequest("customers.markverified", "Email is required")
 	}
-	_, err := updateCustomerStatusByEmail(email, statusVerified)
+
+	cus, err := updateCustomerStatusByEmail(email, statusVerified)
 	if err != nil {
 		return err
 	}
+
+	// Publish the event
+	var callerID string
+	if acc, ok := auth.AccountFromContext(ctx); ok {
+		callerID = acc.ID
+	}
+	ev := &customer.Event{
+		Type:     customer.EventType_EventTypeVerified,
+		Customer: objToProto(cus),
+		CallerId: callerID,
+	}
+	if err := mevents.Publish(customer.EventsTopic, ev); err != nil {
+		log.Errorf("Error publishing event %+v", ev)
+	}
+
 	return nil
 }
 
@@ -209,7 +235,7 @@ func updateCustomerStatus(id, status, prefix string) (*CustomerModel, error) {
 		return nil, err
 	}
 	ev := CustomerEvent{Customer: *cust, Type: "customers." + status}
-	if err := mevents.Publish(custTopic, ev); err != nil {
+	if err := mevents.Publish(customer.EventsTopic, ev); err != nil {
 		log.Errorf("Error publishing customers.%s event %+v", status, ev)
 	}
 
@@ -286,11 +312,21 @@ func (c *Customers) deleteCustomer(ctx context.Context, customerID string) error
 	if err != nil {
 		return err
 	}
-	// fire deleted event
-	ev := CustomerEvent{Customer: *cust, Type: "customers.deleted"}
-	if err := mevents.Publish(custTopic, ev); err != nil {
-		log.Errorf("Error publishing customers.deleted event %+v", ev)
+
+	// Publish the event
+	var callerID string
+	if acc, ok := auth.AccountFromContext(ctx); ok {
+		callerID = acc.ID
 	}
+	ev := &customer.Event{
+		Type:     customer.EventType_EventTypeDeleted,
+		Customer: objToProto(cust),
+		CallerId: callerID,
+	}
+	if err := mevents.Publish(customer.EventsTopic, ev); err != nil {
+		log.Errorf("Error publishing event %+v", ev)
+	}
+
 	return nil
 }
 

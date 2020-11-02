@@ -1,8 +1,7 @@
 syntax = "proto3";
 
 package customers;
-
-option go_package = "proto;customers";
+option go_package = "github.com/m3o/services/customers/proto;customers";
 
 service Customers {
 	// Creates a new, unverified customer
@@ -13,9 +12,21 @@ service Customers {
 	rpc Read(ReadRequest) returns (ReadResponse) {}
 	// Marks a customer as inactive
 	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
-
 }
 
+enum EventType {
+	EventTypeUnknown = 0;
+	EventTypeCreated = 1;
+	EventTypeUpdated = 2;
+	EventTypeDeleted = 3;
+	EventTypeVerified = 4;
+}
+
+message Event {
+	EventType type = 1;
+	Customer customer = 2;
+	string caller_id = 3;
+}
 
 message CreateRequest {
 	string id = 1;// deprecated
