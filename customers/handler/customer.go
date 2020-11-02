@@ -234,13 +234,7 @@ func updateCustomerStatus(id, status, prefix string) (*CustomerModel, error) {
 	if err := writeCustomer(cust); err != nil {
 		return nil, err
 	}
-	ev := CustomerEvent{Customer: *cust, Type: "customers." + status}
-	if err := mevents.Publish(customer.EventsTopic, ev); err != nil {
-		log.Errorf("Error publishing customers.%s event %+v", status, ev)
-	}
-
 	return cust, nil
-
 }
 
 func writeCustomer(cust *CustomerModel) error {
