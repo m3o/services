@@ -2,10 +2,10 @@ package consumer
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	customers "github.com/m3o/services/customers/proto"
-	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 
@@ -28,11 +28,10 @@ type eventHandler func(events.Event) error
 // Init the consumer, connects to the database
 func (c *Consumer) Init() error {
 	// load the database address from config
-	val, err := config.Get("analytics.database")
-	if err != nil {
-		return fmt.Errorf("Error loading config: %v", err)
+	dsn := os.Getenv("MICRO_STORE_ADDRESS")
+	if len(dsn) == 0 {
+		dsn = defaultPG
 	}
-	dsn := val.String(defaultPG)
 
 	// connect to the database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
