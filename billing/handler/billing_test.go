@@ -10,7 +10,7 @@ import(
 	asproto "github.com/m3o/services/alert/proto/alert"
 	csproto "github.com/m3o/services/customers/proto"
 	nsproto "github.com/m3o/services/namespaces/proto"
-	sproto "github.com/m3o/services/payments/provider/proto"
+	sproto "github.com/m3o/services/payments/proto"
 	subproto "github.com/m3o/services/subscriptions/proto"
 	uproto "github.com/m3o/services/usage/proto"
 )

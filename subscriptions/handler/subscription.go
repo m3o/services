@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	paymentsproto "github.com/m3o/services/payments/provider/proto"
+	paymentsproto "github.com/m3o/services/payments/proto"
 	subscription "github.com/m3o/services/subscriptions/proto"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"

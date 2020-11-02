@@ -17,7 +17,7 @@ import (
 	eproto "github.com/m3o/services/emails/proto"
 	inviteproto "github.com/m3o/services/invite/proto"
 	nproto "github.com/m3o/services/namespaces/proto"
-	pproto "github.com/m3o/services/payments/provider/proto"
+	pproto "github.com/m3o/services/payments/proto"
 	signup "github.com/m3o/services/signup/proto/signup"
 	sproto "github.com/m3o/services/subscriptions/proto"
 	"github.com/micro/micro/v3/service"
