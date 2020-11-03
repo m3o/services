@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	customers "github.com/m3o/services/customers/proto"
 	"github.com/micro/micro/v3/service/events"
@@ -60,7 +61,10 @@ func (c *Consumer) Run() error {
 }
 
 func (c *Consumer) subscribeToTopic(topic string, handler eventHandler) error {
-	evChan, err := events.Consume(customers.EventsTopic, events.WithGroup(groupName))
+	evChan, err := events.Consume(customers.EventsTopic,
+		events.WithGroup(groupName),
+		events.WithOffset(time.Unix(0, 0)),
+	)
 	if err != nil {
 		return fmt.Errorf("Error subscribing to %v topic: %v", customers.EventsTopic, err)
 	}
