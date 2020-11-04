@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	"github.com/slack-go/slack"
 
 	"github.com/minio/minio-go/v7"
