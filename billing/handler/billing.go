@@ -287,7 +287,7 @@ func (b *Billing) Portal(ctx context.Context, req *billing.PortalRequest, rsp *b
 	if !ok {
 		return errors.BadRequest("billing.Portal", "Authentication failed")
 	}
-	srsp, err := b.ss.GetProviderID(ctx, &sproto.GetProviderIDRequest{CustomerType: "user", CustomerId: acc.ID})
+	srsp, err := b.ss.GetProviderID(ctx, &sproto.GetProviderIDRequest{CustomerType: "user", CustomerId: acc.ID}, goclient.WithAuthToken())
 	if err != nil {
 		log.Errorf("Error looking up provider ID for customer %s %s", acc.ID, err.Error())
 		return errors.InternalServerError("billing.Portal", "Error while looking up customer for account %v", acc.Name)
