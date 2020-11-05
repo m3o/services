@@ -60,6 +60,7 @@ type ProviderService interface {
 	VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, opts ...client.CallOption) (*VerifyPaymentMethodResponse, error)
 	DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, opts ...client.CallOption) (*DeleteCustomerResponse, error)
 	CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, opts ...client.CallOption) (*CancelSubscriptionResponse, error)
+	GetProviderID(ctx context.Context, in *GetProviderIDRequest, opts ...client.CallOption) (*GetProviderIDResponse, error)
 }
 
 type providerService struct {
@@ -214,6 +215,16 @@ func (c *providerService) CancelSubscription(ctx context.Context, in *CancelSubs
 	return out, nil
 }
 
+func (c *providerService) GetProviderID(ctx context.Context, in *GetProviderIDRequest, opts ...client.CallOption) (*GetProviderIDResponse, error) {
+	req := c.c.NewRequest(c.name, "Provider.GetProviderID", in)
+	out := new(GetProviderIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Provider service
 
 type ProviderHandler interface {
@@ -235,6 +246,7 @@ type ProviderHandler interface {
 	VerifyPaymentMethod(context.Context, *VerifyPaymentMethodRequest, *VerifyPaymentMethodResponse) error
 	DeleteCustomer(context.Context, *DeleteCustomerRequest, *DeleteCustomerResponse) error
 	CancelSubscription(context.Context, *CancelSubscriptionRequest, *CancelSubscriptionResponse) error
+	GetProviderID(context.Context, *GetProviderIDRequest, *GetProviderIDResponse) error
 }
 
 func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...server.HandlerOption) error {
@@ -253,6 +265,7 @@ func RegisterProviderHandler(s server.Server, hdlr ProviderHandler, opts ...serv
 		VerifyPaymentMethod(ctx context.Context, in *VerifyPaymentMethodRequest, out *VerifyPaymentMethodResponse) error
 		DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, out *DeleteCustomerResponse) error
 		CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, out *CancelSubscriptionResponse) error
+		GetProviderID(ctx context.Context, in *GetProviderIDRequest, out *GetProviderIDResponse) error
 	}
 	type Provider struct {
 		provider
@@ -319,4 +332,8 @@ func (h *providerHandler) DeleteCustomer(ctx context.Context, in *DeleteCustomer
 
 func (h *providerHandler) CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, out *CancelSubscriptionResponse) error {
 	return h.ProviderHandler.CancelSubscription(ctx, in, out)
+}
+
+func (h *providerHandler) GetProviderID(ctx context.Context, in *GetProviderIDRequest, out *GetProviderIDResponse) error {
+	return h.ProviderHandler.GetProviderID(ctx, in, out)
 }
