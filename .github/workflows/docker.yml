@@ -14,11 +14,12 @@ jobs:
       - uses: elgohr/Publish-Docker-Github-Action@2.18
         name: Build and Push Docker Image
         with:
-          name: micro/cockroach-backup
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          name: m3o/cockroach-backup
+          username: ${{ secrets.GHCR_ACTOR }}
+          password: ${{ secrets.GHCR_PAT }}
           workdir: database/backup
           snapshot: true
+          registry: ghcr.io
   build-cockroach-restore:
     runs-on: ubuntu-latest
     steps:
@@ -27,8 +28,9 @@ jobs:
       - uses: elgohr/Publish-Docker-Github-Action@2.18
         name: Build and Push Docker Image
         with:
-          name: micro/cockroach-restore
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          name: m3o/cockroach-restore
+          username: ${{ secrets.GHCR_ACTOR }}
+          password: ${{ secrets.GHCR_PAT }}
           workdir: database/restore
           snapshot: true
+          registry: ghcr.io

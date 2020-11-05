@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
           - name: cockroach-backup
-            image: micro/cockroach-backup
+            image: ghcr.io/m3o/cockroach-backup
             imagePullPolicy: Always
             volumeMounts:
             - name: cockroachdb-client-certs

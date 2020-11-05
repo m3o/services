@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
   - name: cockroach-restore
-    image: micro/cockroach-restore
+    image: ghcr.io/m3o/cockroach-restore
     imagePullPolicy: Always
     volumeMounts:
     - name: cockroachdb-client-certs
