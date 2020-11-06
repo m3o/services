@@ -43,6 +43,7 @@ func NewUsageEndpoints() []*api.Endpoint {
 
 type UsageService interface {
 	Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error)
+	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 }
 
 type usageService struct {
@@ -67,15 +68,27 @@ func (c *usageService) Read(ctx context.Context, in *ReadRequest, opts ...client
 	return out, nil
 }
 
+func (c *usageService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	req := c.c.NewRequest(c.name, "Usage.List", in)
+	out := new(ListResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Usage service
 
 type UsageHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
+	List(context.Context, *ListRequest, *ListResponse) error
 }
 
 func RegisterUsageHandler(s server.Server, hdlr UsageHandler, opts ...server.HandlerOption) error {
 	type usage interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
+		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 	}
 	type Usage struct {
 		usage
@@ -90,4 +103,8 @@ type usageHandler struct {
 
 func (h *usageHandler) Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error {
 	return h.UsageHandler.Read(ctx, in, out)
+}
+
+func (h *usageHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
+	return h.UsageHandler.List(ctx, in, out)
 }
