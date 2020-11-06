@@ -14,8 +14,8 @@ import (
 	mns "github.com/m3o/services/namespaces/proto/protofakes"
 	mpay "github.com/m3o/services/payments/proto/protofakes"
 	pb "github.com/m3o/services/signup/proto/signup"
-	fakes "github.com/m3o/services/signup/signupfakes"
 	msub "github.com/m3o/services/subscriptions/proto/protofakes"
+	fakes "github.com/m3o/services/tests/fakes"
 	mauth "github.com/micro/micro/v3/service/auth/client"
 	"github.com/micro/micro/v3/service/errors"
 	mstore "github.com/micro/micro/v3/service/store"
@@ -46,7 +46,7 @@ func mockedSignup() *Signup {
 }
 
 func TestSendVerificationEmail(t *testing.T) {
-	g := NewGomegaWithT(t)
+	g := NewWithT(t)
 	signupSvc := mockedSignup()
 
 	mstore.DefaultStore = &fakes.FakeStore{}
@@ -65,4 +65,5 @@ func TestSendVerificationEmail(t *testing.T) {
 
 	err = signupSvc.sendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{Email: "foo@bar.com"}, &pb.SendVerificationEmailResponse{})
 	g.Expect(err).To(BeNil())
+
 }
