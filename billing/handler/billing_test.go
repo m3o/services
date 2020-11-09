@@ -4,8 +4,10 @@ import (
 	"testing"
 
 	malert "github.com/m3o/services/alert/proto/alert/alertfakes"
+	pb "github.com/m3o/services/billing/proto"
 	csproto "github.com/m3o/services/customers/proto"
 	mcust "github.com/m3o/services/customers/proto/protofakes"
+	mt "github.com/m3o/services/internal/test"
 	nsproto "github.com/m3o/services/namespaces/proto"
 	mns "github.com/m3o/services/namespaces/proto/protofakes"
 	sproto "github.com/m3o/services/payments/proto"
@@ -91,6 +93,34 @@ func TestNoSubscription(t *testing.T) {
 	g.Expect(updates[1].QuantityTo).To(Equal(int64(2)))
 	g.Expect(updates[1].PriceID).To(Equal("servicesprice"))
 
+	// checking billing apply
+	err = saveUpdate(updates[0])
+	g.Expect(err).To(BeNil())
+	ctx := mt.ContextWithAccount("micro", "foo")
+	err = bs.Apply(ctx, &pb.ApplyRequest{
+		CustomerID: "someid",
+		All:        false,
+	}, &pb.ApplyResponse{})
+	g.Expect(err).To(BeNil())
+	subSvc := bs.subs.(*msub.FakeSubscriptionsService)
+	g.Expect(subSvc.UpdateCallCount()).To(Equal(1))
+	_, req, _ := subSvc.UpdateArgsForCall(0)
+	g.Expect(req.PriceID).To(Equal("usersprice"))
+	g.Expect(req.Quantity).To(Equal(int64(1)))
+	g.Expect(req.OwnerID).To(Equal("someid"))
+
+	err = saveUpdate(updates[1])
+	err = bs.Apply(ctx, &pb.ApplyRequest{
+		CustomerID: "someid",
+		All:        false,
+	}, &pb.ApplyResponse{})
+	g.Expect(err).To(BeNil())
+	g.Expect(subSvc.UpdateCallCount()).To(Equal(2))
+	_, req, _ = subSvc.UpdateArgsForCall(1)
+	g.Expect(req.PriceID).To(Equal("servicesprice"))
+	g.Expect(req.Quantity).To(Equal(int64(2)))
+	g.Expect(req.OwnerID).To(Equal("someid"))
+
 }
 
 func TestSubscriptionDecrease(t *testing.T) {
@@ -131,6 +161,113 @@ func TestSubscriptionDecrease(t *testing.T) {
 	g.Expect(updates[1].QuantityTo).To(Equal(int64(2)))
 	g.Expect(updates[1].PriceID).To(Equal("servicesprice"))
 
+	// checking billing apply
+	err = saveUpdate(updates[0])
+	g.Expect(err).To(BeNil())
+	ctx := mt.ContextWithAccount("micro", "foo")
+	err = bs.Apply(ctx, &pb.ApplyRequest{
+		CustomerID: "someid",
+		All:        false,
+	}, &pb.ApplyResponse{})
+	g.Expect(err).To(BeNil())
+	subSvc := bs.subs.(*msub.FakeSubscriptionsService)
+	g.Expect(subSvc.UpdateCallCount()).To(Equal(1))
+	_, req, _ := subSvc.UpdateArgsForCall(0)
+	g.Expect(req.PriceID).To(Equal("usersprice"))
+	g.Expect(req.Quantity).To(Equal(int64(1)))
+	g.Expect(req.OwnerID).To(Equal("someid"))
+
+	err = saveUpdate(updates[1])
+	err = bs.Apply(ctx, &pb.ApplyRequest{
+		CustomerID: "someid",
+		All:        false,
+	}, &pb.ApplyResponse{})
+	g.Expect(err).To(BeNil())
+	g.Expect(subSvc.UpdateCallCount()).To(Equal(2))
+	_, req, _ = subSvc.UpdateArgsForCall(1)
+	g.Expect(req.PriceID).To(Equal("servicesprice"))
+	g.Expect(req.Quantity).To(Equal(int64(2)))
+	g.Expect(req.OwnerID).To(Equal("someid"))
+
+}
+
+func TestSubscriptionIncrease(t *testing.T) {
+	bs := mockedBilling()
+	pSvc := &mprov.FakeProviderService{}
+	pSvc.ListSubscriptionsReturns(&sproto.ListSubscriptionsResponse{
+		Subscriptions: []*sproto.Subscription{
+			{
+				Plan: &sproto.Plan{
+					Id: "servicesprice",
+				},
+				Quantity: 1,
+			},
+			{
+				Plan: &sproto.Plan{
+					Id: "usersprice",
+				},
+				Quantity: 1,
+			},
+		},
+	}, nil)
+	bs.ss = pSvc
+
+	uSvc := &musage.FakeUsageService{}
+	uSvc.ReadReturns(&uproto.ReadResponse{
+		Accounts: []*uproto.Account{
+			{
+				Namespace: "ns1",
+				Services:  7,
+				Users:     5,
+			},
+		},
+	}, nil)
+	bs.us = uSvc
+
+	updates, err := bs.calcUpdate("ns1", false)
+	g := NewWithT(t)
+	g.Expect(err).To(BeNil())
+
+	g.Expect(updates).To(HaveLen(2))
+	g.Expect(updates[0].CustomerID).To(Equal("someid"))
+	g.Expect(updates[0].CustomerEmail).To(Equal("email@address.com"))
+	g.Expect(updates[0].QuantityFrom).To(Equal(int64(1)))
+	g.Expect(updates[0].QuantityTo).To(Equal(int64(4)))
+	g.Expect(updates[0].PriceID).To(Equal("usersprice"))
+
+	g.Expect(updates[1].CustomerID).To(Equal("someid"))
+	g.Expect(updates[1].CustomerEmail).To(Equal("email@address.com"))
+	g.Expect(updates[1].QuantityFrom).To(Equal(int64(1)))
+	g.Expect(updates[1].QuantityTo).To(Equal(int64(5)))
+	g.Expect(updates[1].PriceID).To(Equal("servicesprice"))
+
+	// checking billing apply
+	err = saveUpdate(updates[0])
+	g.Expect(err).To(BeNil())
+	ctx := mt.ContextWithAccount("micro", "foo")
+	err = bs.Apply(ctx, &pb.ApplyRequest{
+		CustomerID: "someid",
+		All:        false,
+	}, &pb.ApplyResponse{})
+	g.Expect(err).To(BeNil())
+	subSvc := bs.subs.(*msub.FakeSubscriptionsService)
+	g.Expect(subSvc.UpdateCallCount()).To(Equal(1))
+	_, req, _ := subSvc.UpdateArgsForCall(0)
+	g.Expect(req.PriceID).To(Equal("usersprice"))
+	g.Expect(req.Quantity).To(Equal(int64(4)))
+	g.Expect(req.OwnerID).To(Equal("someid"))
+
+	err = saveUpdate(updates[1])
+	err = bs.Apply(ctx, &pb.ApplyRequest{
+		CustomerID: "someid",
+		All:        false,
+	}, &pb.ApplyResponse{})
+	g.Expect(err).To(BeNil())
+	g.Expect(subSvc.UpdateCallCount()).To(Equal(2))
+	_, req, _ = subSvc.UpdateArgsForCall(1)
+	g.Expect(req.PriceID).To(Equal("servicesprice"))
+	g.Expect(req.Quantity).To(Equal(int64(5)))
+	g.Expect(req.OwnerID).To(Equal("someid"))
 }
 
 func TestNoChange(t *testing.T) {
