@@ -7,6 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/m3o/services/tests/fakes"
+	mevents "github.com/micro/micro/v3/service/events"
+
 	mt "github.com/m3o/services/internal/test"
 
 	malert "github.com/m3o/services/alert/proto/alert/alertfakes"
@@ -32,6 +35,7 @@ import (
 
 func TestMain(m *testing.M) {
 	mstore.DefaultStore = memory.NewStore()
+	mevents.DefaultStream = &fakes.FakeStream{}
 	m.Run()
 }
 
@@ -254,6 +258,8 @@ func testSignup(t *testing.T, signupSvc *Signup, join bool, checkVerifyRsp func(
 	if join {
 		ns = verRsp.Namespaces[0]
 	}
+	fstream := &fakes.FakeStream{}
+	mevents.DefaultStream = fstream
 	err = signupSvc.CompleteSignup(context.TODO(), &pb.CompleteSignupRequest{
 		Email:     email,
 		Token:     tok,
@@ -263,11 +269,20 @@ func testSignup(t *testing.T, signupSvc *Signup, join bool, checkVerifyRsp func(
 	g.Expect(err).To(BeNil())
 	if join {
 		g.Expect(cmpRsp.Namespace).To(Equal(ns))
+		g.Expect(nsSvc.AddUserCallCount()).To(Equal(1))
+		g.Expect(nsSvc.CreateCallCount()).To(Equal(0))
 	} else {
 		g.Expect(cmpRsp.Namespace).NotTo(Equal(ns))
 		g.Expect(strings.Count(cmpRsp.Namespace, "-")).To(Equal(2))
+		g.Expect(nsSvc.AddUserCallCount()).To(Equal(0))
+		g.Expect(nsSvc.CreateCallCount()).To(Equal(1))
 	}
 
-	// TODO check sub service addUser is called
-
+	topic, in, _ := fstream.PublishArgsForCall(0)
+	g.Expect(topic).To(Equal("signup"))
+	ev := in.(SignupEvent)
+	g.Expect(ev.Type).To(Equal("signup.completed"))
+	g.Expect(ev.Signup.Email).To(Equal(email))
+	g.Expect(ev.Signup.CustomerID).To(Equal("1234"))
+	g.Expect(ev.Signup.Namespace).To(Equal(cmpRsp.Namespace))
 }

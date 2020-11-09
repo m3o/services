@@ -55,10 +55,6 @@ func setupM3Tests(serv test.Server, t *test.T) {
 	setupM3TestsImpl(serv, t, false)
 }
 
-func setupFreeM3Tests(serv test.Server, t *test.T) {
-	setupM3TestsImpl(serv, t, true)
-}
-
 func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 	envToConfigKey := map[string][]string{
 		"MICRO_STRIPE_API_KEY":                      {"micro.payments.stripe.api_key"},
@@ -181,20 +177,6 @@ func setupM3TestsImpl(serv test.Server, t *test.T, freeTier bool) {
 	outp, err = exec.Command("cp", "-rf", confPath, confPath+".admin").CombinedOutput()
 	if err != nil {
 		t.Fatalf("Error copying config: %v", outp)
-		return
-	}
-}
-
-func logout(serv test.Server, t *test.T) {
-	// Log out and switch namespace back to micro
-	outp, err := serv.Command().Exec("user", "config", "set", "micro.auth."+serv.Env())
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	outp, err = serv.Command().Exec("user", "config", "set", "namespaces."+serv.Env()+".current")
-	if err != nil {
-		t.Fatal(string(outp))
 		return
 	}
 }
