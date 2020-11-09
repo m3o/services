@@ -3,24 +3,26 @@ package handler
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/service/store/memory"
-
 	malert "github.com/m3o/services/alert/proto/alert/alertfakes"
+	csproto "github.com/m3o/services/customers/proto"
 	mcust "github.com/m3o/services/customers/proto/protofakes"
+	nsproto "github.com/m3o/services/namespaces/proto"
 	mns "github.com/m3o/services/namespaces/proto/protofakes"
+	sproto "github.com/m3o/services/payments/proto"
 	mprov "github.com/m3o/services/payments/proto/protofakes"
 	msub "github.com/m3o/services/subscriptions/proto/protofakes"
-	musage "github.com/m3o/services/usage/proto/protofakes"
-
-	mstore "github.com/micro/micro/v3/service/store"
-
-	csproto "github.com/m3o/services/customers/proto"
-	nsproto "github.com/m3o/services/namespaces/proto"
-	sproto "github.com/m3o/services/payments/proto"
 	uproto "github.com/m3o/services/usage/proto"
+	musage "github.com/m3o/services/usage/proto/protofakes"
+	mstore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store/memory"
 
 	. "github.com/onsi/gomega"
 )
+
+func TestMain(m *testing.M) {
+	mstore.DefaultStore = memory.NewStore()
+	m.Run()
+}
 
 func mockedBilling() *Billing {
 	nsSvc := &mns.FakeNamespacesService{}
@@ -92,7 +94,6 @@ func TestNoSubscription(t *testing.T) {
 }
 
 func TestSubscriptionDecrease(t *testing.T) {
-	mstore.DefaultStore = memory.NewStore()
 	bs := mockedBilling()
 	pSvc := &mprov.FakeProviderService{}
 	pSvc.ListSubscriptionsReturns(&sproto.ListSubscriptionsResponse{
