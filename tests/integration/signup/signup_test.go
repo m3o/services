@@ -339,24 +339,12 @@ func testInviteScenarios(t *test.T) {
 			return serv.Command().Exec("invite", "user", "--email="+emails[i])
 		}, 5*time.Second)
 	}
-	if testDuplicateInvites(t, serv); t.Failed() {
-		return
-	}
-	if testInviteEmailValidation(t, serv); t.Failed() {
-		return
-	}
 
 	logout(serv, t)
-	if testUserInviteLimit(t, serv, emails[0]); t.Failed() {
-		return
-	}
 	if testUserInviteNoJoin(t, serv, emails[1]); t.Failed() {
 		return
 	}
 	if testUserInviteJoinDecline(t, serv, emails[2]); t.Failed() {
-		return
-	}
-	if testUserInviteToNotOwnedNamespace(t, serv, emails[3]); t.Failed() {
 		return
 	}
 
@@ -463,37 +451,6 @@ func testUserInviteJoinDecline(t *test.T, serv test.Server, email string) {
 
 	if ns == newNs {
 		t.Fatal("User should not have joined invitees namespace")
-	}
-}
-
-func testUserInviteToNotOwnedNamespace(t *test.T, serv test.Server, email string) {
-	password := "PassWord1@"
-
-	signup(serv, t, email, password, signupOptions{isInvitedToNamespace: false, shouldJoin: false})
-	defer logout(serv, t)
-
-	outp, err := serv.Command().Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
-	if err != nil {
-		t.Fatalf("Error getting namespace: %v", err)
-		return
-	}
-	ns := strings.TrimSpace(string(outp))
-	if strings.Count(ns, "-") != 2 {
-		t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
-		return
-	}
-
-	newEmail := testEmail(1)
-
-	outp, err = serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace=not-my-namespace")
-	if err == nil {
-		t.Fatalf("Should not be able to invite to an unowned namespace, output: %v", string(outp))
-	}
-
-	// Testing for micro namespace just to be sure as it's the worst case
-	outp, err = serv.Command().Exec("invite", "user", "--email="+newEmail, "--namespace=micro")
-	if err == nil {
-		t.Fatalf("Should not be able to invite to an unowned namespace, output: %v", string(outp))
 	}
 }
 
@@ -963,49 +920,6 @@ func getSrcString(envvar, dflt string) string {
 		return env
 	}
 	return dflt
-}
-
-func testDuplicateInvites(t *test.T, serv test.Server) {
-	email := testEmail(0)
-
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
-	test.Try("Send invite again", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email)
-	}, 5*time.Second)
-	outp, err := serv.Command().Exec("logs", "invite")
-	if err != nil {
-		t.Fatalf("Unexpected error retrieving logs %s", err)
-	}
-	if !strings.Contains(string(outp), "Invite already sent for user "+email) {
-		t.Fatalf("Invite was sent multiple times")
-	}
-
-	// test a force resend
-	email2 := testEmail(1)
-	test.Try("Send invite", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email2)
-	}, 5*time.Second)
-	test.Try("Send invite again", t, func() ([]byte, error) {
-		return serv.Command().Exec("invite", "user", "--email="+email2, "--resend=true")
-	}, 5*time.Second)
-	outp, err = serv.Command().Exec("logs", "invite")
-	if err != nil {
-		t.Fatalf("Unexpected error retrieving logs %s", err)
-	}
-	if strings.Contains(string(outp), "Invite already sent for user "+email2) {
-		t.Fatalf("Invite should have been sent multiple times but was blocked")
-	}
-
-}
-
-func testInviteEmailValidation(t *test.T, serv test.Server) {
-	outp, _ := serv.Command().Exec("invite", "user", "--email=notanemail.com")
-	if !strings.Contains(string(outp), "Valid email is required") {
-		t.Fatalf("Expected a 400 bad request error %s", string(outp))
-	}
-
 }
 
 func TestSubCancellation(t *testing.T) {
