@@ -32,7 +32,7 @@ func checkInfraUsageCron() {
 	for _, i := range issues {
 		msg += fmt.Sprintf("\n- %v", i)
 	}
-	slackbot.SendMessage("team-important",
+	slackbot.SendMessage("alerts",
 		slack.MsgOptionUsername("Infrastructure Service"),
 		slack.MsgOptionText(msg, false),
 	)

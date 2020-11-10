@@ -71,7 +71,7 @@ spec:
               optional: false
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257/analytics?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        image: micro/cells:v3
+        image: ghcr.io/m3o/cells:v3
         imagePullPolicy: IfNotPresent
         name: analytics
         ports:

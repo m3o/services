@@ -70,3 +70,19 @@ func (h *Provider) DeleteCustomer(ctx context.Context, request *pb.DeleteCustome
 	}
 	return nil
 }
+
+func (h *Provider) GetProviderID(ctx context.Context, request *pb.GetProviderIDRequest, response *pb.GetProviderIDResponse) error {
+	if len(request.CustomerId) == 0 {
+		return errors.BadRequest(h.name+"getproviderid", "Customer ID required")
+	}
+	if len(request.CustomerType) == 0 {
+		return errors.BadRequest(h.name+"getproviderid", "Customer type required")
+	}
+	sid, err := h.getStripeIDForCustomer(request.CustomerType, request.CustomerId)
+	if err != nil {
+		return errors.InternalServerError(h.name+"getproviderid", "Error looking up customer")
+	}
+	response.ProviderId = sid
+	return nil
+
+}
