@@ -21,6 +21,7 @@ service Provider {
   rpc VerifyPaymentMethod(VerifyPaymentMethodRequest) returns (VerifyPaymentMethodResponse);
   rpc DeleteCustomer(DeleteCustomerRequest) returns (DeleteCustomerResponse);
   rpc CancelSubscription(CancelSubscriptionRequest) returns (CancelSubscriptionResponse);
+  rpc GetProviderID(GetProviderIDRequest) returns (GetProviderIDResponse);
 }
 
 message Product {
@@ -187,3 +188,12 @@ message DeleteCustomerRequest {
 }
 
 message DeleteCustomerResponse {}
+
+message GetProviderIDRequest {
+  string customer_id = 1;
+  string customer_type = 2;
+}
+
+message GetProviderIDResponse {
+  string provider_id = 1;
+}
