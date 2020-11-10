@@ -48,6 +48,12 @@ user/
     README.md	# readme
 ```
 
+## Testing
+We use https://github.com/maxbrunsfeld/counterfeiter for generating test doubles for our services. These can then be imported in to other tests and used instead of real implementations. 
+
+By convention, we generate fakes in the same directory tree as for the real proto implementation. For example, customers service is defined at `customers/proto` so the test double is defined in `customers/proto/fakes`.  
+
+
 ## Contribution
 
 Please sign-off contributions with DCO sign-off
