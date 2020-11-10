@@ -5,15 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/m3o/services/tests/fakes"
-	mevents "github.com/micro/micro/v3/service/events"
-	mstore "github.com/micro/micro/v3/service/store"
-	"github.com/micro/micro/v3/service/store/memory"
-
 	mt "github.com/m3o/services/internal/test"
+	"github.com/m3o/services/internal/test/fakes"
 	mprovpb "github.com/m3o/services/payments/proto"
 	mprov "github.com/m3o/services/payments/proto/protofakes"
 	pb "github.com/m3o/services/subscriptions/proto"
+	mevents "github.com/micro/micro/v3/service/events"
+	mstore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store/memory"
 
 	. "github.com/onsi/gomega"
 )
@@ -32,14 +31,17 @@ func mockedSubscription() *Subscriptions {
 	}
 }
 
+func TestMain(m *testing.M) {
+	mevents.DefaultStream = &fakes.FakeStream{}
+	mstore.DefaultStore = memory.NewStore()
+	m.Run()
+}
+
 func TestSubCreateAndCancel(t *testing.T) {
 	g := NewWithT(t)
 	subSvc := mockedSubscription()
-	fstream := &fakes.FakeStream{}
-	mevents.DefaultStream = fstream
-	mstore.DefaultStore = memory.NewStore()
 	ppsvc := subSvc.paymentService.(*mprov.FakeProviderService)
-
+	fstream := mevents.DefaultStream.(*fakes.FakeStream)
 	adminCtx := mt.ContextWithAccount("micro", "foo")
 
 	// creation

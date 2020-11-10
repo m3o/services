@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/m3o/services/tests/fakes"
+	"github.com/m3o/services/internal/test/fakes"
 	mevents "github.com/micro/micro/v3/service/events"
 
 	mt "github.com/m3o/services/internal/test"
