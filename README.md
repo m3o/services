@@ -51,6 +51,8 @@ user/
 ## Testing
 We use https://github.com/maxbrunsfeld/counterfeiter for generating test doubles for our services. These can then be imported in to other tests and used instead of real implementations. 
 
+We can then write tests which call the endpoints (contract testing) and verify that they do the right thing by checking call counts on the test doubles. 
+
 By convention, we generate fakes in the same directory tree as for the real proto implementation. For example, customers service is defined at `customers/proto` so the test double is defined in `customers/proto/fakes`.  
 
 
