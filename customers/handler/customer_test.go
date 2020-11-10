@@ -7,7 +7,7 @@ import (
 	mt "github.com/m3o/services/internal/test"
 	"github.com/m3o/services/internal/test/fakes"
 	mnspb "github.com/m3o/services/namespaces/proto"
-	mns "github.com/m3o/services/namespaces/proto/protofakes"
+	mns "github.com/m3o/services/namespaces/proto/fakes"
 	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/memory"

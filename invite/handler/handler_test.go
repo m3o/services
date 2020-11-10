@@ -6,7 +6,7 @@ import (
 	mstore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/memory"
 
-	memail "github.com/m3o/services/emails/proto/protofakes"
+	memail "github.com/m3o/services/emails/proto/fakes"
 	mt "github.com/m3o/services/internal/test"
 	pb "github.com/m3o/services/invite/proto"
 

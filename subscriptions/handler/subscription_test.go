@@ -8,7 +8,7 @@ import (
 	mt "github.com/m3o/services/internal/test"
 	"github.com/m3o/services/internal/test/fakes"
 	mprovpb "github.com/m3o/services/payments/proto"
-	mprov "github.com/m3o/services/payments/proto/protofakes"
+	mprov "github.com/m3o/services/payments/proto/fakes"
 	pb "github.com/m3o/services/subscriptions/proto"
 	mevents "github.com/micro/micro/v3/service/events"
 	mstore "github.com/micro/micro/v3/service/store"
