@@ -28,4 +28,11 @@ message ListRequest {}
 
 message ListResponse {
 	repeated Account accounts = 1;
+	Summary summary = 2;
+}
+
+message Summary {
+	int64 namespace_count = 1;
+	int64 user_count = 2;
+	int64 services_count = 3;
 }

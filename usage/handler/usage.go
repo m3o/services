@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/micro/micro/v3/service/config"
 	"github.com/slack-go/slack"
@@ -88,7 +89,7 @@ func (e *Usage) usageForNamespace(namespace string) (*usg, error) {
 		Options: &rproto.ReadOptions{
 			Namespace: namespace,
 		},
-	}, client.WithAuthToken())
+	}, client.WithAuthToken(), client.WithRequestTimeout(5*time.Second))
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +116,18 @@ func (e *Usage) List(ctx context.Context, request *usage.ListRequest, response *
 		}
 	}
 
+	nsCount := len(usages)
+	var svcCount, userCount int64
+	for _, u := range usages {
+		svcCount += u.Services
+		userCount += u.Users
+	}
+
+	response.Summary = &usage.Summary{
+		NamespaceCount: int64(nsCount),
+		UserCount:      userCount,
+		ServicesCount:  svcCount,
+	}
 	return nil
 }
 
