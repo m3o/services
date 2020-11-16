@@ -2,8 +2,6 @@ package main
 
 import (
 	"github.com/m3o/services/endtoend/handler"
-	pb "github.com/m3o/services/endtoend/proto"
-
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 )
@@ -16,7 +14,8 @@ func main() {
 	)
 
 	// Register handler
-	pb.RegisterEndtoendHandler(srv.Server(), new(handler.Endtoend))
+	//pb.RegisterEndtoendHandler(srv.Server(), new(handler.Endtoend))
+	srv.Handle(handler.Endtoend{})
 
 	// Run service
 	if err := srv.Run(); err != nil {
