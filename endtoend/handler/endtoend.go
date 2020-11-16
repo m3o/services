@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/micro/go-micro/v3/codec/bytes"
 	log "github.com/micro/micro/v3/service/logger"
 
 	endtoend "github.com/m3o/services/endtoend/proto"
@@ -10,13 +12,23 @@ import (
 
 type Endtoend struct{}
 
-func (e *Endtoend) Mailin(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
+type MailinResponse struct{}
+
+type mailinMessage struct {
+	Headers  map[string]interface{} `json:"headers"`
+	Envelope map[string]interface{} `json:"envelope"`
+	Plain    string                 `json:"plain"`
+	Html     string                 `json:"html"`
+}
+
+func (e *Endtoend) Mailin(ctx context.Context, req *bytes.Frame, rsp *MailinResponse) error {
 	log.Info("Received Endtoend.Mailin request")
-	for hdr, pr := range request.Header {
-		log.Infof("Received header %s %s %+v", hdr, pr.Key, pr.Values)
+	var inbound mailinMessage
+	if err := json.Unmarshal(req.Data, &inbound); err != nil {
+		log.Errorf("Error unmarshalling request %s", err)
 	}
-	log.Infof("Request %+v", *request)
-	response.StatusCode = 200
+
+	log.Infof("Request %+v", inbound)
 	return nil
 }
 

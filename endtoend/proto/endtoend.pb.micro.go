@@ -42,7 +42,6 @@ func NewEndtoendEndpoints() []*api.Endpoint {
 // Client API for Endtoend service
 
 type EndtoendService interface {
-	Mailin(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 	Check(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 }
 
@@ -58,16 +57,6 @@ func NewEndtoendService(name string, c client.Client) EndtoendService {
 	}
 }
 
-func (c *endtoendService) Mailin(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := c.c.NewRequest(c.name, "Endtoend.Mailin", in)
-	out := new(Response)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *endtoendService) Check(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.name, "Endtoend.Check", in)
 	out := new(Response)
@@ -81,13 +70,11 @@ func (c *endtoendService) Check(ctx context.Context, in *Request, opts ...client
 // Server API for Endtoend service
 
 type EndtoendHandler interface {
-	Mailin(context.Context, *Request, *Response) error
 	Check(context.Context, *Request, *Response) error
 }
 
 func RegisterEndtoendHandler(s server.Server, hdlr EndtoendHandler, opts ...server.HandlerOption) error {
 	type endtoend interface {
-		Mailin(ctx context.Context, in *Request, out *Response) error
 		Check(ctx context.Context, in *Request, out *Response) error
 	}
 	type Endtoend struct {
@@ -99,10 +86,6 @@ func RegisterEndtoendHandler(s server.Server, hdlr EndtoendHandler, opts ...serv
 
 type endtoendHandler struct {
 	EndtoendHandler
-}
-
-func (h *endtoendHandler) Mailin(ctx context.Context, in *Request, out *Response) error {
-	return h.EndtoendHandler.Mailin(ctx, in, out)
 }
 
 func (h *endtoendHandler) Check(ctx context.Context, in *Request, out *Response) error {
