@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/micro/go-micro/v3/codec/bytes"
 	log "github.com/micro/micro/v3/service/logger"
 )
 
@@ -19,10 +18,11 @@ type mailinMessage struct {
 	Html     string                 `json:"html"`
 }
 
-func (e *Endtoend) Mailin(ctx context.Context, req *bytes.Frame, rsp *MailinResponse) error {
-	log.Info("Received Endtoend.Mailin request %d", len(req.Data))
+func (e *Endtoend) Mailin(ctx context.Context, req *json.RawMessage, rsp *MailinResponse) error {
+	log.Info("Received Endtoend.Mailin request %d", len(*req))
 	var inbound mailinMessage
-	if err := json.Unmarshal(req.Data, &inbound); err != nil {
+
+	if err := json.Unmarshal(*req, &inbound); err != nil {
 		log.Errorf("Error unmarshalling request %s", err)
 	}
 
