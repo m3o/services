@@ -323,6 +323,7 @@ func (e *Signup) verify(ctx context.Context, req *signup.VerifyRequest, rsp *sig
 		return merrors.Forbidden("signup.Verify.NotAllowed", notInvitedErrorMsg)
 	}
 	rsp.Namespaces = namespaces
+	rsp.CustomerID = tok.CustomerID
 	ev := SignupEvent{Signup: SignupModel{Email: tok.Email, CustomerID: tok.CustomerID}, Type: "signup.verify"}
 	if err := mevents.Publish(signupTopic, ev); err != nil {
 		logger.Errorf("Error publishing signup.verify for event %+v", ev)

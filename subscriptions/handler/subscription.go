@@ -233,17 +233,17 @@ func (s Subscriptions) cancelSubscription(ctx context.Context, sub *Subscription
 		return merrors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
 	}
 	for _, r := range recs {
-		var sub *Subscription
-		if err := json.Unmarshal(r.Value, sub); err != nil {
+		var sub Subscription
+		if err := json.Unmarshal(r.Value, &sub); err != nil {
 			logger.Errorf("Error unmarshalling subscription %s %s", r.Key, err)
 			return merrors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
 		}
 		sub.Expires = time.Now().Unix()
-		if err := s.writeSubscription(sub); err != nil {
+		if err := s.writeSubscription(&sub); err != nil {
 			logger.Errorf("Error updating subscription object for cancellation %s %s", sub.ID, err)
 			return merrors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support")
 		}
-		ev := SubscriptionEvent{Subscription: *sub, Type: "subscriptions.cancelled"}
+		ev := SubscriptionEvent{Subscription: sub, Type: "subscriptions.cancelled"}
 		if err := mevents.Publish(subscriptionTopic, ev); err != nil {
 			logger.Errorf("Error publishing subscriptions.cancelled for event %+v", ev)
 		}
