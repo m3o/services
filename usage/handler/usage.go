@@ -89,7 +89,7 @@ func (e *Usage) usageForNamespace(namespace string) (*usg, error) {
 		Options: &rproto.ReadOptions{
 			Namespace: namespace,
 		},
-	}, client.WithAuthToken(), client.WithRequestTimeout(5*time.Second))
+	}, client.WithAuthToken(), client.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		return nil, err
 	}
@@ -159,13 +159,44 @@ func (e *Usage) usageForAllNamespaces() ([]*usg, error) {
 	if err != nil {
 		return nil, err
 	}
-	usages := []*usg{}
-	for _, ns := range rsp.Namespaces {
-		usg, err := e.usageForNamespace(ns.Id)
-		if err != nil {
-			return nil, err
+	jobs := make(chan string, 5)
+	res := make(chan *usg, 5)
+	defer close(res)
+	defer close(jobs)
+	errMap := map[string]int{}
+	worker := func() {
+		for nsID := range jobs {
+			usg, err := e.usageForNamespace(nsID)
+			if err != nil {
+				if errMap[nsID] < 3 {
+					errMap[nsID] += 1
+					// put it back on
+					jobs <- nsID
+					continue
+				}
+				// too many errors, break out
+				usg.Namespace = nsID
+				log.Errorf("Too many errors for %s", nsID)
+			}
+			res <- usg
 		}
-		usages = append(usages, usg)
+
+	}
+
+	//worker pool of 3
+	for i := 0; i < 3; i++ {
+		go worker()
+	}
+
+	usages := []*usg{}
+	go func() {
+		for _, ns := range rsp.Namespaces {
+			jobs <- ns.Id
+		}
+
+	}()
+	for i := 0; i < len(rsp.Namespaces); i++ {
+		usages = append(usages, <-res)
 	}
 	return usages, nil
 
