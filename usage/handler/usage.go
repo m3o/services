@@ -183,8 +183,8 @@ func (e *Usage) usageForAllNamespaces() ([]*usg, error) {
 
 	}
 
-	//worker pool of 3
-	for i := 0; i < 3; i++ {
+	//worker pool
+	for i := 0; i < 5; i++ {
 		go worker()
 	}
 
