@@ -6,8 +6,6 @@ import (
 
 	"github.com/micro/go-micro/v3/codec/bytes"
 	log "github.com/micro/micro/v3/service/logger"
-
-	endtoend "github.com/m3o/services/endtoend/proto"
 )
 
 type Endtoend struct{}
@@ -32,8 +30,8 @@ func (e *Endtoend) Mailin(ctx context.Context, req *bytes.Frame, rsp *MailinResp
 	return nil
 }
 
-func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
-	log.Info("Received Endtoend.Check request")
-	response.StatusCode = 200
-	return nil
-}
+//func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
+//	log.Info("Received Endtoend.Check request")
+//	response.StatusCode = 200
+//	return nil
+//}
