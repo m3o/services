@@ -14,7 +14,7 @@ func main() {
 	)
 
 	// Register handler
-	srv.Handle(handler.Endtoend{})
+	srv.Handle(&handler.Endtoend{})
 
 	// Run service
 	if err := srv.Run(); err != nil {
