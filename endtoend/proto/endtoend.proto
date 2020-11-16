@@ -5,7 +5,7 @@ package endtoend;
 option go_package = "proto;endtoend";
 
 service Endtoend {
-	rpc InboundEmail(Request) returns (Response) {}
+	rpc Mailin(Request) returns (Response) {}
 	rpc Check(Request) returns (Response) {}
 }
 

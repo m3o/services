@@ -10,8 +10,8 @@ import (
 
 type Endtoend struct{}
 
-func (e *Endtoend) InboundEmail(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
-	log.Info("Received Endtoend.InboundEmail request")
+func (e *Endtoend) Mailin(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
+	log.Info("Received Endtoend.Mailin request")
 	for hdr, pr := range request.Header {
 		log.Infof("Received header %s %s %+v", hdr, pr.Key, pr.Values)
 	}
