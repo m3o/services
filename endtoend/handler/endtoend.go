@@ -22,7 +22,7 @@ type mailinMessage struct {
 }
 
 func (e *Endtoend) Mailin(ctx context.Context, req *bytes.Frame, rsp *MailinResponse) error {
-	log.Info("Received Endtoend.Mailin request")
+	log.Info("Received Endtoend.Mailin request %d", len(req.Data))
 	var inbound mailinMessage
 	if err := json.Unmarshal(req.Data, &inbound); err != nil {
 		log.Errorf("Error unmarshalling request %s", err)
