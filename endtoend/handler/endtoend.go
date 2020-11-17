@@ -29,6 +29,8 @@ const (
 	signupSubject       = "Welcome to the M3O Platform"
 	microInstallScript  = "https://install.m3o.com/micro"
 	signupSuccessString = "Signup complete"
+	keyOtp              = "otp"
+	keyCheckResult      = "checkResult"
 )
 
 var (
@@ -85,7 +87,7 @@ func (e *Endtoend) Mailin(ctx context.Context, req *json.RawMessage, rsp *Mailin
 		return nil
 	}
 	if err := mstore.Write(&mstore.Record{
-		Key:   "otp",
+		Key:   keyOtp,
 		Value: b,
 	}); err != nil {
 		log.Errorf("Error storing OTP %s", err)
@@ -96,7 +98,7 @@ func (e *Endtoend) Mailin(ctx context.Context, req *json.RawMessage, rsp *Mailin
 
 func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
 	log.Info("Received Endtoend.Check request")
-	recs, err := mstore.Read("checkresult")
+	recs, err := mstore.Read(keyCheckResult)
 	if err != nil {
 		return errors.InternalServerError("endtoend.check.store", "Failed to load last result %s", err)
 	}
@@ -192,7 +194,7 @@ func (e *Endtoend) signup() error {
 	for i := 0; i < 10; i++ {
 		time.Sleep(15 * time.Second)
 		log.Infof("Checking for otp")
-		recs, err := mstore.Read("otp")
+		recs, err := mstore.Read(keyOtp)
 		if err != nil {
 			log.Errorf("Error reading otp from store %s", err)
 			continue
@@ -248,7 +250,7 @@ func (e *Endtoend) signup() error {
 	b, _ := json.Marshal(result)
 
 	mstore.Write(&mstore.Record{
-		Key:   "checkResult",
+		Key:   keyCheckResult,
 		Value: b,
 	})
 	log.Infof("Signup took %d to complete", time.Now().Sub(start))
