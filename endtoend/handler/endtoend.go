@@ -248,9 +248,11 @@ func (e *Endtoend) signup() error {
 	result := checkResult{
 		Time:   time.Now().Unix(),
 		Passed: custErr == nil,
-		Error:  custErr.Error(),
 	}
-	b, _ := json.Marshal(&result)
+	if custErr != nil {
+		result.Error = custErr.Error()
+	}
+	b, _ := json.Marshal(result)
 
 	mstore.Write(&mstore.Record{
 		Key:   keyCheckResult,
