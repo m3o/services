@@ -159,7 +159,10 @@ func (e *Endtoend) signup() error {
 	if err != nil {
 		return err
 	}
-	e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Id: cust.Customer.Id}, client.WithAuthToken())
+	_, err = e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Id: cust.Customer.Id}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
 
 	start := time.Now()
 	cmd := exec.Command("/root/bin/micro", "signup", "--password", uuid.New().String())
