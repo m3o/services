@@ -123,6 +123,6 @@ func (c *Customers) processSubscriptionEvents(ch <-chan mevents.Event) {
 }
 
 func (c *Customers) processCancelledSubscription(sub *SubscriptionModel) error {
-	return c.deleteCustomer(context.Background(), sub.CustomerID)
+	return c.deleteCustomer(context.Background(), sub.CustomerID, false)
 
 }

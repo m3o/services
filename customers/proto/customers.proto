@@ -52,6 +52,7 @@ message Customer {
 message DeleteRequest {
 	string id = 1;
 	string email = 2;
+	bool force = 3;
 }
 
 message DeleteResponse {
