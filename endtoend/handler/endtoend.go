@@ -152,8 +152,12 @@ func installMicro() error {
 }
 
 func (e *Endtoend) signup() error {
-	// reset, delete any existing customers, ignore errors
-	e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Id: e.email}, client.WithAuthToken())
+	// reset, delete any existing customers
+	cust, err := e.custSvc.Read(context.TODO(), &custpb.ReadRequest{Email: e.email}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
+	e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Id: cust.Customer.Id}, client.WithAuthToken())
 
 	start := time.Now()
 	cmd := exec.Command("/root/bin/micro", "signup", "--password", uuid.New().String())
