@@ -6,6 +6,7 @@ option go_package = "proto;endtoend";
 
 service Endtoend {
 	rpc Check(Request) returns (Response) {}
+	rpc RunCheck(Request) returns (Response) {}
 }
 
 

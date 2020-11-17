@@ -43,6 +43,7 @@ func NewEndtoendEndpoints() []*api.Endpoint {
 
 type EndtoendService interface {
 	Check(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
+	RunCheck(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 }
 
 type endtoendService struct {
@@ -67,15 +68,27 @@ func (c *endtoendService) Check(ctx context.Context, in *Request, opts ...client
 	return out, nil
 }
 
+func (c *endtoendService) RunCheck(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "Endtoend.RunCheck", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Endtoend service
 
 type EndtoendHandler interface {
 	Check(context.Context, *Request, *Response) error
+	RunCheck(context.Context, *Request, *Response) error
 }
 
 func RegisterEndtoendHandler(s server.Server, hdlr EndtoendHandler, opts ...server.HandlerOption) error {
 	type endtoend interface {
 		Check(ctx context.Context, in *Request, out *Response) error
+		RunCheck(ctx context.Context, in *Request, out *Response) error
 	}
 	type Endtoend struct {
 		endtoend
@@ -90,4 +103,8 @@ type endtoendHandler struct {
 
 func (h *endtoendHandler) Check(ctx context.Context, in *Request, out *Response) error {
 	return h.EndtoendHandler.Check(ctx, in, out)
+}
+
+func (h *endtoendHandler) RunCheck(ctx context.Context, in *Request, out *Response) error {
+	return h.EndtoendHandler.RunCheck(ctx, in, out)
 }
