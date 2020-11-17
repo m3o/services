@@ -154,6 +154,11 @@ func installMicro() error {
 }
 
 func (e *Endtoend) signup() error {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Errorf("Recovering from panic error is: %v \n", r)
+		}
+	}()
 	// reset, delete any existing customers
 	cust, err := e.custSvc.Read(context.TODO(), &custpb.ReadRequest{Email: e.email}, client.WithAuthToken())
 	if err != nil {
@@ -172,6 +177,11 @@ func (e *Endtoend) signup() error {
 	}
 	chErr := make(chan error)
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("Recovering from panic error is: %v \n", r)
+			}
+		}()
 		defer close(chErr)
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
@@ -182,6 +192,11 @@ func (e *Endtoend) signup() error {
 		}
 	}()
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("Recovering from panic error is: %v \n", r)
+			}
+		}()
 		time.Sleep(180 * time.Second)
 		cmd.Process.Kill()
 	}()
