@@ -115,6 +115,9 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 	}
 	response.StatusCode = 500
 	response.Body = cr.Error
+	if len(response.Body) == 0 {
+		response.Body = "No recent successful check"
+	}
 	return errors.New("endtoend.chack.failed", response.Body, response.StatusCode)
 
 }
