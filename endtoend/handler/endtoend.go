@@ -117,15 +117,16 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 
 }
 
-func (e *Endtoend) RunCheck(ctx context.Context, request *endtoend.Request, response *endtoend.Response) {
+func (e *Endtoend) RunCheck(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
 	if err := installMicro(); err != nil {
 		log.Errorf("Error installing micro %s", err)
-		return
+		return err
 	}
 	if err := e.signup(); err != nil {
 		log.Errorf("Error during signup %s", err)
-		return
+		return err
 	}
+	return nil
 }
 
 func installMicro() error {
