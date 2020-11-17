@@ -238,6 +238,7 @@ func (e *Endtoend) signup() error {
 			continue
 		}
 		custErr = nil
+		break
 	}
 	result := checkResult{
 		Time:   time.Now().Unix(),
