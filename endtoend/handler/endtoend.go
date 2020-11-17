@@ -118,14 +118,17 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 }
 
 func (e *Endtoend) RunCheck(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
-	if err := installMicro(); err != nil {
-		log.Errorf("Error installing micro %s", err)
-		return err
-	}
-	if err := e.signup(); err != nil {
-		log.Errorf("Error during signup %s", err)
-		return err
-	}
+	go func() error {
+		if err := installMicro(); err != nil {
+			log.Errorf("Error installing micro %s", err)
+			return err
+		}
+		if err := e.signup(); err != nil {
+			log.Errorf("Error during signup %s", err)
+			return err
+		}
+		return nil
+	}()
 	return nil
 }
 
@@ -149,6 +152,9 @@ func installMicro() error {
 }
 
 func (e *Endtoend) signup() error {
+	// reset, delete any existing customers, ignore errors
+	e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Id: e.email}, client.WithAuthToken())
+
 	start := time.Now()
 	cmd := exec.Command("/root/bin/micro", "signup", "--password", uuid.New().String())
 	stdin, err := cmd.StdinPipe()
@@ -181,12 +187,14 @@ func (e *Endtoend) signup() error {
 
 	for i := 0; i < 10; i++ {
 		time.Sleep(15 * time.Second)
+		log.Infof("Checking for otp")
 		recs, err := mstore.Read("otp")
 		if err != nil {
 			log.Errorf("Error reading otp from store %s", err)
 			continue
 		}
 		if len(recs) == 0 {
+			log.Infof("No recs found")
 			continue
 		}
 		otp := otp{}
@@ -195,10 +203,13 @@ func (e *Endtoend) signup() error {
 			continue
 		}
 		if otp.Time < start.Unix() {
+			log.Infof("Otp is old")
 			// old token
 			continue
 		}
+		log.Infof("Found otp")
 		code = otp.Token
+		break
 	}
 	if len(code) == 0 {
 		return fmt.Errorf("no OTP code found")
@@ -219,7 +230,7 @@ func (e *Endtoend) signup() error {
 			continue
 		}
 		if rsp.Customer.Status != "active" {
-			custErr = fmt.Errorf("customer status is %s", err)
+			custErr = fmt.Errorf("customer status is %s", rsp.Customer.Status)
 			continue
 		}
 		custErr = nil

@@ -12,6 +12,10 @@ service Customers {
 	rpc Read(ReadRequest) returns (ReadResponse) {}
 	// Marks a customer as inactive
 	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+	// Lists all customers
+	rpc List(ListRequest) returns (ListResponse) {}
+	// Updates a customer
+	rpc Update(UpdateRequest) returns (UpdateResponse) {}
 }
 
 enum EventType {
@@ -47,6 +51,7 @@ message Customer {
 
 message DeleteRequest {
 	string id = 1;
+	string email = 2;
 }
 
 message DeleteResponse {
@@ -67,3 +72,17 @@ message MarkVerifiedRequest {
 }
 
 message MarkVerifiedResponse {}
+
+message ListRequest {
+
+}
+
+message ListResponse {
+	repeated Customer customers = 1;
+}
+
+message UpdateRequest {
+	Customer customer = 1;
+}
+
+message UpdateResponse {}

@@ -40,6 +40,21 @@ type FakeCustomersService struct {
 		result1 *customers.DeleteResponse
 		result2 error
 	}
+	ListStub        func(context.Context, *customers.ListRequest, ...client.CallOption) (*customers.ListResponse, error)
+	listMutex       sync.RWMutex
+	listArgsForCall []struct {
+		arg1 context.Context
+		arg2 *customers.ListRequest
+		arg3 []client.CallOption
+	}
+	listReturns struct {
+		result1 *customers.ListResponse
+		result2 error
+	}
+	listReturnsOnCall map[int]struct {
+		result1 *customers.ListResponse
+		result2 error
+	}
 	MarkVerifiedStub        func(context.Context, *customers.MarkVerifiedRequest, ...client.CallOption) (*customers.MarkVerifiedResponse, error)
 	markVerifiedMutex       sync.RWMutex
 	markVerifiedArgsForCall []struct {
@@ -68,6 +83,21 @@ type FakeCustomersService struct {
 	}
 	readReturnsOnCall map[int]struct {
 		result1 *customers.ReadResponse
+		result2 error
+	}
+	UpdateStub        func(context.Context, *customers.UpdateRequest, ...client.CallOption) (*customers.UpdateResponse, error)
+	updateMutex       sync.RWMutex
+	updateArgsForCall []struct {
+		arg1 context.Context
+		arg2 *customers.UpdateRequest
+		arg3 []client.CallOption
+	}
+	updateReturns struct {
+		result1 *customers.UpdateResponse
+		result2 error
+	}
+	updateReturnsOnCall map[int]struct {
+		result1 *customers.UpdateResponse
 		result2 error
 	}
 	invocations      map[string][][]interface{}
@@ -206,6 +236,72 @@ func (fake *FakeCustomersService) DeleteReturnsOnCall(i int, result1 *customers.
 	}{result1, result2}
 }
 
+func (fake *FakeCustomersService) List(arg1 context.Context, arg2 *customers.ListRequest, arg3 ...client.CallOption) (*customers.ListResponse, error) {
+	fake.listMutex.Lock()
+	ret, specificReturn := fake.listReturnsOnCall[len(fake.listArgsForCall)]
+	fake.listArgsForCall = append(fake.listArgsForCall, struct {
+		arg1 context.Context
+		arg2 *customers.ListRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.ListStub
+	fakeReturns := fake.listReturns
+	fake.recordInvocation("List", []interface{}{arg1, arg2, arg3})
+	fake.listMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCustomersService) ListCallCount() int {
+	fake.listMutex.RLock()
+	defer fake.listMutex.RUnlock()
+	return len(fake.listArgsForCall)
+}
+
+func (fake *FakeCustomersService) ListCalls(stub func(context.Context, *customers.ListRequest, ...client.CallOption) (*customers.ListResponse, error)) {
+	fake.listMutex.Lock()
+	defer fake.listMutex.Unlock()
+	fake.ListStub = stub
+}
+
+func (fake *FakeCustomersService) ListArgsForCall(i int) (context.Context, *customers.ListRequest, []client.CallOption) {
+	fake.listMutex.RLock()
+	defer fake.listMutex.RUnlock()
+	argsForCall := fake.listArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCustomersService) ListReturns(result1 *customers.ListResponse, result2 error) {
+	fake.listMutex.Lock()
+	defer fake.listMutex.Unlock()
+	fake.ListStub = nil
+	fake.listReturns = struct {
+		result1 *customers.ListResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCustomersService) ListReturnsOnCall(i int, result1 *customers.ListResponse, result2 error) {
+	fake.listMutex.Lock()
+	defer fake.listMutex.Unlock()
+	fake.ListStub = nil
+	if fake.listReturnsOnCall == nil {
+		fake.listReturnsOnCall = make(map[int]struct {
+			result1 *customers.ListResponse
+			result2 error
+		})
+	}
+	fake.listReturnsOnCall[i] = struct {
+		result1 *customers.ListResponse
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeCustomersService) MarkVerified(arg1 context.Context, arg2 *customers.MarkVerifiedRequest, arg3 ...client.CallOption) (*customers.MarkVerifiedResponse, error) {
 	fake.markVerifiedMutex.Lock()
 	ret, specificReturn := fake.markVerifiedReturnsOnCall[len(fake.markVerifiedArgsForCall)]
@@ -338,6 +434,72 @@ func (fake *FakeCustomersService) ReadReturnsOnCall(i int, result1 *customers.Re
 	}{result1, result2}
 }
 
+func (fake *FakeCustomersService) Update(arg1 context.Context, arg2 *customers.UpdateRequest, arg3 ...client.CallOption) (*customers.UpdateResponse, error) {
+	fake.updateMutex.Lock()
+	ret, specificReturn := fake.updateReturnsOnCall[len(fake.updateArgsForCall)]
+	fake.updateArgsForCall = append(fake.updateArgsForCall, struct {
+		arg1 context.Context
+		arg2 *customers.UpdateRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.UpdateStub
+	fakeReturns := fake.updateReturns
+	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3})
+	fake.updateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeCustomersService) UpdateCallCount() int {
+	fake.updateMutex.RLock()
+	defer fake.updateMutex.RUnlock()
+	return len(fake.updateArgsForCall)
+}
+
+func (fake *FakeCustomersService) UpdateCalls(stub func(context.Context, *customers.UpdateRequest, ...client.CallOption) (*customers.UpdateResponse, error)) {
+	fake.updateMutex.Lock()
+	defer fake.updateMutex.Unlock()
+	fake.UpdateStub = stub
+}
+
+func (fake *FakeCustomersService) UpdateArgsForCall(i int) (context.Context, *customers.UpdateRequest, []client.CallOption) {
+	fake.updateMutex.RLock()
+	defer fake.updateMutex.RUnlock()
+	argsForCall := fake.updateArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCustomersService) UpdateReturns(result1 *customers.UpdateResponse, result2 error) {
+	fake.updateMutex.Lock()
+	defer fake.updateMutex.Unlock()
+	fake.UpdateStub = nil
+	fake.updateReturns = struct {
+		result1 *customers.UpdateResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeCustomersService) UpdateReturnsOnCall(i int, result1 *customers.UpdateResponse, result2 error) {
+	fake.updateMutex.Lock()
+	defer fake.updateMutex.Unlock()
+	fake.UpdateStub = nil
+	if fake.updateReturnsOnCall == nil {
+		fake.updateReturnsOnCall = make(map[int]struct {
+			result1 *customers.UpdateResponse
+			result2 error
+		})
+	}
+	fake.updateReturnsOnCall[i] = struct {
+		result1 *customers.UpdateResponse
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeCustomersService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -345,10 +507,14 @@ func (fake *FakeCustomersService) Invocations() map[string][][]interface{} {
 	defer fake.createMutex.RUnlock()
 	fake.deleteMutex.RLock()
 	defer fake.deleteMutex.RUnlock()
+	fake.listMutex.RLock()
+	defer fake.listMutex.RUnlock()
 	fake.markVerifiedMutex.RLock()
 	defer fake.markVerifiedMutex.RUnlock()
 	fake.readMutex.RLock()
 	defer fake.readMutex.RUnlock()
+	fake.updateMutex.RLock()
+	defer fake.updateMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
