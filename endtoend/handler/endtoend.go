@@ -177,26 +177,16 @@ func (e *Endtoend) signup() error {
 	}
 	chErr := make(chan error)
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Errorf("Recovering from panic error is: %v \n", r)
-			}
-		}()
 		defer close(chErr)
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
 			chErr <- err
 		}
 		if !strings.Contains(string(outp), "Finishing signup for") {
-			chErr <- fmt.Errorf("Output does not contain success %s", string(outp))
+			chErr <- fmt.Errorf("output does not contain success %s", string(outp))
 		}
 	}()
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Errorf("Recovering from panic error is: %v \n", r)
-			}
-		}()
 		time.Sleep(180 * time.Second)
 		cmd.Process.Kill()
 	}()
@@ -245,6 +235,10 @@ func (e *Endtoend) signup() error {
 	}
 
 	err = <-chErr
+	if err != nil {
+		log.Errorf("Error while completing signup %s", err)
+		return err
+	}
 	var custErr error
 	for i := 0; i < 5; i++ {
 		time.Sleep(15 * time.Second)
@@ -273,6 +267,6 @@ func (e *Endtoend) signup() error {
 		Key:   keyCheckResult,
 		Value: b,
 	})
-	log.Infof("Signup took %d to complete", time.Now().Sub(start))
+	log.Infof("Signup took %s to complete", time.Now().Sub(start))
 	return custErr
 }
