@@ -250,7 +250,7 @@ func (e *Endtoend) signup() error {
 		Passed: custErr == nil,
 		Error:  custErr.Error(),
 	}
-	b, _ := json.Marshal(result)
+	b, _ := json.Marshal(&result)
 
 	mstore.Write(&mstore.Record{
 		Key:   keyCheckResult,
