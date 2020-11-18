@@ -203,7 +203,10 @@ func (e *Endtoend) signup() error {
 	// reset, delete any existing customers
 	_, err := e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Email: e.email, Force: true}, client.WithAuthToken(), client.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		return fmt.Errorf("error while cleaning up existing customer %s", err)
+		merr, ok := err.(*errors.Error)
+		if !ok || merr.Code != 404 {
+			return fmt.Errorf("error while cleaning up existing customer %s", err)
+		}
 	}
 
 	start := time.Now()
