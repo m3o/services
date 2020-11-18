@@ -33,6 +33,9 @@ const (
 	keyOtp              = "otp"
 	keyCheckResult      = "checkResult"
 
+	// how fresh does a check need to be? cron runs every 5 mins and check takes just over 1min.
+	checkBuffer = 7 * time.Minute
+
 	microBinary = "/root/bin/micro"
 )
 
@@ -113,7 +116,7 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 	if err := json.Unmarshal(recs[0].Value, &cr); err != nil {
 		return errors.InternalServerError("endtoend.check.unmarshal", "Failed to unmarshal last result %s", err)
 	}
-	if cr.Passed && time.Now().Add(-5*time.Minute).Unix() < cr.Time {
+	if cr.Passed && time.Now().Add(-checkBuffer).Unix() < cr.Time {
 		response.StatusCode = 200
 		return nil
 	}
@@ -209,7 +212,7 @@ func (e *Endtoend) signup() error {
 			break
 		}
 		merr, ok := err.(*errors.Error)
-		if ok && merr.Code != 404 {
+		if ok && merr.Code == 404 {
 			delErr = nil
 			break
 		}
@@ -312,8 +315,8 @@ func (e *Endtoend) signup() error {
 	}
 
 	// run a service
-	cmd = exec.Command(microBinary, "run", "github.com/micro/services/helloworld")
-	outp, err := cmd.CombinedOutput()
+	runCmd := exec.Command(microBinary, "run", "github.com/micro/services/helloworld")
+	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("error running helloworld %s, %s", err, string(outp))
 	}
@@ -322,8 +325,8 @@ func (e *Endtoend) signup() error {
 	loopStart = time.Now()
 	for time.Now().Sub(loopStart) < 2*time.Minute {
 		time.Sleep(10 * time.Second)
-		cmd = exec.Command(microBinary, "status")
-		outp, err := cmd.CombinedOutput()
+		statusCmd := exec.Command(microBinary, "status")
+		outp, err := statusCmd.CombinedOutput()
 		if err != nil {
 			statusErr = fmt.Errorf("error checking helloworld status %s, %s", err, string(outp))
 			continue
@@ -345,8 +348,8 @@ func (e *Endtoend) signup() error {
 	loopStart = time.Now()
 	for time.Now().Sub(loopStart) < 2*time.Minute {
 		time.Sleep(10 * time.Second)
-		cmd := exec.Command(microBinary, "helloworld", "--name", "m3o")
-		outp, err := cmd.CombinedOutput()
+		helloCmd := exec.Command(microBinary, "helloworld", "--name", "m3o")
+		outp, err := helloCmd.CombinedOutput()
 		if err != nil {
 			runErr = fmt.Errorf("error calling helloworld %s, %s", err, string(outp))
 			continue
