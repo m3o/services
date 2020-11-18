@@ -200,13 +200,23 @@ func installMicro() error {
 }
 
 func (e *Endtoend) signup() error {
-	// reset, delete any existing customers
-	_, err := e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Email: e.email, Force: true}, client.WithAuthToken(), client.WithRequestTimeout(10*time.Second))
-	if err != nil {
-		merr, ok := err.(*errors.Error)
-		if !ok || merr.Code != 404 {
-			return fmt.Errorf("error while cleaning up existing customer %s", err)
+	// reset, delete any existing customers. Try this a few times, we sometimes get timeout
+	var delErr error
+	for i := 0; i < 3; i++ {
+		_, err := e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Email: e.email, Force: true}, client.WithAuthToken(), client.WithRequestTimeout(15*time.Second))
+		if err == nil {
+			delErr = nil
+			break
 		}
+		merr, ok := err.(*errors.Error)
+		if ok && merr.Code != 404 {
+			delErr = nil
+			break
+		}
+		delErr = fmt.Errorf("error while cleaning up existing customer %s", err)
+	}
+	if delErr != nil {
+		return delErr
 	}
 
 	start := time.Now()
