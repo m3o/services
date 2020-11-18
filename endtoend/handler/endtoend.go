@@ -323,5 +323,16 @@ func (e *Endtoend) signup() error {
 	if statusErr != nil {
 		return statusErr
 	}
+
+	// call it
+	cmd = exec.Command(microBinary, "helloworld", "--name", "m3o")
+	outp, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error calling helloworld %s, %s", err, string(outp))
+	}
+	if !strings.Contains(string(outp), "Hello m3o") {
+		return fmt.Errorf("unexpected output for helloworld %s", string(outp))
+	}
+
 	return nil
 }
