@@ -316,26 +316,38 @@ func (e *Endtoend) signup() error {
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
 			statusErr = fmt.Errorf("error checking helloworld status %s, %s", err, string(outp))
+			continue
 		}
-		if strings.Contains(string(outp), "running") {
-			statusErr = nil
-			break
+		if !strings.Contains(string(outp), "running") {
+			statusErr = fmt.Errorf("helloworld not in running state. Output of status command %s", string(outp))
+			continue
 		}
-		statusErr = fmt.Errorf("helloworld not in running state. Output of status command %s", string(outp))
+		statusErr = nil
+		break
+
 	}
 	if statusErr != nil {
 		return statusErr
 	}
 
 	// call it
-	cmd = exec.Command(microBinary, "helloworld", "--name", "m3o")
-	outp, err = cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error calling helloworld %s, %s", err, string(outp))
-	}
-	if !strings.Contains(string(outp), "Hello m3o") {
-		return fmt.Errorf("unexpected output for helloworld %s", string(outp))
+	var runErr error
+	loopStart = time.Now()
+	for time.Now().Sub(loopStart) < 2*time.Minute {
+		time.Sleep(10 * time.Second)
+		cmd := exec.Command(microBinary, "helloworld", "--name", "m3o")
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			runErr = fmt.Errorf("error calling helloworld %s, %s", err, string(outp))
+			continue
+		}
+		if !strings.Contains(string(outp), "Hello m3o") {
+			runErr = fmt.Errorf("unexpected output for helloworld %s", string(outp))
+			continue
+		}
+		runErr = nil
+		break
 	}
 
-	return nil
+	return runErr
 }
