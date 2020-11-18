@@ -16,6 +16,9 @@ func main() {
 	c := &consumer.Consumer{
 		ErrChan: make(chan error),
 	}
+	if err := c.Init(); err != nil {
+		logger.Fatal(err)
+	}
 	if err := c.Run(); err != nil {
 		logger.Fatal(err)
 	}
