@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	alert "github.com/m3o/services/alert/proto/alert"
 	"github.com/micro/micro/v3/service/config"
@@ -46,6 +47,7 @@ type slackConf struct {
 type conf struct {
 	Slack        slackConf `json:"slack"`
 	GaPropertyID string    `json:"ga_property_id"`
+	BlockList    []string  `json:"blocklist"`
 }
 
 func NewAlert() *Alert {
@@ -90,6 +92,12 @@ func (e *Alert) ReportEvent(ctx context.Context, req *alert.ReportEventRequest, 
 		Label:    req.Event.Label,
 		Value:    req.Event.Value,
 		UserID:   req.Event.UserID,
+	}
+	for _, block := range e.config.BlockList {
+		// skip anything in the block list
+		if strings.Contains(ev.Label, block) {
+			return nil
+		}
 	}
 	// ignoring the error intentionally here so we still sends alerts
 	// even if persistence is failing
