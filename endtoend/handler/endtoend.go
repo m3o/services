@@ -13,6 +13,7 @@ import (
 
 	"github.com/micro/micro/v3/service"
 
+	alertpb "github.com/m3o/services/alert/proto/alert"
 	custpb "github.com/m3o/services/customers/proto"
 	endtoend "github.com/m3o/services/endtoend/proto"
 	"github.com/micro/micro/v3/service/client"
@@ -47,8 +48,9 @@ func NewEndToEnd(srv *service.Service) *Endtoend {
 		log.Fatalf("Cannot configure, email not configured")
 	}
 	return &Endtoend{
-		email:   email,
-		custSvc: custpb.NewCustomersService("customers", srv.Client()),
+		email:    email,
+		custSvc:  custpb.NewCustomersService("customers", srv.Client()),
+		alertSvc: alertpb.NewAlertService("alert", srv.Client()),
 	}
 }
 
@@ -123,17 +125,34 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 }
 
 func (e *Endtoend) RunCheck(ctx context.Context, request *endtoend.Request, response *endtoend.Response) error {
-	go func() error {
-		if err := installMicro(); err != nil {
-			log.Errorf("Error installing micro %s", err)
-			return err
+	go e.runCheck()
+	return nil
+}
+
+func (e *Endtoend) runCheck() error {
+	var err error
+	defer func() {
+		if err == nil {
+			return
 		}
-		if err := e.signup(); err != nil {
-			log.Errorf("Error during signup %s", err)
-			return err
-		}
-		return nil
+		e.alertSvc.ReportEvent(context.TODO(), &alertpb.ReportEventRequest{
+			Event: &alertpb.Event{
+				Category: "monitoring",
+				Action:   "signup",
+				Label:    "endtoend",
+				Value:    1,
+				Metadata: map[string]string{"error": err.Error()},
+			},
+		}, client.WithAuthToken())
 	}()
+	if err = installMicro(); err != nil {
+		log.Errorf("Error installing micro %s", err)
+		return err
+	}
+	if err = e.signup(); err != nil {
+		log.Errorf("Error during signup %s", err)
+		return err
+	}
 	return nil
 }
 
@@ -145,29 +164,20 @@ func installMicro() error {
 	cmd.Dir = "/tmp"
 	_, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("Failed to get install script %s", err)
+		return fmt.Errorf("failed to get install script %s", err)
 	}
 	cmd = exec.Command("/bin/bash", "micro")
 	cmd.Dir = "/tmp"
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("Failed to install micro %s", err)
+		return fmt.Errorf("failed to install micro %s", err)
 	}
 	return nil
 }
 
 func (e *Endtoend) signup() error {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Errorf("Recovering from panic error is: %v \n", r)
-		}
-	}()
 	// reset, delete any existing customers
-	cust, err := e.custSvc.Read(context.TODO(), &custpb.ReadRequest{Email: e.email}, client.WithAuthToken())
-	if err != nil {
-		return err
-	}
-	_, err = e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Id: cust.Customer.Id}, client.WithAuthToken())
+	_, err := e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Email: e.email, Force: true}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -185,8 +195,8 @@ func (e *Endtoend) signup() error {
 		if err != nil {
 			chErr <- err
 		}
-		if !strings.Contains(string(outp), "Finishing signup for") {
-			chErr <- fmt.Errorf("output does not contain success %s", string(outp))
+		if !strings.Contains(string(outp), signupSuccessString) {
+			chErr <- fmt.Errorf("micro signup output does not contain success %s", string(outp))
 		}
 	}()
 	go func() {
@@ -229,7 +239,7 @@ func (e *Endtoend) signup() error {
 		break
 	}
 	if len(code) == 0 {
-		return fmt.Errorf("no OTP code found")
+		return fmt.Errorf("no OTP code received by email")
 	}
 
 	_, err = io.WriteString(stdin, code+"\n")
@@ -251,7 +261,7 @@ func (e *Endtoend) signup() error {
 			continue
 		}
 		if rsp.Customer.Status != "active" {
-			custErr = fmt.Errorf("customer status is %s", rsp.Customer.Status)
+			custErr = fmt.Errorf("customer status should be active but is %s", rsp.Customer.Status)
 			continue
 		}
 		custErr = nil
