@@ -9,3 +9,30 @@ There is a cron job which fires the check every X minutes. The check will downlo
 The email address used is from https://www.cloudmailin.com/ that allows us to receive emails on a webhook. This means we can pull out the OTP for email verification. 
 
 The result of the check is recorded in the store and can be queried via the `check` endpoint. This can be called externally by uptime robot and the result will indicate whether the last check was successful and recent (within 5 mins). 
+
+## Setup
+To setup this service for a new environment you should
+
+#### Setup an email address 
+See https://www.cloudmailin.com/ to sign up for a new email.
+
+You should set it up to post email in `JSON normalized` format and set the target URL to `https://api.<domain>/endtoend/mailin`
+
+#### Setup the config
+You need to setup the email address that you've just signed up for
+```
+micro config set micro.endtoend.email <email address from previous step>
+``` 
+
+#### Deploy
+```
+micro run github.com/m3o/services/endtoend
+```
+
+## Manual checking
+Checks can be triggered manually by hitting the `RunCheck` endpoint
+```
+micro endtoend RunCheck
+``` 
+
+and you can check the logs or the usual alert channels for success/failure. 

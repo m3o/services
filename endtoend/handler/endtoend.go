@@ -32,6 +32,8 @@ const (
 	signupSuccessString = "Signup complete"
 	keyOtp              = "otp"
 	keyCheckResult      = "checkResult"
+
+	microBinary = "/root/bin/micro"
 )
 
 var (
@@ -131,10 +133,28 @@ func (e *Endtoend) RunCheck(ctx context.Context, request *endtoend.Request, resp
 
 func (e *Endtoend) runCheck() error {
 	var err error
+	start := time.Now()
 	defer func() {
+		// record the result
+		result := checkResult{
+			Time:   time.Now().Unix(),
+			Passed: err == nil,
+		}
+		if err != nil {
+			result.Error = err.Error()
+		}
+		b, _ := json.Marshal(result)
+
+		mstore.Write(&mstore.Record{
+			Key:   keyCheckResult,
+			Value: b,
+		})
 		if err == nil {
+			log.Infof("Signup check took %s to complete", time.Now().Sub(start))
 			return
 		}
+
+		// alert if required
 		e.alertSvc.ReportEvent(context.TODO(), &alertpb.ReportEventRequest{
 			Event: &alertpb.Event{
 				Category: "monitoring",
@@ -179,14 +199,14 @@ func (e *Endtoend) signup() error {
 	// reset, delete any existing customers
 	_, err := e.custSvc.Delete(context.TODO(), &custpb.DeleteRequest{Email: e.email, Force: true}, client.WithAuthToken())
 	if err != nil {
-		return err
+		return fmt.Errorf("error while cleaning up existing customer %s", err)
 	}
 
 	start := time.Now()
-	cmd := exec.Command("/root/bin/micro", "signup", "--password", uuid.New().String())
+	cmd := exec.Command(microBinary, "signup", "--password", uuid.New().String())
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return err
+		return fmt.Errorf("error running micro signup command %s", err)
 	}
 	chErr := make(chan error)
 	go func() {
@@ -207,13 +227,14 @@ func (e *Endtoend) signup() error {
 	time.Sleep(1 * time.Second)
 	_, err = io.WriteString(stdin, e.email+"\n")
 	if err != nil {
-		return err
+		return fmt.Errorf("error inputting email to micro command %s", err)
 	}
 
 	code := ""
 
-	for i := 0; i < 10; i++ {
-		time.Sleep(15 * time.Second)
+	loopStart := time.Now()
+	for time.Now().Sub(loopStart) < 2*time.Minute {
+		time.Sleep(10 * time.Second)
 		log.Infof("Checking for otp")
 		recs, err := mstore.Read(keyOtp)
 		if err != nil {
@@ -244,20 +265,21 @@ func (e *Endtoend) signup() error {
 
 	_, err = io.WriteString(stdin, code+"\n")
 	if err != nil {
-		return err
+		return fmt.Errorf("error inputting otp code to micro command %s", err)
 	}
 
 	err = <-chErr
 	if err != nil {
 		log.Errorf("Error while completing signup %s", err)
-		return err
+		return fmt.Errorf("error completing signup %s", err)
 	}
 	var custErr error
-	for i := 0; i < 5; i++ {
-		time.Sleep(15 * time.Second)
+	loopStart = time.Now()
+	for time.Now().Sub(loopStart) < 2*time.Minute {
+		time.Sleep(10 * time.Second)
 		rsp, err := e.custSvc.Read(context.TODO(), &custpb.ReadRequest{Email: e.email}, client.WithAuthToken())
 		if err != nil {
-			custErr = err
+			custErr = fmt.Errorf("error checking customer status %s", err)
 			continue
 		}
 		if rsp.Customer.Status != "active" {
@@ -267,19 +289,35 @@ func (e *Endtoend) signup() error {
 		custErr = nil
 		break
 	}
-	result := checkResult{
-		Time:   time.Now().Unix(),
-		Passed: custErr == nil,
-	}
-	if custErr != nil {
-		result.Error = custErr.Error()
-	}
-	b, _ := json.Marshal(result)
 
-	mstore.Write(&mstore.Record{
-		Key:   keyCheckResult,
-		Value: b,
-	})
-	log.Infof("Signup took %s to complete", time.Now().Sub(start))
-	return custErr
+	if custErr != nil {
+		return custErr
+	}
+
+	// run a service
+	cmd = exec.Command(microBinary, "run", "github.com/micro/services/helloworld")
+	outp, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error running helloworld %s, %s", err, string(outp))
+	}
+	// wait for it to run
+	var statusErr error
+	loopStart = time.Now()
+	for time.Now().Sub(loopStart) < 2*time.Minute {
+		time.Sleep(10 * time.Second)
+		cmd = exec.Command(microBinary, "status")
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			statusErr = fmt.Errorf("error checking helloworld status %s, %s", err, string(outp))
+		}
+		if strings.Contains(string(outp), "running") {
+			statusErr = nil
+			break
+		}
+		statusErr = fmt.Errorf("helloworld not in running state. Output of status command %s", string(outp))
+	}
+	if statusErr != nil {
+		return statusErr
+	}
+	return nil
 }
