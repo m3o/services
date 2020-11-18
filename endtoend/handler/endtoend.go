@@ -233,7 +233,7 @@ func (e *Endtoend) signup() error {
 		defer close(chErr)
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
-			chErr <- err
+			chErr <- fmt.Errorf("micro signup exited with failure %s, output %s", err, string(outp))
 		}
 		if !strings.Contains(string(outp), signupSuccessString) {
 			chErr <- fmt.Errorf("micro signup output does not contain success %s", string(outp))
