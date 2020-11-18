@@ -24,10 +24,21 @@ You need to setup the email address that you've just signed up for
 micro config set micro.endtoend.email <email address from previous step>
 ``` 
 
+#### Setup auth rules
+To enable external monitoring we need to allow public access to `/endtoend/check` through the API
+
+```
+micro auth create rule --resource="service:endtoend:Endtoend.Check" endtoendcheck
+micro auth create rule --resource="service:endtoend:Endtoend.Mailin" endtoendmail
+```
+
 #### Deploy
 ```
 micro run github.com/m3o/services/endtoend
 ```
+
+#### Setup your external monitor
+Setup your external monitor (uptime robot, etc) to ping `https://api.<domain>/endtoend/check`
 
 ## Manual checking
 Checks can be triggered manually by hitting the `RunCheck` endpoint

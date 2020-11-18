@@ -131,6 +131,10 @@ func (e *Endtoend) RunCheck(ctx context.Context, request *endtoend.Request, resp
 	return nil
 }
 
+func (e *Endtoend) CronCheck() {
+	e.runCheck()
+}
+
 func (e *Endtoend) runCheck() error {
 	var err error
 	start := time.Now()
