@@ -212,7 +212,7 @@ func (e *Endtoend) signup() error {
 			break
 		}
 		merr, ok := err.(*errors.Error)
-		if ok && merr.Code == 404 {
+		if ok && (merr.Code == 404 || strings.Contains(merr.Detail, "not found")) {
 			delErr = nil
 			break
 		}
