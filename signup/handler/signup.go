@@ -257,7 +257,7 @@ func (e *Signup) isAllowedToSignup(ctx context.Context, email string) ([]string,
 // predesigned email template. Docs: https://bit.ly/2VYPQD1
 func (e *Signup) sendEmail(ctx context.Context, email, templateID string, templateData map[string]interface{}) error {
 	b, _ := json.Marshal(templateData)
-	_, err := e.emailService.Send(ctx, &eproto.SendRequest{To: email, TemplateId: templateID, TemplateData: b}, client.WithAuthToken())
+	_, err := e.emailService.Send(ctx, &eproto.SendRequest{To: email, TemplateId: templateID, TemplateData: b}, client.WithAuthToken(), client.WithRequestTimeout(10*time.Second))
 	return err
 }
 
