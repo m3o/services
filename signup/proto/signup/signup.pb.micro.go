@@ -51,6 +51,7 @@ type SignupService interface {
 	// Creates a subscription and an account
 	CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error)
 	Recover(ctx context.Context, in *RecoverRequest, opts ...client.CallOption) (*RecoverResponse, error)
+	EmailToNamespace(ctx context.Context, in *EmailToNamespaceRequest, opts ...client.CallOption) (*EmailToNamespaceResponse, error)
 }
 
 type signupService struct {
@@ -125,6 +126,16 @@ func (c *signupService) Recover(ctx context.Context, in *RecoverRequest, opts ..
 	return out, nil
 }
 
+func (c *signupService) EmailToNamespace(ctx context.Context, in *EmailToNamespaceRequest, opts ...client.CallOption) (*EmailToNamespaceResponse, error) {
+	req := c.c.NewRequest(c.name, "Signup.EmailToNamespace", in)
+	out := new(EmailToNamespaceResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Signup service
 
 type SignupHandler interface {
@@ -137,6 +148,7 @@ type SignupHandler interface {
 	// Creates a subscription and an account
 	CompleteSignup(context.Context, *CompleteSignupRequest, *CompleteSignupResponse) error
 	Recover(context.Context, *RecoverRequest, *RecoverResponse) error
+	EmailToNamespace(context.Context, *EmailToNamespaceRequest, *EmailToNamespaceResponse) error
 }
 
 func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.HandlerOption) error {
@@ -147,6 +159,7 @@ func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.H
 		HasPaymentMethod(ctx context.Context, in *HasPaymentMethodRequest, out *HasPaymentMethodResponse) error
 		CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error
 		Recover(ctx context.Context, in *RecoverRequest, out *RecoverResponse) error
+		EmailToNamespace(ctx context.Context, in *EmailToNamespaceRequest, out *EmailToNamespaceResponse) error
 	}
 	type Signup struct {
 		signup
@@ -181,4 +194,8 @@ func (h *signupHandler) CompleteSignup(ctx context.Context, in *CompleteSignupRe
 
 func (h *signupHandler) Recover(ctx context.Context, in *RecoverRequest, out *RecoverResponse) error {
 	return h.SignupHandler.Recover(ctx, in, out)
+}
+
+func (h *signupHandler) EmailToNamespace(ctx context.Context, in *EmailToNamespaceRequest, out *EmailToNamespaceResponse) error {
+	return h.SignupHandler.EmailToNamespace(ctx, in, out)
 }

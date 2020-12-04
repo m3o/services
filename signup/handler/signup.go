@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"crypto/sha256"
+	b64 "encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -554,6 +556,20 @@ func getPaymentMethod(email string) (string, error) {
 	return "", errors.New("Can't find payment method")
 }
 
+func emailToNamespace(email string) string {
+	data := []byte("dobronszki@gmail.com")
+	hash := sha256.Sum256(data)
+	v := b64.URLEncoding.EncodeToString(hash[:])
+	v = strings.ToLower(v)
+	v = strings.Replace(v, "_", "-", -1)
+	return fmt.Sprintf("mu-ns-%s", v[:14])
+}
+
+func (e *Signup) EmailToNamespace(ctx context.Context, req *signup.EmailToNamespaceRequest, rsp *signup.EmailToNamespaceResponse) error {
+	rsp.Namespace = emailToNamespace(req.Email)
+	return nil
+}
+
 func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email string) (string, error) {
 	if !e.config.NoPayment {
 		paymentMethodID, err := getPaymentMethod(email)
@@ -569,7 +585,8 @@ func (e *Signup) signupWithNewNamespace(ctx context.Context, customerID, email s
 			return "", merrors.InternalServerError("signup.CompleteSignup.new_namespace", internalErrorMsg)
 		}
 	}
-	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Owners: []string{customerID}}, client.WithAuthToken())
+
+	nsRsp, err := e.namespaceService.Create(ctx, &nproto.CreateRequest{Id: emailToNamespace(email), Owners: []string{customerID}}, client.WithAuthToken())
 	if err != nil {
 		return "", merrors.InternalServerError("signup.CompleteSignup.join.subscription", internalErrorMsg)
 	}

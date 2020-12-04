@@ -12,6 +12,7 @@ service Signup {
 	// Creates a subscription and an account
 	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
 	rpc Recover(RecoverRequest) returns (RecoverResponse);
+	rpc EmailToNamespace(EmailToNamespaceRequest) returns (EmailToNamespaceResponse);
 }
 
 message SendVerificationEmailRequest {
@@ -101,3 +102,11 @@ message RecoverRequest {
 }
 
 message RecoverResponse {}
+
+message EmailToNamespaceRequest {
+	string email = 1;
+}
+
+message EmailToNamespaceResponse {
+	string namespace = 1;
+}
