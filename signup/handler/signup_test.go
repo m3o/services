@@ -72,7 +72,7 @@ func TestSendVerificationEmail(t *testing.T) {
 
 	// should have an error
 	err := signupSvc.sendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{Email: "foo@bar1.com"}, &pb.SendVerificationEmailResponse{})
-	g.Expect(err).To(Equal(errors.Forbidden("signup.notallowed", notInvitedErrorMsg)))
+	g.Expect(err).To(Equal(errors.Forbidden("signup.notallowed", errNotInvited)))
 
 	// should succeed
 	err = signupSvc.sendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{Email: "foo@bar.com"}, &pb.SendVerificationEmailResponse{})
