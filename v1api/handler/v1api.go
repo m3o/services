@@ -136,7 +136,7 @@ func checkGenerateScopes(account *auth.Account, requestedScopes []string) bool {
 			return false
 		}
 	}
-	return false
+	return true
 }
 
 // Endpoint is a catch all for endpoints
