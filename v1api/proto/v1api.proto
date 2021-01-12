@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package v1api;
+
+option go_package = "proto;v1api";
+
+service V1api {
+	rpc Generate(GenerateRequest) returns (GenerateResponse) {}
+
+}
+
+
+message GenerateRequest {
+	repeated string scopes = 1;
+	string description = 2;
+}
+
+message GenerateResponse {
+	string apiKey = 1;
+}
+
