@@ -21,6 +21,7 @@ func main() {
 				&api.Endpoint{
 					Name:    "V1api.Endpoint",
 					Path:    []string{"^/.*$"},
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
