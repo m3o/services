@@ -19,13 +19,13 @@ func main() {
 			new(handler.V1api),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "API.Endpoint",
+					Name:    "V1api.Endpoint",
 					Path:    []string{"/*"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "API.Generate",
+					Name:    "V1api.Generate",
 					Path:    []string{"/generate"},
 					Handler: "rpc",
 				},
