@@ -20,7 +20,7 @@ func main() {
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1api.Endpoint",
-					Path:    []string{"/*"},
+					Path:    []string{"^/.*$"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
