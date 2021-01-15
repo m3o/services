@@ -20,19 +20,18 @@ func main() {
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1api.Endpoint",
-					Path:    []string{"^/.*$"},
+					Path:    []string{"^/v1api/.*$"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1api.Generate",
-					Path:    []string{"/generate"},
+					Path:    []string{"/v1api/generate"},
+					Method:  []string{"POST", "OPTIONS", "HEAD"},
 					Handler: "rpc",
 				},
 			)))
-	// Register handler
-	//pb.RegisterV1apiHandler(srv.Server(), new(handler.V1api))
 
 	// Run service
 	if err := srv.Run(); err != nil {
