@@ -6,7 +6,8 @@ option go_package = "proto;v1api";
 
 service V1api {
 	rpc Generate(GenerateRequest) returns (GenerateResponse) {}
-
+	rpc ListKeys(ListRequest) returns (ListResponse) {}
+	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
 }
 
 
@@ -19,3 +20,20 @@ message GenerateResponse {
 	string apiKey = 1;
 }
 
+message ListRequest {}
+
+message ListResponse {
+	repeated APIKey api_keys = 1;
+}
+
+message APIKey {
+	string id = 1;
+	string description = 2;
+	int64 created_time = 3;
+}
+
+message RevokeRequest {
+	string id = 1;
+}
+
+message RevokeResponse {}

@@ -43,6 +43,8 @@ func NewV1ApiEndpoints() []*api.Endpoint {
 
 type V1ApiService interface {
 	Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error)
+	ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
+	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
 }
 
 type v1ApiService struct {
@@ -67,15 +69,39 @@ func (c *v1ApiService) Generate(ctx context.Context, in *GenerateRequest, opts .
 	return out, nil
 }
 
+func (c *v1ApiService) ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	req := c.c.NewRequest(c.name, "V1Api.ListKeys", in)
+	out := new(ListResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *v1ApiService) RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error) {
+	req := c.c.NewRequest(c.name, "V1Api.RevokeKey", in)
+	out := new(RevokeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for V1Api service
 
 type V1ApiHandler interface {
 	Generate(context.Context, *GenerateRequest, *GenerateResponse) error
+	ListKeys(context.Context, *ListRequest, *ListResponse) error
+	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
 }
 
 func RegisterV1ApiHandler(s server.Server, hdlr V1ApiHandler, opts ...server.HandlerOption) error {
 	type v1Api interface {
 		Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error
+		ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error
+		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
 	}
 	type V1Api struct {
 		v1Api
@@ -90,4 +116,12 @@ type v1ApiHandler struct {
 
 func (h *v1ApiHandler) Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error {
 	return h.V1ApiHandler.Generate(ctx, in, out)
+}
+
+func (h *v1ApiHandler) ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error {
+	return h.V1ApiHandler.ListKeys(ctx, in, out)
+}
+
+func (h *v1ApiHandler) RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error {
+	return h.V1ApiHandler.RevokeKey(ctx, in, out)
 }

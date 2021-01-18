@@ -30,6 +30,20 @@ func main() {
 					Path:    []string{"/v1/generate"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
+				}),
+			api.WithEndpoint(
+				&api.Endpoint{
+					Name:    "V1api.Revoke",
+					Path:    []string{"/v1/revoke"},
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
+					Handler: "rpc",
+				}),
+			api.WithEndpoint(
+				&api.Endpoint{
+					Name:    "V1api.ListKeys",
+					Path:    []string{"/v1/listkeys"},
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
+					Handler: "rpc",
 				},
 			)))
 
