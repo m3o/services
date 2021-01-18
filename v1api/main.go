@@ -10,7 +10,7 @@ import (
 func main() {
 	// Create service
 	srv := service.New(
-		service.Name("v1api"),
+		service.Name("v1"),
 		service.Version("latest"),
 	)
 
@@ -20,15 +20,15 @@ func main() {
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1api.Endpoint",
-					Path:    []string{"^/v1api/.*$"},
+					Path:    []string{"^/v1/.*$"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1api.Generate",
-					Path:    []string{"/v1api/generate"},
-					Method:  []string{"POST", "OPTIONS", "HEAD"},
+					Path:    []string{"/v1/generate"},
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				},
 			)))

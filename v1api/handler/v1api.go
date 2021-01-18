@@ -86,7 +86,7 @@ func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v
 	tok, err := auth.Token(
 		auth.WithCredentials(authAcc.ID, apiKey),
 		auth.WithTokenIssuer("foobar"),
-		auth.WithExpiry(1*time.Minute))
+		auth.WithExpiry(1*time.Hour))
 	if err != nil {
 		log.Errorf("Error generating token %s", err)
 		return errors.InternalServerError("v1api.generate", "Failed to generate api key")
@@ -236,7 +236,7 @@ func (e *V1api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response)
 		payload = json.RawMessage(req.Body)
 	}
 
-	trimmedPath := strings.TrimPrefix(req.Path, "/v1api/")
+	trimmedPath := strings.TrimPrefix(req.Path, "/v1/")
 	parts := strings.Split(trimmedPath, "/")
 	if len(parts) < 2 {
 		// can't work out service and method
