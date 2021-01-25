@@ -45,6 +45,7 @@ type V1ApiService interface {
 	Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error)
 	ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
+	UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error)
 }
 
 type v1ApiService struct {
@@ -89,12 +90,23 @@ func (c *v1ApiService) RevokeKey(ctx context.Context, in *RevokeRequest, opts ..
 	return out, nil
 }
 
+func (c *v1ApiService) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error) {
+	req := c.c.NewRequest(c.name, "V1Api.UpdateAllowedPaths", in)
+	out := new(UpdateAllowedPathsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for V1Api service
 
 type V1ApiHandler interface {
 	Generate(context.Context, *GenerateRequest, *GenerateResponse) error
 	ListKeys(context.Context, *ListRequest, *ListResponse) error
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
+	UpdateAllowedPaths(context.Context, *UpdateAllowedPathsRequest, *UpdateAllowedPathsResponse) error
 }
 
 func RegisterV1ApiHandler(s server.Server, hdlr V1ApiHandler, opts ...server.HandlerOption) error {
@@ -102,6 +114,7 @@ func RegisterV1ApiHandler(s server.Server, hdlr V1ApiHandler, opts ...server.Han
 		Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error
 		ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
+		UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error
 	}
 	type V1Api struct {
 		v1Api
@@ -124,4 +137,8 @@ func (h *v1ApiHandler) ListKeys(ctx context.Context, in *ListRequest, out *ListR
 
 func (h *v1ApiHandler) RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error {
 	return h.V1ApiHandler.RevokeKey(ctx, in, out)
+}
+
+func (h *v1ApiHandler) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error {
+	return h.V1ApiHandler.UpdateAllowedPaths(ctx, in, out)
 }

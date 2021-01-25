@@ -5,6 +5,8 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/metrics"
+	"github.com/micro/micro/v3/service/metrics/logging"
 )
 
 func main() {
@@ -46,7 +48,7 @@ func main() {
 					Handler: "rpc",
 				},
 			)))
-
+	metrics.DefaultMetricsReporter = logging.New()
 	// Run service
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)

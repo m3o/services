@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/micro/v3/service/events"
+
 	"github.com/micro/micro/v3/service/client"
 
 	"github.com/dgrijalva/jwt-go"
@@ -32,15 +34,16 @@ const (
 )
 
 type apiKeyRecord struct {
-	ID          string   `json:"id"`          // id of the key
-	ApiKey      string   `json:"apiKey"`      // hashed api key
-	Scopes      []string `json:"scopes"`      // the scopes this key has granted
-	UserID      string   `json:"userID"`      // the ID of the key's owner
-	AccID       string   `json:"accID"`       // the ID of the service account
-	Description string   `json:"description"` // optional description of the API key as given by user
-	Namespace   string   `json:"namespace"`   // the namespace that this user belongs to (only because technically user IDs aren't globally unique)
-	Token       string   `json:"token"`       // the short lived JWT token
-	Created     int64    `json:"created"`     // creation time
+	ID          string          `json:"id"`          // id of the key
+	ApiKey      string          `json:"apiKey"`      // hashed api key
+	Scopes      []string        `json:"scopes"`      // the scopes this key has granted
+	UserID      string          `json:"userID"`      // the ID of the key's owner
+	AccID       string          `json:"accID"`       // the ID of the service account
+	Description string          `json:"description"` // optional description of the API key as given by user
+	Namespace   string          `json:"namespace"`   // the namespace that this user belongs to (only because technically user IDs aren't globally unique)
+	Token       string          `json:"token"`       // the short lived JWT token
+	Created     int64           `json:"created"`     // creation time
+	AllowList   map[string]bool `json:"allowList"`   // map of allowed path prefixes
 }
 
 // Generate generates an API key
@@ -56,10 +59,21 @@ func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v
 	if !ok {
 		return errors.Unauthorized("v1api.generate", "Unauthorized call to generate")
 	}
+	// only namespace admins can generate a key
+	admin := false
+	for _, s := range acc.Scopes {
+		if s == "admin" {
+			admin = true
+			break
+		}
+	}
+	if !admin {
+		return errors.Forbidden("v1api.generate", "Forbidden")
+	}
 	// generate a new API key
 
 	// are they allowed to generate with the requested scopes?
-	if !checkGenerateScopes(acc, req.Scopes) {
+	if !checkRequestedScopes(acc, req.Scopes) {
 		return errors.Forbidden("v1api.generate", "Not allowed to generate a key with requested scopes")
 	}
 
@@ -78,14 +92,13 @@ func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v
 
 	// api key is the secret for a new account
 	// generate the new account + short lived access token for it
-	// TODO - this should really be the same account but with additional
-	// TODO - what issuer should we use?
 	authAcc, err := auth.Generate(
 		uuid.New().String(),
 		auth.WithSecret(apiKey),
-		auth.WithIssuer("foobar"),
+		auth.WithIssuer(acc.Issuer),
 		auth.WithType("apikey"),
 		auth.WithScopes(req.Scopes...),
+		auth.WithMetadata(map[string]string{"apikey_owner": acc.ID}),
 	)
 	if err != nil {
 		log.Errorf("Error generating auth account %s", err)
@@ -93,7 +106,7 @@ func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v
 	}
 	tok, err := auth.Token(
 		auth.WithCredentials(authAcc.ID, apiKey),
-		auth.WithTokenIssuer("foobar"),
+		auth.WithTokenIssuer(acc.Issuer),
 		auth.WithExpiry(1*time.Hour))
 	if err != nil {
 		log.Errorf("Error generating token %s", err)
@@ -110,10 +123,19 @@ func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v
 		AccID:       authAcc.ID,
 		Token:       tok.AccessToken,
 		Created:     time.Now().Unix(),
+		AllowList:   map[string]bool{},
 	}
 	if err := writeAPIRecord(&rec); err != nil {
 		log.Errorf("Failed to write api record %s", err)
 		return errors.InternalServerError("v1api.generate", "Failed to generate api key")
+	}
+
+	if err := events.Publish("v1api", v1api.Event{ApiKeyCreate: &v1api.APIKeyCreateEvent{
+		UserId:   rec.UserID,
+		ApiKeyId: rec.ID,
+		Scopes:   rec.Scopes,
+	}}); err != nil {
+		log.Errorf("Error publishing event %s", err)
 	}
 	// return the unhashed key
 	rsp.ApiKey = apiKey
@@ -172,6 +194,20 @@ func deleteAPIRecord(rec *apiKeyRecord) error {
 	return nil
 }
 
+func readAPIRecord(ns, user, keyID string) (*apiKeyRecord, error) {
+	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:%s", storePrefixKeyID, ns, user, keyID))
+	if err != nil {
+		return nil, err
+	}
+
+	rec := recs[0]
+	keyRec := &apiKeyRecord{}
+	if err := json.Unmarshal(rec.Value, keyRec); err != nil {
+		return nil, err
+	}
+	return keyRec, nil
+}
+
 func hashSecret(s string) (string, error) {
 	h := sha256.New()
 	h.Write([]byte(s))
@@ -179,9 +215,9 @@ func hashSecret(s string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-// checkGenerateScopes returns true if account has sufficient privileges for them to generate the requestedScopes.
+// checkRequestedScopes returns true if account has sufficient privileges for them to generate the requestedScopes.
 // e.g. micro "admin" can generate whatever scopes they want
-func checkGenerateScopes(account *auth.Account, requestedScopes []string) bool {
+func checkRequestedScopes(account *auth.Account, requestedScopes []string) bool {
 	if account.Issuer == "micro" {
 		for _, scope := range account.Scopes {
 			if scope == "admin" {
@@ -235,6 +271,18 @@ func (e *V1api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response)
 	if err := json.Unmarshal(recs[0].Value, &apiRec); err != nil {
 		log.Errorf("Error while rehydrating api key record %s", err)
 		return errors.Unauthorized("v1api", "Unauthorized")
+	}
+
+	// allowed? this *doesn't* check based on scopes, but whether the user has been specifically allowed (likely due to quota)
+	allowed := false
+	for prefix := range apiRec.AllowList {
+		if strings.HasPrefix(req.Url, prefix) {
+			allowed = true
+		}
+	}
+	if !allowed {
+		// TODO better error please
+		return errors.Forbidden("v1api.blocked", "Client is blocked")
 	}
 
 	// do we need to refresh the token?
@@ -299,6 +347,13 @@ func (e *V1api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response)
 	if err := client.Call(ctx, request, &response); err != nil {
 		return err
 	}
+	if err := events.Publish("v1api", v1api.Event{Request: &v1api.RequestEvent{
+		UserId:   apiRec.UserID,
+		ApiKeyId: apiRec.ID,
+		Url:      req.Url,
+	}}); err != nil {
+		log.Errorf("Error publishing event %s", err)
+	}
 
 	// marshal response
 	// TODO implement errors
@@ -318,21 +373,13 @@ func (e *V1api) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api
 	if !ok {
 		return errors.Unauthorized("v1api.listkeys", "Unauthorized call to listkeys")
 	}
-	recs, err := store.Read("", store.Prefix(fmt.Sprintf("%s:%s:%s:", storePrefixUserID, acc.Issuer, acc.ID)))
+	recs, err := listKeysForUser(acc.Issuer, acc.ID)
 	if err != nil {
-		if err == store.ErrNotFound {
-			return nil
-		}
-		log.Errorf("Error reading keys %s", err)
-		return errors.InternalServerError("v1api.listkeys", "")
+		log.Errorf("Error listing keys %s", err)
+		return errors.InternalServerError("v1aapi.listkeys", "Error listing keys")
 	}
 	rsp.ApiKeys = make([]*v1api.APIKey, len(recs))
-	for i, rec := range recs {
-		apiRec := &apiKeyRecord{}
-		if err := json.Unmarshal(rec.Value, apiRec); err != nil {
-			log.Errorf("Error unmarshalling key %s", err)
-			return errors.InternalServerError("v1api.listkeys", "")
-		}
+	for i, apiRec := range recs {
 		rsp.ApiKeys[i] = &v1api.APIKey{
 			Id:          apiRec.ID,
 			Description: apiRec.Description,
@@ -342,33 +389,86 @@ func (e *V1api) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api
 	return nil
 }
 
-// Revoke revokes a given key
-func (e *V1api) Revoke(ctx context.Context, req *v1api.RevokeRequest, rsp *v1api.RevokeResponse) error {
-	// Check account
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("v1api.revoke", "Unauthorized call to revoke")
-	}
-	if len(req.Id) == 0 {
-		return errors.BadRequest("v1api.revoke", "Missing ID field")
-	}
-	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:%s", storePrefixKeyID, acc.Issuer, acc.ID, req.Id))
+func listKeysForUser(ns, userID string) ([]*apiKeyRecord, error) {
+	recs, err := store.Read("", store.Prefix(fmt.Sprintf("%s:%s:%s:", storePrefixUserID, ns, userID)))
 	if err != nil {
 		if err == store.ErrNotFound {
-			return errors.NotFound("v1api.revoke", "Key not found")
+			return nil, nil
 		}
-		log.Errorf("Error reading key %s", err)
-		return errors.InternalServerError("v1api.revoke", "")
+		return nil, err
 	}
-	apiRec := &apiKeyRecord{}
-	if err := json.Unmarshal(recs[0].Value, apiRec); err != nil {
-		log.Errorf("Error marshalling key %s", err)
-		return errors.InternalServerError("v1api.revoke", "")
+	ret := make([]*apiKeyRecord, len(recs))
+	for i, rec := range recs {
+		apiRec := &apiKeyRecord{}
+		if err := json.Unmarshal(rec.Value, apiRec); err != nil {
+			return nil, err
+		}
+		ret[i] = apiRec
+	}
+	return ret, nil
+}
+
+func (e *V1api) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, response *v1api.RevokeResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("v1api.Revoke", "Unauthorized call to revoke")
+	}
+	if len(request.Id) == 0 {
+		return errors.BadRequest("v1api.Revoke", "Missing ID field")
 	}
 
-	if err := deleteAPIRecord(apiRec); err != nil {
-		log.Errorf("Error deleting record %s", err)
-		return errors.InternalServerError("v1api.revoke", "Error while deleting record")
+	rec, err := readAPIRecord(acc.Issuer, acc.ID, request.Id)
+	if err != nil {
+		if err == store.ErrNotFound {
+			return errors.NotFound("v1api.Revoke", "Not found")
+		}
+		log.Errorf("Error reading API key record %s", err)
+		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
+	}
+	if err := deleteAPIRecord(rec); err != nil {
+		log.Errorf("Error deleting API key record %s", err)
+		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
+	}
+	return nil
+}
+
+func (e *V1api) UpdateAllowedPaths(ctx context.Context, request *v1api.UpdateAllowedPathsRequest, response *v1api.UpdateAllowedPathsResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("v1api.UpdateAllowedPaths", "Unauthorized")
+	}
+	if acc.Issuer != "micro" {
+		return errors.Forbidden("v1api.UpdateAllowedPaths", "Forbidden")
+	}
+	admin := false
+	for _, s := range acc.Scopes {
+		if s == "admin" || s == "service" {
+			admin = true
+			break
+		}
+	}
+	if !admin {
+		return errors.Forbidden("v1api.UpdateAllowedPaths", "Forbidden")
+	}
+	keys, err := listKeysForUser(request.Namespace, request.UserId)
+	if err != nil {
+		log.Errorf("Error listing keys %s", err)
+		return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating user")
+	}
+	update := func(key *apiKeyRecord, allow, block []string) error {
+		for _, a := range allow {
+			key.AllowList[a] = true
+		}
+		for _, b := range block {
+			delete(key.AllowList, b)
+		}
+		return writeAPIRecord(key)
+	}
+	for _, k := range keys {
+		if err := update(k, request.Allowed, request.Blocked); err != nil {
+			log.Errorf("Error updating key api key record %s", err)
+			return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating allowed paths")
+		}
 	}
 
 	return nil

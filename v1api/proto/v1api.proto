@@ -8,6 +8,7 @@ service V1api {
 	rpc Generate(GenerateRequest) returns (GenerateResponse) {}
 	rpc ListKeys(ListRequest) returns (ListResponse) {}
 	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
+	rpc UpdateAllowedPaths(UpdateAllowedPathsRequest) returns (UpdateAllowedPathsResponse) {}
 }
 
 
@@ -37,3 +38,29 @@ message RevokeRequest {
 }
 
 message RevokeResponse {}
+
+message Event {
+	RequestEvent request = 1;
+	APIKeyCreateEvent api_key_create = 2;
+}
+
+message APIKeyCreateEvent {
+	string user_id = 1;
+	string api_key_id = 2;
+	repeated string scopes = 3;
+}
+
+message RequestEvent {
+	string user_id = 1;
+	string api_key_id = 2;
+	string url = 3;
+}
+
+message UpdateAllowedPathsRequest {
+	string user_id = 1;
+	string namespace = 2;
+	repeated string allowed = 3;
+	repeated string blocked = 4;
+}
+
+message UpdateAllowedPathsResponse {}
