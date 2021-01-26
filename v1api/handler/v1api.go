@@ -25,7 +25,7 @@ import (
 	"github.com/micro/micro/v3/service/store"
 )
 
-type V1api struct{}
+type V1Api struct{}
 
 const (
 	storePrefixHashedKey = "hashed"
@@ -47,7 +47,7 @@ type apiKeyRecord struct {
 }
 
 // Generate generates an API key
-func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v1api.GenerateResponse) error {
+func (e *V1Api) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp *v1api.GenerateKeyResponse) error {
 	if len(req.Scopes) == 0 {
 		return errors.BadRequest("v1api.generate", "Missing scopes field")
 	}
@@ -130,11 +130,13 @@ func (e *V1api) Generate(ctx context.Context, req *v1api.GenerateRequest, rsp *v
 		return errors.InternalServerError("v1api.generate", "Failed to generate api key")
 	}
 
-	if err := events.Publish("v1api", v1api.Event{ApiKeyCreate: &v1api.APIKeyCreateEvent{
-		UserId:   rec.UserID,
-		ApiKeyId: rec.ID,
-		Scopes:   rec.Scopes,
-	}}); err != nil {
+	if err := events.Publish("v1api", v1api.Event{Type: "APIKeyCreate",
+		ApiKeyCreate: &v1api.APIKeyCreateEvent{
+			UserId:    rec.UserID,
+			Namespace: rec.Namespace,
+			ApiKeyId:  rec.ID,
+			Scopes:    rec.Scopes,
+		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}
 	// return the unhashed key
@@ -240,7 +242,7 @@ func checkRequestedScopes(account *auth.Account, requestedScopes []string) bool 
 }
 
 // Endpoint is a catch all for endpoints
-func (e *V1api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+func (e *V1Api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	// check api key
 	authz := req.Header["Authorization"]
 	if authz == nil || len(authz.Values) == 0 {
@@ -347,11 +349,13 @@ func (e *V1api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response)
 	if err := client.Call(ctx, request, &response); err != nil {
 		return err
 	}
-	if err := events.Publish("v1api", v1api.Event{Request: &v1api.RequestEvent{
-		UserId:   apiRec.UserID,
-		ApiKeyId: apiRec.ID,
-		Url:      req.Url,
-	}}); err != nil {
+	if err := events.Publish("v1api", v1api.Event{Type: "Request",
+		Request: &v1api.RequestEvent{
+			UserId:    apiRec.UserID,
+			Namespace: apiRec.Namespace,
+			ApiKeyId:  apiRec.ID,
+			Url:       req.Url,
+		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}
 
@@ -367,7 +371,7 @@ func (e *V1api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response)
 }
 
 // ListKeys lists all keys for a user
-func (e *V1api) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.ListResponse) error {
+func (e *V1Api) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.ListResponse) error {
 	// Check account
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
@@ -408,7 +412,7 @@ func listKeysForUser(ns, userID string) ([]*apiKeyRecord, error) {
 	return ret, nil
 }
 
-func (e *V1api) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, response *v1api.RevokeResponse) error {
+func (e *V1Api) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, response *v1api.RevokeResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return errors.Unauthorized("v1api.Revoke", "Unauthorized call to revoke")
@@ -432,7 +436,7 @@ func (e *V1api) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, res
 	return nil
 }
 
-func (e *V1api) UpdateAllowedPaths(ctx context.Context, request *v1api.UpdateAllowedPathsRequest, response *v1api.UpdateAllowedPathsResponse) error {
+func (e *V1Api) UpdateAllowedPaths(ctx context.Context, request *v1api.UpdateAllowedPathsRequest, response *v1api.UpdateAllowedPathsResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return errors.Unauthorized("v1api.UpdateAllowedPaths", "Unauthorized")

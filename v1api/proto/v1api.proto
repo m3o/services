@@ -4,20 +4,20 @@ package v1api;
 
 option go_package = "proto;v1api";
 
-service V1api {
-	rpc Generate(GenerateRequest) returns (GenerateResponse) {}
+service V1Api {
+	rpc GenerateKey(GenerateKeyRequest) returns (GenerateKeyResponse) {}
 	rpc ListKeys(ListRequest) returns (ListResponse) {}
 	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
 	rpc UpdateAllowedPaths(UpdateAllowedPathsRequest) returns (UpdateAllowedPathsResponse) {}
 }
 
 
-message GenerateRequest {
+message GenerateKeyRequest {
 	repeated string scopes = 1;
 	string description = 2;
 }
 
-message GenerateResponse {
+message GenerateKeyResponse {
 	string apiKey = 1;
 }
 
@@ -42,18 +42,21 @@ message RevokeResponse {}
 message Event {
 	RequestEvent request = 1;
 	APIKeyCreateEvent api_key_create = 2;
+	string type = 3;
 }
 
 message APIKeyCreateEvent {
 	string user_id = 1;
-	string api_key_id = 2;
-	repeated string scopes = 3;
+	string namespace = 2;
+	string api_key_id = 3;
+	repeated string scopes = 4;
 }
 
 message RequestEvent {
 	string user_id = 1;
-	string api_key_id = 2;
-	string url = 3;
+	string namespace = 2;
+	string api_key_id = 3;
+	string url = 4;
 }
 
 message UpdateAllowedPathsRequest {

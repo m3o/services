@@ -42,7 +42,7 @@ func NewV1ApiEndpoints() []*api.Endpoint {
 // Client API for V1Api service
 
 type V1ApiService interface {
-	Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error)
+	GenerateKey(ctx context.Context, in *GenerateKeyRequest, opts ...client.CallOption) (*GenerateKeyResponse, error)
 	ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
 	UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error)
@@ -60,9 +60,9 @@ func NewV1ApiService(name string, c client.Client) V1ApiService {
 	}
 }
 
-func (c *v1ApiService) Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error) {
-	req := c.c.NewRequest(c.name, "V1Api.Generate", in)
-	out := new(GenerateResponse)
+func (c *v1ApiService) GenerateKey(ctx context.Context, in *GenerateKeyRequest, opts ...client.CallOption) (*GenerateKeyResponse, error) {
+	req := c.c.NewRequest(c.name, "V1Api.GenerateKey", in)
+	out := new(GenerateKeyResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (c *v1ApiService) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowed
 // Server API for V1Api service
 
 type V1ApiHandler interface {
-	Generate(context.Context, *GenerateRequest, *GenerateResponse) error
+	GenerateKey(context.Context, *GenerateKeyRequest, *GenerateKeyResponse) error
 	ListKeys(context.Context, *ListRequest, *ListResponse) error
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
 	UpdateAllowedPaths(context.Context, *UpdateAllowedPathsRequest, *UpdateAllowedPathsResponse) error
@@ -111,7 +111,7 @@ type V1ApiHandler interface {
 
 func RegisterV1ApiHandler(s server.Server, hdlr V1ApiHandler, opts ...server.HandlerOption) error {
 	type v1Api interface {
-		Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error
+		GenerateKey(ctx context.Context, in *GenerateKeyRequest, out *GenerateKeyResponse) error
 		ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
 		UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error
@@ -127,8 +127,8 @@ type v1ApiHandler struct {
 	V1ApiHandler
 }
 
-func (h *v1ApiHandler) Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error {
-	return h.V1ApiHandler.Generate(ctx, in, out)
+func (h *v1ApiHandler) GenerateKey(ctx context.Context, in *GenerateKeyRequest, out *GenerateKeyResponse) error {
+	return h.V1ApiHandler.GenerateKey(ctx, in, out)
 }
 
 func (h *v1ApiHandler) ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error {

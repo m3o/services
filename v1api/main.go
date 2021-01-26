@@ -5,8 +5,6 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/metrics"
-	"github.com/micro/micro/v3/service/metrics/logging"
 )
 
 func main() {
@@ -18,37 +16,43 @@ func main() {
 
 	srv.Server().Handle(
 		srv.Server().NewHandler(
-			new(handler.V1api),
+			new(handler.V1Api),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1api.Endpoint",
+					Name:    "V1Api.Endpoint",
 					Path:    []string{"^/v1/.*$"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1api.Generate",
-					Path:    []string{"/v1/generate"},
+					Name:    "V1Api.GenerateKey",
+					Path:    []string{"/v1/generatekey"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1api.Revoke",
-					Path:    []string{"/v1/revoke"},
+					Name:    "V1Api.RevokeKey",
+					Path:    []string{"/v1/revokekey"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1api.ListKeys",
+					Name:    "V1Api.UpdateAllowedPaths",
+					Path:    []string{"/v1/updateallowedpaths"},
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
+					Handler: "rpc",
+				}),
+			api.WithEndpoint(
+				&api.Endpoint{
+					Name:    "V1Api.ListKeys",
 					Path:    []string{"/v1/listkeys"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				},
 			)))
-	metrics.DefaultMetricsReporter = logging.New()
 	// Run service
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
