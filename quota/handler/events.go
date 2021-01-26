@@ -77,6 +77,7 @@ func (q *Quota) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 		Namespace: ac.Namespace,
 		Allowed:   []string{"/v1/"}, // TODO this unblocks all currently
 		Blocked:   nil,
+		KeyId:     ac.ApiKeyId,
 	}, client.WithAuthToken()); err != nil {
 		logger.Errorf("Error updating allowed paths %s", err)
 		return err

@@ -64,6 +64,7 @@ message UpdateAllowedPathsRequest {
 	string namespace = 2;
 	repeated string allowed = 3;
 	repeated string blocked = 4;
+	string key_id = 5;
 }
 
 message UpdateAllowedPathsResponse {}

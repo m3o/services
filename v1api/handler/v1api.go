@@ -454,10 +454,22 @@ func (e *V1Api) UpdateAllowedPaths(ctx context.Context, request *v1api.UpdateAll
 	if !admin {
 		return errors.Forbidden("v1api.UpdateAllowedPaths", "Forbidden")
 	}
-	keys, err := listKeysForUser(request.Namespace, request.UserId)
-	if err != nil {
-		log.Errorf("Error listing keys %s", err)
-		return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating user")
+
+	var keys []*apiKeyRecord
+	if len(request.KeyId) > 0 {
+		rec, err := readAPIRecord(request.Namespace, request.UserId, request.KeyId)
+		if err != nil {
+			log.Errorf("Error reading key %s", err)
+			return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating user")
+		}
+		keys = []*apiKeyRecord{rec}
+	} else {
+		recs, err := listKeysForUser(request.Namespace, request.UserId)
+		if err != nil {
+			log.Errorf("Error listing keys %s", err)
+			return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating user")
+		}
+		keys = recs
 	}
 	update := func(key *apiKeyRecord, allow, block []string) error {
 		for _, a := range allow {
