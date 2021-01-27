@@ -298,16 +298,16 @@ func (e *V1Api) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response)
 			// needs a refresh
 			tok, err := auth.Token(
 				auth.WithCredentials(apiRec.AccID, key),
-				auth.WithTokenIssuer("foobar"),
+				auth.WithTokenIssuer(apiRec.Namespace),
 				auth.WithExpiry(1*time.Hour))
 			if err != nil {
-				log.Errorf("Error generating token %s", err)
-				return errors.InternalServerError("v1api.generate", "Failed to generate api key")
+				log.Errorf("Error refreshing token %s", err)
+				return errors.InternalServerError("v1api", "Failed to refresh api key")
 			}
 			apiRec.Token = tok.AccessToken
 			if err := writeAPIRecord(&apiRec); err != nil {
 				log.Errorf("Error updating API record %s", err)
-				return err
+				return errors.InternalServerError("v1api", "Failed to refresh api key")
 			}
 		}
 	} else {
