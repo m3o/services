@@ -68,7 +68,7 @@ type quota struct {
 func New(client client.Client) *Quota {
 	q := &Quota{
 		v1Svc: v1api.NewV1ApiService("v1", client),
-		c:     counter{},
+		c:     counter{counts: map[string]int64{}},
 	}
 	go q.consumeEvents()
 	return q
