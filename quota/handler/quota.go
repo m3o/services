@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/micro/micro/v3/service/client"
 
@@ -19,8 +20,28 @@ import (
 	pb "github.com/m3o/services/quota/proto"
 )
 
+// TODO this is a temp counter until we introduce redis
+type counter struct {
+	sync.RWMutex
+	counts map[string]int64
+}
+
+func (c *counter) incr(nm string) int64 {
+	c.Lock()
+	defer c.Unlock()
+	c.counts[nm]++
+	return c.counts[nm]
+}
+
+func (c *counter) read(nm string) int64 {
+	c.RLock()
+	defer c.RUnlock()
+	return c.counts[nm]
+}
+
 type Quota struct {
 	v1Svc v1api.V1ApiService
+	c     counter
 }
 
 type resetFrequency int
@@ -41,11 +62,13 @@ type quota struct {
 	id             string
 	limit          int64
 	resetFrequency resetFrequency
+	path           string
 }
 
 func New(client client.Client) *Quota {
 	q := &Quota{
 		v1Svc: v1api.NewV1ApiService("v1", client),
+		c:     counter{},
 	}
 	go q.consumeEvents()
 	return q
@@ -58,10 +81,14 @@ func (q *Quota) Create(ctx context.Context, request *pb.CreateRequest, response 
 	if len(request.Id) == 0 {
 		return errors.BadRequest("quota.Create", "Missing quota ID")
 	}
+	if len(request.Path) == 0 {
+		return errors.BadRequest("quota.Create", "Missing quota path")
+	}
 	quot := &quota{
 		id:             request.Id,
 		limit:          request.Limit,
 		resetFrequency: resetFrequency(request.ResetFrequency.Number()),
+		path:           request.Path,
 	}
 
 	b, err := json.Marshal(quot)
@@ -76,6 +103,7 @@ func (q *Quota) Create(ctx context.Context, request *pb.CreateRequest, response 
 		log.Errorf("Error writing to store %s", err)
 		return errors.InternalServerError("quota.Create", "Error creating quota")
 	}
+
 	return nil
 }
 
@@ -101,6 +129,7 @@ func (q *Quota) RegisterUser(ctx context.Context, request *pb.RegisterUserReques
 	}
 
 	// store association for each quota
+
 	// update the v1api to unblock the user's api keys
 
 	panic("implement me")

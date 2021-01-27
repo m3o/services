@@ -22,6 +22,7 @@ message CreateRequest {
 		MONTHLY = 2;
 	}
 	Frequency reset_frequency = 3;
+	string path = 4;
 }
 
 message CreateResponse {}

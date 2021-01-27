@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/micro/micro/v3/service/client"
@@ -72,6 +74,9 @@ func (q *Quota) processV1apiEvents(ch <-chan mevents.Event) {
 }
 
 func (q *Quota) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
+	// TODO register this for quotas
+
+	// update the key to unblock it
 	if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
 		UserId:    ac.UserId,
 		Namespace: ac.Namespace,
@@ -82,9 +87,26 @@ func (q *Quota) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 		logger.Errorf("Error updating allowed paths %s", err)
 		return err
 	}
+
 	return nil
 }
 
-func (q *Quota) processRequest(ac *v1api.RequestEvent) error {
+func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
+
+	// count the request
+	// count is coarse granularity - we just care which service they've called so /v1/blah
+	if !strings.HasPrefix(rqe.Url, "/v1/") {
+		logger.Warnf("Discarding unrecognised URL path %s", rqe.Url)
+		return nil
+	}
+	parts := strings.Split(rqe.Url[1:], "/")
+	if len(parts) < 2 {
+		logger.Warnf("Discarding unrecognised URL path %s", rqe.Url)
+		return nil
+	}
+
+	curr := q.c.incr(fmt.Sprintf("%s:%s:%s", rqe.Namespace, rqe.UserId, parts[1]))
+	// TODO do post processing - do we need to block the user because of an exhausted quota?
+	logger.Infof("Current count is %d", curr)
 	return nil
 }
