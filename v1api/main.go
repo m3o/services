@@ -16,38 +16,38 @@ func main() {
 
 	srv.Server().Handle(
 		srv.Server().NewHandler(
-			new(handler.V1Api),
+			new(handler.V1),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1Api.Endpoint",
+					Name:    "V1.Endpoint",
 					Path:    []string{"^/v1/.*$"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "api",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1Api.GenerateKey",
+					Name:    "V1.GenerateKey",
 					Path:    []string{"/v1/generatekey"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1Api.RevokeKey",
+					Name:    "V1.RevokeKey",
 					Path:    []string{"/v1/revokekey"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1Api.UpdateAllowedPaths",
+					Name:    "V1.UpdateAllowedPaths",
 					Path:    []string{"/v1/updateallowedpaths"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1Api.ListKeys",
+					Name:    "V1.ListKeys",
 					Path:    []string{"/v1/listkeys"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",

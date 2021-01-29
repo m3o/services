@@ -33,35 +33,35 @@ var _ context.Context
 var _ client.Option
 var _ server.Option
 
-// Api Endpoints for V1Api service
+// Api Endpoints for V1 service
 
-func NewV1ApiEndpoints() []*api.Endpoint {
+func NewV1Endpoints() []*api.Endpoint {
 	return []*api.Endpoint{}
 }
 
-// Client API for V1Api service
+// Client API for V1 service
 
-type V1ApiService interface {
+type V1Service interface {
 	GenerateKey(ctx context.Context, in *GenerateKeyRequest, opts ...client.CallOption) (*GenerateKeyResponse, error)
 	ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
 	UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error)
 }
 
-type v1ApiService struct {
+type v1Service struct {
 	c    client.Client
 	name string
 }
 
-func NewV1ApiService(name string, c client.Client) V1ApiService {
-	return &v1ApiService{
+func NewV1Service(name string, c client.Client) V1Service {
+	return &v1Service{
 		c:    c,
 		name: name,
 	}
 }
 
-func (c *v1ApiService) GenerateKey(ctx context.Context, in *GenerateKeyRequest, opts ...client.CallOption) (*GenerateKeyResponse, error) {
-	req := c.c.NewRequest(c.name, "V1Api.GenerateKey", in)
+func (c *v1Service) GenerateKey(ctx context.Context, in *GenerateKeyRequest, opts ...client.CallOption) (*GenerateKeyResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.GenerateKey", in)
 	out := new(GenerateKeyResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -70,8 +70,8 @@ func (c *v1ApiService) GenerateKey(ctx context.Context, in *GenerateKeyRequest, 
 	return out, nil
 }
 
-func (c *v1ApiService) ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "V1Api.ListKeys", in)
+func (c *v1Service) ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.ListKeys", in)
 	out := new(ListResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -80,8 +80,8 @@ func (c *v1ApiService) ListKeys(ctx context.Context, in *ListRequest, opts ...cl
 	return out, nil
 }
 
-func (c *v1ApiService) RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error) {
-	req := c.c.NewRequest(c.name, "V1Api.RevokeKey", in)
+func (c *v1Service) RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.RevokeKey", in)
 	out := new(RevokeResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -90,8 +90,8 @@ func (c *v1ApiService) RevokeKey(ctx context.Context, in *RevokeRequest, opts ..
 	return out, nil
 }
 
-func (c *v1ApiService) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error) {
-	req := c.c.NewRequest(c.name, "V1Api.UpdateAllowedPaths", in)
+func (c *v1Service) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.UpdateAllowedPaths", in)
 	out := new(UpdateAllowedPathsResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -100,45 +100,45 @@ func (c *v1ApiService) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowed
 	return out, nil
 }
 
-// Server API for V1Api service
+// Server API for V1 service
 
-type V1ApiHandler interface {
+type V1Handler interface {
 	GenerateKey(context.Context, *GenerateKeyRequest, *GenerateKeyResponse) error
 	ListKeys(context.Context, *ListRequest, *ListResponse) error
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
 	UpdateAllowedPaths(context.Context, *UpdateAllowedPathsRequest, *UpdateAllowedPathsResponse) error
 }
 
-func RegisterV1ApiHandler(s server.Server, hdlr V1ApiHandler, opts ...server.HandlerOption) error {
-	type v1Api interface {
+func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOption) error {
+	type v1 interface {
 		GenerateKey(ctx context.Context, in *GenerateKeyRequest, out *GenerateKeyResponse) error
 		ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
 		UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error
 	}
-	type V1Api struct {
-		v1Api
+	type V1 struct {
+		v1
 	}
-	h := &v1ApiHandler{hdlr}
-	return s.Handle(s.NewHandler(&V1Api{h}, opts...))
+	h := &v1Handler{hdlr}
+	return s.Handle(s.NewHandler(&V1{h}, opts...))
 }
 
-type v1ApiHandler struct {
-	V1ApiHandler
+type v1Handler struct {
+	V1Handler
 }
 
-func (h *v1ApiHandler) GenerateKey(ctx context.Context, in *GenerateKeyRequest, out *GenerateKeyResponse) error {
-	return h.V1ApiHandler.GenerateKey(ctx, in, out)
+func (h *v1Handler) GenerateKey(ctx context.Context, in *GenerateKeyRequest, out *GenerateKeyResponse) error {
+	return h.V1Handler.GenerateKey(ctx, in, out)
 }
 
-func (h *v1ApiHandler) ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error {
-	return h.V1ApiHandler.ListKeys(ctx, in, out)
+func (h *v1Handler) ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error {
+	return h.V1Handler.ListKeys(ctx, in, out)
 }
 
-func (h *v1ApiHandler) RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error {
-	return h.V1ApiHandler.RevokeKey(ctx, in, out)
+func (h *v1Handler) RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error {
+	return h.V1Handler.RevokeKey(ctx, in, out)
 }
 
-func (h *v1ApiHandler) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error {
-	return h.V1ApiHandler.UpdateAllowedPaths(ctx, in, out)
+func (h *v1Handler) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error {
+	return h.V1Handler.UpdateAllowedPaths(ctx, in, out)
 }

@@ -40,7 +40,7 @@ func (c *counter) read(nm string) int64 {
 }
 
 type Quota struct {
-	v1Svc v1api.V1ApiService
+	v1Svc v1api.V1Service
 	c     counter
 }
 
@@ -67,7 +67,7 @@ type quota struct {
 
 func New(client client.Client) *Quota {
 	q := &Quota{
-		v1Svc: v1api.NewV1ApiService("v1", client),
+		v1Svc: v1api.NewV1Service("v1", client),
 		c:     counter{counts: map[string]int64{}},
 	}
 	go q.consumeEvents()

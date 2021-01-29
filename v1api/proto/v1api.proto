@@ -4,7 +4,7 @@ package v1api;
 
 option go_package = "proto;v1api";
 
-service V1Api {
+service V1 {
 	rpc GenerateKey(GenerateKeyRequest) returns (GenerateKeyResponse) {}
 	rpc ListKeys(ListRequest) returns (ListResponse) {}
 	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
