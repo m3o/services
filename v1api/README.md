@@ -7,7 +7,9 @@ In charge of
 - API keys lifecycle management
 - blocking requests (if insufficient privilege or some other reason).
 
-## Quickstart generating and using an API key
+## Quickstart 
+
+### Generating and using an API key
 1. Sign up for an account
 2. Generate a key where your auth token can be found via `micro user token`
 ```
@@ -23,6 +25,17 @@ curl https://api.m3o.com/v1/helloworld/call  -H "Authorization: Bearer ZDIxYTJhM
 
 {"msg":"Hello Dom"}                       
 ```
+
+### Listing keys
+```
+ curl https://api.m3o.com/v1/listkeys -H "Content-Type: application/json" -H "Micro-Namespace: micro" -H "Authorization: Bearer <your auth token>" 
+```
+
+### Delete a key
+```
+ curl https://api.m3o.com/v1/listkeys -d '{"id":"<api key id from the listkeys call>"}' -H "Content-Type: application/json" -H "Micro-Namespace: micro" -H "Authorization: Bearer <your auth token>" 
+```
+
 
 ## Design
 
@@ -41,7 +54,20 @@ The API key is an opaque base64 encoded token e.g. `ZDIxYTJhMDctZjgwMC00YmJhLTk0
 2. The micro API service can't decode the key as a JWT so will forward to the micro namespace by default
 3. v1api service verifies the key by looking up the hash 
 4. If we recognise it we grab a valid JWT token for the account; either we have a short lived one cached or we generate a new JWT token (the API key is actually the password for the account). Note: the JWT tokens are short lived (1 hour) but if the DB was ever breached you could in theory get a token that has validity for up to an hour to impersonate the victim (we can always shorten this timespan if required). 
-5. We then forward the request, adding the JWT token to the request auth. 
+5. We then forward the request, adding the JWT token to the request context as `Caller-Token`. Services being called will need to look for this token within the request context metadata e.g. 
+   ```
+    callTok, ok := metadata.Get(ctx, "Caller-Token")
+    if !ok {
+        logger.Errorf("Can't find caller token")
+    } else {
+        acc,err:= auth.Inspect(callTok)
+        if err!=nil {
+            logger.Errorf("Error inspecting token %s", err)
+        } else {
+            logger.Infof("Caller account is %+v", *acc)
+        }
+    } 
+   ```
 
 ### Blocking requests
 If requests for a client need to be blocked (insufficient privilege or exhausted quota) we call `UpdateAllowedPaths` and update the allowed paths for the user as a whole (which has the effect of just updating all their API keys). 
@@ -52,3 +78,21 @@ The same happens for unblocking requests.
 Scopes define what an API key can do. 
 
 Proposal: By convention scope names could implicitly define which endpoints the client has access to. So `location:write` means they have access to all endpoints as defined by the `location` service. 
+
+## Setup
+When running the v1api you'll need to setup auth rules so that users can call it appropriately
+
+#### Base
+At a minimum you need to run the following 
+```
+micro auth create rule  --resource="service:v1:V1.Endpoint" --priority 1 v1-endpoint-public
+micro auth create rule  --resource="service:v1:V1.GenerateKey" --priority 1 v1-generatekey-public
+micro auth create rule  --resource="service:v1:V1.ListKeys" --priority 1 v1-listkeys-public
+micro auth create rule  --resource="service:v1:V1.RevokeKey" --priority 1 v1-revokekey-public 
+```
+
+This allows users to hit the core v1 endpoints. For every api you add you'll need to add an auth rule before user's can access it. Prefix the service name with `v1.` which accounts for the call to `/v1/...`. For example, to enable access to the helloworld service under `/v1/helloworld/...`
+
+```
+microadmin auth create rule  --resource="service:v1.helloworld:*" --priority 1 v1-helloworld
+```
