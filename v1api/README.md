@@ -89,9 +89,12 @@ When running the v1api you'll need to setup auth rules so that users can call it
 At a minimum you need to run the following 
 ```
 micro auth create rule  --resource="service:v1:V1.Endpoint" --priority 1 v1-endpoint-public
-micro auth create rule  --resource="service:v1:V1.GenerateKey" --priority 1 v1-generatekey-public
-micro auth create rule  --resource="service:v1:V1.ListKeys" --priority 1 v1-listkeys-public
-micro auth create rule  --resource="service:v1:V1.RevokeKey" --priority 1 v1-revokekey-public 
+micro auth create rule  --resource="service:v1.api:Keys.Generate" --priority 1 v1-generatekey-public
+micro auth create rule  --resource="service:v1:V1.GenerateKey" --priority 1 --crossissuer v1-generatekey2-public
+micro auth create rule  --resource="service:v1.api:Keys.List" --priority 1 v1-listkeys-public
+micro auth create rule  --resource="service:v1:V1.ListKeys" --priority 1 --crossissuer v1-listkeys2-public
+micro auth create rule  --resource="service:v1.api:Keys.Revoke" --priority 1 v1-revokekey-public
+micro auth create rule  --resource="service:v1:V1.RevokeKey" --priority 1 --crossissuer v1-revokekey2-public 
 ```
 
 This allows users to hit the core v1 endpoints. 
