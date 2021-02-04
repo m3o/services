@@ -27,28 +27,27 @@ func main() {
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1.GenerateKey",
-					Path:    []string{"/v1/generatekey"},
+					Path:    []string{"/v1/api/keys/generate"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1.RevokeKey",
-					Path:    []string{"/v1/revokekey"},
+					Path:    []string{"/v1/api/keys/revoke"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1.UpdateAllowedPaths",
-					Path:    []string{"/v1/updateallowedpaths"},
-					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1.ListKeys",
-					Path:    []string{"/v1/listkeys"},
+					Path:    []string{"/v1/api/keys/list"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
 				},
