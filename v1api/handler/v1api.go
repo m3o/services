@@ -220,24 +220,7 @@ func hashSecret(s string) (string, error) {
 // checkRequestedScopes returns true if account has sufficient privileges for them to generate the requestedScopes.
 // e.g. micro "admin" can generate whatever scopes they want
 func checkRequestedScopes(account *auth.Account, requestedScopes []string) bool {
-	if account.Issuer == "micro" {
-		for _, scope := range account.Scopes {
-			if scope == "admin" {
-				return true
-			}
-		}
-	}
-	// TODO take from config
-	allowedScopes := map[string]bool{
-		"location:write": true,
-		"location:read":  true,
-	}
-
-	for _, scope := range requestedScopes {
-		if !allowedScopes[scope] {
-			return false
-		}
-	}
+	// TODO
 	return true
 }
 
