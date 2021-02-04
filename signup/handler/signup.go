@@ -416,7 +416,7 @@ func (s *Signup) completeSignup(ctx context.Context, req *signup.CompleteSignupR
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-	_, err = s.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithName(req.Email))
+	_, err = s.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(ns), auth.WithName(req.Email), auth.WithScopes("admin"))
 	if err != nil {
 		logger.Errorf("Error generating token for %v: %v", tok.CustomerID, err)
 		return merrors.InternalServerError("signup.CompleteSignup", errInternal)
