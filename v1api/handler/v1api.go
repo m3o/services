@@ -332,7 +332,16 @@ func (e *V1) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response) er
 	}
 
 	service := parts[0]
-	endpoint := fmt.Sprintf("%s.%s", strings.Title(parts[0]), strings.Title(parts[1]))
+
+	endpoint := ""
+	if len(parts) == 2 {
+		// /v1/helloworld/call -> helloworld Helloworld.Call
+		endpoint = fmt.Sprintf("%s.%s", strings.Title(parts[0]), strings.Title(parts[1]))
+	} else {
+		// /v1/hello/world/call -> hello World.Call
+		endpoint = fmt.Sprintf("%s.%s", strings.Title(parts[1]), strings.Title(parts[2]))
+	}
+
 	request := client.DefaultClient.NewRequest(
 		service,
 		endpoint,
