@@ -341,10 +341,7 @@ func (e *V1) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response) er
 	)
 
 	// set the auth
-	// use server auth to satisfy auth rules so that we can call services in the micro namespace
-	authOpts := auth.DefaultAuth.Options()
-	ctx = metadata.Set(ctx, "Authorization", fmt.Sprintf("Bearer %s", authOpts.Token.AccessToken))
-	ctx = metadata.Set(ctx, "Caller-Token", apiRec.Token)
+	ctx = metadata.Set(ctx, "Authorization", fmt.Sprintf("Bearer %s", apiRec.Token))
 
 	// create request/response
 	var response json.RawMessage
