@@ -386,7 +386,7 @@ func (e *V1) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.Li
 }
 
 func listKeysForUser(ns, userID string) ([]*apiKeyRecord, error) {
-	recs, err := store.Read("", store.Prefix(fmt.Sprintf("%s:%s:%s:", storePrefixUserID, ns, userID)))
+	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:", storePrefixUserID, ns, userID), store.ReadPrefix())
 	if err != nil {
 		if err == store.ErrNotFound {
 			return nil, nil
