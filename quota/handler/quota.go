@@ -82,7 +82,7 @@ func New(client client.Client) *Quota {
 		Username: redisConfig.User,
 		Password: redisConfig.Password,
 		TLSConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: false,
 		},
 	})
 	q := &Quota{
