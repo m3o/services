@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -80,6 +81,9 @@ func New(client client.Client) *Quota {
 		Addr:     redisConfig.Address,
 		Username: redisConfig.User,
 		Password: redisConfig.Password,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	})
 	q := &Quota{
 		v1Svc: v1api.NewV1Service("v1", client),
