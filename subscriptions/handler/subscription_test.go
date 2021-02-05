@@ -60,7 +60,7 @@ func TestSubCreateAndCancel(t *testing.T) {
 	g.Expect(ppsvc.SetDefaultPaymentMethodCallCount()).To(Equal(1))
 	g.Expect(ppsvc.CreateSubscriptionCallCount()).To(Equal(1))
 
-	recs, err := mstore.Read("", mstore.Prefix(prefixCustomer+"1234/"))
+	recs, err := mstore.Read(prefixCustomer+"1234/", mstore.ReadPrefix())
 	g.Expect(err).To(BeNil())
 	g.Expect(recs).To(HaveLen(1))
 
@@ -98,7 +98,7 @@ func TestSubCreateAndCancel(t *testing.T) {
 	}, &pb.CancelResponse{})
 	g.Expect(err).To(BeNil())
 
-	recs, err = mstore.Read("", mstore.Prefix(prefixCustomer+"1234/"))
+	recs, err = mstore.Read(prefixCustomer+"1234/", mstore.ReadPrefix())
 	g.Expect(err).To(BeNil())
 	g.Expect(recs).To(HaveLen(1))
 	sub := &Subscription{}

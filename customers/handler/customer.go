@@ -383,7 +383,7 @@ func (c *Customers) List(ctx context.Context, request *customer.ListRequest, res
 	if err := authorizeCall(ctx); err != nil {
 		return err
 	}
-	recs, err := mstore.Read("", mstore.Prefix(prefixCustomer))
+	recs, err := mstore.Read(prefixCustomer, mstore.ReadPrefix())
 	if err != nil {
 		return err
 	}

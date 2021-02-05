@@ -169,7 +169,7 @@ func (e *Invite) sendEmail(ctx context.Context, email, token string) error {
 // || does namespace have more than 5 invite
 // -> { forbidden }
 func (h *Invite) canInvite(userID string, namespaces []string) error {
-	userCounts, err := mstore.Read("", mstore.Prefix(path.Join(userCountPrefix, userID)))
+	userCounts, err := mstore.Read(path.Join(userCountPrefix, userID), mstore.ReadPrefix())
 	if err != nil && err != mstore.ErrNotFound {
 		return errors.InternalServerError(h.name, "can't read user invite count")
 	}
@@ -181,7 +181,7 @@ func (h *Invite) canInvite(userID string, namespaces []string) error {
 		return nil
 	}
 
-	namespaceCounts, err := mstore.Read("", mstore.Prefix(path.Join(namespaceCountPrefix, userID)))
+	namespaceCounts, err := mstore.Read(path.Join(namespaceCountPrefix, userID), mstore.ReadPrefix())
 	if err != nil && err != mstore.ErrNotFound {
 		return errors.BadRequest(h.name, "can''t read namespace invite count")
 	}

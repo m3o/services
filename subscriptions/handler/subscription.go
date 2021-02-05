@@ -191,7 +191,7 @@ func (s Subscriptions) Cancel(ctx context.Context, request *subscription.CancelR
 	// lookup the subscriptions for this customer
 	// doing a prefix lookup so if request.SubscriptionID is blank we just look up all the customer's subs.
 	// If they only have one then this will do the right thing
-	recs, err := mstore.Read("", mstore.Prefix(prefixCustomer+request.CustomerID+"/"+request.SubscriptionID))
+	recs, err := mstore.Read(prefixCustomer+request.CustomerID+"/"+request.SubscriptionID, mstore.ReadPrefix())
 	if err != nil {
 		return err
 	}
@@ -227,7 +227,7 @@ func (s Subscriptions) cancelSubscription(ctx context.Context, sub *Subscription
 	}
 
 	// clean up any local subscription objects (additional users)
-	recs, err := mstore.Read("", mstore.Prefix(prefixParentSub+sub.ID))
+	recs, err := mstore.Read(prefixParentSub+sub.ID, mstore.ReadPrefix())
 	if err != nil && err != mstore.ErrNotFound {
 		logger.Errorf("Error looking up child subscriptions for customer %s subscription ID %s %s", sub.CustomerID, sub.ID, err)
 		return merrors.InternalServerError("subscriptions.cancel", "Error cancelling subscription. Please contact support.")
@@ -340,7 +340,7 @@ func (s Subscriptions) AddUser(ctx context.Context, request *subscription.AddUse
 		return merrors.InternalServerError("signup", "Error increasing additional user quantity: %v", err)
 	}
 
-	recs, err := mstore.Read("", mstore.Prefix(prefixCustomer+request.OwnerID+"/"))
+	recs, err := mstore.Read(prefixCustomer+request.OwnerID+"/", mstore.ReadPrefix())
 	if err != nil {
 		return err
 	}

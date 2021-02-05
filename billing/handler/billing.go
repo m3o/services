@@ -170,7 +170,7 @@ func (b *Billing) Updates(ctx context.Context, req *billing.UpdatesRequest, rsp 
 
 	log.Infof("Received Billing.Updates request, listing with key '%v', limit '%v'", key, limit)
 
-	records, err := mstore.Read("", mstore.Prefix(key), mstore.Limit(uint(limit)), mstore.Offset(uint(req.Offset)))
+	records, err := mstore.Read(key, mstore.ReadPrefix(), mstore.ReadLimit(uint(limit)), mstore.ReadOffset(uint(req.Offset)))
 	if err != nil && err != mstore.ErrNotFound {
 		return merrors.InternalServerError("billing.Updates", "Error listing store: %v", err)
 	}
@@ -225,7 +225,7 @@ func (b *Billing) Apply(ctx context.Context, req *billing.ApplyRequest, rsp *bil
 			}
 			c++
 			// we will keep reading and deleting until there are no more records
-			records, err := mstore.Read("", mstore.Prefix(updatePrefix))
+			records, err := mstore.Read(updatePrefix, mstore.ReadPrefix())
 			if err != nil && err != mstore.ErrNotFound {
 				return merrors.InternalServerError("billing.Updates", "Error listing store: %v", err)
 			}
