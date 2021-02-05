@@ -6,37 +6,35 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/micro/micro/v3/service/client"
-
-	v1api "github.com/m3o/services/v1api/proto"
-
-	log "github.com/micro/micro/v3/service/logger"
-
-	"github.com/micro/micro/v3/service/store"
-
-	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/config"
 
 	pb "github.com/m3o/services/quota/proto"
+	v1api "github.com/m3o/services/v1api/proto"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
+
+	"github.com/go-redis/redis/v8"
 )
 
 // TODO this is a temp counter until we introduce redis
 type counter struct {
 	sync.RWMutex
-	counts map[string]int64
+	redisClient *redis.Client
 }
 
-func (c *counter) incr(nm string) int64 {
-	c.Lock()
-	defer c.Unlock()
-	c.counts[nm]++
-	return c.counts[nm]
+func (c *counter) incr(nm string) (int64, error) {
+	return c.redisClient.Incr(context.Background(), nm).Result()
 }
 
-func (c *counter) read(nm string) int64 {
-	c.RLock()
-	defer c.RUnlock()
-	return c.counts[nm]
+func (c *counter) read(nm string) (int64, error) {
+	return c.redisClient.Get(context.Background(), nm).Int64()
+}
+
+func (c *counter) reset(nm string) error {
+	return c.redisClient.Set(context.Background(), nm, 0, 0).Err()
 }
 
 type Quota struct {
@@ -66,9 +64,26 @@ type quota struct {
 }
 
 func New(client client.Client) *Quota {
+	redisConfig := struct {
+		Address  string
+		User     string
+		Password string
+	}{}
+	val, err := config.Get("micro.quota.redis")
+	if err != nil {
+		log.Fatalf("No redis config found %s", err)
+	}
+	if err := val.Scan(&redisConfig); err != nil {
+		log.Fatalf("Error parsing redis config %s", err)
+	}
+	rc := redis.NewClient(&redis.Options{
+		Addr:     redisConfig.Address,
+		Username: redisConfig.User,
+		Password: redisConfig.Password,
+	})
 	q := &Quota{
 		v1Svc: v1api.NewV1Service("v1", client),
-		c:     counter{counts: map[string]int64{}},
+		c:     counter{redisClient: rc},
 	}
 	go q.consumeEvents()
 	return q

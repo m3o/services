@@ -105,7 +105,10 @@ func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 		return nil
 	}
 
-	curr := q.c.incr(fmt.Sprintf("%s:%s:%s", rqe.Namespace, rqe.UserId, parts[1]))
+	curr, err := q.c.incr(fmt.Sprintf("%s:%s:%s", rqe.Namespace, rqe.UserId, parts[1]))
+	if err != nil {
+		return err
+	}
 	// TODO do post processing - do we need to block the user because of an exhausted quota?
 	logger.Infof("Current count is %d", curr)
 	return nil
