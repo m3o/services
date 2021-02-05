@@ -62,7 +62,7 @@ func (q *Quota) processV1apiEvents(ch <-chan mevents.Event) {
 			// update the count
 			if err := q.processRequest(ve.Request); err != nil {
 				ev.Nack()
-				logger.Errorf("Error processing request event")
+				logger.Errorf("Error processing request event %s", err)
 				continue
 			}
 		default:
