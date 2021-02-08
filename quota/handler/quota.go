@@ -20,22 +20,25 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// TODO this is a temp counter until we introduce redis
+const (
+	formatCounter = "counter:%s"
+)
+
 type counter struct {
 	sync.RWMutex
 	redisClient *redis.Client
 }
 
 func (c *counter) incr(nm string) (int64, error) {
-	return c.redisClient.Incr(context.Background(), nm).Result()
+	return c.redisClient.Incr(context.Background(), fmt.Sprintf(formatCounter, nm)).Result()
 }
 
 func (c *counter) read(nm string) (int64, error) {
-	return c.redisClient.Get(context.Background(), nm).Int64()
+	return c.redisClient.Get(context.Background(), fmt.Sprintf(formatCounter, nm)).Int64()
 }
 
 func (c *counter) reset(nm string) error {
-	return c.redisClient.Set(context.Background(), nm, 0, 0).Err()
+	return c.redisClient.Set(context.Background(), fmt.Sprintf(formatCounter, nm), 0, 0).Err()
 }
 
 type Quota struct {
