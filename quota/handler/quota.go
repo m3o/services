@@ -82,11 +82,14 @@ func New(client client.Client) *Quota {
 		Password string
 	}{}
 	val, err := config.Get("micro.quota.redis")
-	if err != nil || !val.Exists() {
+	if err != nil {
 		log.Fatalf("No redis config found %s", err)
 	}
 	if err := val.Scan(&redisConfig); err != nil {
 		log.Fatalf("Error parsing redis config %s", err)
+	}
+	if len(redisConfig.Password) == 0 || len(redisConfig.User) == 0 || len(redisConfig.Password) == 0 {
+		log.Fatalf("Missing redis config %s", err)
 	}
 	rc := redis.NewClient(&redis.Options{
 		Addr:     redisConfig.Address,
