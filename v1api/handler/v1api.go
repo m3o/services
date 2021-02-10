@@ -280,7 +280,7 @@ func (e *V1) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response) er
 	// Type 2 check
 	allowed := false
 	for prefix := range apiRec.AllowList {
-		if strings.HasPrefix(req.Url, "/v1/"+prefix) {
+		if strings.HasPrefix(req.Url[3:], prefix) {
 			allowed = true
 		}
 	}
