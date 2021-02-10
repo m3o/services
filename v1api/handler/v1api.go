@@ -484,7 +484,12 @@ func (e *V1) UpdateAllowedPaths(ctx context.Context, request *v1api.UpdateAllowe
 	}
 	update := func(key *apiKeyRecord, allow, block []string) error {
 		for _, a := range allow {
-			key.AllowList[a] = true
+			for _, s := range key.Scopes {
+				if strings.HasPrefix(a, fmt.Sprintf("/%s/", s)) {
+					key.AllowList[a] = true
+					break
+				}
+			}
 		}
 		for _, b := range block {
 			delete(key.AllowList, b)
