@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/logger"
 
 	pb "github.com/m3o/services/quota/proto"
 	v1api "github.com/m3o/services/v1api/proto"
@@ -21,7 +22,10 @@ import (
 )
 
 const (
-	formatCounter = "counter:%s"
+	prefixCounter = "counter"
+
+	prefixQuotaID = "quota"
+	prefixMapping = "mapping"
 )
 
 type counter struct {
@@ -29,16 +33,16 @@ type counter struct {
 	redisClient *redis.Client
 }
 
-func (c *counter) incr(nm string) (int64, error) {
-	return c.redisClient.Incr(context.Background(), fmt.Sprintf(formatCounter, nm)).Result()
+func (c *counter) incr(ns, userID, path string) (int64, error) {
+	return c.redisClient.Incr(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, ns, userID, path)).Result()
 }
 
-func (c *counter) read(nm string) (int64, error) {
-	return c.redisClient.Get(context.Background(), fmt.Sprintf(formatCounter, nm)).Int64()
+func (c *counter) read(ns, userID, path string) (int64, error) {
+	return c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, ns, userID, path)).Int64()
 }
 
-func (c *counter) reset(nm string) error {
-	return c.redisClient.Set(context.Background(), fmt.Sprintf(formatCounter, nm), 0, 0).Err()
+func (c *counter) reset(ns, userID, path string) error {
+	return c.redisClient.Set(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, ns, userID, path), 0, 0).Err()
 }
 
 type Quota struct {
@@ -54,17 +58,21 @@ const (
 	Monthly
 )
 
-const prefixQuotaID = "id"
-
 func (r resetFrequency) String() string {
 	return [...]string{"Never", "Daily", "Monthly"}[r]
 }
 
 type quota struct {
-	id             string
-	limit          int64
-	resetFrequency resetFrequency
-	path           string
+	ID             string
+	Limit          int64
+	ResetFrequency resetFrequency
+	Path           string
+}
+
+type mapping struct {
+	UserID    string
+	Namespace string
+	QuotaID   string
 }
 
 func New(client client.Client) *Quota {
@@ -74,7 +82,7 @@ func New(client client.Client) *Quota {
 		Password string
 	}{}
 	val, err := config.Get("micro.quota.redis")
-	if err != nil {
+	if err != nil || !val.Exists() {
 		log.Fatalf("No redis config found %s", err)
 	}
 	if err := val.Scan(&redisConfig); err != nil {
@@ -104,13 +112,13 @@ func (q *Quota) Create(ctx context.Context, request *pb.CreateRequest, response 
 		return errors.BadRequest("quota.Create", "Missing quota ID")
 	}
 	if len(request.Path) == 0 {
-		return errors.BadRequest("quota.Create", "Missing quota path")
+		return errors.BadRequest("quota.Create", "Missing quota Path")
 	}
 	quot := &quota{
-		id:             request.Id,
-		limit:          request.Limit,
-		resetFrequency: resetFrequency(request.ResetFrequency.Number()),
-		path:           request.Path,
+		ID:             request.Id,
+		Limit:          request.Limit,
+		ResetFrequency: resetFrequency(request.ResetFrequency.Number()),
+		Path:           request.Path,
 	}
 
 	b, err := json.Marshal(quot)
@@ -119,7 +127,7 @@ func (q *Quota) Create(ctx context.Context, request *pb.CreateRequest, response 
 		return errors.InternalServerError("quota.Create", "Error creating quota")
 	}
 	if err := store.Write(&store.Record{
-		Key:   fmt.Sprintf("%s:%s", prefixQuotaID, quot.id),
+		Key:   fmt.Sprintf("%s:%s", prefixQuotaID, quot.ID),
 		Value: b,
 	}); err != nil {
 		log.Errorf("Error writing to store %s", err)
@@ -150,17 +158,87 @@ func (q *Quota) RegisterUser(ctx context.Context, request *pb.RegisterUserReques
 		return err
 	}
 
-	// store association for each quota
+	if len(request.UserId) == 0 {
+		return errors.BadRequest("quota.RegisterUser", "Missing UserID")
+	}
+	if len(request.Namespace) == 0 {
+		return errors.BadRequest("quota.RegisterUser", "Missing Namespace")
+	}
 
-	// update the v1api to unblock the user's api keys
+	if len(request.QuotaIds) == 0 {
+		return errors.BadRequest("quota.RegisterUser", "Missing QuotaIDs")
+	}
+	// validate all the quota IDs first
+	for _, qID := range request.QuotaIds {
+		// is this quota legit?
+		_, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, qID))
+		if err != nil {
+			if err == store.ErrNotFound {
+				return errors.BadRequest("quota.RegisterUser", "Quota ID not recognised: %s", qID)
+			}
+			log.Errorf("Error looking up quota ID %s", err)
+			return errors.InternalServerError("quota.RegisterUser", "Error registering user")
+		}
+	}
 
-	panic("implement me")
+	if err := q.registerUser(request.UserId, request.Namespace, request.QuotaIds); err != nil {
+		return errors.InternalServerError("quota.RegisterUser", "Error registering user")
+	}
+	return nil
+
 }
 
-type quotaEntry struct {
-	id     string
-	userID string
-	value  int64
+func (q *Quota) registerUser(userID, namespace string, quotaIDs []string) error {
+
+	// store association for each quota
+	for _, q := range quotaIDs {
+
+		m := mapping{
+			UserID:    userID,
+			Namespace: namespace,
+			QuotaID:   q,
+		}
+
+		b, err := json.Marshal(m)
+		if err != nil {
+			log.Errorf("Error marshalling mapping %s", err)
+			return err
+		}
+		if err := store.Write(&store.Record{
+			Key:   fmt.Sprintf("%s:%s:%s:%s", prefixMapping, m.Namespace, m.UserID, m.QuotaID),
+			Value: b,
+		}); err != nil {
+			log.Errorf("Error writing mapping to store %s", err)
+			return err
+		}
+	}
+
+	// update the v1api to unblock the user's api keys
+	allowList := []string{}
+	for _, qID := range quotaIDs {
+		recs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, qID))
+		if err != nil {
+			log.Errorf("Error looking up quota ID %s", err)
+			return err
+		}
+		quot := &quota{}
+		if err := json.Unmarshal(recs[0].Value, quot); err != nil {
+			log.Errorf("Error unmarshalling quota object %s", err)
+			return err
+		}
+		allowList = append(allowList, quot.Path)
+
+	}
+
+	if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
+		UserId:    userID,
+		Namespace: namespace,
+		Allowed:   allowList,
+	}, client.WithAuthToken()); err != nil {
+		logger.Errorf("Error updating allowed paths %s", err)
+		return err
+	}
+	return nil
 }
 
 func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.ListResponse) error {

@@ -13,8 +13,4 @@ Flow:
 
 
 ### Distributed Counting
-Redis.
-
-Counting quickly and reliably is hard. For our requirements it's OK to be accurate-ish. We don't want to overestimate how much a user has used since that is unfair. Under estimating means that we potentially take a loss if the operation is expensive but that's better than the alternative of having an accurate but slow count. Accurate up to 1 second. (in case of node failure you lose up to 1 second of counts).
-
-Background loop which every second syncs to the DB
+We use Redis for our counter to keep track of quota usage. 

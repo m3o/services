@@ -9,11 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
+
 	"github.com/micro/micro/v3/service/events"
 
 	"github.com/micro/micro/v3/service/client"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 
 	v1api "github.com/m3o/services/v1api/proto"
@@ -258,7 +259,25 @@ func (e *V1) Endpoint(ctx context.Context, req *pb.Request, rsp *pb.Response) er
 		return errors.Unauthorized("v1api", "Unauthorized")
 	}
 
-	// allowed? this *doesn't* check based on scopes, but whether the user has been specifically allowed (likely due to quota)
+	// checks
+	// We do 2 types of checks
+	// 1. Do the scopes of the token allow them to call the requested API? The name of the scopes correspond to the service
+	// 2. Has the key been explicitly blocked? Happens if it's exhausted it's quota for example
+
+	// Type 1 check. This is a bit belt and braces to be honest, the type 2 check should probably be enough
+	scopeMatch := false
+	for _, s := range apiRec.Scopes {
+		if strings.HasPrefix(req.Url, fmt.Sprintf("/v1/%s/", s)) {
+			scopeMatch = true
+			break
+		}
+	}
+	if !scopeMatch {
+		// TODO better error please
+		return errors.Forbidden("v1api.blocked", "Client is blocked")
+	}
+
+	// Type 2 check
 	allowed := false
 	for prefix := range apiRec.AllowList {
 		if strings.HasPrefix(req.Url, prefix) {

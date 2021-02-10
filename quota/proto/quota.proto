@@ -30,12 +30,14 @@ message CreateResponse {}
 message RegisterUserRequest {
 	repeated string quota_ids = 1;
 	string user_id = 2;
+	string namespace = 3;
 }
 
 message RegisterUserResponse {}
 
 message ListRequest {
 	string user_id = 1;
+	string namespace = 2;
 }
 
 message ListResponse {

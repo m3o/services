@@ -7,12 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/service/client"
+	"github.com/go-redis/redis/v8"
 
 	v1api "github.com/m3o/services/v1api/proto"
-
+	"github.com/micro/micro/v3/service/client"
 	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 )
 
 func (q *Quota) consumeEvents() {
@@ -74,14 +75,78 @@ func (q *Quota) processV1apiEvents(ch <-chan mevents.Event) {
 }
 
 func (q *Quota) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
-	// TODO register this for quotas
+	// register the user for quotas to pick up any new scopes that may have been assigned
+	// TODO - remove registration here to somewhere more appropriate like when we get a front end
+	recs, err := store.Read(fmt.Sprintf("%s:", prefixQuotaID), store.ReadPrefix())
+	if err != nil && err != store.ErrNotFound {
+		logger.Errorf("Error looking up quotas %s", err)
+		return err
+	}
+	candidatePaths := []string{}
+	for _, s := range ac.Scopes {
+		// if the scope is something like location:write then we just want the first part
+		parts := strings.Split(s, ":")
+		candidatePaths = append(candidatePaths, fmt.Sprintf("/%s/", parts[0]))
+	}
+	quotasToAdd := []string{}
+	for _, r := range recs {
+		quot := &quota{}
+		if err := json.Unmarshal(r.Value, quot); err != nil {
+			logger.Errorf("Error unmarshalling quota %s", err)
+			return err
+		}
+		for _, cand := range candidatePaths {
+			if strings.HasPrefix(quot.Path, cand) {
+				quotasToAdd = append(quotasToAdd, quot.ID)
+				break
+			}
+		}
+	}
+	logger.Infof("Adding quotas for user %s:%s %v", ac.UserId, ac.Namespace, quotasToAdd)
 
+	if err := q.registerUser(ac.UserId, ac.Namespace, quotasToAdd); err != nil {
+		logger.Errorf("Error registering user %s", err)
+		return err
+	}
+
+	// Keys start in blocked status, so work out which paths should be unblocked for the key to operate
+	recs, err = store.Read(fmt.Sprintf("%s:%s:%s", prefixMapping, ac.Namespace, ac.UserId), store.ReadPrefix())
+	if err != nil {
+		return err
+	}
+
+	allowList := []string{}
+	for _, r := range recs {
+		m := &mapping{}
+		if err := json.Unmarshal(r.Value, m); err != nil {
+			return err
+		}
+
+		qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID))
+		if err != nil {
+			return err
+		}
+		quot := &quota{}
+		if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
+			return err
+		}
+		// check the current count
+		count, err := q.c.read(m.Namespace, m.UserID, quot.Path)
+		if err != nil && err != redis.Nil {
+			return err
+		}
+		if count >= quot.Limit {
+			// breached the quota, don't unblock
+			continue
+		}
+
+		allowList = append(allowList, quot.Path)
+	}
 	// update the key to unblock it
 	if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
 		UserId:    ac.UserId,
 		Namespace: ac.Namespace,
-		Allowed:   []string{"/v1/"}, // TODO this unblocks all currently
-		Blocked:   nil,
+		Allowed:   allowList,
 		KeyId:     ac.ApiKeyId,
 	}, client.WithAuthToken()); err != nil {
 		logger.Errorf("Error updating allowed paths %s", err)
@@ -96,16 +161,16 @@ func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 	// count the request
 	// count is coarse granularity - we just care which service they've called so /v1/blah
 	if !strings.HasPrefix(rqe.Url, "/v1/") {
-		logger.Warnf("Discarding unrecognised URL path %s", rqe.Url)
+		logger.Warnf("Discarding unrecognised URL Path %s", rqe.Url)
 		return nil
 	}
 	parts := strings.Split(rqe.Url[1:], "/")
 	if len(parts) < 2 {
-		logger.Warnf("Discarding unrecognised URL path %s", rqe.Url)
+		logger.Warnf("Discarding unrecognised URL Path %s", rqe.Url)
 		return nil
 	}
 
-	curr, err := q.c.incr(fmt.Sprintf("%s:%s:%s", rqe.Namespace, rqe.UserId, parts[1]))
+	curr, err := q.c.incr(rqe.Namespace, rqe.UserId, parts[1])
 	if err != nil {
 		return err
 	}
