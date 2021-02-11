@@ -182,7 +182,7 @@ func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 	if err != nil {
 		return err
 	}
-	logger.Infof("Current count is %d", curr)
+	logger.Infof("Current count is %s %s %s %d", rqe.Namespace, rqe.UserId, reqPath, curr)
 
 	recs, err := store.Read(fmt.Sprintf("%s:%s:%s", prefixMapping, rqe.Namespace, rqe.UserId), store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {

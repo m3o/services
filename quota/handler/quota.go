@@ -261,7 +261,7 @@ func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.
 		namespace = request.Namespace
 	}
 
-	recs, err := store.Read(fmt.Sprintf("%s:%s:%s", prefixMapping, namespace, userID), store.ReadPrefix())
+	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:", prefixMapping, namespace, userID), store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {
 		logger.Errorf("Error looking up mappings %s", err)
 		return errors.InternalServerError("quota.List", "Error listing usage")
@@ -321,7 +321,7 @@ func (q *Quota) ResetQuotas() {
 		quot := quotaCache[m.QuotaID]
 		if quot == nil {
 			// load up the quota
-			qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID), store.ReadPrefix())
+			qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID))
 			if err != nil {
 				logger.Errorf("Error reading quotas %s", err)
 				// TODO - anything else?
