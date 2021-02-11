@@ -6,6 +6,8 @@ import (
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
+
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -15,8 +17,13 @@ func main() {
 		service.Version("latest"),
 	)
 
+	q := handler.New(srv.Client())
+	c := cron.New()
+	c.AddFunc("0 0 * * *", q.ResetQuotas)
+	c.Start()
+
 	// Register handler
-	pb.RegisterQuotaHandler(srv.Server(), handler.New(srv.Client()))
+	pb.RegisterQuotaHandler(srv.Server(), q)
 
 	// Run service
 	if err := srv.Run(); err != nil {

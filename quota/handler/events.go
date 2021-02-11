@@ -121,26 +121,15 @@ func (q *Quota) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 		if err := json.Unmarshal(r.Value, m); err != nil {
 			return err
 		}
-
-		qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID))
+		breach, p, err := q.hasBreachedLimit(m.Namespace, m.UserID, m.QuotaID)
 		if err != nil {
 			return err
 		}
-		quot := &quota{}
-		if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
-			return err
-		}
-		// check the current count
-		count, err := q.c.read(m.Namespace, m.UserID, quot.Path)
-		if err != nil && err != redis.Nil {
-			return err
-		}
-		if count >= quot.Limit {
-			// breached the quota, don't unblock
+		if breach {
 			continue
 		}
 
-		allowList = append(allowList, quot.Path)
+		allowList = append(allowList, p)
 	}
 	// update the key to unblock it
 	if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
@@ -156,6 +145,24 @@ func (q *Quota) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 	return nil
 }
 
+func (q *Quota) hasBreachedLimit(namespace, userID, quotaID string) (bool, string, error) {
+	qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, quotaID))
+	if err != nil {
+		return false, "", err
+	}
+	quot := &quota{}
+	if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
+		return false, "", err
+	}
+	// check the current count
+	count, err := q.c.read(namespace, userID, quot.Path)
+	if err != nil && err != redis.Nil {
+		return false, "", err
+	}
+	return quot.Limit > 0 && count >= quot.Limit, quot.Path, nil
+
+}
+
 func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 
 	// count the request
@@ -169,12 +176,46 @@ func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 		logger.Warnf("Discarding unrecognised URL Path %s", rqe.Url)
 		return nil
 	}
+	reqPath := fmt.Sprintf("/%s/", parts[1])
 
-	curr, err := q.c.incr(rqe.Namespace, rqe.UserId, parts[1])
+	curr, err := q.c.incr(rqe.Namespace, rqe.UserId, reqPath)
 	if err != nil {
 		return err
 	}
-	// TODO do post processing - do we need to block the user because of an exhausted quota?
 	logger.Infof("Current count is %d", curr)
+
+	recs, err := store.Read(fmt.Sprintf("%s:%s:%s", prefixMapping, rqe.Namespace, rqe.UserId), store.ReadPrefix())
+	if err != nil && err != store.ErrNotFound {
+		logger.Errorf("Error getting quotas %s", err)
+		return err
+	}
+
+	for _, r := range recs {
+		m := &mapping{}
+		if err := json.Unmarshal(r.Value, m); err != nil {
+			logger.Errorf("Error unmarshalling mapping %s", err)
+			return err
+		}
+
+		breach, p, err := q.hasBreachedLimit(m.Namespace, m.UserID, m.QuotaID)
+		if err != nil {
+			logger.Errorf("Error calculating breach %s", err)
+			return err
+		}
+		if p != reqPath || !breach {
+			continue
+		}
+
+		// update the user to block requests
+		if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
+			UserId:    m.UserID,
+			Namespace: m.Namespace,
+			Blocked:   []string{reqPath},
+		}, client.WithAuthToken()); err != nil {
+			logger.Errorf("Error updating allowed paths %s", err)
+			return err
+		}
+		break
+	}
 	return nil
 }

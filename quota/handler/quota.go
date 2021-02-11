@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
@@ -245,5 +246,116 @@ func (q *Quota) registerUser(userID, namespace string, quotaIDs []string) error 
 }
 
 func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.ListResponse) error {
-	panic("implement me")
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("quota.List", "Unauthorized")
+	}
+	userID := acc.ID
+	namespace := acc.Issuer
+	if len(request.UserId) > 0 && request.UserId != userID {
+		// admins can see it all
+		if err := verifyAdmin(ctx, "quota.List"); err != nil {
+			return err
+		}
+		userID = request.UserId
+		namespace = request.Namespace
+	}
+
+	recs, err := store.Read(fmt.Sprintf("%s:%s:%s", prefixMapping, namespace, userID), store.ReadPrefix())
+	if err != nil && err != store.ErrNotFound {
+		logger.Errorf("Error looking up mappings %s", err)
+		return errors.InternalServerError("quota.List", "Error listing usage")
+	}
+	response.Usages = []*pb.QuotaUsage{}
+	for _, r := range recs {
+		m := &mapping{}
+		if err := json.Unmarshal(r.Value, m); err != nil {
+			logger.Errorf("Error unmarshalling mapping %s", err)
+			return errors.InternalServerError("quota.List", "Error listing usage")
+		}
+		qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID))
+		if err != nil {
+			logger.Errorf("Error reading  %s", err)
+			return errors.InternalServerError("quota.List", "Error listing usage")
+		}
+		quot := &quota{}
+
+		if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
+			logger.Errorf("Error reading  %s", err)
+			return errors.InternalServerError("quota.List", "Error listing usage")
+		}
+
+		count, err := q.c.read(namespace, userID, quot.Path)
+		if err != nil && err != redis.Nil {
+			logger.Errorf("Error getting counter value %s", err)
+			return errors.InternalServerError("quota.List", "Error listing usage")
+		}
+		response.Usages = append(response.Usages, &pb.QuotaUsage{
+			Name:  quot.ID,
+			Usage: count,
+			Limit: quot.Limit,
+		})
+
+	}
+	return nil
+}
+
+// ResetQuotas runs daily to reset usage counters in the case of daily or monthly quotas
+// TODO make this work across multiple instances by either using distributed locking or an external trigger (k8s cron)
+func (q *Quota) ResetQuotas() {
+	// loop through every mapping, check the corresponding quota, and reset if there is a limit and the frequency is right
+	recs, err := store.Read(fmt.Sprintf("%s:", prefixMapping), store.ReadPrefix())
+	if err != nil {
+		logger.Errorf("Error reading mappings %s", err)
+		// TODO - anything else?
+		return
+	}
+	quotaCache := map[string]*quota{}
+	for _, r := range recs {
+		m := &mapping{}
+		if err := json.Unmarshal(r.Value, m); err != nil {
+			logger.Errorf("Error unmarshalling mapping %s", err)
+			// TODO - anything else?
+			continue
+		}
+		quot := quotaCache[m.QuotaID]
+		if quot == nil {
+			// load up the quota
+			qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID), store.ReadPrefix())
+			if err != nil {
+				logger.Errorf("Error reading quotas %s", err)
+				// TODO - anything else?
+				continue
+			}
+			quot = &quota{}
+			if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
+				logger.Errorf("Error unmarshalling quota %s", err)
+				// TODO - anything else?
+				continue
+			}
+			quotaCache[quot.ID] = quot
+		}
+		if !isTimeForReset(quot.ResetFrequency, time.Now()) {
+			continue
+		}
+		// reset the counter
+		if err := q.c.reset(m.Namespace, m.UserID, quot.Path); err != nil {
+			logger.Errorf("Error unmarshalling quota %s", err)
+			// TODO - anything else?
+			continue
+		}
+	}
+}
+
+func isTimeForReset(frequency resetFrequency, t time.Time) bool {
+	switch frequency {
+	case Never:
+		return false
+	case Daily:
+		// assumes the cron is called once a day
+		return true
+	case Monthly:
+		return t.Day() == 1
+	}
+	return false
 }
