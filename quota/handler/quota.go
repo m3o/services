@@ -252,10 +252,10 @@ func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.
 	}
 	userID := acc.ID
 	namespace := acc.Issuer
-	if len(request.UserId) > 0 && request.UserId != userID {
+	if len(request.UserId) > 0 {
 		// admins can see it all
 		if err := verifyAdmin(ctx, "quota.List"); err != nil {
-			return err
+			return errors.BadRequest("quota.List", "Must be an admin to specify user ID")
 		}
 		userID = request.UserId
 		namespace = request.Namespace
