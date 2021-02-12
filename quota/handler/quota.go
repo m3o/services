@@ -312,6 +312,12 @@ func (q *Quota) ResetQuotasCron() {
 		return
 	}
 	quotaCache := map[string]*quota{}
+
+	type userUpdate = struct {
+		m    *mapping
+		quot *quota
+	}
+	updates := map[string][]userUpdate{}
 	for _, r := range recs {
 		m := &mapping{}
 		if err := json.Unmarshal(r.Value, m); err != nil {
@@ -340,14 +346,45 @@ func (q *Quota) ResetQuotasCron() {
 		if !isTimeForReset(quot.ResetFrequency, time.Now()) {
 			continue
 		}
-		logger.Infof("Resetting %+v %+v", *m, *quot)
-		// reset the counter
-		if err := q.c.reset(m.Namespace, m.UserID, quot.Path); err != nil {
-			logger.Errorf("Error unmarshalling quota %s", err)
-			// TODO - anything else?
+		userUpdates := updates[fmt.Sprintf("%s:%s", m.Namespace, m.UserID)]
+		if userUpdates == nil {
+			userUpdates = []userUpdate{}
+			updates[fmt.Sprintf("%s:%s", m.Namespace, m.UserID)] = userUpdates
+		}
+		userUpdates = append(userUpdates, userUpdate{
+			m:    m,
+			quot: quot,
+		})
+	}
+
+	for _, userUpdates := range updates {
+		allowList := []string{}
+		var userID, namespace string
+		for _, update := range userUpdates {
+			allowList = append(allowList, update.quot.Path)
+			userID = update.m.UserID
+			namespace = update.m.Namespace
+
+			logger.Infof("Resetting %+v %+v", *update.m, *update.quot)
+			// reset the counter
+			if err := q.c.reset(update.m.Namespace, update.m.UserID, update.quot.Path); err != nil {
+				logger.Errorf("Error resetting quota %s", err)
+				// TODO - anything else?
+				continue
+			}
+
+		}
+		// unblock the user in api
+		if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
+			UserId:    userID,
+			Namespace: namespace,
+			Allowed:   allowList,
+		}, client.WithAuthToken()); err != nil {
+			logger.Errorf("Error updating allowed paths for %s %s %s", namespace, userID, err)
 			continue
 		}
 	}
+
 }
 
 func isTimeForReset(frequency resetFrequency, t time.Time) bool {
