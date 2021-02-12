@@ -365,4 +365,5 @@ func isTimeForReset(frequency resetFrequency, t time.Time) bool {
 
 func (q *Quota) ResetQuotas(ctx context.Context, request *pb.ResetRequest, response *pb.ResetResponse) error {
 	q.ResetQuotasCron()
+	return nil
 }
