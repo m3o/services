@@ -6,6 +6,7 @@ require (
 	github.com/alexellis/hmac v0.0.0-20180624211220-5c52ab81c0de
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/redis/v8 v8.5.0
+	github.com/go-redis/redismock/v8 v8.0.5
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.3

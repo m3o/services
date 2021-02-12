@@ -124,20 +124,26 @@ func (q *Quota) Create(ctx context.Context, request *pb.CreateRequest, response 
 		ResetFrequency: resetFrequency(request.ResetFrequency.Number()),
 		Path:           request.Path,
 	}
-
-	b, err := json.Marshal(quot)
-	if err != nil {
+	if err := q.writeQuota(quot); err != nil {
 		log.Errorf("Error marshalling json %s", err)
 		return errors.InternalServerError("quota.Create", "Error creating quota")
+	}
+
+	return nil
+}
+
+func (q *Quota) writeQuota(quot *quota) error {
+	b, err := json.Marshal(quot)
+	if err != nil {
+		return err
+
 	}
 	if err := store.Write(&store.Record{
 		Key:   fmt.Sprintf("%s:%s", prefixQuotaID, quot.ID),
 		Value: b,
 	}); err != nil {
-		log.Errorf("Error writing to store %s", err)
-		return errors.InternalServerError("quota.Create", "Error creating quota")
+		return err
 	}
-
 	return nil
 }
 
@@ -175,7 +181,7 @@ func (q *Quota) RegisterUser(ctx context.Context, request *pb.RegisterUserReques
 	// validate all the quota IDs first
 	for _, qID := range request.QuotaIds {
 		// is this quota legit?
-		_, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, qID))
+		_, err := q.readQuota(qID)
 		if err != nil {
 			if err == store.ErrNotFound {
 				return errors.BadRequest("quota.RegisterUser", "Quota ID not recognised: %s", qID)
@@ -195,39 +201,24 @@ func (q *Quota) RegisterUser(ctx context.Context, request *pb.RegisterUserReques
 func (q *Quota) registerUser(userID, namespace string, quotaIDs []string) error {
 
 	// store association for each quota
-	for _, q := range quotaIDs {
+	for _, qID := range quotaIDs {
 
 		m := mapping{
 			UserID:    userID,
 			Namespace: namespace,
-			QuotaID:   q,
+			QuotaID:   qID,
+		}
+		if err := q.writeMapping(&m); err != nil {
+			return err
 		}
 
-		b, err := json.Marshal(m)
-		if err != nil {
-			log.Errorf("Error marshalling mapping %s", err)
-			return err
-		}
-		if err := store.Write(&store.Record{
-			Key:   fmt.Sprintf("%s:%s:%s:%s", prefixMapping, m.Namespace, m.UserID, m.QuotaID),
-			Value: b,
-		}); err != nil {
-			log.Errorf("Error writing mapping to store %s", err)
-			return err
-		}
 	}
 
 	// update the v1api to unblock the user's api keys
 	allowList := []string{}
 	for _, qID := range quotaIDs {
-		recs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, qID))
+		quot, err := q.readQuota(qID)
 		if err != nil {
-			log.Errorf("Error looking up quota ID %s", err)
-			return err
-		}
-		quot := &quota{}
-		if err := json.Unmarshal(recs[0].Value, quot); err != nil {
-			log.Errorf("Error unmarshalling quota object %s", err)
 			return err
 		}
 		allowList = append(allowList, quot.Path)
@@ -243,6 +234,37 @@ func (q *Quota) registerUser(userID, namespace string, quotaIDs []string) error 
 		return err
 	}
 	return nil
+}
+
+func (q *Quota) writeMapping(m *mapping) error {
+	b, err := json.Marshal(m)
+	if err != nil {
+		log.Errorf("Error marshalling mapping %s", err)
+		return err
+	}
+	if err := store.Write(&store.Record{
+		Key:   fmt.Sprintf("%s:%s:%s:%s", prefixMapping, m.Namespace, m.UserID, m.QuotaID),
+		Value: b,
+	}); err != nil {
+		log.Errorf("Error writing mapping to store %s", err)
+		return err
+	}
+	return nil
+}
+
+func (q *Quota) readQuota(qID string) (*quota, error) {
+	recs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, qID))
+	if err != nil {
+		log.Errorf("Error looking up quota ID %s", err)
+		return nil, err
+	}
+	quot := &quota{}
+	if err := json.Unmarshal(recs[0].Value, quot); err != nil {
+		log.Errorf("Error unmarshalling quota object %s", err)
+		return nil, err
+	}
+	return quot, nil
+
 }
 
 func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.ListResponse) error {
@@ -273,15 +295,9 @@ func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.
 			logger.Errorf("Error unmarshalling mapping %s", err)
 			return errors.InternalServerError("quota.List", "Error listing usage")
 		}
-		qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID))
+		quot, err := q.readQuota(m.QuotaID)
 		if err != nil {
-			logger.Errorf("Error reading  %s", err)
-			return errors.InternalServerError("quota.List", "Error listing usage")
-		}
-		quot := &quota{}
-
-		if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
-			logger.Errorf("Error reading  %s", err)
+			logger.Errorf("Error looking up quota %s", err)
 			return errors.InternalServerError("quota.List", "Error listing usage")
 		}
 
@@ -328,15 +344,9 @@ func (q *Quota) ResetQuotasCron() {
 		quot := quotaCache[m.QuotaID]
 		if quot == nil {
 			// load up the quota
-			qrecs, err := store.Read(fmt.Sprintf("%s:%s", prefixQuotaID, m.QuotaID))
+			quot, err = q.readQuota(m.QuotaID)
 			if err != nil {
 				logger.Errorf("Error reading quotas %s", err)
-				// TODO - anything else?
-				continue
-			}
-			quot = &quota{}
-			if err := json.Unmarshal(qrecs[0].Value, quot); err != nil {
-				logger.Errorf("Error unmarshalling quota %s", err)
 				// TODO - anything else?
 				continue
 			}
@@ -351,7 +361,7 @@ func (q *Quota) ResetQuotasCron() {
 			userUpdates = []userUpdate{}
 			updates[fmt.Sprintf("%s:%s", m.Namespace, m.UserID)] = userUpdates
 		}
-		userUpdates = append(userUpdates, userUpdate{
+		updates[fmt.Sprintf("%s:%s", m.Namespace, m.UserID)] = append(userUpdates, userUpdate{
 			m:    m,
 			quot: quot,
 		})
