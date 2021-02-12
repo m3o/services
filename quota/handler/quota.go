@@ -8,14 +8,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/config"
-	"github.com/micro/micro/v3/service/logger"
-
 	pb "github.com/m3o/services/quota/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 
@@ -25,8 +24,9 @@ import (
 const (
 	prefixCounter = "counter"
 
-	prefixQuotaID = "quota"
-	prefixMapping = "mapping"
+	prefixQuotaID       = "quota"
+	prefixMapping       = "mapping"
+	prefixMappingByPath = "mappingByPath"
 )
 
 type counter struct {
@@ -112,19 +112,23 @@ func (q *Quota) Create(ctx context.Context, request *pb.CreateRequest, response 
 	if err := verifyAdmin(ctx, "quota.Create"); err != nil {
 		return err
 	}
-	if len(request.Id) == 0 {
+	if request.Quota == nil {
+		return errors.BadRequest("quota.Create", "Missing quota")
+	}
+	quot := request.Quota
+	if len(quot.Id) == 0 {
 		return errors.BadRequest("quota.Create", "Missing quota ID")
 	}
-	if len(request.Path) == 0 {
+	if len(quot.Path) == 0 {
 		return errors.BadRequest("quota.Create", "Missing quota Path")
 	}
-	quot := &quota{
-		ID:             request.Id,
-		Limit:          request.Limit,
-		ResetFrequency: resetFrequency(request.ResetFrequency.Number()),
-		Path:           request.Path,
+	quotObj := &quota{
+		ID:             quot.Id,
+		Limit:          quot.Limit,
+		ResetFrequency: resetFrequency(quot.ResetFrequency.Number()),
+		Path:           quot.Path,
 	}
-	if err := q.writeQuota(quot); err != nil {
+	if err := q.writeQuota(quotObj); err != nil {
 		log.Errorf("Error marshalling json %s", err)
 		return errors.InternalServerError("quota.Create", "Error creating quota")
 	}
@@ -237,6 +241,11 @@ func (q *Quota) registerUser(userID, namespace string, quotaIDs []string) error 
 }
 
 func (q *Quota) writeMapping(m *mapping) error {
+	quot, err := q.readQuota(m.QuotaID)
+	if err != nil {
+		return err
+	}
+
 	b, err := json.Marshal(m)
 	if err != nil {
 		log.Errorf("Error marshalling mapping %s", err)
@@ -249,7 +258,26 @@ func (q *Quota) writeMapping(m *mapping) error {
 		log.Errorf("Error writing mapping to store %s", err)
 		return err
 	}
+
+	// path index
+	if err := store.Write(&store.Record{
+		Key:   fmt.Sprintf("%s:%s:%s:%s", prefixMappingByPath, m.Namespace, m.UserID, quot.Path),
+		Value: b,
+	}); err != nil {
+		log.Errorf("Error writing mapping to store %s", err)
+		return err
+	}
+
 	return nil
+}
+
+func (q *Quota) readMappingByPath(namespace, userID, path string) (*mapping, error) {
+	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:%s", prefixMappingByPath, namespace, userID, path))
+	if err != nil {
+		return nil, err
+	}
+	m := &mapping{}
+	return m, json.Unmarshal(recs[0].Value, m)
 }
 
 func (q *Quota) readQuota(qID string) (*quota, error) {
@@ -267,17 +295,17 @@ func (q *Quota) readQuota(qID string) (*quota, error) {
 
 }
 
-func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.ListResponse) error {
+func (q *Quota) ListUsage(ctx context.Context, request *pb.ListUsageRequest, response *pb.ListUsageResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
-		return errors.Unauthorized("quota.List", "Unauthorized")
+		return errors.Unauthorized("quota.ListUsage", "Unauthorized")
 	}
 	userID := acc.ID
 	namespace := acc.Issuer
 	if len(request.UserId) > 0 {
 		// admins can see it all
-		if err := verifyAdmin(ctx, "quota.List"); err != nil {
-			return errors.BadRequest("quota.List", "Must be an admin to specify user ID")
+		if err := verifyAdmin(ctx, "quota.ListUsage"); err != nil {
+			return errors.BadRequest("quota.ListUsage", "Must be an admin to specify user ID")
 		}
 		userID = request.UserId
 		namespace = request.Namespace
@@ -286,25 +314,25 @@ func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.
 	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:", prefixMapping, namespace, userID), store.ReadPrefix())
 	if err != nil && err != store.ErrNotFound {
 		logger.Errorf("Error looking up mappings %s", err)
-		return errors.InternalServerError("quota.List", "Error listing usage")
+		return errors.InternalServerError("quota.ListUsage", "Error listing usage")
 	}
 	response.Usages = []*pb.QuotaUsage{}
 	for _, r := range recs {
 		m := &mapping{}
 		if err := json.Unmarshal(r.Value, m); err != nil {
 			logger.Errorf("Error unmarshalling mapping %s", err)
-			return errors.InternalServerError("quota.List", "Error listing usage")
+			return errors.InternalServerError("quota.ListUsage", "Error listing usage")
 		}
 		quot, err := q.readQuota(m.QuotaID)
 		if err != nil {
 			logger.Errorf("Error looking up quota %s", err)
-			return errors.InternalServerError("quota.List", "Error listing usage")
+			return errors.InternalServerError("quota.ListUsage", "Error listing usage")
 		}
 
 		count, err := q.c.read(namespace, userID, quot.Path)
 		if err != nil && err != redis.Nil {
 			logger.Errorf("Error getting counter value %s", err)
-			return errors.InternalServerError("quota.List", "Error listing usage")
+			return errors.InternalServerError("quota.ListUsage", "Error listing usage")
 		}
 		response.Usages = append(response.Usages, &pb.QuotaUsage{
 			Name:  quot.ID,
@@ -413,4 +441,29 @@ func isTimeForReset(frequency resetFrequency, t time.Time) bool {
 func (q *Quota) ResetQuotas(ctx context.Context, request *pb.ResetRequest, response *pb.ResetResponse) error {
 	q.ResetQuotasCron()
 	return nil
+}
+
+func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.ListResponse) error {
+	recs, err := store.Read(fmt.Sprintf("%s:", prefixQuotaID), store.ReadPrefix())
+	if err != nil {
+		logger.Errorf("Error reading quotas %s", err)
+		// TODO - anything else?
+		return errors.InternalServerError("quota.List", "Error listing quotas")
+	}
+	response.Quotas = make([]*pb.APIQuota, len(recs))
+	for i, r := range recs {
+		quot := &quota{}
+		if err := json.Unmarshal(r.Value, quot); err != nil {
+			logger.Errorf("Error unmarshalling quota")
+			return errors.InternalServerError("quota.List", "Error listing quotas")
+		}
+		response.Quotas[i] = &pb.APIQuota{
+			Id:             quot.ID,
+			Limit:          quot.Limit,
+			ResetFrequency: pb.APIQuota_Frequency(quot.ResetFrequency),
+			Path:           quot.Path,
+		}
+	}
+	return nil
+
 }

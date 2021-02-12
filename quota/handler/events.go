@@ -184,38 +184,28 @@ func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 	}
 	logger.Infof("Current count is %s %s %s %d", rqe.Namespace, rqe.UserId, reqPath, curr)
 
-	recs, err := store.Read(fmt.Sprintf("%s:%s:%s", prefixMapping, rqe.Namespace, rqe.UserId), store.ReadPrefix())
+	m, err := q.readMappingByPath(rqe.Namespace, rqe.UserId, reqPath)
 	if err != nil && err != store.ErrNotFound {
 		logger.Errorf("Error getting quotas %s", err)
 		return err
 	}
+	breach, _, err := q.hasBreachedLimit(m.Namespace, m.UserID, m.QuotaID)
+	if err != nil {
+		logger.Errorf("Error calculating breach %s", err)
+		return err
+	}
+	if !breach {
+		return nil
+	}
 
-	for _, r := range recs {
-		m := &mapping{}
-		if err := json.Unmarshal(r.Value, m); err != nil {
-			logger.Errorf("Error unmarshalling mapping %s", err)
-			return err
-		}
-
-		breach, p, err := q.hasBreachedLimit(m.Namespace, m.UserID, m.QuotaID)
-		if err != nil {
-			logger.Errorf("Error calculating breach %s", err)
-			return err
-		}
-		if p != reqPath || !breach {
-			continue
-		}
-
-		// update the user to block requests
-		if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
-			UserId:    m.UserID,
-			Namespace: m.Namespace,
-			Blocked:   []string{reqPath},
-		}, client.WithAuthToken()); err != nil {
-			logger.Errorf("Error updating allowed paths %s", err)
-			return err
-		}
-		break
+	// update the user to block requests
+	if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
+		UserId:    m.UserID,
+		Namespace: m.Namespace,
+		Blocked:   []string{reqPath},
+	}, client.WithAuthToken()); err != nil {
+		logger.Errorf("Error updating allowed paths %s", err)
+		return err
 	}
 	return nil
 }

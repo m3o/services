@@ -444,6 +444,16 @@ func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respon
 		log.Errorf("Error deleting API key record %s", err)
 		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
 	}
+
+	if err := events.Publish("v1api", v1api.Event{Type: "APIKeyRevoke",
+		ApiKeyRevoke: &v1api.APIKeyRevokeEvent{
+			UserId:    acc.ID,
+			Namespace: acc.Issuer,
+			ApiKeyId:  request.Id,
+		}}); err != nil {
+		log.Errorf("Error publishing event %s", err)
+	}
+
 	return nil
 }
 

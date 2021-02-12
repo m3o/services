@@ -47,9 +47,11 @@ type QuotaService interface {
 	// Registers a user against a quota
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...client.CallOption) (*RegisterUserResponse, error)
 	// Lists current quota usage
-	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
+	ListUsage(ctx context.Context, in *ListUsageRequest, opts ...client.CallOption) (*ListUsageResponse, error)
 	// Debug
 	ResetQuotas(ctx context.Context, in *ResetRequest, opts ...client.CallOption) (*ResetResponse, error)
+	// Lists quotas
+	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 }
 
 type quotaService struct {
@@ -84,9 +86,9 @@ func (c *quotaService) RegisterUser(ctx context.Context, in *RegisterUserRequest
 	return out, nil
 }
 
-func (c *quotaService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "Quota.List", in)
-	out := new(ListResponse)
+func (c *quotaService) ListUsage(ctx context.Context, in *ListUsageRequest, opts ...client.CallOption) (*ListUsageResponse, error) {
+	req := c.c.NewRequest(c.name, "Quota.ListUsage", in)
+	out := new(ListUsageResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -104,6 +106,16 @@ func (c *quotaService) ResetQuotas(ctx context.Context, in *ResetRequest, opts .
 	return out, nil
 }
 
+func (c *quotaService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	req := c.c.NewRequest(c.name, "Quota.List", in)
+	out := new(ListResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Quota service
 
 type QuotaHandler interface {
@@ -112,17 +124,20 @@ type QuotaHandler interface {
 	// Registers a user against a quota
 	RegisterUser(context.Context, *RegisterUserRequest, *RegisterUserResponse) error
 	// Lists current quota usage
-	List(context.Context, *ListRequest, *ListResponse) error
+	ListUsage(context.Context, *ListUsageRequest, *ListUsageResponse) error
 	// Debug
 	ResetQuotas(context.Context, *ResetRequest, *ResetResponse) error
+	// Lists quotas
+	List(context.Context, *ListRequest, *ListResponse) error
 }
 
 func RegisterQuotaHandler(s server.Server, hdlr QuotaHandler, opts ...server.HandlerOption) error {
 	type quota interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		RegisterUser(ctx context.Context, in *RegisterUserRequest, out *RegisterUserResponse) error
-		List(ctx context.Context, in *ListRequest, out *ListResponse) error
+		ListUsage(ctx context.Context, in *ListUsageRequest, out *ListUsageResponse) error
 		ResetQuotas(ctx context.Context, in *ResetRequest, out *ResetResponse) error
+		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 	}
 	type Quota struct {
 		quota
@@ -143,10 +158,14 @@ func (h *quotaHandler) RegisterUser(ctx context.Context, in *RegisterUserRequest
 	return h.QuotaHandler.RegisterUser(ctx, in, out)
 }
 
-func (h *quotaHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
-	return h.QuotaHandler.List(ctx, in, out)
+func (h *quotaHandler) ListUsage(ctx context.Context, in *ListUsageRequest, out *ListUsageResponse) error {
+	return h.QuotaHandler.ListUsage(ctx, in, out)
 }
 
 func (h *quotaHandler) ResetQuotas(ctx context.Context, in *ResetRequest, out *ResetResponse) error {
 	return h.QuotaHandler.ResetQuotas(ctx, in, out)
+}
+
+func (h *quotaHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
+	return h.QuotaHandler.List(ctx, in, out)
 }

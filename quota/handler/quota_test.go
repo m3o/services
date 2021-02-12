@@ -97,3 +97,46 @@ func TestResetQuotas(t *testing.T) {
 	g.Expect(redisMock.ExpectationsWereMet()).To(BeNil())
 	g.Expect(v1serv.UpdateAllowedPathsCallCount()).To(Equal(1))
 }
+
+func TestHasBreachedLimit(t *testing.T) {
+	g := NewWithT(t)
+
+	v1serv := fakes.FakeV1Service{}
+	db, redisMock := redismock.NewClientMock()
+	mstore.DefaultStore = memory.NewStore()
+
+	qsvc := &Quota{
+		v1Svc: &v1serv,
+		c: counter{
+			redisClient: db,
+		},
+	}
+	g.Expect(qsvc.writeQuota(&quota{
+		ID:             "hello_free",
+		Limit:          10,
+		ResetFrequency: Daily,
+		Path:           "/hello/",
+	})).To(BeNil())
+	g.Expect(qsvc.writeMapping(&mapping{
+		UserID:    "user_1234",
+		Namespace: "my-user-ns",
+		QuotaID:   "hello_free",
+	})).To(BeNil())
+
+	redisMock.ExpectGet(prefixCounter + ":my-user-ns:user_1234:/hello/").SetVal("9")
+
+	breach, path, err := qsvc.hasBreachedLimit("my-user-ns", "user_1234", "hello_free")
+	g.Expect(redisMock.ExpectationsWereMet()).To(BeNil())
+	g.Expect(breach).To(BeFalse())
+	g.Expect(err).To(BeNil())
+	g.Expect(path).To(Equal("/hello/"))
+
+	redisMock.ExpectGet(prefixCounter + ":my-user-ns:user_1234:/hello/").SetVal("10")
+
+	breach, path, err = qsvc.hasBreachedLimit("my-user-ns", "user_1234", "hello_free")
+	g.Expect(redisMock.ExpectationsWereMet()).To(BeNil())
+	g.Expect(breach).To(BeTrue())
+	g.Expect(err).To(BeNil())
+	g.Expect(path).To(Equal("/hello/"))
+
+}

@@ -25,53 +25,53 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-type CreateRequest_Frequency int32
+type APIQuota_Frequency int32
 
 const (
-	CreateRequest_NEVER   CreateRequest_Frequency = 0
-	CreateRequest_DAILY   CreateRequest_Frequency = 1
-	CreateRequest_MONTHLY CreateRequest_Frequency = 2
+	APIQuota_NEVER   APIQuota_Frequency = 0
+	APIQuota_DAILY   APIQuota_Frequency = 1
+	APIQuota_MONTHLY APIQuota_Frequency = 2
 )
 
-// Enum value maps for CreateRequest_Frequency.
+// Enum value maps for APIQuota_Frequency.
 var (
-	CreateRequest_Frequency_name = map[int32]string{
+	APIQuota_Frequency_name = map[int32]string{
 		0: "NEVER",
 		1: "DAILY",
 		2: "MONTHLY",
 	}
-	CreateRequest_Frequency_value = map[string]int32{
+	APIQuota_Frequency_value = map[string]int32{
 		"NEVER":   0,
 		"DAILY":   1,
 		"MONTHLY": 2,
 	}
 )
 
-func (x CreateRequest_Frequency) Enum() *CreateRequest_Frequency {
-	p := new(CreateRequest_Frequency)
+func (x APIQuota_Frequency) Enum() *APIQuota_Frequency {
+	p := new(APIQuota_Frequency)
 	*p = x
 	return p
 }
 
-func (x CreateRequest_Frequency) String() string {
+func (x APIQuota_Frequency) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (CreateRequest_Frequency) Descriptor() protoreflect.EnumDescriptor {
+func (APIQuota_Frequency) Descriptor() protoreflect.EnumDescriptor {
 	return file_proto_quota_proto_enumTypes[0].Descriptor()
 }
 
-func (CreateRequest_Frequency) Type() protoreflect.EnumType {
+func (APIQuota_Frequency) Type() protoreflect.EnumType {
 	return &file_proto_quota_proto_enumTypes[0]
 }
 
-func (x CreateRequest_Frequency) Number() protoreflect.EnumNumber {
+func (x APIQuota_Frequency) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use CreateRequest_Frequency.Descriptor instead.
-func (CreateRequest_Frequency) EnumDescriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{0, 0}
+// Deprecated: Use APIQuota_Frequency.Descriptor instead.
+func (APIQuota_Frequency) EnumDescriptor() ([]byte, []int) {
+	return file_proto_quota_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type CreateRequest struct {
@@ -79,10 +79,7 @@ type CreateRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id             string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // Could be a URL or something else
-	Limit          int64                   `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	ResetFrequency CreateRequest_Frequency `protobuf:"varint,3,opt,name=reset_frequency,json=resetFrequency,proto3,enum=quota.CreateRequest_Frequency" json:"reset_frequency,omitempty"`
-	Path           string                  `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`
+	Quota *APIQuota `protobuf:"bytes,1,opt,name=quota,proto3" json:"quota,omitempty"`
 }
 
 func (x *CreateRequest) Reset() {
@@ -117,28 +114,78 @@ func (*CreateRequest) Descriptor() ([]byte, []int) {
 	return file_proto_quota_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateRequest) GetId() string {
+func (x *CreateRequest) GetQuota() *APIQuota {
+	if x != nil {
+		return x.Quota
+	}
+	return nil
+}
+
+type APIQuota struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id             string             `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // Could be a URL or something else
+	Limit          int64              `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	ResetFrequency APIQuota_Frequency `protobuf:"varint,3,opt,name=reset_frequency,json=resetFrequency,proto3,enum=quota.APIQuota_Frequency" json:"reset_frequency,omitempty"`
+	Path           string             `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`
+}
+
+func (x *APIQuota) Reset() {
+	*x = APIQuota{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_quota_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *APIQuota) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*APIQuota) ProtoMessage() {}
+
+func (x *APIQuota) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_quota_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use APIQuota.ProtoReflect.Descriptor instead.
+func (*APIQuota) Descriptor() ([]byte, []int) {
+	return file_proto_quota_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *APIQuota) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *CreateRequest) GetLimit() int64 {
+func (x *APIQuota) GetLimit() int64 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *CreateRequest) GetResetFrequency() CreateRequest_Frequency {
+func (x *APIQuota) GetResetFrequency() APIQuota_Frequency {
 	if x != nil {
 		return x.ResetFrequency
 	}
-	return CreateRequest_NEVER
+	return APIQuota_NEVER
 }
 
-func (x *CreateRequest) GetPath() string {
+func (x *APIQuota) GetPath() string {
 	if x != nil {
 		return x.Path
 	}
@@ -154,7 +201,7 @@ type CreateResponse struct {
 func (x *CreateResponse) Reset() {
 	*x = CreateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[1]
+		mi := &file_proto_quota_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -167,7 +214,7 @@ func (x *CreateResponse) String() string {
 func (*CreateResponse) ProtoMessage() {}
 
 func (x *CreateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[1]
+	mi := &file_proto_quota_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,7 +227,7 @@ func (x *CreateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateResponse.ProtoReflect.Descriptor instead.
 func (*CreateResponse) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{1}
+	return file_proto_quota_proto_rawDescGZIP(), []int{2}
 }
 
 type RegisterUserRequest struct {
@@ -196,7 +243,7 @@ type RegisterUserRequest struct {
 func (x *RegisterUserRequest) Reset() {
 	*x = RegisterUserRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[2]
+		mi := &file_proto_quota_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -209,7 +256,7 @@ func (x *RegisterUserRequest) String() string {
 func (*RegisterUserRequest) ProtoMessage() {}
 
 func (x *RegisterUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[2]
+	mi := &file_proto_quota_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -222,7 +269,7 @@ func (x *RegisterUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterUserRequest.ProtoReflect.Descriptor instead.
 func (*RegisterUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{2}
+	return file_proto_quota_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RegisterUserRequest) GetQuotaIds() []string {
@@ -255,7 +302,7 @@ type RegisterUserResponse struct {
 func (x *RegisterUserResponse) Reset() {
 	*x = RegisterUserResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[3]
+		mi := &file_proto_quota_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -268,7 +315,7 @@ func (x *RegisterUserResponse) String() string {
 func (*RegisterUserResponse) ProtoMessage() {}
 
 func (x *RegisterUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[3]
+	mi := &file_proto_quota_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -281,10 +328,10 @@ func (x *RegisterUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterUserResponse.ProtoReflect.Descriptor instead.
 func (*RegisterUserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{3}
+	return file_proto_quota_proto_rawDescGZIP(), []int{4}
 }
 
-type ListRequest struct {
+type ListUsageRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -293,62 +340,8 @@ type ListRequest struct {
 	Namespace string `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 }
 
-func (x *ListRequest) Reset() {
-	*x = ListRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ListRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRequest) ProtoMessage() {}
-
-func (x *ListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRequest.ProtoReflect.Descriptor instead.
-func (*ListRequest) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ListRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *ListRequest) GetNamespace() string {
-	if x != nil {
-		return x.Namespace
-	}
-	return ""
-}
-
-type ListResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Usages []*QuotaUsage `protobuf:"bytes,1,rep,name=usages,proto3" json:"usages,omitempty"`
-}
-
-func (x *ListResponse) Reset() {
-	*x = ListResponse{}
+func (x *ListUsageRequest) Reset() {
+	*x = ListUsageRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_quota_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -356,13 +349,13 @@ func (x *ListResponse) Reset() {
 	}
 }
 
-func (x *ListResponse) String() string {
+func (x *ListUsageRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListResponse) ProtoMessage() {}
+func (*ListUsageRequest) ProtoMessage() {}
 
-func (x *ListResponse) ProtoReflect() protoreflect.Message {
+func (x *ListUsageRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_quota_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -374,12 +367,66 @@ func (x *ListResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListResponse.ProtoReflect.Descriptor instead.
-func (*ListResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUsageRequest.ProtoReflect.Descriptor instead.
+func (*ListUsageRequest) Descriptor() ([]byte, []int) {
 	return file_proto_quota_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ListResponse) GetUsages() []*QuotaUsage {
+func (x *ListUsageRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ListUsageRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+type ListUsageResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Usages []*QuotaUsage `protobuf:"bytes,1,rep,name=usages,proto3" json:"usages,omitempty"`
+}
+
+func (x *ListUsageResponse) Reset() {
+	*x = ListUsageResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_quota_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListUsageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUsageResponse) ProtoMessage() {}
+
+func (x *ListUsageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_quota_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUsageResponse.ProtoReflect.Descriptor instead.
+func (*ListUsageResponse) Descriptor() ([]byte, []int) {
+	return file_proto_quota_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListUsageResponse) GetUsages() []*QuotaUsage {
 	if x != nil {
 		return x.Usages
 	}
@@ -399,7 +446,7 @@ type QuotaUsage struct {
 func (x *QuotaUsage) Reset() {
 	*x = QuotaUsage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[6]
+		mi := &file_proto_quota_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -412,7 +459,7 @@ func (x *QuotaUsage) String() string {
 func (*QuotaUsage) ProtoMessage() {}
 
 func (x *QuotaUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[6]
+	mi := &file_proto_quota_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -425,7 +472,7 @@ func (x *QuotaUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QuotaUsage.ProtoReflect.Descriptor instead.
 func (*QuotaUsage) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{6}
+	return file_proto_quota_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *QuotaUsage) GetName() string {
@@ -458,7 +505,7 @@ type ResetRequest struct {
 func (x *ResetRequest) Reset() {
 	*x = ResetRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[7]
+		mi := &file_proto_quota_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -471,7 +518,7 @@ func (x *ResetRequest) String() string {
 func (*ResetRequest) ProtoMessage() {}
 
 func (x *ResetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[7]
+	mi := &file_proto_quota_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -484,7 +531,7 @@ func (x *ResetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetRequest.ProtoReflect.Descriptor instead.
 func (*ResetRequest) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{7}
+	return file_proto_quota_proto_rawDescGZIP(), []int{8}
 }
 
 type ResetResponse struct {
@@ -496,7 +543,7 @@ type ResetResponse struct {
 func (x *ResetResponse) Reset() {
 	*x = ResetResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_quota_proto_msgTypes[8]
+		mi := &file_proto_quota_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -509,7 +556,7 @@ func (x *ResetResponse) String() string {
 func (*ResetResponse) ProtoMessage() {}
 
 func (x *ResetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_quota_proto_msgTypes[8]
+	mi := &file_proto_quota_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -522,51 +569,144 @@ func (x *ResetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetResponse.ProtoReflect.Descriptor instead.
 func (*ResetResponse) Descriptor() ([]byte, []int) {
-	return file_proto_quota_proto_rawDescGZIP(), []int{8}
+	return file_proto_quota_proto_rawDescGZIP(), []int{9}
+}
+
+type ListRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ListRequest) Reset() {
+	*x = ListRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_quota_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRequest) ProtoMessage() {}
+
+func (x *ListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_quota_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRequest.ProtoReflect.Descriptor instead.
+func (*ListRequest) Descriptor() ([]byte, []int) {
+	return file_proto_quota_proto_rawDescGZIP(), []int{10}
+}
+
+type ListResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Quotas []*APIQuota `protobuf:"bytes,1,rep,name=quotas,proto3" json:"quotas,omitempty"`
+}
+
+func (x *ListResponse) Reset() {
+	*x = ListResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_quota_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListResponse) ProtoMessage() {}
+
+func (x *ListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_quota_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListResponse.ProtoReflect.Descriptor instead.
+func (*ListResponse) Descriptor() ([]byte, []int) {
+	return file_proto_quota_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListResponse) GetQuotas() []*APIQuota {
+	if x != nil {
+		return x.Quotas
+	}
+	return nil
 }
 
 var File_proto_quota_proto protoreflect.FileDescriptor
 
 var file_proto_quota_proto_rawDesc = []byte{
 	0x0a, 0x11, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x12, 0x05, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x22, 0xc2, 0x01, 0x0a, 0x0d, 0x43,
-	0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x14, 0x0a, 0x05,
-	0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6c, 0x69, 0x6d,
-	0x69, 0x74, 0x12, 0x47, 0x0a, 0x0f, 0x72, 0x65, 0x73, 0x65, 0x74, 0x5f, 0x66, 0x72, 0x65, 0x71,
-	0x75, 0x65, 0x6e, 0x63, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1e, 0x2e, 0x71, 0x75,
-	0x6f, 0x74, 0x61, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x2e, 0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x52, 0x0e, 0x72, 0x65, 0x73,
-	0x65, 0x74, 0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x70,
-	0x61, 0x74, 0x68, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22,
-	0x2e, 0x0a, 0x09, 0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x09, 0x0a, 0x05,
-	0x4e, 0x45, 0x56, 0x45, 0x52, 0x10, 0x00, 0x12, 0x09, 0x0a, 0x05, 0x44, 0x41, 0x49, 0x4c, 0x59,
-	0x10, 0x01, 0x12, 0x0b, 0x0a, 0x07, 0x4d, 0x4f, 0x4e, 0x54, 0x48, 0x4c, 0x59, 0x10, 0x02, 0x22,
-	0x10, 0x0a, 0x0e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x69, 0x0a, 0x13, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65,
-	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x71, 0x75, 0x6f, 0x74,
-	0x61, 0x5f, 0x69, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x08, 0x71, 0x75, 0x6f,
-	0x74, 0x61, 0x49, 0x64, 0x73, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1c,
-	0x0a, 0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x22, 0x16, 0x0a, 0x14,
-	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x44, 0x0a, 0x0b, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01,
+	0x6f, 0x74, 0x6f, 0x12, 0x05, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x22, 0x36, 0x0a, 0x0d, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x25, 0x0a, 0x05, 0x71,
+	0x75, 0x6f, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x71, 0x75, 0x6f,
+	0x74, 0x61, 0x2e, 0x41, 0x50, 0x49, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x52, 0x05, 0x71, 0x75, 0x6f,
+	0x74, 0x61, 0x22, 0xb8, 0x01, 0x0a, 0x08, 0x41, 0x50, 0x49, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05,
+	0x6c, 0x69, 0x6d, 0x69, 0x74, 0x12, 0x42, 0x0a, 0x0f, 0x72, 0x65, 0x73, 0x65, 0x74, 0x5f, 0x66,
+	0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x19,
+	0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x41, 0x50, 0x49, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x2e,
+	0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x52, 0x0e, 0x72, 0x65, 0x73, 0x65, 0x74,
+	0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74,
+	0x68, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22, 0x2e, 0x0a,
+	0x09, 0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x09, 0x0a, 0x05, 0x4e, 0x45,
+	0x56, 0x45, 0x52, 0x10, 0x00, 0x12, 0x09, 0x0a, 0x05, 0x44, 0x41, 0x49, 0x4c, 0x59, 0x10, 0x01,
+	0x12, 0x0b, 0x0a, 0x07, 0x4d, 0x4f, 0x4e, 0x54, 0x48, 0x4c, 0x59, 0x10, 0x02, 0x22, 0x10, 0x0a,
+	0x0e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x69, 0x0a, 0x13, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x5f,
+	0x69, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x08, 0x71, 0x75, 0x6f, 0x74, 0x61,
+	0x49, 0x64, 0x73, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09,
-	0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x22, 0x39, 0x0a, 0x0c, 0x4c, 0x69,
-	0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x29, 0x0a, 0x06, 0x75, 0x73,
-	0x61, 0x67, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x71, 0x75, 0x6f,
-	0x74, 0x61, 0x2e, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x55, 0x73, 0x61, 0x67, 0x65, 0x52, 0x06, 0x75,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x22, 0x4c, 0x0a, 0x0a, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x55, 0x73,
-	0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x75, 0x73, 0x61, 0x67, 0x65,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x75, 0x73, 0x61, 0x67, 0x65, 0x12, 0x14, 0x0a,
-	0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6c, 0x69,
-	0x6d, 0x69, 0x74, 0x22, 0x0e, 0x0a, 0x0c, 0x52, 0x65, 0x73, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x22, 0x0f, 0x0a, 0x0d, 0x52, 0x65, 0x73, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x32, 0xfa, 0x01, 0x0a, 0x05, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x12, 0x37,
+	0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x22, 0x16, 0x0a, 0x14, 0x52, 0x65,
+	0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x49, 0x0a, 0x10, 0x4c, 0x69, 0x73, 0x74, 0x55, 0x73, 0x61, 0x67, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12,
+	0x1c, 0x0a, 0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x22, 0x3e, 0x0a,
+	0x11, 0x4c, 0x69, 0x73, 0x74, 0x55, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x29, 0x0a, 0x06, 0x75, 0x73, 0x61, 0x67, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x11, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x51, 0x75, 0x6f, 0x74, 0x61,
+	0x55, 0x73, 0x61, 0x67, 0x65, 0x52, 0x06, 0x75, 0x73, 0x61, 0x67, 0x65, 0x73, 0x22, 0x4c, 0x0a,
+	0x0a, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x55, 0x73, 0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e,
+	0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12,
+	0x14, 0x0a, 0x05, 0x75, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05,
+	0x75, 0x73, 0x61, 0x67, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x22, 0x0e, 0x0a, 0x0c, 0x52,
+	0x65, 0x73, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x0f, 0x0a, 0x0d, 0x52,
+	0x65, 0x73, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x0d, 0x0a, 0x0b,
+	0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x37, 0x0a, 0x0c, 0x4c,
+	0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x27, 0x0a, 0x06, 0x71,
+	0x75, 0x6f, 0x74, 0x61, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x71, 0x75,
+	0x6f, 0x74, 0x61, 0x2e, 0x41, 0x50, 0x49, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x52, 0x06, 0x71, 0x75,
+	0x6f, 0x74, 0x61, 0x73, 0x32, 0xbc, 0x02, 0x0a, 0x05, 0x51, 0x75, 0x6f, 0x74, 0x61, 0x12, 0x37,
 	0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x14, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61,
 	0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15,
 	0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73,
@@ -575,15 +715,19 @@ var file_proto_quota_proto_rawDesc = []byte{
 	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x52, 0x65, 0x67, 0x69,
 	0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x22, 0x00, 0x12, 0x31, 0x0a, 0x04, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x12, 0x2e, 0x71, 0x75, 0x6f,
-	0x74, 0x61, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13,
-	0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3a, 0x0a, 0x0b, 0x52, 0x65, 0x73, 0x65, 0x74, 0x51, 0x75,
-	0x6f, 0x74, 0x61, 0x73, 0x12, 0x13, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x52, 0x65, 0x73,
-	0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x71, 0x75, 0x6f, 0x74,
-	0x61, 0x2e, 0x52, 0x65, 0x73, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x42, 0x0d, 0x5a, 0x0b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x3b, 0x71, 0x75, 0x6f, 0x74, 0x61,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0x00, 0x12, 0x40, 0x0a, 0x09, 0x4c, 0x69, 0x73, 0x74, 0x55, 0x73, 0x61, 0x67, 0x65, 0x12,
+	0x17, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x55, 0x73, 0x61, 0x67,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61,
+	0x2e, 0x4c, 0x69, 0x73, 0x74, 0x55, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x00, 0x12, 0x3a, 0x0a, 0x0b, 0x52, 0x65, 0x73, 0x65, 0x74, 0x51, 0x75, 0x6f,
+	0x74, 0x61, 0x73, 0x12, 0x13, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61, 0x2e, 0x52, 0x65, 0x73, 0x65,
+	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61,
+	0x2e, 0x52, 0x65, 0x73, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
+	0x12, 0x31, 0x0a, 0x04, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x12, 0x2e, 0x71, 0x75, 0x6f, 0x74, 0x61,
+	0x2e, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x71,
+	0x75, 0x6f, 0x74, 0x61, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x42, 0x0d, 0x5a, 0x0b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x3b, 0x71, 0x75, 0x6f,
+	0x74, 0x61, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -599,35 +743,42 @@ func file_proto_quota_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_quota_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_quota_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_proto_quota_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_proto_quota_proto_goTypes = []interface{}{
-	(CreateRequest_Frequency)(0), // 0: quota.CreateRequest.Frequency
+	(APIQuota_Frequency)(0),      // 0: quota.APIQuota.Frequency
 	(*CreateRequest)(nil),        // 1: quota.CreateRequest
-	(*CreateResponse)(nil),       // 2: quota.CreateResponse
-	(*RegisterUserRequest)(nil),  // 3: quota.RegisterUserRequest
-	(*RegisterUserResponse)(nil), // 4: quota.RegisterUserResponse
-	(*ListRequest)(nil),          // 5: quota.ListRequest
-	(*ListResponse)(nil),         // 6: quota.ListResponse
-	(*QuotaUsage)(nil),           // 7: quota.QuotaUsage
-	(*ResetRequest)(nil),         // 8: quota.ResetRequest
-	(*ResetResponse)(nil),        // 9: quota.ResetResponse
+	(*APIQuota)(nil),             // 2: quota.APIQuota
+	(*CreateResponse)(nil),       // 3: quota.CreateResponse
+	(*RegisterUserRequest)(nil),  // 4: quota.RegisterUserRequest
+	(*RegisterUserResponse)(nil), // 5: quota.RegisterUserResponse
+	(*ListUsageRequest)(nil),     // 6: quota.ListUsageRequest
+	(*ListUsageResponse)(nil),    // 7: quota.ListUsageResponse
+	(*QuotaUsage)(nil),           // 8: quota.QuotaUsage
+	(*ResetRequest)(nil),         // 9: quota.ResetRequest
+	(*ResetResponse)(nil),        // 10: quota.ResetResponse
+	(*ListRequest)(nil),          // 11: quota.ListRequest
+	(*ListResponse)(nil),         // 12: quota.ListResponse
 }
 var file_proto_quota_proto_depIdxs = []int32{
-	0, // 0: quota.CreateRequest.reset_frequency:type_name -> quota.CreateRequest.Frequency
-	7, // 1: quota.ListResponse.usages:type_name -> quota.QuotaUsage
-	1, // 2: quota.Quota.Create:input_type -> quota.CreateRequest
-	3, // 3: quota.Quota.RegisterUser:input_type -> quota.RegisterUserRequest
-	5, // 4: quota.Quota.List:input_type -> quota.ListRequest
-	8, // 5: quota.Quota.ResetQuotas:input_type -> quota.ResetRequest
-	2, // 6: quota.Quota.Create:output_type -> quota.CreateResponse
-	4, // 7: quota.Quota.RegisterUser:output_type -> quota.RegisterUserResponse
-	6, // 8: quota.Quota.List:output_type -> quota.ListResponse
-	9, // 9: quota.Quota.ResetQuotas:output_type -> quota.ResetResponse
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2,  // 0: quota.CreateRequest.quota:type_name -> quota.APIQuota
+	0,  // 1: quota.APIQuota.reset_frequency:type_name -> quota.APIQuota.Frequency
+	8,  // 2: quota.ListUsageResponse.usages:type_name -> quota.QuotaUsage
+	2,  // 3: quota.ListResponse.quotas:type_name -> quota.APIQuota
+	1,  // 4: quota.Quota.Create:input_type -> quota.CreateRequest
+	4,  // 5: quota.Quota.RegisterUser:input_type -> quota.RegisterUserRequest
+	6,  // 6: quota.Quota.ListUsage:input_type -> quota.ListUsageRequest
+	9,  // 7: quota.Quota.ResetQuotas:input_type -> quota.ResetRequest
+	11, // 8: quota.Quota.List:input_type -> quota.ListRequest
+	3,  // 9: quota.Quota.Create:output_type -> quota.CreateResponse
+	5,  // 10: quota.Quota.RegisterUser:output_type -> quota.RegisterUserResponse
+	7,  // 11: quota.Quota.ListUsage:output_type -> quota.ListUsageResponse
+	10, // 12: quota.Quota.ResetQuotas:output_type -> quota.ResetResponse
+	12, // 13: quota.Quota.List:output_type -> quota.ListResponse
+	9,  // [9:14] is the sub-list for method output_type
+	4,  // [4:9] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_proto_quota_proto_init() }
@@ -649,7 +800,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateResponse); i {
+			switch v := v.(*APIQuota); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -661,7 +812,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisterUserRequest); i {
+			switch v := v.(*CreateResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -673,7 +824,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisterUserResponse); i {
+			switch v := v.(*RegisterUserRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -685,7 +836,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListRequest); i {
+			switch v := v.(*RegisterUserResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -697,7 +848,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListResponse); i {
+			switch v := v.(*ListUsageRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -709,7 +860,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QuotaUsage); i {
+			switch v := v.(*ListUsageResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -721,7 +872,7 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ResetRequest); i {
+			switch v := v.(*QuotaUsage); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -733,7 +884,43 @@ func file_proto_quota_proto_init() {
 			}
 		}
 		file_proto_quota_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ResetRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_quota_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ResetResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_quota_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_quota_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -751,7 +938,7 @@ func file_proto_quota_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_quota_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

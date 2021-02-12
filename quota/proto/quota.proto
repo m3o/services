@@ -10,12 +10,18 @@ service Quota {
 	// Registers a user against a quota
 	rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {}
 	// Lists current quota usage
-	rpc List(ListRequest) returns (ListResponse) {}
+	rpc ListUsage(ListUsageRequest) returns (ListUsageResponse) {}
 	// Debug
 	rpc ResetQuotas(ResetRequest) returns (ResetResponse) {}
+	// Lists quotas
+	rpc List(ListRequest) returns (ListResponse) {}
 }
 
 message CreateRequest {
+	APIQuota quota = 1;
+}
+
+message APIQuota {
 	string id = 1; // Could be a URL or something else
 	int64 limit = 2;
 	enum Frequency {
@@ -37,12 +43,12 @@ message RegisterUserRequest {
 
 message RegisterUserResponse {}
 
-message ListRequest {
+message ListUsageRequest {
 	string user_id = 1;
 	string namespace = 2;
 }
 
-message ListResponse {
+message ListUsageResponse {
 	repeated QuotaUsage usages = 1;
 }
 
@@ -55,3 +61,10 @@ message QuotaUsage {
 message ResetRequest {}
 
 message ResetResponse {}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated APIQuota quotas = 1;
+}
+

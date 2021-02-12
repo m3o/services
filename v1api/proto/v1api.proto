@@ -43,6 +43,7 @@ message Event {
 	RequestEvent request = 1;
 	APIKeyCreateEvent api_key_create = 2;
 	string type = 3;
+	APIKeyRevokeEvent api_key_revoke = 4;
 }
 
 message APIKeyCreateEvent {
@@ -57,6 +58,12 @@ message RequestEvent {
 	string namespace = 2;
 	string api_key_id = 3;
 	string url = 4;
+}
+
+message APIKeyRevokeEvent {
+	string user_id = 1;
+	string namespace = 2;
+	string api_key_id = 3;
 }
 
 message UpdateAllowedPathsRequest {
