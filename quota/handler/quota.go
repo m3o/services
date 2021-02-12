@@ -302,7 +302,8 @@ func (q *Quota) List(ctx context.Context, request *pb.ListRequest, response *pb.
 
 // ResetQuotas runs daily to reset usage counters in the case of daily or monthly quotas
 // TODO make this work across multiple instances by either using distributed locking or an external trigger (k8s cron)
-func (q *Quota) ResetQuotas() {
+func (q *Quota) ResetQuotasCron() {
+	logger.Infof("Resetting quotas for users")
 	// loop through every mapping, check the corresponding quota, and reset if there is a limit and the frequency is right
 	recs, err := store.Read(fmt.Sprintf("%s:", prefixMapping), store.ReadPrefix())
 	if err != nil {
@@ -335,9 +336,11 @@ func (q *Quota) ResetQuotas() {
 			}
 			quotaCache[quot.ID] = quot
 		}
+		logger.Infof("Checking %+v %+v", *m, *quot)
 		if !isTimeForReset(quot.ResetFrequency, time.Now()) {
 			continue
 		}
+		logger.Infof("Resetting %+v %+v", *m, *quot)
 		// reset the counter
 		if err := q.c.reset(m.Namespace, m.UserID, quot.Path); err != nil {
 			logger.Errorf("Error unmarshalling quota %s", err)
@@ -358,4 +361,8 @@ func isTimeForReset(frequency resetFrequency, t time.Time) bool {
 		return t.Day() == 1
 	}
 	return false
+}
+
+func (q *Quota) ResetQuotas(ctx context.Context, request *pb.ResetRequest, response *pb.ResetResponse) error {
+	q.ResetQuotasCron()
 }

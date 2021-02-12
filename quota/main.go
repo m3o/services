@@ -19,7 +19,7 @@ func main() {
 
 	q := handler.New(srv.Client())
 	c := cron.New()
-	c.AddFunc("0 0 * * *", q.ResetQuotas)
+	c.AddFunc("0 0 * * *", q.ResetQuotasCron)
 	c.Start()
 
 	// Register handler

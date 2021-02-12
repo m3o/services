@@ -11,6 +11,8 @@ service Quota {
 	rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {}
 	// Lists current quota usage
 	rpc List(ListRequest) returns (ListResponse) {}
+	// Debug
+	rpc ResetQuotas(ResetRequest) returns (ResetResponse) {}
 }
 
 message CreateRequest {
@@ -49,3 +51,7 @@ message QuotaUsage {
 	int64 usage = 2; // amount used in base units e.g. 100 (hits) or 200 (MB)
 	int64 limit = 3; // limit for the period e.g. 10000 (hits) or 1024 (MB)
 }
+
+message ResetRequest {}
+
+message ResetResponse {}

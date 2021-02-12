@@ -48,6 +48,8 @@ type QuotaService interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...client.CallOption) (*RegisterUserResponse, error)
 	// Lists current quota usage
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
+	// Debug
+	ResetQuotas(ctx context.Context, in *ResetRequest, opts ...client.CallOption) (*ResetResponse, error)
 }
 
 type quotaService struct {
@@ -92,6 +94,16 @@ func (c *quotaService) List(ctx context.Context, in *ListRequest, opts ...client
 	return out, nil
 }
 
+func (c *quotaService) ResetQuotas(ctx context.Context, in *ResetRequest, opts ...client.CallOption) (*ResetResponse, error) {
+	req := c.c.NewRequest(c.name, "Quota.ResetQuotas", in)
+	out := new(ResetResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Quota service
 
 type QuotaHandler interface {
@@ -101,6 +113,8 @@ type QuotaHandler interface {
 	RegisterUser(context.Context, *RegisterUserRequest, *RegisterUserResponse) error
 	// Lists current quota usage
 	List(context.Context, *ListRequest, *ListResponse) error
+	// Debug
+	ResetQuotas(context.Context, *ResetRequest, *ResetResponse) error
 }
 
 func RegisterQuotaHandler(s server.Server, hdlr QuotaHandler, opts ...server.HandlerOption) error {
@@ -108,6 +122,7 @@ func RegisterQuotaHandler(s server.Server, hdlr QuotaHandler, opts ...server.Han
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		RegisterUser(ctx context.Context, in *RegisterUserRequest, out *RegisterUserResponse) error
 		List(ctx context.Context, in *ListRequest, out *ListResponse) error
+		ResetQuotas(ctx context.Context, in *ResetRequest, out *ResetResponse) error
 	}
 	type Quota struct {
 		quota
@@ -130,4 +145,8 @@ func (h *quotaHandler) RegisterUser(ctx context.Context, in *RegisterUserRequest
 
 func (h *quotaHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
 	return h.QuotaHandler.List(ctx, in, out)
+}
+
+func (h *quotaHandler) ResetQuotas(ctx context.Context, in *ResetRequest, out *ResetResponse) error {
+	return h.QuotaHandler.ResetQuotas(ctx, in, out)
 }
