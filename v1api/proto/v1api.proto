@@ -31,6 +31,7 @@ message APIKey {
 	string id = 1;
 	string description = 2;
 	int64 created_time = 3;
+	repeated string scopes = 4;
 }
 
 message RevokeRequest {

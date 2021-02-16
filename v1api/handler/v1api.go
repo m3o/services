@@ -399,6 +399,7 @@ func (e *V1) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.Li
 			Id:          apiRec.ID,
 			Description: apiRec.Description,
 			CreatedTime: apiRec.Created,
+			Scopes:      apiRec.Scopes,
 		}
 	}
 	return nil
