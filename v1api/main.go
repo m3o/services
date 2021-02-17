@@ -40,18 +40,19 @@ func main() {
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
-					Name:    "V1.UpdateAllowedPaths",
-					Handler: "rpc",
-					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
-				}),
-			api.WithEndpoint(
-				&api.Endpoint{
 					Name:    "V1.ListKeys",
 					Path:    []string{"/v1/api/keys/list"},
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
 					Handler: "rpc",
-				},
-			)))
+				}),
+			api.WithEndpoint(
+				&api.Endpoint{
+					Name:    "V1.ListAPIs",
+					Path:    []string{"/v1/api/apis/list"},
+					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
+					Handler: "rpc",
+				}),
+		))
 	// Run service
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)

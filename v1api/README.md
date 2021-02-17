@@ -83,7 +83,10 @@ micro auth create rule --resource="service:v1:V1.GenerateKey" --priority 1 --sco
 micro auth create rule --resource="service:v1.api:Keys.List" --priority 1 v1-listkeys-public
 micro auth create rule --resource="service:v1:V1.ListKeys" --priority 1 --scope '+' v1-listkeys2-public
 micro auth create rule --resource="service:v1.api:Keys.Revoke" --priority 1 v1-revokekey-public
+micro auth create rule --resource="service:v1:V1.RevokeKey" --priority 1 --scope '+' v1-revokekey2-public
+micro auth create rule --resource="service:v1.api:Keys.Revoke" --priority 1 v1-revokekey-public
 micro auth create rule --resource="service:v1:V1.RevokeKey" --priority 1 --scope '+' v1-revokekey2-public 
+ 
 ```
 
 This allows users to hit the core v1 endpoints. 
