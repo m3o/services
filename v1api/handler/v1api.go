@@ -76,7 +76,7 @@ func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp
 	// generate a new API key
 
 	// are they allowed to generate with the requested scopes?
-	if !checkRequestedScopes(acc, req.Scopes) {
+	if !e.checkRequestedScopes(acc, req.Scopes) {
 		return errors.Forbidden("v1api.generate", "Not allowed to generate a key with requested scopes")
 	}
 
@@ -222,8 +222,26 @@ func hashSecret(s string) (string, error) {
 
 // checkRequestedScopes returns true if account has sufficient privileges for them to generate the requestedScopes.
 // e.g. micro "admin" can generate whatever scopes they want
-func checkRequestedScopes(account *auth.Account, requestedScopes []string) bool {
-	// TODO
+func (e *V1) checkRequestedScopes(account *auth.Account, requestedScopes []string) bool {
+	allowedScopes, err := e.listAPIs()
+	if err != nil {
+		// fail closed
+		return false
+	}
+	// add wildcard
+	allowedScopes = append(allowedScopes, "*")
+	for _, requested := range requestedScopes {
+		found := false
+		for _, allowed := range allowedScopes {
+			if allowed == requested {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
 	return true
 }
 
@@ -632,19 +650,27 @@ func (e *V1) DisableAPI(ctx context.Context, request *v1api.DisableAPIRequest, r
 }
 
 func (e *V1) ListAPIs(ctx context.Context, request *v1api.ListAPIsRequest, response *v1api.ListAPIsResponse) error {
-	recs, err := store.Read(fmt.Sprintf("%s:", storePrefixAPI), store.ReadPrefix())
-	if err != nil && err != store.ErrNotFound {
+	ret, err := e.listAPIs()
+	if err != nil {
 		log.Errorf("Error listing APIs %s", err)
 		return errors.InternalServerError("v1pi.ListAPIs", "Error listing APIs")
 	}
-	response.Names = make([]string, len(recs))
+	response.Names = ret
+	return nil
+}
+
+func (e *V1) listAPIs() ([]string, error) {
+	recs, err := store.Read(fmt.Sprintf("%s:", storePrefixAPI), store.ReadPrefix())
+	if err != nil && err != store.ErrNotFound {
+		return nil, err
+	}
+	ret := make([]string, len(recs))
 	for i, v := range recs {
 		ae := &apiEntry{}
 		if err := json.Unmarshal(v.Value, ae); err != nil {
-			log.Errorf("Error listing APIs %s", err)
-			return errors.InternalServerError("v1pi.ListAPIs", "Error listing APIs")
+			return nil, err
 		}
-		response.Names[i] = ae.Name
+		ret[i] = ae.Name
 	}
-	return nil
+	return ret, nil
 }
