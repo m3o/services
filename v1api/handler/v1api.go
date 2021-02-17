@@ -632,8 +632,8 @@ func (e *V1) DisableAPI(ctx context.Context, request *v1api.DisableAPIRequest, r
 }
 
 func (e *V1) ListAPIs(ctx context.Context, request *v1api.ListAPIsRequest, response *v1api.ListAPIsResponse) error {
-	recs, err := store.Read(fmt.Sprintf("%s:", storePrefixAPI))
-	if err != nil {
+	recs, err := store.Read(fmt.Sprintf("%s:", storePrefixAPI), store.ReadPrefix())
+	if err != nil && err != store.ErrNotFound {
 		log.Errorf("Error listing APIs %s", err)
 		return errors.InternalServerError("v1pi.ListAPIs", "Error listing APIs")
 	}
