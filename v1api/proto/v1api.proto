@@ -9,6 +9,9 @@ service V1 {
 	rpc ListKeys(ListRequest) returns (ListResponse) {}
 	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
 	rpc UpdateAllowedPaths(UpdateAllowedPathsRequest) returns (UpdateAllowedPathsResponse) {}
+	rpc EnableAPI(EnableAPIRequest) returns (EnableAPIResponse) {}
+	rpc DisableAPI(DisableAPIRequest) returns (DisableAPIResponse) {}
+	rpc ListAPIs(ListAPIsRequest) returns (ListAPIsResponse) {}
 }
 
 
@@ -45,6 +48,8 @@ message Event {
 	APIKeyCreateEvent api_key_create = 2;
 	string type = 3;
 	APIKeyRevokeEvent api_key_revoke = 4;
+	APIEnableEvent api_enable = 5;
+	APIDisableEvent api_disable = 6;
 }
 
 message APIKeyCreateEvent {
@@ -52,6 +57,14 @@ message APIKeyCreateEvent {
 	string namespace = 2;
 	string api_key_id = 3;
 	repeated string scopes = 4;
+}
+
+message APIEnableEvent {
+	string name = 1;
+}
+
+message APIDisableEvent {
+	string name = 1;
 }
 
 message RequestEvent {
@@ -76,3 +89,21 @@ message UpdateAllowedPathsRequest {
 }
 
 message UpdateAllowedPathsResponse {}
+
+message EnableAPIRequest {
+	string name = 1;
+}
+
+message EnableAPIResponse {}
+
+message DisableAPIRequest {
+	string name = 1;
+}
+
+message DisableAPIResponse {}
+
+message ListAPIsRequest {}
+
+message ListAPIsResponse {
+	repeated string names = 1;
+}

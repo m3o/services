@@ -46,6 +46,9 @@ type V1Service interface {
 	ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
 	UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error)
+	EnableAPI(ctx context.Context, in *EnableAPIRequest, opts ...client.CallOption) (*EnableAPIResponse, error)
+	DisableAPI(ctx context.Context, in *DisableAPIRequest, opts ...client.CallOption) (*DisableAPIResponse, error)
+	ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error)
 }
 
 type v1Service struct {
@@ -100,6 +103,36 @@ func (c *v1Service) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPat
 	return out, nil
 }
 
+func (c *v1Service) EnableAPI(ctx context.Context, in *EnableAPIRequest, opts ...client.CallOption) (*EnableAPIResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.EnableAPI", in)
+	out := new(EnableAPIResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *v1Service) DisableAPI(ctx context.Context, in *DisableAPIRequest, opts ...client.CallOption) (*DisableAPIResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.DisableAPI", in)
+	out := new(DisableAPIResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *v1Service) ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.ListAPIs", in)
+	out := new(ListAPIsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for V1 service
 
 type V1Handler interface {
@@ -107,6 +140,9 @@ type V1Handler interface {
 	ListKeys(context.Context, *ListRequest, *ListResponse) error
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
 	UpdateAllowedPaths(context.Context, *UpdateAllowedPathsRequest, *UpdateAllowedPathsResponse) error
+	EnableAPI(context.Context, *EnableAPIRequest, *EnableAPIResponse) error
+	DisableAPI(context.Context, *DisableAPIRequest, *DisableAPIResponse) error
+	ListAPIs(context.Context, *ListAPIsRequest, *ListAPIsResponse) error
 }
 
 func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOption) error {
@@ -115,6 +151,9 @@ func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOp
 		ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
 		UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error
+		EnableAPI(ctx context.Context, in *EnableAPIRequest, out *EnableAPIResponse) error
+		DisableAPI(ctx context.Context, in *DisableAPIRequest, out *DisableAPIResponse) error
+		ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error
 	}
 	type V1 struct {
 		v1
@@ -141,4 +180,16 @@ func (h *v1Handler) RevokeKey(ctx context.Context, in *RevokeRequest, out *Revok
 
 func (h *v1Handler) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error {
 	return h.V1Handler.UpdateAllowedPaths(ctx, in, out)
+}
+
+func (h *v1Handler) EnableAPI(ctx context.Context, in *EnableAPIRequest, out *EnableAPIResponse) error {
+	return h.V1Handler.EnableAPI(ctx, in, out)
+}
+
+func (h *v1Handler) DisableAPI(ctx context.Context, in *DisableAPIRequest, out *DisableAPIResponse) error {
+	return h.V1Handler.DisableAPI(ctx, in, out)
+}
+
+func (h *v1Handler) ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error {
+	return h.V1Handler.ListAPIs(ctx, in, out)
 }

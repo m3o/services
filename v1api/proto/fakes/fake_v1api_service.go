@@ -10,6 +10,36 @@ import (
 )
 
 type FakeV1Service struct {
+	DisableAPIStub        func(context.Context, *v1api.DisableAPIRequest, ...client.CallOption) (*v1api.DisableAPIResponse, error)
+	disableAPIMutex       sync.RWMutex
+	disableAPIArgsForCall []struct {
+		arg1 context.Context
+		arg2 *v1api.DisableAPIRequest
+		arg3 []client.CallOption
+	}
+	disableAPIReturns struct {
+		result1 *v1api.DisableAPIResponse
+		result2 error
+	}
+	disableAPIReturnsOnCall map[int]struct {
+		result1 *v1api.DisableAPIResponse
+		result2 error
+	}
+	EnableAPIStub        func(context.Context, *v1api.EnableAPIRequest, ...client.CallOption) (*v1api.EnableAPIResponse, error)
+	enableAPIMutex       sync.RWMutex
+	enableAPIArgsForCall []struct {
+		arg1 context.Context
+		arg2 *v1api.EnableAPIRequest
+		arg3 []client.CallOption
+	}
+	enableAPIReturns struct {
+		result1 *v1api.EnableAPIResponse
+		result2 error
+	}
+	enableAPIReturnsOnCall map[int]struct {
+		result1 *v1api.EnableAPIResponse
+		result2 error
+	}
 	GenerateKeyStub        func(context.Context, *v1api.GenerateKeyRequest, ...client.CallOption) (*v1api.GenerateKeyResponse, error)
 	generateKeyMutex       sync.RWMutex
 	generateKeyArgsForCall []struct {
@@ -23,6 +53,21 @@ type FakeV1Service struct {
 	}
 	generateKeyReturnsOnCall map[int]struct {
 		result1 *v1api.GenerateKeyResponse
+		result2 error
+	}
+	ListAPIsStub        func(context.Context, *v1api.ListAPIsRequest, ...client.CallOption) (*v1api.ListAPIsResponse, error)
+	listAPIsMutex       sync.RWMutex
+	listAPIsArgsForCall []struct {
+		arg1 context.Context
+		arg2 *v1api.ListAPIsRequest
+		arg3 []client.CallOption
+	}
+	listAPIsReturns struct {
+		result1 *v1api.ListAPIsResponse
+		result2 error
+	}
+	listAPIsReturnsOnCall map[int]struct {
+		result1 *v1api.ListAPIsResponse
 		result2 error
 	}
 	ListKeysStub        func(context.Context, *v1api.ListRequest, ...client.CallOption) (*v1api.ListResponse, error)
@@ -72,6 +117,138 @@ type FakeV1Service struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeV1Service) DisableAPI(arg1 context.Context, arg2 *v1api.DisableAPIRequest, arg3 ...client.CallOption) (*v1api.DisableAPIResponse, error) {
+	fake.disableAPIMutex.Lock()
+	ret, specificReturn := fake.disableAPIReturnsOnCall[len(fake.disableAPIArgsForCall)]
+	fake.disableAPIArgsForCall = append(fake.disableAPIArgsForCall, struct {
+		arg1 context.Context
+		arg2 *v1api.DisableAPIRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.DisableAPIStub
+	fakeReturns := fake.disableAPIReturns
+	fake.recordInvocation("DisableAPI", []interface{}{arg1, arg2, arg3})
+	fake.disableAPIMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeV1Service) DisableAPICallCount() int {
+	fake.disableAPIMutex.RLock()
+	defer fake.disableAPIMutex.RUnlock()
+	return len(fake.disableAPIArgsForCall)
+}
+
+func (fake *FakeV1Service) DisableAPICalls(stub func(context.Context, *v1api.DisableAPIRequest, ...client.CallOption) (*v1api.DisableAPIResponse, error)) {
+	fake.disableAPIMutex.Lock()
+	defer fake.disableAPIMutex.Unlock()
+	fake.DisableAPIStub = stub
+}
+
+func (fake *FakeV1Service) DisableAPIArgsForCall(i int) (context.Context, *v1api.DisableAPIRequest, []client.CallOption) {
+	fake.disableAPIMutex.RLock()
+	defer fake.disableAPIMutex.RUnlock()
+	argsForCall := fake.disableAPIArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeV1Service) DisableAPIReturns(result1 *v1api.DisableAPIResponse, result2 error) {
+	fake.disableAPIMutex.Lock()
+	defer fake.disableAPIMutex.Unlock()
+	fake.DisableAPIStub = nil
+	fake.disableAPIReturns = struct {
+		result1 *v1api.DisableAPIResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeV1Service) DisableAPIReturnsOnCall(i int, result1 *v1api.DisableAPIResponse, result2 error) {
+	fake.disableAPIMutex.Lock()
+	defer fake.disableAPIMutex.Unlock()
+	fake.DisableAPIStub = nil
+	if fake.disableAPIReturnsOnCall == nil {
+		fake.disableAPIReturnsOnCall = make(map[int]struct {
+			result1 *v1api.DisableAPIResponse
+			result2 error
+		})
+	}
+	fake.disableAPIReturnsOnCall[i] = struct {
+		result1 *v1api.DisableAPIResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeV1Service) EnableAPI(arg1 context.Context, arg2 *v1api.EnableAPIRequest, arg3 ...client.CallOption) (*v1api.EnableAPIResponse, error) {
+	fake.enableAPIMutex.Lock()
+	ret, specificReturn := fake.enableAPIReturnsOnCall[len(fake.enableAPIArgsForCall)]
+	fake.enableAPIArgsForCall = append(fake.enableAPIArgsForCall, struct {
+		arg1 context.Context
+		arg2 *v1api.EnableAPIRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.EnableAPIStub
+	fakeReturns := fake.enableAPIReturns
+	fake.recordInvocation("EnableAPI", []interface{}{arg1, arg2, arg3})
+	fake.enableAPIMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeV1Service) EnableAPICallCount() int {
+	fake.enableAPIMutex.RLock()
+	defer fake.enableAPIMutex.RUnlock()
+	return len(fake.enableAPIArgsForCall)
+}
+
+func (fake *FakeV1Service) EnableAPICalls(stub func(context.Context, *v1api.EnableAPIRequest, ...client.CallOption) (*v1api.EnableAPIResponse, error)) {
+	fake.enableAPIMutex.Lock()
+	defer fake.enableAPIMutex.Unlock()
+	fake.EnableAPIStub = stub
+}
+
+func (fake *FakeV1Service) EnableAPIArgsForCall(i int) (context.Context, *v1api.EnableAPIRequest, []client.CallOption) {
+	fake.enableAPIMutex.RLock()
+	defer fake.enableAPIMutex.RUnlock()
+	argsForCall := fake.enableAPIArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeV1Service) EnableAPIReturns(result1 *v1api.EnableAPIResponse, result2 error) {
+	fake.enableAPIMutex.Lock()
+	defer fake.enableAPIMutex.Unlock()
+	fake.EnableAPIStub = nil
+	fake.enableAPIReturns = struct {
+		result1 *v1api.EnableAPIResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeV1Service) EnableAPIReturnsOnCall(i int, result1 *v1api.EnableAPIResponse, result2 error) {
+	fake.enableAPIMutex.Lock()
+	defer fake.enableAPIMutex.Unlock()
+	fake.EnableAPIStub = nil
+	if fake.enableAPIReturnsOnCall == nil {
+		fake.enableAPIReturnsOnCall = make(map[int]struct {
+			result1 *v1api.EnableAPIResponse
+			result2 error
+		})
+	}
+	fake.enableAPIReturnsOnCall[i] = struct {
+		result1 *v1api.EnableAPIResponse
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeV1Service) GenerateKey(arg1 context.Context, arg2 *v1api.GenerateKeyRequest, arg3 ...client.CallOption) (*v1api.GenerateKeyResponse, error) {
@@ -136,6 +313,72 @@ func (fake *FakeV1Service) GenerateKeyReturnsOnCall(i int, result1 *v1api.Genera
 	}
 	fake.generateKeyReturnsOnCall[i] = struct {
 		result1 *v1api.GenerateKeyResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeV1Service) ListAPIs(arg1 context.Context, arg2 *v1api.ListAPIsRequest, arg3 ...client.CallOption) (*v1api.ListAPIsResponse, error) {
+	fake.listAPIsMutex.Lock()
+	ret, specificReturn := fake.listAPIsReturnsOnCall[len(fake.listAPIsArgsForCall)]
+	fake.listAPIsArgsForCall = append(fake.listAPIsArgsForCall, struct {
+		arg1 context.Context
+		arg2 *v1api.ListAPIsRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.ListAPIsStub
+	fakeReturns := fake.listAPIsReturns
+	fake.recordInvocation("ListAPIs", []interface{}{arg1, arg2, arg3})
+	fake.listAPIsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeV1Service) ListAPIsCallCount() int {
+	fake.listAPIsMutex.RLock()
+	defer fake.listAPIsMutex.RUnlock()
+	return len(fake.listAPIsArgsForCall)
+}
+
+func (fake *FakeV1Service) ListAPIsCalls(stub func(context.Context, *v1api.ListAPIsRequest, ...client.CallOption) (*v1api.ListAPIsResponse, error)) {
+	fake.listAPIsMutex.Lock()
+	defer fake.listAPIsMutex.Unlock()
+	fake.ListAPIsStub = stub
+}
+
+func (fake *FakeV1Service) ListAPIsArgsForCall(i int) (context.Context, *v1api.ListAPIsRequest, []client.CallOption) {
+	fake.listAPIsMutex.RLock()
+	defer fake.listAPIsMutex.RUnlock()
+	argsForCall := fake.listAPIsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeV1Service) ListAPIsReturns(result1 *v1api.ListAPIsResponse, result2 error) {
+	fake.listAPIsMutex.Lock()
+	defer fake.listAPIsMutex.Unlock()
+	fake.ListAPIsStub = nil
+	fake.listAPIsReturns = struct {
+		result1 *v1api.ListAPIsResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeV1Service) ListAPIsReturnsOnCall(i int, result1 *v1api.ListAPIsResponse, result2 error) {
+	fake.listAPIsMutex.Lock()
+	defer fake.listAPIsMutex.Unlock()
+	fake.ListAPIsStub = nil
+	if fake.listAPIsReturnsOnCall == nil {
+		fake.listAPIsReturnsOnCall = make(map[int]struct {
+			result1 *v1api.ListAPIsResponse
+			result2 error
+		})
+	}
+	fake.listAPIsReturnsOnCall[i] = struct {
+		result1 *v1api.ListAPIsResponse
 		result2 error
 	}{result1, result2}
 }
@@ -341,8 +584,14 @@ func (fake *FakeV1Service) UpdateAllowedPathsReturnsOnCall(i int, result1 *v1api
 func (fake *FakeV1Service) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.disableAPIMutex.RLock()
+	defer fake.disableAPIMutex.RUnlock()
+	fake.enableAPIMutex.RLock()
+	defer fake.enableAPIMutex.RUnlock()
 	fake.generateKeyMutex.RLock()
 	defer fake.generateKeyMutex.RUnlock()
+	fake.listAPIsMutex.RLock()
+	defer fake.listAPIsMutex.RUnlock()
 	fake.listKeysMutex.RLock()
 	defer fake.listKeysMutex.RUnlock()
 	fake.revokeKeyMutex.RLock()
