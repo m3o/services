@@ -84,17 +84,16 @@ micro auth create rule --resource="service:v1.api:Keys.List" --priority 1 v1-lis
 micro auth create rule --resource="service:v1:V1.ListKeys" --priority 1 --scope '+' v1-listkeys2-public
 micro auth create rule --resource="service:v1.api:Keys.Revoke" --priority 1 v1-revokekey-public
 micro auth create rule --resource="service:v1:V1.RevokeKey" --priority 1 --scope '+' v1-revokekey2-public
-micro auth create rule --resource="service:v1.api:Keys.Revoke" --priority 1 v1-revokekey-public
-micro auth create rule --resource="service:v1:V1.RevokeKey" --priority 1 --scope '+' v1-revokekey2-public 
+micro auth create rule --resource="service:v1.api:Apis.List" --priority 1 v1-listapis-public
+micro auth create rule --resource="service:v1:V1.ListAPIs" --priority 1 --scope '+' v1-listapis2-public 
  
 ```
 
 This allows users to hit the core v1 endpoints. 
 
 #### Adding a new API
-For every api you add you'll need to add two auth rules before users can access it. Prefix the service name with `v1.` which accounts for the call to `/v1/...`. For example, to enable access to the helloworld service under `/v1/helloworld/...`. The second rule is to allow the service to be called using an account issued by a different namespace
-
+To add a new API you should call the `EnableAPI` endpoint which will add the relevant auth rules and ensure it shows up in the list of available APIs. You will also need to add at least one quota to allow users to call the API.
 ```
-micro auth create rule --resource="service:v1.helloworld:*" --priority 1 v1-helloworld
-micro auth create rule --resource="service:helloworld:*" --priority 1 --scope '+' helloworld-public
+micro call v1 V1.EnableAPI '{"name":"foobar"}'
+micro call quota Quota.Create '{"quota':{"id":foobar_free", "limit":10, "reset_frequency":"DAILY", "path":"/foobar/"}}'
 ```
