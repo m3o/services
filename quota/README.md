@@ -14,3 +14,10 @@ Flow:
 
 ### Distributed Counting
 We use Redis for our counter to keep track of quota usage. 
+
+### Setup
+Auth rules required 
+```
+micro auth create rule --resource="service:quota:Quota.List" --priority 1  quota-list-public   
+micro auth create rule --resource="service:quota:Quota.ListUsage" --priority 1  quota-listusage-public
+```

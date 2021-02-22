@@ -95,5 +95,5 @@ This allows users to hit the core v1 endpoints.
 To add a new API you should call the `EnableAPI` endpoint which will add the relevant auth rules and ensure it shows up in the list of available APIs. You will also need to add at least one quota to allow users to call the API.
 ```
 micro call v1 V1.EnableAPI '{"name":"foobar"}'
-micro call quota Quota.Create '{"quota':{"id":foobar_free", "limit":10, "reset_frequency":"DAILY", "path":"/foobar/"}}'
+micro call quota Quota.Create '{"quota":{"id":"foobar_free", "limit":10, "reset_frequency":"DAILY", "path":"/foobar/"}}'
 ```
