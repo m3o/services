@@ -20,9 +20,10 @@ func main() {
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1.Endpoint",
-					Path:    []string{"^/v1/.*$"},
+					Handler: "rpc",
 					Method:  []string{"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE"},
-					Handler: "api",
+					Path:    []string{"^/v1/.*$"},
+					Stream:  true,
 				}),
 			api.WithEndpoint(
 				&api.Endpoint{
@@ -53,6 +54,7 @@ func main() {
 					Handler: "rpc",
 				}),
 		))
+
 	// Run service
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
