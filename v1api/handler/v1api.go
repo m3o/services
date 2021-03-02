@@ -34,6 +34,12 @@ const (
 	storePrefixAPI       = "api"
 )
 
+var (
+	errUnauthorized = errors.Unauthorized("v1api", "Unauthorized")
+	errInternal     = errors.InternalServerError("v1api", "Error processing request")
+	errBlocked      = errors.Forbidden("v1api.blocked", "Client is blocked")
+)
+
 type apiKeyRecord struct {
 	ID          string          `json:"id"`          // id of the key
 	ApiKey      string          `json:"apiKey"`      // hashed api key
@@ -246,10 +252,8 @@ func (e *V1) checkRequestedScopes(account *auth.Account, requestedScopes []strin
 // Endpoint is a catch all for endpoints
 func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	// check api key
+	log.Infof("Received request")
 	defer stream.Close()
-	errUnauthorized := errors.Unauthorized("v1api", "Unauthorized")
-	errInternal := errors.InternalServerError("v1api", "Error processing request")
-	errBlocked := errors.Forbidden("v1api.blocked", "Client is blocked")
 
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
@@ -366,11 +370,6 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 		return errInternal
 	}
 
-	if isStream(service, svcs) {
-		log.Infof("It's a stream!!!")
-		return nil
-	}
-
 	endpoint := ""
 	if len(parts) == 2 {
 		// /v1/helloworld/call -> helloworld Helloworld.Call
@@ -378,6 +377,11 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	} else {
 		// /v1/hello/world/call -> hello World.Call
 		endpoint = fmt.Sprintf("%s.%s", strings.Title(parts[1]), strings.Title(parts[2]))
+	}
+
+	if isStream(endpoint, svcs) {
+		log.Infof("It's a stream!!!")
+		return serveStream(ctx, stream, service, endpoint, svcs)
 	}
 
 	// forward the request
@@ -417,24 +421,6 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	stream.Send(response)
 	return nil
 
-}
-
-func isStream(svcName string, svcs []*registry.Service) bool {
-	// check if the endpoint supports streaming
-	for _, service := range svcs {
-		for _, ep := range service.Endpoints {
-			// skip if it doesn't match the name
-			if ep.Name != svcName {
-				continue
-			}
-			// matched if the name
-			if v := ep.Metadata["stream"]; v == "true" {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // ListKeys lists all keys for a user

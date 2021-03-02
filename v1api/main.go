@@ -5,6 +5,8 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/cache"
 )
 
 func main() {
@@ -54,6 +56,13 @@ func main() {
 					Handler: "rpc",
 				}),
 		))
+
+	// setup caching for registry
+	regName := registry.DefaultRegistry.String()
+	if regName != "cache" {
+		logger.Infof("Setting up cached registry for %s", regName)
+		registry.DefaultRegistry = cache.New(registry.DefaultRegistry)
+	}
 
 	// Run service
 	if err := srv.Run(); err != nil {

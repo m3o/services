@@ -9,6 +9,7 @@ require (
 	github.com/go-redis/redismock/v8 v8.0.5
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2
+	github.com/gorilla/websocket v1.4.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.3
 	github.com/micro/micro/v3 v3.0.5-0.20210205104602-25e07e1aafaf
 	github.com/minio/minio-go/v7 v7.0.5
