@@ -109,20 +109,15 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 	for {
 		select {
 		case <-ctx.Done():
-			logger.Infof("Done")
 			return nil
 		case <-downStream.Context().Done():
-			logger.Infof("Downstream Done")
 			return nil
 		default:
 			// read backend response body
-			logger.Infof("Reading response")
 			buf, err := rsp.Read()
 			if err != nil {
 				// wants to avoid import  grpc/status.Status
 				if strings.Contains(err.Error(), "context canceled") {
-					logger.Infof("Context cancelled")
-					// TODO should this be returning an error instead?
 					return nil
 				}
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -130,8 +125,9 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 				}
 				return errInternal
 			}
-			logger.Infof("Sending back to client %s", string(buf))
-			err = stream.Send(string(buf))
+
+			// TODO don't assume json
+			err = stream.Send(json.RawMessage(buf))
 			// send the buffer
 			if err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -177,7 +173,8 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 
 	// determine the message type
 	msgType := websocket.BinaryMessage
-	if ct == "application/json" {
+	logger.Infof("Content Type is  %s", ct)
+	if ct == "application/json" || ct == "application/grpc+json" {
 		msgType = websocket.TextMessage
 	}
 
@@ -197,7 +194,6 @@ type stream struct {
 	ctx context.Context
 	// the websocket connection.
 	serverStream server.Stream
-	//conn *websocket.Conn
 	// the downstream connection.
 	stream client.Stream
 }
@@ -231,7 +227,8 @@ func (s *stream) write() {
 		case msg := <-msgs:
 			logger.Infof("Write loop")
 			// read response body
-			if err := s.serverStream.Send(msg); err != nil {
+			// TODO don't assume json
+			if err := s.serverStream.Send(json.RawMessage(msg)); err != nil {
 				logger.Errorf("Error sending to stream %s", err)
 				return
 			}
@@ -246,24 +243,28 @@ func (s *stream) read() {
 
 	for {
 		logger.Infof("Read loop")
-		var msg []byte
-
-		if err := s.serverStream.Recv(&msg); err != nil {
-			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-				logger.Errorf("Error receiving from stream %s", err)
-			}
-			return
-		}
-
 		var request interface{}
 		switch s.messageType {
 		case websocket.TextMessage:
-			m := json.RawMessage(msg)
-			request = &m
+			request = &json.RawMessage{}
+			if err := s.serverStream.Recv(request); err != nil {
+				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+					logger.Errorf("Error receiving from stream %s", err)
+				}
+				return
+			}
 		default:
-			request = &rawFrame{Data: msg}
+			var b []byte
+			if err := s.serverStream.Recv(b); err != nil {
+				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+					logger.Errorf("Error receiving from stream %s", err)
+				}
+				return
+			}
+			request = &rawFrame{Data: b}
 		}
 
+		logger.Infof("Sending request %+v", request)
 		if err := s.stream.Send(request); err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 				logger.Error(err)
