@@ -249,27 +249,16 @@ func (e *V1) checkRequestedScopes(account *auth.Account, requestedScopes []strin
 	return true
 }
 
-// Endpoint is a catch all for endpoints
-func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
-	// check api key
-	log.Infof("Received request")
-	defer stream.Close()
-
-	md, ok := metadata.FromContext(ctx)
-	if !ok {
-		return errUnauthorized
-	}
-
-	authz := md["Authorization"]
+func loadAPIRec(authz string) (string, *apiKeyRecord, error) {
 	if len(authz) == 0 || !strings.HasPrefix(authz, "Bearer ") {
-		return errUnauthorized
+		return "", nil, errUnauthorized
 	}
 
 	// do lookup on hash of key
 	key := authz[7:]
 	hashed, err := hashSecret(key)
 	if err != nil {
-		return errUnauthorized
+		return "", nil, errUnauthorized
 	}
 	recs, err := store.Read(fmt.Sprintf("%s:%s", storePrefixHashedKey, hashed))
 	if err != nil {
@@ -278,20 +267,18 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 		}
 		// not found == invalid (or even revoked)
 		log.Infof("Authz not found %+v", hashed)
-		return errUnauthorized
+		return "", nil, errUnauthorized
 	}
 	// rehydrate
 	apiRec := apiKeyRecord{}
 	if err := json.Unmarshal(recs[0].Value, &apiRec); err != nil {
 		log.Errorf("Error while rehydrating api key record %s", err)
-		return errUnauthorized
+		return "", nil, errUnauthorized
 	}
+	return key, &apiRec, nil
+}
 
-	reqURL, ok := md.Get("url")
-	if !ok {
-		log.Errorf("Requested URL not found")
-		return errInternal
-	}
+func verifyCallAllowed(apiRec *apiKeyRecord, reqURL string) error {
 	// checks
 	// We do 2 types of checks
 	// 1. Do the scopes of the token allow them to call the requested API? The name of the scopes correspond to the service
@@ -321,7 +308,10 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 		// TODO better error please
 		return errBlocked
 	}
+	return nil
+}
 
+func refreshToken(apiRec *apiKeyRecord, key string) error {
 	// do we need to refresh the token?
 	tok, _, err := new(jwt.Parser).ParseUnverified(apiRec.Token, jwt.MapClaims{})
 	if err != nil {
@@ -340,7 +330,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 				return errInternal
 			}
 			apiRec.Token = tok.AccessToken
-			if err := writeAPIRecord(&apiRec); err != nil {
+			if err := writeAPIRecord(apiRec); err != nil {
 				log.Errorf("Error updating API record %s", err)
 				return errInternal
 			}
@@ -349,27 +339,26 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 		log.Errorf("Error parsing existing jwt claims %s", err)
 		return errUnauthorized
 	}
+	return nil
+}
 
-	// assume application/json for now
-	ct := "application/json"
-
+func getRequestedService(reqURL string) (string, string, []*registry.Service, error) {
 	trimmedPath := strings.TrimPrefix(reqURL, "/v1/")
 	parts := strings.Split(trimmedPath, "/")
 	if len(parts) < 2 {
 		// can't work out service and method
-		return errors.NotFound("v1api", "")
+		return "", "", nil, errors.NotFound("v1api", "")
 	}
 
 	service := parts[0]
 	svcs, err := registry.GetService(service)
 	if err != nil {
 		if err == registry.ErrNotFound {
-			return errors.NotFound("v1api", "No such API")
+			return "", "", nil, errors.NotFound("v1api", "No such API")
 		}
 		log.Errorf("Error looking up service %s", err)
-		return errInternal
+		return "", "", nil, errInternal
 	}
-
 	endpoint := ""
 	if len(parts) == 2 {
 		// /v1/helloworld/call -> helloworld Helloworld.Call
@@ -377,6 +366,48 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	} else {
 		// /v1/hello/world/call -> hello World.Call
 		endpoint = fmt.Sprintf("%s.%s", strings.Title(parts[1]), strings.Title(parts[2]))
+	}
+
+	return service, endpoint, svcs, nil
+}
+
+// Endpoint is a catch all for endpoints
+func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
+	// check api key
+	log.Infof("Received request")
+	defer stream.Close()
+
+	md, ok := metadata.FromContext(ctx)
+	if !ok {
+		return errUnauthorized
+	}
+
+	key, apiRec, err := loadAPIRec(md["Authorization"])
+	if err != nil {
+		return err
+	}
+
+	reqURL, ok := md.Get("url")
+	if !ok {
+		log.Errorf("Requested URL not found")
+		return errInternal
+	}
+
+	if err := verifyCallAllowed(apiRec, reqURL); err != nil {
+		return err
+	}
+
+	if err := refreshToken(apiRec, key); err != nil {
+		return err
+	}
+	// set the auth
+	ctx = metadata.Set(ctx, "Authorization", fmt.Sprintf("Bearer %s", apiRec.Token))
+
+	// assume application/json for now
+	ct := "application/json"
+	service, endpoint, svcs, err := getRequestedService(reqURL)
+	if err != nil {
+		return err
 	}
 
 	if isStream(endpoint, svcs) {
@@ -397,9 +428,6 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 		&payload,
 		client.WithContentType(ct),
 	)
-
-	// set the auth
-	ctx = metadata.Set(ctx, "Authorization", fmt.Sprintf("Bearer %s", apiRec.Token))
 
 	// create request/response
 	var response json.RawMessage
