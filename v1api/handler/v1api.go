@@ -371,10 +371,19 @@ func getRequestedService(reqURL string) (string, string, []*registry.Service, er
 	return service, endpoint, svcs, nil
 }
 
+func parseContentType(ct string) string {
+	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
+		ct = ct[:idx]
+	}
+	if len(ct) == 0 {
+		ct = "application/json"
+	}
+	return ct
+}
+
 // Endpoint is a catch all for endpoints
 func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	// check api key
-	log.Infof("Received request")
 	defer stream.Close()
 
 	md, ok := metadata.FromContext(ctx)

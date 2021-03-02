@@ -50,9 +50,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 
 	ct, _ := md.Get("Content-Type")
 	// Strip charset from Content-Type (like `application/json; charset=UTF-8`)
-	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
-		ct = ct[:idx]
-	}
+	ct = parseContentType(ct)
 
 	var payload json.RawMessage
 	if err := stream.Recv(&payload); err != nil {
@@ -60,7 +58,6 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 		return errInternal
 	}
 
-	logger.Infof("Content type is %s", ct)
 	var request interface{}
 	if !bytes.Equal(payload, []byte(`{}`)) {
 		switch ct {
@@ -72,10 +69,6 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 		}
 	}
 
-	// we always need to set content type for message
-	if ct == "" {
-		ct = "application/json"
-	}
 	req := client.DefaultClient.NewRequest(
 		service,
 		endpoint,
@@ -96,9 +89,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 
 	if request != nil {
 		if err = downStream.Send(request); err != nil {
-			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-				logger.Error(err)
-			}
+			logger.Error(err)
 			return errInternal
 		}
 	}
@@ -120,9 +111,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 				if strings.Contains(err.Error(), "context canceled") {
 					return nil
 				}
-				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-					logger.Error(err)
-				}
+				logger.Error(err)
 				return errInternal
 			}
 
@@ -130,9 +119,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 			err = stream.Send(json.RawMessage(buf))
 			// send the buffer
 			if err != nil {
-				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-					logger.Error(err)
-				}
+				logger.Error(err)
 			}
 		}
 	}
@@ -145,13 +132,7 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 		return errors.InternalServerError("v1api", "Error processing request")
 	}
 	ct, _ := md.Get("Content-Type")
-	// Strip charset from Content-Type (like `application/json; charset=UTF-8`)
-	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
-		ct = ct[:idx]
-	}
-	if len(ct) == 0 {
-		ct = "application/json"
-	}
+	ct = parseContentType(ct)
 
 	// create stream
 	req := client.DefaultClient.NewRequest(
@@ -165,15 +146,12 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 	// create a new stream
 	downstream, err := client.DefaultClient.Stream(ctx, req, client.WithRouter(newRouter(svcs)))
 	if err != nil {
-		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-			logger.Error(err)
-		}
+		logger.Error(err)
 		return errInternal
 	}
 
 	// determine the message type
 	msgType := websocket.BinaryMessage
-	logger.Infof("Content Type is  %s", ct)
 	if ct == "application/json" || ct == "application/grpc+json" {
 		msgType = websocket.TextMessage
 	}
@@ -205,11 +183,10 @@ func (s *stream) write() {
 
 	msgs := make(chan []byte)
 	go func() {
-		logger.Infof("Write loop read a response")
 		rsp := s.stream.Response()
 		for {
+
 			bytes, err := rsp.Read()
-			logger.Infof("Write loop read a response %s %s", string(bytes), err)
 			if err != nil {
 				return
 			}
@@ -225,7 +202,6 @@ func (s *stream) write() {
 			s.serverStream.Close()
 			return
 		case msg := <-msgs:
-			logger.Infof("Write loop")
 			// read response body
 			// TODO don't assume json
 			if err := s.serverStream.Send(json.RawMessage(msg)); err != nil {
@@ -242,33 +218,25 @@ func (s *stream) read() {
 	}()
 
 	for {
-		logger.Infof("Read loop")
 		var request interface{}
 		switch s.messageType {
 		case websocket.TextMessage:
 			request = &json.RawMessage{}
 			if err := s.serverStream.Recv(request); err != nil {
-				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-					logger.Errorf("Error receiving from stream %s", err)
-				}
+				logger.Errorf("Error receiving from stream %s", err)
 				return
 			}
 		default:
 			var b []byte
 			if err := s.serverStream.Recv(b); err != nil {
-				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-					logger.Errorf("Error receiving from stream %s", err)
-				}
+				logger.Errorf("Error receiving from stream %s", err)
 				return
 			}
 			request = &rawFrame{Data: b}
 		}
 
-		logger.Infof("Sending request %+v", request)
 		if err := s.stream.Send(request); err != nil {
-			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-				logger.Error(err)
-			}
+			logger.Error(err)
 			return
 		}
 	}
