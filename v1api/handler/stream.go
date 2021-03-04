@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/micro/micro/v3/service/client"
@@ -156,11 +157,8 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 		msgType = websocket.TextMessage
 	}
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
 	s := stream{ctx: ctx, serverStream: serverStream, stream: downstream, messageType: msgType}
-	go s.write()
-	s.read()
+	s.processWSReadsAndWrites()
 	return nil
 
 }
@@ -176,26 +174,52 @@ type stream struct {
 	stream client.Stream
 }
 
-func (s *stream) write() {
+func (s *stream) processWSReadsAndWrites() {
 	defer func() {
 		s.serverStream.Close()
 	}()
 
+	stopCtx, cancel := context.WithCancel(context.Background())
+	wg := sync.WaitGroup{}
+	wg.Add(3)
 	msgs := make(chan []byte)
-	go func() {
-		rsp := s.stream.Response()
-		for {
+	go s.rspToBufLoop(cancel, &wg, stopCtx, msgs)
+	go s.bufToClientLoop(cancel, &wg, stopCtx, msgs)
+	go s.clientToServerLoop(cancel, &wg, stopCtx)
+	wg.Wait()
+}
 
-			bytes, err := rsp.Read()
-			if err != nil {
-				return
-			}
-			msgs <- bytes
-		}
+func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context, msgs chan []byte) {
+	defer func() {
+		cancel()
+		wg.Done()
 	}()
 
+	rsp := s.stream.Response()
 	for {
 		select {
+		case <-stopCtx.Done():
+			return
+		default:
+		}
+		bytes, err := rsp.Read()
+		if err != nil {
+			return
+		}
+		msgs <- bytes
+	}
+
+}
+
+func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context, msgs chan []byte) {
+	defer func() {
+		cancel()
+		wg.Done()
+	}()
+	for {
+		select {
+		case <-stopCtx.Done():
+			return
 		case <-s.ctx.Done():
 			return
 		case <-s.stream.Context().Done():
@@ -212,12 +236,20 @@ func (s *stream) write() {
 	}
 }
 
-func (s *stream) read() {
+func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
 	defer func() {
 		s.serverStream.Close()
+		cancel()
+		wg.Done()
 	}()
 
 	for {
+		select {
+		case <-stopCtx.Done():
+			return
+		default:
+		}
+
 		var request interface{}
 		switch s.messageType {
 		case websocket.TextMessage:
