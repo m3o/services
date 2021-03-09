@@ -382,7 +382,7 @@ func parseContentType(ct string) string {
 }
 
 // Endpoint is a catch all for endpoints
-func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
+func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) {
 	// check api key
 	defer stream.Close()
 
@@ -420,8 +420,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	}
 
 	if isStream(endpoint, svcs) {
-		log.Infof("It's a stream!!!")
-		return serveStream(ctx, stream, service, endpoint, svcs)
+		return serveStream(ctx, stream, service, endpoint, svcs, apiRec)
 	}
 
 	// forward the request
@@ -444,7 +443,14 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 	if err := client.Call(ctx, request, &response); err != nil {
 		return err
 	}
+	publishEndpointEvent(reqURL, apiRec)
 
+	stream.Send(response)
+	return nil
+
+}
+
+func publishEndpointEvent(reqURL string, apiRec *apiKeyRecord) {
 	if err := events.Publish("v1api", v1api.Event{Type: "Request",
 		Request: &v1api.RequestEvent{
 			UserId:    apiRec.UserID,
@@ -454,10 +460,6 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) error {
 		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}
-
-	stream.Send(response)
-	return nil
-
 }
 
 // ListKeys lists all keys for a user

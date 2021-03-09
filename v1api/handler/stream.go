@@ -37,14 +37,14 @@ type rawFrame struct {
 	Data []byte
 }
 
-func serveStream(ctx context.Context, stream server.Stream, service, endpoint string, svcs []*registry.Service) error {
+func serveStream(ctx context.Context, stream server.Stream, service, endpoint string, svcs []*registry.Service, apiRec *apiKeyRecord) error {
 	// serve as websocket if thats the case
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
 		return errInternal
 	}
 	if isWebSocket(md) {
-		return serveWebsocket(ctx, stream, service, endpoint, svcs)
+		return serveWebsocket(ctx, stream, service, endpoint, svcs, apiRec)
 	}
 
 	// otherwise serve the stream as http long poll
@@ -88,12 +88,14 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 		return errInternal
 	}
 
-	if request != nil {
-		if err = downStream.Send(request); err != nil {
-			logger.Error(err)
-			return errInternal
-		}
+	if err = downStream.Send(request); err != nil {
+		logger.Error(err)
+		return errInternal
 	}
+
+	reqURL, _ := md.Get("url")
+	// http long poll
+	publishEndpointEvent(reqURL, apiRec)
 
 	rsp := downStream.Response()
 
@@ -127,7 +129,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 }
 
 // serveWebsocket will stream rpc back over websockets assuming json
-func serveWebsocket(ctx context.Context, serverStream server.Stream, service, endpoint string, svcs []*registry.Service) error {
+func serveWebsocket(ctx context.Context, serverStream server.Stream, service, endpoint string, svcs []*registry.Service, apiRec *apiKeyRecord) error {
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
 		return errors.InternalServerError("v1api", "Error processing request")
@@ -157,7 +159,7 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 		msgType = websocket.TextMessage
 	}
 
-	s := stream{ctx: ctx, serverStream: serverStream, stream: downstream, messageType: msgType}
+	s := stream{ctx: ctx, serverStream: serverStream, stream: downstream, messageType: msgType, apiRec: apiRec}
 	s.processWSReadsAndWrites()
 	return nil
 
@@ -172,6 +174,8 @@ type stream struct {
 	serverStream server.Stream
 	// the downstream connection.
 	stream client.Stream
+	// the apiKeyRecord for this user
+	apiRec *apiKeyRecord
 }
 
 func (s *stream) processWSReadsAndWrites() {
@@ -243,6 +247,9 @@ func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGrou
 		wg.Done()
 	}()
 
+	md, _ := metadata.FromContext(s.ctx)
+	reqURL, _ := md.Get("url")
+
 	for {
 		select {
 		case <-stopCtx.Done():
@@ -271,6 +278,7 @@ func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGrou
 			logger.Error(err)
 			return
 		}
+		publishEndpointEvent(reqURL, s.apiRec)
 	}
 }
 
