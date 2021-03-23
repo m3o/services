@@ -87,6 +87,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 		logger.Errorf("Error creating new stream %s", err)
 		return errInternal
 	}
+	defer downStream.Close()
 
 	if err = downStream.Send(request); err != nil {
 		logger.Error(err)
@@ -152,6 +153,7 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 		logger.Error(err)
 		return errInternal
 	}
+	defer downstream.Close()
 
 	// determine the message type
 	msgType := websocket.BinaryMessage
@@ -181,6 +183,7 @@ type stream struct {
 func (s *stream) processWSReadsAndWrites() {
 	defer func() {
 		s.serverStream.Close()
+		s.stream.Close()
 	}()
 
 	stopCtx, cancel := context.WithCancel(context.Background())
@@ -227,7 +230,6 @@ func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, 
 		case <-s.ctx.Done():
 			return
 		case <-s.stream.Context().Done():
-			s.serverStream.Close()
 			return
 		case msg := <-msgs:
 			// read response body
@@ -242,7 +244,6 @@ func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, 
 
 func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
 	defer func() {
-		s.serverStream.Close()
 		cancel()
 		wg.Done()
 	}()
