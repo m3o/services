@@ -384,7 +384,10 @@ func parseContentType(ct string) string {
 // Endpoint is a catch all for endpoints
 func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) {
 	// check api key
-	defer stream.Close()
+	defer func() {
+		log.Infof("Closing stream")
+		stream.Close()
+	}()
 
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
