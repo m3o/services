@@ -213,7 +213,12 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 		if err != nil {
 			return
 		}
-		msgs <- bytes
+		select {
+		case <-stopCtx.Done():
+			return
+		case msgs <- bytes:
+		}
+
 	}
 
 }
@@ -222,6 +227,7 @@ func (s *stream) bufToClientLoop(cancel context.CancelFunc, wg *sync.WaitGroup, 
 	defer func() {
 		cancel()
 		wg.Done()
+		s.stream.Close()
 	}()
 	for {
 		select {
