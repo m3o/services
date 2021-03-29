@@ -384,12 +384,7 @@ func parseContentType(ct string) string {
 // Endpoint is a catch all for endpoints
 func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) {
 	// check api key
-	var reqURL string
-	uid := uuid.New().String()
-	defer func() {
-		log.Infof("Closing stream %s %s", reqURL, uid)
-		stream.Close()
-	}()
+	defer stream.Close()
 
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
@@ -401,12 +396,11 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 		return err
 	}
 
-	reqURL, ok = md.Get("url")
+	reqURL, ok := md.Get("url")
 	if !ok {
 		log.Errorf("Requested URL not found")
 		return errInternal
 	}
-	log.Infof("Received call %s %s", reqURL, uid)
 
 	if err := verifyCallAllowed(apiRec, reqURL); err != nil {
 		return err
