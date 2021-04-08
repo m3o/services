@@ -1,3 +1,3 @@
 FROM alpine
-ADD status-api /status-api
-ENTRYPOINT [ "/status-api" ]
+ADD explore /explore
+ENTRYPOINT [ "/explore" ]
