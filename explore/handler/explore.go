@@ -7,6 +7,8 @@ import (
 
 	proto "github.com/m3o/services/explore/proto/explore"
 	regproto "github.com/micro/micro/v3/proto/registry"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
 	regutil "github.com/micro/micro/v3/service/registry/util"
@@ -93,7 +95,18 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 	return nil
 }
 
-// make this endpoint only callable by admins
 func (e *Explore) SaveMeta(ctx context.Context, req *proto.SaveMetaRequest, rsp *proto.SaveMetaResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	isAdmin := func(ss []string) bool {
+		for _, s := range ss {
+			if s == "admin" {
+				return true
+			}
+		}
+		return false
+	}
+	if !ok || !isAdmin(acc.Scopes) {
+		return errors.BadRequest("explore.SaveMeta", "Unauthorized")
+	}
 	return e.meta.Create(req)
 }
