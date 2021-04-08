@@ -18,14 +18,14 @@ type Explore struct {
 }
 
 // NewexploreHandler returns a explore handler configured to report the explore of the given services
-func NewExploreHandler(reg registry.Registry) Explore {
+func NewExploreHandler(reg registry.Registry) *Explore {
 	m := model.NewModel(
 		model.WithKey("ServiceName"),
 		model.WithNamespace("meta"),
 	)
 	m.Register(proto.SaveMetaRequest{})
 
-	return Explore{
+	return &Explore{
 		reg:  reg,
 		meta: m,
 	}
