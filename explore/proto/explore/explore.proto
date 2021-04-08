@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package explore;
+
+import "proto/imports/registry.proto";
+
+service Explore {
+	rpc Search(SearchRequest) returns (SearchResponse) {}
+	rpc SaveMeta(SaveMetaRequest) returns (SaveMetaResponse) {}
+}
+
+message SearchRequest {
+	string searchTerm = 1;
+}
+
+message SearchResponse {
+	repeated registry.Service services = 1;
+}
+
+message SaveMetaRequest{
+	string serviceName = 1;
+	// contents of the readme file
+	string readme = 2;
+	// marshalled JSON OpenAPI spec
+	string openAPIJSON = 3;
+}
+
+message SaveMetaResponse {
+
+}
