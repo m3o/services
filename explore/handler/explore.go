@@ -57,7 +57,7 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 	}
 
 	for _, service := range services {
-		if req.SearchTerm != "" {
+		if req.SearchTerm == "" {
 			rsp.Services = append(rsp.Services, regutil.ToProto(service))
 			continue
 		}
@@ -85,11 +85,11 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 		}
 	}
 
-	if len(rsp.Services) == 0 {
-		rsp.Services = append(rsp.Services, matchedName...)
-		rsp.Services = append(rsp.Services, matchedEndpointName...)
-		rsp.Services = append(rsp.Services, matchedOther...)
-	}
+	// these will be empty if the search term is empty
+	rsp.Services = append(rsp.Services, matchedName...)
+	rsp.Services = append(rsp.Services, matchedEndpointName...)
+	rsp.Services = append(rsp.Services, matchedOther...)
+
 	return nil
 }
 
