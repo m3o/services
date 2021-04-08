@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	proto "github.com/m3o/services/explore/proto/explore"
-	regproto "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/model"
@@ -44,13 +43,13 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 		return err
 	}
 
-	rsp.Services = []*regproto.Service{}
+	rsp.Services = []*proto.Service{}
 
 	// Very rudimentary search result ranking
 	// prioritize name and endoint name matches
-	matchedName := []*regproto.Service{}
-	matchedEndpointName := []*regproto.Service{}
-	matchedOther := []*regproto.Service{}
+	matchedName := []*proto.Service{}
+	matchedEndpointName := []*proto.Service{}
+	matchedOther := []*proto.Service{}
 
 	metas := []*proto.SaveMetaRequest{}
 	err = e.meta.Read(model.QueryAll(), &metas)
@@ -59,31 +58,48 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 	}
 
 	for _, service := range services {
-		if req.SearchTerm == "" {
-			rsp.Services = append(rsp.Services, regutil.ToProto(service))
-			continue
-		}
-		if strings.Contains(service.Name, req.SearchTerm) {
-			matchedName = append(matchedName, regutil.ToProto(service))
-			continue
-		}
-		for _, ep := range service.Endpoints {
-			if strings.Contains(ep.Name, req.SearchTerm) {
-				matchedEndpointName = append(matchedEndpointName, regutil.ToProto(service))
-				continue
-			}
-		}
-		js, _ := json.Marshal(service)
 		meta := &proto.SaveMetaRequest{}
 		for _, m := range metas {
 			if m.ServiceName == service.Name {
 				meta = m
 			}
 		}
+
+		if req.SearchTerm == "" {
+			rsp.Services = append(rsp.Services, &proto.Service{
+				Service:     regutil.ToProto(service),
+				Readme:      meta.Readme,
+				OpenAPIJSON: meta.OpenAPIJSON,
+			})
+			continue
+		}
+		if strings.Contains(service.Name, req.SearchTerm) {
+			matchedName = append(matchedName, &proto.Service{
+				Service:     regutil.ToProto(service),
+				Readme:      meta.Readme,
+				OpenAPIJSON: meta.OpenAPIJSON,
+			})
+			continue
+		}
+		for _, ep := range service.Endpoints {
+			if strings.Contains(ep.Name, req.SearchTerm) {
+				matchedEndpointName = append(matchedEndpointName, &proto.Service{
+					Service:     regutil.ToProto(service),
+					Readme:      meta.Readme,
+					OpenAPIJSON: meta.OpenAPIJSON,
+				})
+				continue
+			}
+		}
+		js, _ := json.Marshal(service)
 		if strings.Contains(string(js), req.SearchTerm) ||
 			strings.Contains(meta.OpenAPIJSON, req.SearchTerm) ||
 			strings.Contains(meta.Readme, req.SearchTerm) {
-			matchedOther = append(matchedOther, regutil.ToProto(service))
+			matchedOther = append(matchedOther, &proto.Service{
+				Service:     regutil.ToProto(service),
+				Readme:      meta.Readme,
+				OpenAPIJSON: meta.OpenAPIJSON,
+			})
 		}
 	}
 

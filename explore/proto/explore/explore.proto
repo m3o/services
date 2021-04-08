@@ -13,8 +13,14 @@ message SearchRequest {
 	string searchTerm = 1;
 }
 
+message Service {
+	string readme = 1;
+	string openAPIJSON = 2;
+	registry.Service service = 3;
+}
+
 message SearchResponse {
-	repeated registry.Service services = 1;
+	repeated Service services = 1;
 }
 
 message SaveMetaRequest{
