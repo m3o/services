@@ -37,7 +37,7 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 	// Let's worry about that later
 
 	// @todo Do some cachin here
-	services, err := e.reg.ListServices()
+	services, err := e.reg.ListServices(registry.ListContext(context.Background()))
 	if err != nil {
 		return err
 	}
