@@ -11,6 +11,7 @@ import (
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
 	regutil "github.com/micro/micro/v3/service/registry/util"
+	"github.com/scaleway/scaleway-sdk-go/logger"
 )
 
 type Explore struct {
@@ -56,6 +57,7 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 	if err != nil {
 		return err
 	}
+	logger.Infof("Found %v metas", len(metas))
 
 	for _, service := range services {
 		meta := &proto.SaveMetaRequest{}
