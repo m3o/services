@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.3
-	github.com/micro/micro/v3 v3.2.1-0.20210402071817-9bdcf2d25eff
+	github.com/micro/micro/v3 v3.2.1-0.20210409134201-648a93d035ea
 	github.com/minio/minio-go/v7 v7.0.5
 	github.com/onsi/gomega v1.10.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
