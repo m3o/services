@@ -23,7 +23,7 @@ type Explore struct {
 func NewExploreHandler(reg registry.Registry) *Explore {
 	m := model.NewModel(
 		model.WithKey("ServiceName"),
-		model.WithNamespace("meta"),
+		//model.WithNamespace("meta"),
 	)
 	m.Register(proto.SaveMetaRequest{})
 
