@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package stripe;
+
+option go_package = "./proto;stripe";
+
+service Stripe {
+	rpc IncrementCustomerBalance(IncrementRequest) returns (IncrementResponse) {}
+	rpc DecrementCustomerBalance(DecrementRequest) returns (DecrementResponse) {}
+}
+
+
+message IncrementRequest {
+	string customer_id = 1;
+	int64 delta = 2;
+}
+
+message IncrementResponse {
+}
+
+message DecrementRequest {
+	string customer_id = 1;
+	int64 delta = 2;
+}
+
+message DecrementResponse {
+}
