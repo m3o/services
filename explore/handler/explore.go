@@ -8,10 +8,10 @@ import (
 	proto "github.com/m3o/services/explore/proto/explore"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
 	regutil "github.com/micro/micro/v3/service/registry/util"
-	"github.com/scaleway/scaleway-sdk-go/logger"
 )
 
 type Explore struct {
