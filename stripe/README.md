@@ -1,23 +1,8 @@
 # Stripe Service
 
-This is the Stripe service
+This is the Stripe service. It centralises our interactions with Stripe.
 
-Generated with
+Currently handles
+- webhook processing
+- mapping our users to Stripe entries
 
-```
-micro new stripe
-```
-
-## Usage
-
-Generate the proto code
-
-```
-make proto
-```
-
-Run the service
-
-```
-micro run .
-```

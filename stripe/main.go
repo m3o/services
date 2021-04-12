@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/m3o/services/stripe/handler"
-	pb "github.com/m3o/services/stripe/proto"
-
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -14,9 +13,16 @@ func main() {
 		service.Name("stripe"),
 		service.Version("latest"),
 	)
-
-	// Register handler
-	pb.RegisterStripeHandler(srv.Server(), new(handler.Stripe))
+	srv.Server().Handle(
+		srv.Server().NewHandler(
+			new(handler.Stripe),
+			api.WithEndpoint(
+				&api.Endpoint{
+					Name:    "Stripe.Webhook",
+					Handler: "api",
+					Method:  []string{"POST"},
+				}),
+		))
 
 	// Run service
 	if err := srv.Run(); err != nil {

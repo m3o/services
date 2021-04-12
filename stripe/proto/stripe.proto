@@ -16,6 +16,7 @@ message IncrementRequest {
 }
 
 message IncrementResponse {
+	int64 new_balance = 1;
 }
 
 message DecrementRequest {
@@ -24,4 +25,6 @@ message DecrementRequest {
 }
 
 message DecrementResponse {
+	int64 new_balance = 1;
 }
+
