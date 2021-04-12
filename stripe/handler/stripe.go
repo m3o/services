@@ -8,6 +8,7 @@ import (
 	custpb "github.com/m3o/services/customers/proto"
 	stripepb "github.com/m3o/services/stripe/proto"
 	api "github.com/micro/micro/v3/proto/api"
+	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
@@ -30,6 +31,12 @@ type CustomerMapping struct {
 
 type Stripe struct {
 	custSvc custpb.CustomersService
+}
+
+func NewHandler(serv *service.Service) stripepb.StripeHandler {
+	return &Stripe{
+		custSvc: custpb.NewCustomersService("customers", serv.Client()),
+	}
 }
 
 func (s *Stripe) IncrementCustomerBalance(ctx context.Context, request *stripepb.IncrementRequest, response *stripepb.IncrementResponse) error {
@@ -134,7 +141,7 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 			log.Errorf("Unrecognised customer for charge %s", ch.ID)
 			return nil
 		} else {
-			log.Errorf("Error looking up customer customer for charge %s", ch.ID)
+			log.Errorf("Error looking up customer for charge %s", ch.ID)
 		}
 		return err
 	}

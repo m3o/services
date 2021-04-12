@@ -15,7 +15,7 @@ func main() {
 	)
 	srv.Server().Handle(
 		srv.Server().NewHandler(
-			new(handler.Stripe),
+			handler.NewHandler(srv),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "Stripe.Webhook",
