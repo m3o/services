@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	custpb "github.com/m3o/services/customers/proto"
 	stripepb "github.com/m3o/services/stripe/proto"
@@ -54,6 +55,7 @@ func (s *Stripe) affectBalance(custID string, delta int64, idempotencyKey string
 	if err := json.Unmarshal(recs[0].Value, &cm); err != nil {
 		return 0, err
 	}
+	now := time.Now()
 	tx, err := bt.New(&stripe.CustomerBalanceTransactionParams{
 		Params: stripe.Params{
 			IdempotencyKey: stripe.String(idempotencyKey),
@@ -62,6 +64,7 @@ func (s *Stripe) affectBalance(custID string, delta int64, idempotencyKey string
 		Customer: stripe.String(cm.StripeID),
 		Currency: stripe.String(string(stripe.CurrencyUSD)), // TODO is everything USD?
 	})
+	log.Infof("Updating balance took %s", time.Since(now))
 	if err != nil {
 		return 0, err
 	}
