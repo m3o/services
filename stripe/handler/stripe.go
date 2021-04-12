@@ -41,11 +41,11 @@ func NewHandler(serv *service.Service) stripepb.StripeHandler {
 
 func (s *Stripe) IncrementCustomerBalance(ctx context.Context, request *stripepb.IncrementRequest, response *stripepb.IncrementResponse) error {
 	var err error
-	response.NewBalance, err = s.affectBalance(request.CustomerId, -request.Delta)
+	response.NewBalance, err = s.affectBalance(request.CustomerId, -request.Delta, request.IdempotencyKey)
 	return err
 }
 
-func (s *Stripe) affectBalance(custID string, delta int64) (int64, error) {
+func (s *Stripe) affectBalance(custID string, delta int64, idempotencyKey string) (int64, error) {
 	recs, err := store.Read(fmt.Sprintf(prefixM3OID, custID))
 	if err != nil {
 		return 0, err
@@ -56,10 +56,11 @@ func (s *Stripe) affectBalance(custID string, delta int64) (int64, error) {
 	}
 	tx, err := bt.New(&stripe.CustomerBalanceTransactionParams{
 		Params: stripe.Params{
-			IdempotencyKey: nil,
+			IdempotencyKey: stripe.String(idempotencyKey),
 		},
 		Amount:   stripe.Int64(delta), //negative is credit
 		Customer: stripe.String(cm.StripeID),
+		Currency: stripe.String(string(stripe.CurrencyUSD)), // TODO is everything USD?
 	})
 	if err != nil {
 		return 0, err
@@ -69,7 +70,7 @@ func (s *Stripe) affectBalance(custID string, delta int64) (int64, error) {
 
 func (s *Stripe) DecrementCustomerBalance(ctx context.Context, request *stripepb.DecrementRequest, response *stripepb.DecrementResponse) error {
 	var err error
-	response.NewBalance, err = s.affectBalance(request.CustomerId, request.Delta)
+	response.NewBalance, err = s.affectBalance(request.CustomerId, request.Delta, request.IdempotencyKey)
 	return err
 }
 
