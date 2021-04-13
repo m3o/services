@@ -3,9 +3,13 @@ package handler
 import (
 	"context"
 
+	nproto "github.com/m3o/services/namespaces/proto"
+	cproto "github.com/m3o/services/customers/proto"
 	pb "github.com/m3o/services/platform/proto"
 	rproto "github.com/micro/micro/v3/proto/runtime"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 )
@@ -22,6 +26,8 @@ var (
 type Platform struct {
 	name    string
 	runtime rproto.RuntimeService
+	customer     cproto.CustomersService
+	namespace    nproto.NamespacesService
 }
 
 // New returns an initialised platform handler
@@ -48,6 +54,8 @@ func New(service *service.Service) *Platform {
 	return &Platform{
 		name:    service.Name(),
 		runtime: rproto.NewRuntimeService("runtime", client.DefaultClient),
+		customer: cproto.NewCustomersService("customers", client.DefaultClient),
+		namespace: nproto.NewNamespacesService("namespaces", client.DefaultClient),
 	}
 }
 
@@ -157,4 +165,66 @@ func (k *Platform) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceR
 		},
 	})
 	return err
+}
+
+func (p *Platform) LoginUser(ctx context.Context, req *pb.LoginRequest, rsp *pb.LoginResponse) error {
+	if len(req.Username) == 0 {
+		return errors.BadRequest("platform.loginUser", "Require username")
+	}
+	if len(req.Password) == 0 {
+		return errors.BadRequest("platform.loginUser", "Require password")
+	}
+
+	// if the namespace is specified then just login
+	// otherwise we lookup the namespace
+	if len(req.Namespace) == 0 {
+		namespaces, err := p.lookupNamespace(ctx, req.Username)
+		if err != nil {
+			return err
+		}
+		// might have multiple namespaces
+		// TODO: check if more than one
+		req.Namespace = namespaces[0].Id
+	}
+
+	// get the token from the auth service
+	token, err := auth.Token(
+		auth.WithCredentials(req.Username, req.Password),
+		auth.WithTokenIssuer(req.Namespace),
+	)
+	if err != nil {
+		return errors.InternalServerError("platform.loginUser", "Failed to authenticate: %v", err)
+	}
+
+	// set the response
+	rsp.AccessToken = token.AccessToken
+	rsp.RefreshToken = token.RefreshToken
+	rsp.Created = token.Created.Unix()
+	rsp.Expiry = token.Expiry.Unix()
+
+	return nil
+}
+
+func (p *Platform) lookupNamespace(ctx context.Context, email string) ([]*nproto.Namespace, error) {
+	custResp, err := p.customer.Read(ctx, &cproto.ReadRequest{Email: email}, client.WithAuthToken())
+	if err != nil {
+		merr := errors.FromError(err)
+		if merr.Code == 404 { // not found
+			return nil, errors.NotFound("platform.loginUser", "Could not find an account with that email address")
+		}
+		return nil, errors.InternalServerError("platform.loginUser", "Error looking up account")
+	}
+
+	listRsp, err := p.namespace.List(ctx, &nproto.ListRequest{
+		User: custResp.Customer.Id,
+	}, client.WithAuthToken())
+	if err != nil {
+		return nil, errors.InternalServerError("platform.loginUser", "Error calling namespace service: %v", err)
+	}
+
+	if len(listRsp.Namespaces) == 0 {
+		return nil, errors.BadRequest("platform.loginUser", "We don't recognize this account")
+	}
+
+	return listRsp.Namespaces, nil
 }
