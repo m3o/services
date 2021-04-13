@@ -34,4 +34,5 @@ message LoginResponse {
 	string refresh_token = 2;
 	int64 created = 3;
 	int64 expiry = 4;
+	string issuer = 5;
 }

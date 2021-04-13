@@ -201,6 +201,7 @@ func (p *Platform) LoginUser(ctx context.Context, req *pb.LoginRequest, rsp *pb.
 	rsp.RefreshToken = token.RefreshToken
 	rsp.Created = token.Created.Unix()
 	rsp.Expiry = token.Expiry.Unix()
+	rsp.Issuer = req.Namespace
 
 	return nil
 }
