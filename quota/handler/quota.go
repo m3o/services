@@ -38,6 +38,10 @@ func (c *counter) incr(ns, userID, path string) (int64, error) {
 	return c.redisClient.Incr(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, ns, userID, path)).Result()
 }
 
+func (c *counter) decr(ns, userID, path string) (int64, error) {
+	return c.redisClient.Decr(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, ns, userID, path)).Result()
+}
+
 func (c *counter) read(ns, userID, path string) (int64, error) {
 	return c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, ns, userID, path)).Int64()
 }

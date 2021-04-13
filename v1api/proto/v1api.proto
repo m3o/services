@@ -2,13 +2,14 @@ syntax = "proto3";
 
 package v1api;
 
-option go_package = "proto;v1api";
+option go_package = "./proto;v1api";
 
 service V1 {
 	rpc GenerateKey(GenerateKeyRequest) returns (GenerateKeyResponse) {}
 	rpc ListKeys(ListRequest) returns (ListResponse) {}
 	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
-	rpc UpdateAllowedPaths(UpdateAllowedPathsRequest) returns (UpdateAllowedPathsResponse) {}
+	rpc UnblockKey(UnblockKeyRequest) returns (UnblockKeyResponse) {}
+	rpc BlockKey(BlockKeyRequest) returns (BlockKeyResponse) {}
 	rpc EnableAPI(EnableAPIRequest) returns (EnableAPIResponse) {}
 	rpc DisableAPI(DisableAPIRequest) returns (DisableAPIResponse) {}
 	rpc ListAPIs(ListAPIsRequest) returns (ListAPIsResponse) {}
@@ -80,15 +81,22 @@ message APIKeyRevokeEvent {
 	string api_key_id = 3;
 }
 
-message UpdateAllowedPathsRequest {
+message BlockKeyRequest {
 	string user_id = 1;
 	string namespace = 2;
-	repeated string allowed = 3;
-	repeated string blocked = 4;
-	string key_id = 5;
+	string key_id = 3;
 }
 
-message UpdateAllowedPathsResponse {}
+message BlockKeyResponse {}
+
+message UnblockKeyRequest {
+	string user_id = 1;
+	string namespace = 2;
+	string key_id = 3;
+}
+
+message UnblockKeyResponse {}
+
 
 message EnableAPIRequest {
 	string name = 1;

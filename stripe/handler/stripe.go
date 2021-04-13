@@ -11,6 +11,7 @@ import (
 	api "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 
@@ -149,12 +150,18 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 		}
 		return err
 	}
-	// TODO update their balance
 	var cm CustomerMapping
 	if err := json.Unmarshal(recs[0].Value, &cm); err != nil {
 		return err
 	}
-	log.Infof("TODO update customer balance for %s", cm.ID)
 
+	events.Publish("stripe", &stripepb.Event{
+		Type: "ChargeSucceeded",
+		ChargeSucceeded: &stripepb.ChargeSuceededEvent{
+			CustomerId: cm.ID,
+			Currency:   string(ch.Currency), // TOOD
+			Ammount:    ch.Amount,
+		},
+	})
 	return nil
 }

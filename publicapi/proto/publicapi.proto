@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package publicapi;
+
+option go_package = "./proto;publicapi";
+
+service Publicapi {
+	rpc Publish(PublishRequest) returns (PublishResponse) {}
+	rpc Get(GetRequest) returns (GetResponse) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Remove(RemoveRequest) returns (RemoveResponse) {}
+}
+
+message PublishRequest {
+	PublicAPI api = 1;
+}
+
+message PublicAPI {
+	string id = 1;
+	string name = 2;
+	string description = 3;
+	string open_api_json = 4;
+	double price_per_request = 5;
+}
+
+message PublishResponse {
+	PublicAPI api = 1;
+}
+
+message GetRequest {
+	string id = 1;
+	string name = 2;
+}
+
+message GetResponse {
+	PublicAPI api = 1;
+}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated PublicAPI apis = 1;
+}
+
+message Event {
+	string type = 1;
+	APIEnableEvent api_enable = 2;
+}
+
+
+message APIEnableEvent {
+	string name = 1;
+}
+
+message RemoveRequest {
+	string id = 1;
+	string name = 2;
+}
+message RemoveResponse {}

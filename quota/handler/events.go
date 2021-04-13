@@ -184,28 +184,48 @@ func (q *Quota) processRequest(rqe *v1api.RequestEvent) error {
 	}
 	logger.Infof("Current count is %s %s %s %d", rqe.Namespace, rqe.UserId, reqPath, curr)
 
-	m, err := q.readMappingByPath(rqe.Namespace, rqe.UserId, reqPath)
-	if err != nil && err != store.ErrNotFound {
-		logger.Errorf("Error getting quotas %s", err)
-		return err
-	}
-	breach, _, err := q.hasBreachedLimit(m.Namespace, m.UserID, m.QuotaID)
+	// decrement the balance
+	currBal, err := q.c.decr(rqe.Namespace, rqe.UserId, "$balance$")
 	if err != nil {
-		logger.Errorf("Error calculating breach %s", err)
 		return err
 	}
-	if !breach {
+	logger.Infof("Current balance is %s %s %s %d", rqe.Namespace, rqe.UserId, reqPath, currBal)
+	if currBal > 0 {
 		return nil
 	}
 
-	// update the user to block requests
-	if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
-		UserId:    m.UserID,
-		Namespace: m.Namespace,
-		Blocked:   []string{reqPath},
+	// no more money, cut them off
+	if _, err := q.v1Svc.BlockAllowedPaths(context.TODO(), &v1api.BlockAllowedPathsRequest{
+		UserId:    rqe.UserId,
+		Namespace: rqe.Namespace,
 	}, client.WithAuthToken()); err != nil {
-		logger.Errorf("Error updating allowed paths %s", err)
+		logger.Errorf("Error blocking allowed paths %s", err)
 		return err
 	}
+
+	// TODO - remove me
+	//m, err := q.readMappingByPath(rqe.Namespace, rqe.UserId, reqPath)
+	//if err != nil && err != store.ErrNotFound {
+	//	logger.Errorf("Error getting quotas %s", err)
+	//	return err
+	//}
+	//breach, _, err := q.hasBreachedLimit(m.Namespace, m.UserID, m.QuotaID)
+	//if err != nil {
+	//	logger.Errorf("Error calculating breach %s", err)
+	//	return err
+	//}
+	//if !breach {
+	//	return nil
+	//}
+	//
+	//// update the user to block requests
+	//if _, err := q.v1Svc.UpdateAllowedPaths(context.TODO(), &v1api.UpdateAllowedPathsRequest{
+	//	UserId:    m.UserID,
+	//	Namespace: m.Namespace,
+	//	Blocked:   []string{reqPath},
+	//}, client.WithAuthToken()); err != nil {
+	//	logger.Errorf("Error updating allowed paths %s", err)
+	//	return err
+	//}
 	return nil
 }
