@@ -80,7 +80,7 @@ func (c *platformService) DeleteNamespace(ctx context.Context, in *DeleteNamespa
 }
 
 func (c *platformService) LoginUser(ctx context.Context, in *LoginRequest, opts ...client.CallOption) (*LoginResponse, error) {
-	req := c.c.NewRequest(c.name, "Platform.loginUser", in)
+	req := c.c.NewRequest(c.name, "Platform.LoginUser", in)
 	out := new(LoginResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {

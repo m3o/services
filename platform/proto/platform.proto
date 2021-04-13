@@ -7,7 +7,7 @@ package platform;
 service Platform {
 	rpc CreateNamespace (CreateNamespaceRequest) returns (CreateNamespaceResponse) {};
 	rpc DeleteNamespace (DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {};
-	rpc loginUser(LoginRequest) returns (LoginResponse) {};
+	rpc LoginUser(LoginRequest) returns (LoginResponse) {};
 }
 
 message CreateNamespaceRequest {
