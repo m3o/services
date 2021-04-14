@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"sync"
 
@@ -9,6 +10,10 @@ import (
 	balance "github.com/m3o/services/balance/proto"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 const (
@@ -42,6 +47,37 @@ type Balance struct {
 	pubSvc publicapi.PublicapiService
 }
 
+func NewHandler(svc *service.Service) *Balance {
+	redisConfig := struct {
+		Address  string
+		User     string
+		Password string
+	}{}
+	val, err := config.Get("micro.balance.redis")
+	if err != nil {
+		log.Fatalf("No redis config found %s", err)
+	}
+	if err := val.Scan(&redisConfig); err != nil {
+		log.Fatalf("Error parsing redis config %s", err)
+	}
+	if len(redisConfig.Password) == 0 || len(redisConfig.User) == 0 || len(redisConfig.Password) == 0 {
+		log.Fatalf("Missing redis config %s", err)
+	}
+	rc := redis.NewClient(&redis.Options{
+		Addr:     redisConfig.Address,
+		Username: redisConfig.User,
+		Password: redisConfig.Password,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: false,
+		},
+	})
+	return &Balance{
+		c:      &counter{redisClient: rc},
+		v1Svc:  v1api.NewV1Service("v1", svc.Client()),
+		pubSvc: publicapi.NewPublicapiService("publicapi", svc.Client()),
+	}
+}
+
 func (b Balance) Increment(ctx context.Context, request *balance.IncrementRequest, response *balance.IncrementResponse) error {
 	// check idempotency key
 	// increment counter
@@ -54,5 +90,11 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 }
 
 func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
-	panic("implement me")
+	currBal, err := b.c.read(request.CustomerId, "$balance$")
+	if err != nil {
+		log.Errorf("Error reading from counter %s", err)
+		return errors.InternalServerError("balance.Current", "Error retrieving current balance")
+	}
+	response.CurrentBalance = currBal
+	return nil
 }

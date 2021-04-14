@@ -211,7 +211,7 @@ func deleteAPIRecord(rec *apiKeyRecord) error {
 	return nil
 }
 
-func readAPIRecord(ns, user, keyID string) (*apiKeyRecord, error) {
+func readAPIRecordByKeyID(ns, user, keyID string) (*apiKeyRecord, error) {
 	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:%s", storePrefixKeyID, ns, user, keyID))
 	if err != nil {
 		return nil, err
@@ -257,7 +257,7 @@ func (e *V1) checkRequestedScopes(account *auth.Account, requestedScopes []strin
 	return true
 }
 
-func loadAPIRec(authz string) (string, *apiKeyRecord, error) {
+func readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error) {
 	if len(authz) == 0 || !strings.HasPrefix(authz, "Bearer ") {
 		return "", nil, errUnauthorized
 	}
@@ -283,6 +283,7 @@ func loadAPIRec(authz string) (string, *apiKeyRecord, error) {
 		log.Errorf("Error while rehydrating api key record %s", err)
 		return "", nil, errUnauthorized
 	}
+
 	return key, &apiRec, nil
 }
 
@@ -292,7 +293,7 @@ func verifyCallAllowed(apiRec *apiKeyRecord, reqURL string) error {
 	// 1. Has the key been explicitly blocked? Happens if it's exhausted it's money for example
 	// 2. Do the scopes of the token allow them to call the requested API? The name of the scopes correspond to the service
 
-	if apiRec.Status != keyStatusActive {
+	if apiRec.Status == keyStatusBlocked {
 		return errBlocked
 	}
 
@@ -391,7 +392,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 		return errUnauthorized
 	}
 
-	key, apiRec, err := loadAPIRec(md["Authorization"])
+	key, apiRec, err := readAPIRecordByAPIKey(md["Authorization"])
 	if err != nil {
 		return err
 	}
@@ -514,7 +515,7 @@ func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respon
 		return errors.BadRequest("v1api.Revoke", "Missing ID field")
 	}
 
-	rec, err := readAPIRecord(acc.Issuer, acc.ID, request.Id)
+	rec, err := readAPIRecordByKeyID(acc.Issuer, acc.ID, request.Id)
 	if err != nil {
 		if err == store.ErrNotFound {
 			return errors.NotFound("v1api.Revoke", "Not found")
@@ -555,7 +556,7 @@ func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID 
 
 	var keys []*apiKeyRecord
 	if len(keyID) > 0 {
-		rec, err := readAPIRecord(ns, userID, keyID)
+		rec, err := readAPIRecordByKeyID(ns, userID, keyID)
 		if err != nil {
 			log.Errorf("Error reading key %s", err)
 			return errors.InternalServerError(methodName, "Error updating key")

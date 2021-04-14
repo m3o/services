@@ -16,7 +16,7 @@ func main() {
 	)
 
 	// Register handler
-	pb.RegisterBalanceHandler(srv.Server(), new(handler.Balance))
+	pb.RegisterBalanceHandler(srv.Server(), handler.NewHandler(srv))
 
 	// Run service
 	if err := srv.Run(); err != nil {
