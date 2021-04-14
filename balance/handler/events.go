@@ -117,7 +117,7 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 
 	rsp, err := b.pubSvc.Get(context.Background(), &publicapi.GetRequest{
 		Name: apiName,
-	})
+	}, client.WithAuthToken())
 	if err != nil {
 		logger.Errorf("Error looking up API %s", err)
 		return err
