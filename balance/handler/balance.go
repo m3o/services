@@ -71,11 +71,13 @@ func NewHandler(svc *service.Service) *Balance {
 			InsecureSkipVerify: false,
 		},
 	})
-	return &Balance{
+	b := &Balance{
 		c:      &counter{redisClient: rc},
 		v1Svc:  v1api.NewV1Service("v1", svc.Client()),
 		pubSvc: publicapi.NewPublicapiService("publicapi", svc.Client()),
 	}
+	go b.consumeEvents()
+	return b
 }
 
 func (b Balance) Increment(ctx context.Context, request *balance.IncrementRequest, response *balance.IncrementResponse) error {
