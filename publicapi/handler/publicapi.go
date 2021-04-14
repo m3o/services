@@ -10,7 +10,6 @@ import (
 	pb "github.com/m3o/services/publicapi/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
@@ -41,6 +40,9 @@ func NewHandler(srv *service.Service) *Publicapi {
 }
 
 func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, response *pb.PublishResponse) error {
+	if err := verifyAdmin(ctx, "publicapi.Remove"); err != nil {
+		return err
+	}
 
 	ae := &APIEntry{
 		ID:          uuid.New().String(),
@@ -75,7 +77,7 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		ServiceName: ae.Name,
 		Readme:      ae.Description,
 		OpenAPIJSON: ae.OpenAPIJSON,
-	}, client.WithAuthToken()); err != nil {
+	}); err != nil {
 		log.Errorf("Error publishing to explore service %s", err)
 		return err
 	}
@@ -182,6 +184,9 @@ func (p *Publicapi) List(ctx context.Context, request *pb.ListRequest, response 
 }
 
 func (p *Publicapi) Remove(ctx context.Context, request *pb.RemoveRequest, response *pb.RemoveResponse) error {
+	if err := verifyAdmin(ctx, "publicapi.Remove"); err != nil {
+		return err
+	}
 	var key string
 	if len(request.Id) > 0 {
 		key = fmt.Sprintf(prefixID, request.Id)
@@ -195,4 +200,20 @@ func (p *Publicapi) Remove(ctx context.Context, request *pb.RemoveRequest, respo
 		return errors.InternalServerError("publicapi.Remove", "Error removing API")
 	}
 	return nil
+}
+
+func verifyAdmin(ctx context.Context, method string) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized(method, "Unauthorized")
+	}
+	if acc.Issuer != "micro" {
+		return errors.Forbidden(method, "Forbidden")
+	}
+	for _, s := range acc.Scopes {
+		if s == "admin" || s == "service" {
+			return nil
+		}
+	}
+	return errors.Forbidden(method, "Forbidden")
 }

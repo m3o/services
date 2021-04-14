@@ -10,7 +10,9 @@ import (
 	stripepb "github.com/m3o/services/stripe/proto"
 	api "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
@@ -42,6 +44,9 @@ func NewHandler(serv *service.Service) stripepb.StripeHandler {
 }
 
 func (s *Stripe) IncrementCustomerBalance(ctx context.Context, request *stripepb.IncrementRequest, response *stripepb.IncrementResponse) error {
+	if err := verifyAdmin(ctx, "stripe.IncrementCustomerBalance"); err != nil {
+		return err
+	}
 	var err error
 	response.NewBalance, err = s.affectBalance(request.CustomerId, -request.Delta, request.IdempotencyKey)
 	return err
@@ -73,6 +78,9 @@ func (s *Stripe) affectBalance(custID string, delta int64, idempotencyKey string
 }
 
 func (s *Stripe) DecrementCustomerBalance(ctx context.Context, request *stripepb.DecrementRequest, response *stripepb.DecrementResponse) error {
+	if err := verifyAdmin(ctx, "stripe.DecrementCustomerBalance"); err != nil {
+		return err
+	}
 	var err error
 	response.NewBalance, err = s.affectBalance(request.CustomerId, request.Delta, request.IdempotencyKey)
 	return err
@@ -164,4 +172,20 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 		},
 	})
 	return nil
+}
+
+func verifyAdmin(ctx context.Context, method string) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized(method, "Unauthorized")
+	}
+	if acc.Issuer != "micro" {
+		return errors.Forbidden(method, "Forbidden")
+	}
+	for _, s := range acc.Scopes {
+		if s == "admin" || s == "service" {
+			return nil
+		}
+	}
+	return errors.Forbidden(method, "Forbidden")
 }

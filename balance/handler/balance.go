@@ -11,6 +11,7 @@ import (
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
@@ -92,6 +93,9 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 }
 
 func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
+	if err := verifyAdmin(ctx, "balance.Current"); err != nil {
+		return err
+	}
 	currBal, err := b.c.read(request.CustomerId, "$balance$")
 	if err != nil {
 		log.Errorf("Error reading from counter %s", err)
@@ -99,4 +103,20 @@ func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, r
 	}
 	response.CurrentBalance = currBal
 	return nil
+}
+
+func verifyAdmin(ctx context.Context, method string) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized(method, "Unauthorized")
+	}
+	if acc.Issuer != "micro" {
+		return errors.Forbidden(method, "Forbidden")
+	}
+	for _, s := range acc.Scopes {
+		if s == "admin" || s == "service" {
+			return nil
+		}
+	}
+	return errors.Forbidden(method, "Forbidden")
 }
