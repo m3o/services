@@ -97,8 +97,6 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 	// also has reconciliation loop every 5 mins just in case it misses
 	// decrements the balance
 	// - lookup the
-	// apiusage service
-	// listens for request events and records the usage of each API, aggregates every day and stores historical
 
 	apiName := rqe.ApiName
 	// TODO caching
