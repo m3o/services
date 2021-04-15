@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	balance "github.com/m3o/services/balance/proto"
@@ -12,6 +13,7 @@ import (
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
@@ -42,10 +44,41 @@ func (c *counter) reset(userID, path string) error {
 	return c.redisClient.Set(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), 0, 0).Err()
 }
 
+type publicAPICacheEntry struct {
+	api     *publicapi.PublicAPI
+	created time.Time
+}
+
+type publicAPICache struct {
+	sync.RWMutex
+	cache  map[string]*publicAPICacheEntry
+	pubSvc publicapi.PublicapiService
+	ttl    time.Duration
+}
+
+func (p *publicAPICache) get(ctx context.Context, name string) (*publicapi.PublicAPI, error) {
+	// check the cache
+	// TODO mutex
+	p.RLock()
+	cached := p.cache[name]
+	p.RUnlock()
+	if cached != nil && cached.created.After(time.Now().Add(p.ttl)) {
+		return cached.api, nil
+	}
+	rsp, err := p.pubSvc.Get(ctx, &publicapi.GetRequest{Name: name}, client.WithAuthToken())
+	if err != nil {
+		return nil, err
+	}
+	p.Lock()
+	p.cache[name] = &publicAPICacheEntry{api: rsp.Api, created: time.Now()}
+	p.Unlock()
+	return rsp.Api, nil
+}
+
 type Balance struct {
 	c      *counter // counts the balance. Balance is expressed in 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
 	v1Svc  v1api.V1Service
-	pubSvc publicapi.PublicapiService
+	pubSvc *publicAPICache
 }
 
 func NewHandler(svc *service.Service) *Balance {
@@ -73,9 +106,13 @@ func NewHandler(svc *service.Service) *Balance {
 		},
 	})
 	b := &Balance{
-		c:      &counter{redisClient: rc},
-		v1Svc:  v1api.NewV1Service("v1", svc.Client()),
-		pubSvc: publicapi.NewPublicapiService("publicapi", svc.Client()),
+		c:     &counter{redisClient: rc},
+		v1Svc: v1api.NewV1Service("v1", svc.Client()),
+		pubSvc: &publicAPICache{
+			pubSvc: publicapi.NewPublicapiService("publicapi", svc.Client()),
+			cache:  map[string]*publicAPICacheEntry{},
+			ttl:    5 * time.Minute,
+		},
 	}
 	go b.consumeEvents()
 	return b

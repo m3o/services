@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"time"
 
-	publicapi "github.com/m3o/services/publicapi/proto"
 	stripepb "github.com/m3o/services/stripe/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service/client"
@@ -103,16 +102,14 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 
 	apiName := rqe.ApiName
 	// TODO caching
-	rsp, err := b.pubSvc.Get(context.Background(), &publicapi.GetRequest{
-		Name: apiName,
-	}, client.WithAuthToken())
+	rsp, err := b.pubSvc.get(context.Background(), apiName)
 	if err != nil {
 		logger.Errorf("Error looking up API %s", err)
 		return err
 	}
 
 	methodName := rqe.EndpointName
-	price, ok := rsp.Api.Pricing[methodName]
+	price, ok := rsp.Pricing[methodName]
 	if !ok {
 		logger.Warnf("Failed to find price for api call %s:%s", apiName, methodName)
 		return nil
