@@ -73,6 +73,8 @@ message RequestEvent {
 	string namespace = 2;
 	string api_key_id = 3;
 	string url = 4;
+	string api_name = 5;
+	string endpoint_name = 6;
 }
 
 message APIKeyRevokeEvent {

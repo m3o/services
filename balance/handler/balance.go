@@ -43,7 +43,7 @@ func (c *counter) reset(userID, path string) error {
 }
 
 type Balance struct {
-	c      *counter
+	c      *counter // counts the balance. Balance is expressed in 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
 	v1Svc  v1api.V1Service
 	pubSvc publicapi.PublicapiService
 }

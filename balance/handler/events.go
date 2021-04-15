@@ -3,8 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"math"
-	"strings"
 	"time"
 
 	publicapi "github.com/m3o/services/publicapi/proto"
@@ -103,18 +101,8 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 	// apiusage service
 	// listens for request events and records the usage of each API, aggregates every day and stores historical
 
-	// lookup the price for this request. Name of the api is the first part after /v1/
-	if !strings.HasPrefix(rqe.Url, "/v1/") {
-		logger.Warnf("Discarding unrecognised URL Path %s", rqe.Url)
-		return nil
-	}
-	parts := strings.Split(rqe.Url[1:], "/")
-	if len(parts) < 2 {
-		logger.Warnf("Discarding unrecognised URL Path %s", rqe.Url)
-		return nil
-	}
-	apiName := parts[1]
-
+	apiName := rqe.ApiName
+	// TODO caching
 	rsp, err := b.pubSvc.Get(context.Background(), &publicapi.GetRequest{
 		Name: apiName,
 	}, client.WithAuthToken())
@@ -123,15 +111,14 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 		return err
 	}
 
-	var delta int64
-
-	// TODO calculate the price for fractionals
-	i, f := math.Modf(rsp.Api.PricePerRequest)
-	if f == 0 {
-		delta = int64(i)
+	methodName := rqe.EndpointName
+	price, ok := rsp.Api.Pricing[methodName]
+	if !ok {
+		logger.Warnf("Failed to find price for api call %s:%s", apiName, methodName)
+		return nil
 	}
 	// decrement the balance
-	currBal, err := b.c.decr(rqe.UserId, "$balance$", delta)
+	currBal, err := b.c.decr(rqe.UserId, "$balance$", price)
 	if err != nil {
 		return err
 	}
@@ -145,6 +132,7 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 		UserId:    rqe.UserId,
 		Namespace: rqe.Namespace,
 	}, client.WithAuthToken()); err != nil {
+		// TODO if we fail here we might double count because the message will be retried
 		logger.Errorf("Error blocking key %s", err)
 		return err
 	}

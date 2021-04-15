@@ -444,20 +444,22 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 	if err := client.Call(ctx, request, &response); err != nil {
 		return err
 	}
-	publishEndpointEvent(reqURL, apiRec)
+	publishEndpointEvent(reqURL, service, endpoint, apiRec)
 
 	stream.Send(response)
 	return nil
 
 }
 
-func publishEndpointEvent(reqURL string, apiRec *apiKeyRecord) {
+func publishEndpointEvent(reqURL, apiName, endpointName string, apiRec *apiKeyRecord) {
 	if err := events.Publish("v1api", v1api.Event{Type: "Request",
 		Request: &v1api.RequestEvent{
-			UserId:    apiRec.UserID,
-			Namespace: apiRec.Namespace,
-			ApiKeyId:  apiRec.ID,
-			Url:       reqURL,
+			UserId:       apiRec.UserID,
+			Namespace:    apiRec.Namespace,
+			ApiKeyId:     apiRec.ID,
+			Url:          reqURL,
+			ApiName:      apiName,
+			EndpointName: endpointName,
 		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}

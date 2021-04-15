@@ -43,6 +43,7 @@ func NewPublicapiEndpoints() []*api.Endpoint {
 
 type PublicapiService interface {
 	Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*PublishResponse, error)
+	Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*GetResponse, error)
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	Remove(ctx context.Context, in *RemoveRequest, opts ...client.CallOption) (*RemoveResponse, error)
@@ -63,6 +64,16 @@ func NewPublicapiService(name string, c client.Client) PublicapiService {
 func (c *publicapiService) Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*PublishResponse, error) {
 	req := c.c.NewRequest(c.name, "Publicapi.Publish", in)
 	out := new(PublishResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *publicapiService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
+	req := c.c.NewRequest(c.name, "Publicapi.Update", in)
+	out := new(UpdateResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -104,6 +115,7 @@ func (c *publicapiService) Remove(ctx context.Context, in *RemoveRequest, opts .
 
 type PublicapiHandler interface {
 	Publish(context.Context, *PublishRequest, *PublishResponse) error
+	Update(context.Context, *UpdateRequest, *UpdateResponse) error
 	Get(context.Context, *GetRequest, *GetResponse) error
 	List(context.Context, *ListRequest, *ListResponse) error
 	Remove(context.Context, *RemoveRequest, *RemoveResponse) error
@@ -112,6 +124,7 @@ type PublicapiHandler interface {
 func RegisterPublicapiHandler(s server.Server, hdlr PublicapiHandler, opts ...server.HandlerOption) error {
 	type publicapi interface {
 		Publish(ctx context.Context, in *PublishRequest, out *PublishResponse) error
+		Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error
 		Get(ctx context.Context, in *GetRequest, out *GetResponse) error
 		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 		Remove(ctx context.Context, in *RemoveRequest, out *RemoveResponse) error
@@ -129,6 +142,10 @@ type publicapiHandler struct {
 
 func (h *publicapiHandler) Publish(ctx context.Context, in *PublishRequest, out *PublishResponse) error {
 	return h.PublicapiHandler.Publish(ctx, in, out)
+}
+
+func (h *publicapiHandler) Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error {
+	return h.PublicapiHandler.Update(ctx, in, out)
 }
 
 func (h *publicapiHandler) Get(ctx context.Context, in *GetRequest, out *GetResponse) error {

@@ -26,7 +26,8 @@ type APIEntry struct {
 	Name        string
 	Description string
 	OpenAPIJSON string
-	UnitPrice   float64
+	Pricing     map[string]int64 // pricing mapping endpoints to price in 1/100 of a cent
+	OwnerID     string
 }
 
 type Publicapi struct {
@@ -43,42 +44,17 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 	if err := verifyAdmin(ctx, "publicapi.Remove"); err != nil {
 		return err
 	}
-
+	acc, _ := auth.AccountFromContext(ctx)
 	ae := &APIEntry{
 		ID:          uuid.New().String(),
 		Name:        request.Api.Name,
 		Description: request.Api.Description,
 		OpenAPIJSON: request.Api.OpenApiJson,
-		UnitPrice:   request.Api.PricePerRequest,
-	}
-	b, err := json.Marshal(ae)
-	if err != nil {
-		return err
+		Pricing:     request.Api.Pricing,
+		OwnerID:     acc.ID,
 	}
 
-	// store it
-	if err := store.Write(&store.Record{
-		Key:   fmt.Sprintf(prefixName, ae.Name),
-		Value: b,
-	}); err != nil {
-		log.Errorf("Error writing to store %s", err)
-		return err
-	}
-	if err := store.Write(&store.Record{
-		Key:   fmt.Sprintf(prefixID, ae.ID),
-		Value: b,
-	}); err != nil {
-		log.Errorf("Error writing to store %s", err)
-		return err
-	}
-
-	// publish to explore API
-	if _, err := p.explSvc.SaveMeta(ctx, &explore.SaveMetaRequest{
-		ServiceName: ae.Name,
-		Readme:      ae.Description,
-		OpenAPIJSON: ae.OpenAPIJSON,
-	}); err != nil {
-		log.Errorf("Error publishing to explore service %s", err)
+	if err := p.updateEntry(ctx, ae); err != nil {
 		return err
 	}
 	// enable auth rules
@@ -122,8 +98,41 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}
-
+	response.Api = marshal(ae)
 	// TODO any other v1api things?
+	return nil
+}
+
+func (p *Publicapi) updateEntry(ctx context.Context, ae *APIEntry) error {
+	b, err := json.Marshal(ae)
+	if err != nil {
+		return err
+	}
+	// store it
+	if err := store.Write(&store.Record{
+		Key:   fmt.Sprintf(prefixName, ae.Name),
+		Value: b,
+	}); err != nil {
+		log.Errorf("Error writing to store %s", err)
+		return err
+	}
+	if err := store.Write(&store.Record{
+		Key:   fmt.Sprintf(prefixID, ae.ID),
+		Value: b,
+	}); err != nil {
+		log.Errorf("Error writing to store %s", err)
+		return err
+	}
+
+	// publish to explore API
+	if _, err := p.explSvc.SaveMeta(ctx, &explore.SaveMetaRequest{
+		ServiceName: ae.Name,
+		Readme:      ae.Description,
+		OpenAPIJSON: ae.OpenAPIJSON,
+	}); err != nil {
+		log.Errorf("Error publishing to explore service %s", err)
+		return err
+	}
 	return nil
 }
 
@@ -150,13 +159,7 @@ func (p *Publicapi) Get(ctx context.Context, request *pb.GetRequest, response *p
 		log.Errorf("Error marshalling API %s", err)
 		return errors.InternalServerError("publicapi.Get", "Error retrieving API")
 	}
-	response.Api = &pb.PublicAPI{
-		Id:              ae.ID,
-		Name:            ae.Name,
-		Description:     ae.Description,
-		OpenApiJson:     ae.OpenAPIJSON,
-		PricePerRequest: ae.UnitPrice,
-	}
+	response.Api = marshal(&ae)
 	return nil
 }
 
@@ -172,13 +175,7 @@ func (p *Publicapi) List(ctx context.Context, request *pb.ListRequest, response 
 		if err := json.Unmarshal(v.Value, &ae); err != nil {
 			return err
 		}
-		response.Apis[i] = &pb.PublicAPI{
-			Id:              ae.ID,
-			Name:            ae.Name,
-			Description:     ae.Description,
-			OpenApiJson:     ae.OpenAPIJSON,
-			PricePerRequest: ae.UnitPrice,
-		}
+		response.Apis[i] = marshal(&ae)
 	}
 	return nil
 }
@@ -216,4 +213,52 @@ func verifyAdmin(ctx context.Context, method string) error {
 		}
 	}
 	return errors.Forbidden(method, "Forbidden")
+}
+
+func (p *Publicapi) Update(ctx context.Context, request *pb.UpdateRequest, response *pb.UpdateResponse) error {
+	if err := verifyAdmin(ctx, "publicapi.Update"); err != nil {
+		return err
+	}
+	// work out which fields have been passed and update
+	recs, err := store.Read(fmt.Sprintf(prefixID, request.Api.Id))
+	if err != nil {
+		if err == store.ErrNotFound {
+			return errors.NotFound("publicapi.Update", "API not found with this ID")
+		}
+		return errors.InternalServerError("publicapi.Update", "Error updating API")
+	}
+	var ae APIEntry
+	if err := json.Unmarshal(recs[0].Value, &ae); err != nil {
+		log.Errorf("Error unmarshalling %s", err)
+		return errors.InternalServerError("publicapi.Update", "Error updating API")
+	}
+	if len(request.Api.OpenApiJson) > 0 {
+		ae.OpenAPIJSON = request.Api.OpenApiJson
+	}
+	if len(request.Api.Name) > 0 {
+		ae.Name = request.Api.Name
+	}
+	if len(request.Api.Description) > 0 {
+		ae.Description = request.Api.Description
+	}
+	if len(request.Api.Pricing) > 0 {
+		ae.Pricing = request.Api.Pricing
+	}
+	if err := p.updateEntry(ctx, &ae); err != nil {
+		log.Errorf("Error updating entry %s", err)
+		return errors.InternalServerError("publicapi.Update", "Error updating API")
+	}
+	response.Api = marshal(&ae)
+	return nil
+}
+
+func marshal(ae *APIEntry) *pb.PublicAPI {
+	return &pb.PublicAPI{
+		Id:          ae.ID,
+		Name:        ae.Name,
+		Description: ae.Description,
+		OpenApiJson: ae.OpenAPIJSON,
+		Pricing:     ae.Pricing,
+		OwnerId:     ae.OwnerID,
+	}
 }
