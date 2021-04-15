@@ -44,6 +44,7 @@ func NewPlatformEndpoints() []*api.Endpoint {
 type PlatformService interface {
 	CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...client.CallOption) (*CreateNamespaceResponse, error)
 	DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...client.CallOption) (*DeleteNamespaceResponse, error)
+	LoginUser(ctx context.Context, in *LoginRequest, opts ...client.CallOption) (*LoginResponse, error)
 }
 
 type platformService struct {
@@ -78,17 +79,29 @@ func (c *platformService) DeleteNamespace(ctx context.Context, in *DeleteNamespa
 	return out, nil
 }
 
+func (c *platformService) LoginUser(ctx context.Context, in *LoginRequest, opts ...client.CallOption) (*LoginResponse, error) {
+	req := c.c.NewRequest(c.name, "Platform.LoginUser", in)
+	out := new(LoginResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Platform service
 
 type PlatformHandler interface {
 	CreateNamespace(context.Context, *CreateNamespaceRequest, *CreateNamespaceResponse) error
 	DeleteNamespace(context.Context, *DeleteNamespaceRequest, *DeleteNamespaceResponse) error
+	LoginUser(context.Context, *LoginRequest, *LoginResponse) error
 }
 
 func RegisterPlatformHandler(s server.Server, hdlr PlatformHandler, opts ...server.HandlerOption) error {
 	type platform interface {
 		CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, out *CreateNamespaceResponse) error
 		DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error
+		LoginUser(ctx context.Context, in *LoginRequest, out *LoginResponse) error
 	}
 	type Platform struct {
 		platform
@@ -107,4 +120,8 @@ func (h *platformHandler) CreateNamespace(ctx context.Context, in *CreateNamespa
 
 func (h *platformHandler) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error {
 	return h.PlatformHandler.DeleteNamespace(ctx, in, out)
+}
+
+func (h *platformHandler) LoginUser(ctx context.Context, in *LoginRequest, out *LoginResponse) error {
+	return h.PlatformHandler.LoginUser(ctx, in, out)
 }

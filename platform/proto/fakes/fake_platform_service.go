@@ -40,6 +40,21 @@ type FakePlatformService struct {
 		result1 *platform.DeleteNamespaceResponse
 		result2 error
 	}
+	LoginUserStub        func(context.Context, *platform.LoginRequest, ...client.CallOption) (*platform.LoginResponse, error)
+	loginUserMutex       sync.RWMutex
+	loginUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 *platform.LoginRequest
+		arg3 []client.CallOption
+	}
+	loginUserReturns struct {
+		result1 *platform.LoginResponse
+		result2 error
+	}
+	loginUserReturnsOnCall map[int]struct {
+		result1 *platform.LoginResponse
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -176,6 +191,72 @@ func (fake *FakePlatformService) DeleteNamespaceReturnsOnCall(i int, result1 *pl
 	}{result1, result2}
 }
 
+func (fake *FakePlatformService) LoginUser(arg1 context.Context, arg2 *platform.LoginRequest, arg3 ...client.CallOption) (*platform.LoginResponse, error) {
+	fake.loginUserMutex.Lock()
+	ret, specificReturn := fake.loginUserReturnsOnCall[len(fake.loginUserArgsForCall)]
+	fake.loginUserArgsForCall = append(fake.loginUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 *platform.LoginRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.LoginUserStub
+	fakeReturns := fake.loginUserReturns
+	fake.recordInvocation("LoginUser", []interface{}{arg1, arg2, arg3})
+	fake.loginUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakePlatformService) LoginUserCallCount() int {
+	fake.loginUserMutex.RLock()
+	defer fake.loginUserMutex.RUnlock()
+	return len(fake.loginUserArgsForCall)
+}
+
+func (fake *FakePlatformService) LoginUserCalls(stub func(context.Context, *platform.LoginRequest, ...client.CallOption) (*platform.LoginResponse, error)) {
+	fake.loginUserMutex.Lock()
+	defer fake.loginUserMutex.Unlock()
+	fake.LoginUserStub = stub
+}
+
+func (fake *FakePlatformService) LoginUserArgsForCall(i int) (context.Context, *platform.LoginRequest, []client.CallOption) {
+	fake.loginUserMutex.RLock()
+	defer fake.loginUserMutex.RUnlock()
+	argsForCall := fake.loginUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakePlatformService) LoginUserReturns(result1 *platform.LoginResponse, result2 error) {
+	fake.loginUserMutex.Lock()
+	defer fake.loginUserMutex.Unlock()
+	fake.LoginUserStub = nil
+	fake.loginUserReturns = struct {
+		result1 *platform.LoginResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakePlatformService) LoginUserReturnsOnCall(i int, result1 *platform.LoginResponse, result2 error) {
+	fake.loginUserMutex.Lock()
+	defer fake.loginUserMutex.Unlock()
+	fake.LoginUserStub = nil
+	if fake.loginUserReturnsOnCall == nil {
+		fake.loginUserReturnsOnCall = make(map[int]struct {
+			result1 *platform.LoginResponse
+			result2 error
+		})
+	}
+	fake.loginUserReturnsOnCall[i] = struct {
+		result1 *platform.LoginResponse
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakePlatformService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -183,6 +264,8 @@ func (fake *FakePlatformService) Invocations() map[string][][]interface{} {
 	defer fake.createNamespaceMutex.RUnlock()
 	fake.deleteNamespaceMutex.RLock()
 	defer fake.deleteNamespaceMutex.RUnlock()
+	fake.loginUserMutex.RLock()
+	defer fake.loginUserMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
