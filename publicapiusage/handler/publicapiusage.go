@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -15,11 +16,13 @@ import (
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 )
 
 const (
-	prefixCounter = "publicapiusage-service/counter"
-	counterTTL    = 48 * time.Hour
+	prefixCounter         = "publicapiusage-service/counter"
+	prefixUsageByCustomer = "usageByCustomer/%s/%s" // customer ID / date
+	counterTTL            = 48 * time.Hour
 )
 
 type counter struct {
@@ -157,7 +160,8 @@ func (p Publicapiusage) Read(ctx context.Context, request *pb.ReadRequest, respo
 			},
 		}
 	}
-	// TODO perist and read historical data
+	// TODO add historical data
+
 	return nil
 }
 
@@ -179,5 +183,87 @@ func verifyMicroAdmin(ctx context.Context, method string) error {
 	if !admin {
 		return errors.Forbidden(method, "Forbidden")
 	}
+	return nil
+}
+
+type dateEntry struct {
+	Entries []listEntry
+}
+
+func (p *Publicapiusage) UsageCron() {
+	defer func() {
+		log.Infof("Usage sweep ended")
+	}()
+	log.Infof("Performing usage sweep")
+	// loop through counters and persist
+	ctx := context.Background()
+	sc := p.c.redisClient.Scan(ctx, 0, prefixCounter+":*", 0)
+	if err := sc.Err(); err != nil {
+		log.Errorf("Error running redis scan %s", err)
+		return
+	}
+
+	toPersist := map[string]map[string][]listEntry{} // userid->date->[]listEntry
+	it := sc.Iterator()
+	for {
+		if !it.Next(ctx) {
+			if err := it.Err(); err != nil {
+				log.Errorf("Error during iteration %s", err)
+			}
+			break
+		}
+
+		key := it.Val()
+		count, err := p.c.redisClient.Get(ctx, key).Int64()
+		if err != nil {
+			log.Errorf("Error retrieving value %s", err)
+			return
+		}
+		parts := strings.Split(strings.TrimPrefix(key, prefixCounter+":"), ":")
+		if len(parts) < 3 {
+			log.Errorf("Unexpected number of components in key %s", key)
+			continue
+		}
+		userID := parts[0]
+		date := parts[1]
+		service := parts[2]
+		dates := toPersist[userID]
+		if dates == nil {
+			dates = map[string][]listEntry{}
+			toPersist[userID] = dates
+		}
+		entries := dates[date]
+		if entries == nil {
+			entries = []listEntry{}
+		}
+		entries = append(entries, listEntry{
+			service: service,
+			count:   count,
+		})
+		dates[date] = entries
+	}
+
+	for userID, v := range toPersist {
+		for date, entry := range v {
+			de := dateEntry{
+				Entries: entry,
+			}
+			b, err := json.Marshal(de)
+			if err != nil {
+				log.Errorf("Error marshalling entry %s", err)
+				return
+			}
+			store.Write(&store.Record{
+				Key:   fmt.Sprintf(prefixUsageByCustomer, userID, date),
+				Value: b,
+			})
+		}
+
+	}
+
+}
+
+func (p *Publicapiusage) Sweep(ctx context.Context, request *pb.SweepRequest, response *pb.SweepResponse) error {
+	p.UsageCron()
 	return nil
 }

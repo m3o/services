@@ -43,6 +43,7 @@ func NewPublicapiusageEndpoints() []*api.Endpoint {
 
 type PublicapiusageService interface {
 	Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error)
+	Sweep(ctx context.Context, in *SweepRequest, opts ...client.CallOption) (*SweepResponse, error)
 }
 
 type publicapiusageService struct {
@@ -67,15 +68,27 @@ func (c *publicapiusageService) Read(ctx context.Context, in *ReadRequest, opts 
 	return out, nil
 }
 
+func (c *publicapiusageService) Sweep(ctx context.Context, in *SweepRequest, opts ...client.CallOption) (*SweepResponse, error) {
+	req := c.c.NewRequest(c.name, "Publicapiusage.Sweep", in)
+	out := new(SweepResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Publicapiusage service
 
 type PublicapiusageHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
+	Sweep(context.Context, *SweepRequest, *SweepResponse) error
 }
 
 func RegisterPublicapiusageHandler(s server.Server, hdlr PublicapiusageHandler, opts ...server.HandlerOption) error {
 	type publicapiusage interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
+		Sweep(ctx context.Context, in *SweepRequest, out *SweepResponse) error
 	}
 	type Publicapiusage struct {
 		publicapiusage
@@ -90,4 +103,8 @@ type publicapiusageHandler struct {
 
 func (h *publicapiusageHandler) Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error {
 	return h.PublicapiusageHandler.Read(ctx, in, out)
+}
+
+func (h *publicapiusageHandler) Sweep(ctx context.Context, in *SweepRequest, out *SweepResponse) error {
+	return h.PublicapiusageHandler.Sweep(ctx, in, out)
 }

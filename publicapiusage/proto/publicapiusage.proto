@@ -6,6 +6,7 @@ option go_package = "./proto;publicapiusage";
 
 service Publicapiusage {
 	rpc Read(ReadRequest) returns (ReadResponse) {}
+	rpc Sweep(SweepRequest) returns (SweepResponse) {}
 }
 
 message ReadRequest {
@@ -25,3 +26,6 @@ message UsageRecord {
 message ReadResponse {
 	repeated Usage usage = 1;
 }
+
+message SweepRequest {}
+message SweepResponse {}
