@@ -30,7 +30,7 @@ type counter struct {
 func (c *counter) incr(userID, path string, delta int64, t time.Time) (int64, error) {
 	t = t.UTC()
 	ctx := context.Background()
-	key := fmt.Sprintf("%s:%s:%s:%s", prefixCounter, t.Format("20060102"), userID, path)
+	key := fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)
 	pipe := c.redisClient.TxPipeline()
 	incr := pipe.IncrBy(ctx, key, delta)
 	pipe.Expire(ctx, key, counterTTL) // make sure we expire the counters
