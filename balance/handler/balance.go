@@ -56,7 +56,7 @@ type publicAPICache struct {
 	ttl    time.Duration
 }
 
-func (p *publicAPICache) get(ctx context.Context, name string) (*publicapi.PublicAPI, error) {
+func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
 	// check the cache
 	// TODO mutex
 	p.RLock()
@@ -65,7 +65,7 @@ func (p *publicAPICache) get(ctx context.Context, name string) (*publicapi.Publi
 	if cached != nil && cached.created.After(time.Now().Add(p.ttl)) {
 		return cached.api, nil
 	}
-	rsp, err := p.pubSvc.Get(ctx, &publicapi.GetRequest{Name: name}, client.WithAuthToken())
+	rsp, err := p.pubSvc.Get(context.Background(), &publicapi.GetRequest{Name: name}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -130,8 +130,19 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 }
 
 func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
-	if err := verifyAdmin(ctx, "balance.Current"); err != nil {
-		return err
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("balance.Current", "Unauthorized")
+	}
+	if acc.Issuer != "micro" {
+		// reject
+		return errors.Forbidden("balance.Current", "Forbidden")
+	}
+	if acc.ID != request.CustomerId {
+		// is this an admin?
+		if err := verifyAdmin(ctx, "balance.Current"); err != nil {
+			return err
+		}
 	}
 	currBal, err := b.c.read(request.CustomerId, "$balance$")
 	if err != nil {

@@ -84,23 +84,15 @@ func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 		Namespace: ac.Namespace,
 		KeyId:     ac.ApiKeyId,
 	}, client.WithAuthToken()); err != nil {
-		logger.Errorf("Error updating allowed paths %s", err)
+		logger.Errorf("Error unblocking key %s", err)
 		return err
 	}
 	return nil
 }
 
 func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
-	// balance service
-	// Holds the customer's balance
-	// listens for webhook charge events
-	// also has reconciliation loop every 5 mins just in case it misses
-	// decrements the balance
-	// - lookup the
-
 	apiName := rqe.ApiName
-	// TODO caching
-	rsp, err := b.pubSvc.get(context.Background(), apiName)
+	rsp, err := b.pubSvc.get(apiName)
 	if err != nil {
 		logger.Errorf("Error looking up API %s", err)
 		return err
