@@ -241,6 +241,7 @@ func (p *Publicapiusage) UsageCron() {
 			count:   count,
 		})
 		dates[date] = entries
+		toPersist[userID] = dates
 	}
 
 	for userID, v := range toPersist {
