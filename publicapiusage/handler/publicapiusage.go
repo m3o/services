@@ -152,7 +152,7 @@ func (p Publicapiusage) Read(ctx context.Context, request *pb.ReadRequest, respo
 			Records: []*pb.UsageRecord{
 				{
 					Date:     now.Unix(),
-					Requests: 0,
+					Requests: v.count,
 				},
 			},
 		}
