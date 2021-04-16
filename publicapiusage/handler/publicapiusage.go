@@ -64,8 +64,8 @@ func (c *counter) read(userID, path string, t time.Time) (int64, error) {
 }
 
 type listEntry struct {
-	service string
-	count   int64
+	Service string
+	Count   int64
 }
 
 func (c *counter) listForUser(userID string, t time.Time) ([]listEntry, error) {
@@ -87,8 +87,8 @@ func (c *counter) listForUser(userID string, t time.Time) ([]listEntry, error) {
 			return nil, err
 		}
 		res = append(res, listEntry{
-			service: strings.TrimPrefix(key, keyPrefix),
-			count:   i,
+			Service: strings.TrimPrefix(key, keyPrefix),
+			Count:   i,
 		})
 	}
 	return res, iter.Err()
@@ -151,11 +151,11 @@ func (p Publicapiusage) Read(ctx context.Context, request *pb.ReadRequest, respo
 	response.Usage = make([]*pb.Usage, len(entries))
 	for i, v := range entries {
 		response.Usage[i] = &pb.Usage{
-			ApiName: v.service,
+			ApiName: v.Service,
 			Records: []*pb.UsageRecord{
 				{
 					Date:     now.Unix(),
-					Requests: v.count,
+					Requests: v.Count,
 				},
 			},
 		}
@@ -237,11 +237,10 @@ func (p *Publicapiusage) UsageCron() {
 			entries = []listEntry{}
 		}
 		entries = append(entries, listEntry{
-			service: service,
-			count:   count,
+			Service: service,
+			Count:   count,
 		})
 		dates[date] = entries
-		toPersist[userID] = dates
 	}
 
 	for userID, v := range toPersist {
