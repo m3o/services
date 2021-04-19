@@ -153,7 +153,8 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
 	// add to balance
-	_, err := b.c.incr(ev.CustomerId, "$balance$", ev.Ammount)
+	// stripe event is in cents, multiply by 100 to get the fraction that balance represents
+	_, err := b.c.incr(ev.CustomerId, "$balance$", ev.Ammount*100)
 	if err != nil {
 		logger.Errorf("Error incrementing balance %s", err)
 	}
