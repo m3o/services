@@ -24,7 +24,7 @@ message UsageRecord {
 }
 
 message ReadResponse {
-	repeated Usage usage = 1;
+	map<string, Usage> usage = 1;
 }
 
 message SweepRequest {}

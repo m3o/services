@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -21,7 +22,7 @@ import (
 
 const (
 	prefixCounter         = "publicapiusage-service/counter"
-	prefixUsageByCustomer = "usageByCustomer/%s/%s" // customer ID / date
+	prefixUsageByCustomer = "usageByCustomer" // customer ID / date
 	counterTTL            = 48 * time.Hour
 )
 
@@ -142,26 +143,74 @@ func (p Publicapiusage) Read(ctx context.Context, request *pb.ReadRequest, respo
 	}
 
 	now := time.Now().UTC().Truncate(24 * time.Hour)
-	entries, err := p.c.listForUser(request.CustomerId, now)
+	liveEntries, err := p.c.listForUser(request.CustomerId, now)
 	if err != nil {
 		log.Errorf("Error retrieving usage %s", err)
 		return errors.InternalServerError("publicapiusage.Read", "Error retrieving usage")
 	}
 
-	response.Usage = make([]*pb.Usage, len(entries))
-	for i, v := range entries {
-		response.Usage[i] = &pb.Usage{
-			ApiName: v.Service,
-			Records: []*pb.UsageRecord{
-				{
-					Date:     now.Unix(),
-					Requests: v.Count,
-				},
-			},
+	response.Usage = map[string]*pb.Usage{}
+	// add live data on top of historical
+	keyPrefix := fmt.Sprintf("%s/%s/", prefixUsageByCustomer, request.CustomerId)
+	recs, err := store.Read(keyPrefix, store.ReadPrefix())
+	if err != nil {
+		log.Errorf("Error querying historical data %s", err)
+		return errors.InternalServerError("publicapiusage.Read", "Error retrieving usage")
+	}
+
+	addEntryToResponse := func(response *pb.ReadResponse, e listEntry, unixTime int64) {
+		use := response.Usage[e.Service]
+		if use == nil {
+			use = &pb.Usage{
+				ApiName: e.Service,
+				Records: []*pb.UsageRecord{},
+			}
+		}
+		use.Records = append(use.Records, &pb.UsageRecord{Date: unixTime, Requests: e.Count})
+		response.Usage[e.Service] = use
+	}
+
+	// add to slices
+	for _, rec := range recs {
+		date := strings.TrimPrefix(rec.Key, keyPrefix)
+		dateObj, err := time.Parse("20060102", date)
+		if err != nil {
+			log.Errorf("Error parsing date obj %s", err)
+			return errors.InternalServerError("publicapiusage.Read", "Error retrieving usage")
+		}
+		var de dateEntry
+		if err := json.Unmarshal(rec.Value, &de); err != nil {
+			log.Errorf("Error parsing date obj %s", err)
+			return errors.InternalServerError("publicapiusage.Read", "Error retrieving usage")
+		}
+		for _, e := range de.Entries {
+			addEntryToResponse(response, e, dateObj.Unix())
 		}
 	}
-	// TODO add historical data
+	for _, e := range liveEntries {
+		addEntryToResponse(response, e, now.Unix())
+	}
+	// sort slices
+	for _, v := range response.Usage {
+		sort.Slice(v.Records, func(i, j int) bool {
+			if v.Records[i].Date == v.Records[j].Date {
+				return v.Records[i].Requests < v.Records[j].Requests
+			}
+			return v.Records[i].Date < v.Records[j].Date
+		})
+	}
+	// remove dupe
+	for k, v := range response.Usage {
+		lenRecs := len(v.Records)
+		if lenRecs < 2 {
+			continue
+		}
+		if v.Records[lenRecs-2].Date != v.Records[lenRecs-1].Date {
+			continue
+		}
+		response.Usage[k].Records = append(v.Records[:lenRecs-2], v.Records[lenRecs-1])
 
+	}
 	return nil
 }
 
@@ -254,7 +303,7 @@ func (p *Publicapiusage) UsageCron() {
 				return
 			}
 			store.Write(&store.Record{
-				Key:   fmt.Sprintf(prefixUsageByCustomer, userID, date),
+				Key:   fmt.Sprintf("%s/%s/%s", prefixUsageByCustomer, userID, date),
 				Value: b,
 			})
 		}
