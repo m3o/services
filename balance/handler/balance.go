@@ -138,6 +138,9 @@ func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, r
 		// reject
 		return errors.Forbidden("balance.Current", "Forbidden")
 	}
+	if len(request.CustomerId) == 0 {
+		request.CustomerId = acc.ID
+	}
 	if acc.ID != request.CustomerId {
 		// is this an admin?
 		if err := verifyAdmin(ctx, "balance.Current"); err != nil {

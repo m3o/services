@@ -135,6 +135,9 @@ func (p Publicapiusage) Read(ctx context.Context, request *pb.ReadRequest, respo
 	if !ok {
 		return errors.Unauthorized("publicapiusage.Read", "Unauthorized")
 	}
+	if len(request.CustomerId) == 0 {
+		request.CustomerId = acc.ID
+	}
 	if acc.ID != request.CustomerId {
 		err := verifyMicroAdmin(ctx, "publicapiusage.Read")
 		if err != nil {
