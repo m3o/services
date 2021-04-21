@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	balance "github.com/m3o/services/balance/proto"
+	ns "github.com/m3o/services/namespaces/proto"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
@@ -79,6 +80,7 @@ type Balance struct {
 	c      *counter // counts the balance. Balance is expressed in 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
 	v1Svc  v1api.V1Service
 	pubSvc *publicAPICache
+	nsSvc  ns.NamespacesService
 }
 
 func NewHandler(svc *service.Service) *Balance {
@@ -113,6 +115,7 @@ func NewHandler(svc *service.Service) *Balance {
 			cache:  map[string]*publicAPICacheEntry{},
 			ttl:    5 * time.Minute,
 		},
+		nsSvc: ns.NewNamespacesService("namespaces", svc.Client()),
 	}
 	go b.consumeEvents()
 	return b

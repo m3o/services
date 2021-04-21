@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	ns "github.com/m3o/services/namespaces/proto"
 	stripepb "github.com/m3o/services/stripe/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service/client"
@@ -51,7 +52,7 @@ func (b *Balance) processV1apiEvents(ch <-chan mevents.Event) {
 		case "APIKeyCreate":
 			if err := b.processAPIKeyCreated(ve.ApiKeyCreate); err != nil {
 				ev.Nack()
-				logger.Errorf("Error processing API key created event")
+				logger.Errorf("Error processing API key created event %s", err)
 				continue
 			}
 		case "Request":
@@ -152,11 +153,36 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 }
 
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
+	// safety first
+	if ev.Ammount == 0 {
+		return nil
+	}
 	// add to balance
 	// stripe event is in cents, multiply by 100 to get the fraction that balance represents
 	_, err := b.c.incr(ev.CustomerId, "$balance$", ev.Ammount*100)
 	if err != nil {
 		logger.Errorf("Error incrementing balance %s", err)
 	}
+	namespace := "micro"
+
+	// For now, builders have accounts issued by non micro namespace
+	rsp, err := b.nsSvc.List(context.Background(), &ns.ListRequest{
+		Owner: ev.CustomerId,
+	})
+	if err == nil {
+		// TODO at some point builders will actually have accounts issued from micro namespace
+		namespace = rsp.Namespaces[0].Id
+	}
+
+	// unblock key
+	if _, err := b.v1Svc.UnblockKey(context.TODO(), &v1api.UnblockKeyRequest{
+		UserId:    ev.CustomerId,
+		Namespace: namespace,
+	}, client.WithAuthToken()); err != nil {
+		// TODO if we fail here we might double count because the message will be retried
+		logger.Errorf("Error blocking key %s", err)
+		return err
+	}
+
 	return err
 }
