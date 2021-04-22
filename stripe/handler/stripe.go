@@ -172,6 +172,10 @@ func verifyAdmin(ctx context.Context, method string) error {
 }
 
 func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.CreateCheckoutSessionRequest, response *stripepb.CreateCheckoutSessionResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("stripe.CreateCheckoutSession", "Unauthorized")
+	}
 	if request.Amount < 500 { // min spend
 		return errors.BadRequest("stripe.CreateCheckoutSession", "Amount must be at least 500")
 	}
@@ -179,7 +183,8 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
-		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		CustomerEmail: stripe.String(acc.Name),
+		Mode:          stripe.String(string(stripe.CheckoutSessionModePayment)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
 				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
