@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	custpb "github.com/m3o/services/customers/proto"
 	stripepb "github.com/m3o/services/stripe/proto"
@@ -12,13 +11,15 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 
 	"github.com/stripe/stripe-go/v71"
-	bt "github.com/stripe/stripe-go/v71/customerbalancetransaction"
+	"github.com/stripe/stripe-go/v71/checkout/session"
+	stripeclient "github.com/stripe/stripe-go/v71/client"
 )
 
 const (
@@ -34,56 +35,36 @@ type CustomerMapping struct {
 }
 
 type Stripe struct {
-	custSvc custpb.CustomersService
+	custSvc    custpb.CustomersService
+	client     *stripeclient.API // stripe api client
+	successURL string
+	cancelURL  string
 }
 
 func NewHandler(serv *service.Service) stripepb.StripeHandler {
+	configObj := struct {
+		ApiKey     string `json:"api_key"`
+		SuccessURL string `json:"success_url"`
+		CancelURL  string `json:"cancel_url"`
+	}{}
+	val, err := config.Get("micro.stripe")
+	if err != nil {
+		log.Warnf("Error getting config: %v", err)
+	}
+	if err := val.Scan(&configObj); err != nil {
+		log.Fatalf("Error retrieving config %s", err)
+	}
+
+	if len(configObj.ApiKey) == 0 || len(configObj.CancelURL) == 0 || len(configObj.SuccessURL) == 0 {
+		log.Fatalf("Missing required config: micro.stripe")
+	}
+
 	return &Stripe{
-		custSvc: custpb.NewCustomersService("customers", serv.Client()),
+		custSvc:    custpb.NewCustomersService("customers", serv.Client()),
+		client:     stripeclient.New(configObj.ApiKey, nil),
+		successURL: configObj.SuccessURL,
+		cancelURL:  configObj.CancelURL,
 	}
-}
-
-func (s *Stripe) IncrementCustomerBalance(ctx context.Context, request *stripepb.IncrementRequest, response *stripepb.IncrementResponse) error {
-	if err := verifyAdmin(ctx, "stripe.IncrementCustomerBalance"); err != nil {
-		return err
-	}
-	var err error
-	response.NewBalance, err = s.affectBalance(request.CustomerId, -request.Delta, request.IdempotencyKey)
-	return err
-}
-
-func (s *Stripe) affectBalance(custID string, delta int64, idempotencyKey string) (int64, error) {
-	recs, err := store.Read(fmt.Sprintf(prefixM3OID, custID))
-	if err != nil {
-		return 0, err
-	}
-	var cm CustomerMapping
-	if err := json.Unmarshal(recs[0].Value, &cm); err != nil {
-		return 0, err
-	}
-	now := time.Now()
-	tx, err := bt.New(&stripe.CustomerBalanceTransactionParams{
-		Params: stripe.Params{
-			IdempotencyKey: stripe.String(idempotencyKey),
-		},
-		Amount:   stripe.Int64(delta), //negative is credit
-		Customer: stripe.String(cm.StripeID),
-		Currency: stripe.String(string(stripe.CurrencyUSD)), // TODO is everything USD?
-	})
-	log.Infof("Updating balance took %s", time.Since(now))
-	if err != nil {
-		return 0, err
-	}
-	return tx.EndingBalance, nil
-}
-
-func (s *Stripe) DecrementCustomerBalance(ctx context.Context, request *stripepb.DecrementRequest, response *stripepb.DecrementResponse) error {
-	if err := verifyAdmin(ctx, "stripe.DecrementCustomerBalance"); err != nil {
-		return err
-	}
-	var err error
-	response.NewBalance, err = s.affectBalance(request.CustomerId, request.Delta, request.IdempotencyKey)
-	return err
 }
 
 func (s *Stripe) Webhook(ctx context.Context, ev *stripe.Event, rsp *api.Response) error {
@@ -188,4 +169,38 @@ func verifyAdmin(ctx context.Context, method string) error {
 		}
 	}
 	return errors.Forbidden(method, "Forbidden")
+}
+
+func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.CreateCheckoutSessionRequest, response *stripepb.CreateCheckoutSessionResponse) error {
+	if request.Amount < 500 { // min spend
+		return errors.BadRequest("stripe.CreateCheckoutSession", "Amount must be at least 500")
+	}
+	params := &stripe.CheckoutSessionParams{
+		PaymentMethodTypes: stripe.StringSlice([]string{
+			"card",
+		}),
+		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
+					Currency: stripe.String("usd"),
+					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
+						Name: stripe.String("M3O top up"),
+					},
+					UnitAmount: stripe.Int64(request.Amount),
+				},
+				Quantity: stripe.Int64(1),
+			},
+		},
+		SuccessURL: stripe.String(s.successURL),
+		CancelURL:  stripe.String(s.cancelURL),
+	}
+
+	session, err := session.New(params)
+	if err != nil {
+		return err
+	}
+
+	response.Id = session.ID
+	return nil
 }

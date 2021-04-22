@@ -42,8 +42,7 @@ func NewStripeEndpoints() []*api.Endpoint {
 // Client API for Stripe service
 
 type StripeService interface {
-	IncrementCustomerBalance(ctx context.Context, in *IncrementRequest, opts ...client.CallOption) (*IncrementResponse, error)
-	DecrementCustomerBalance(ctx context.Context, in *DecrementRequest, opts ...client.CallOption) (*DecrementResponse, error)
+	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error)
 }
 
 type stripeService struct {
@@ -58,19 +57,9 @@ func NewStripeService(name string, c client.Client) StripeService {
 	}
 }
 
-func (c *stripeService) IncrementCustomerBalance(ctx context.Context, in *IncrementRequest, opts ...client.CallOption) (*IncrementResponse, error) {
-	req := c.c.NewRequest(c.name, "Stripe.IncrementCustomerBalance", in)
-	out := new(IncrementResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *stripeService) DecrementCustomerBalance(ctx context.Context, in *DecrementRequest, opts ...client.CallOption) (*DecrementResponse, error) {
-	req := c.c.NewRequest(c.name, "Stripe.DecrementCustomerBalance", in)
-	out := new(DecrementResponse)
+func (c *stripeService) CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.CreateCheckoutSession", in)
+	out := new(CreateCheckoutSessionResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,14 +70,12 @@ func (c *stripeService) DecrementCustomerBalance(ctx context.Context, in *Decrem
 // Server API for Stripe service
 
 type StripeHandler interface {
-	IncrementCustomerBalance(context.Context, *IncrementRequest, *IncrementResponse) error
-	DecrementCustomerBalance(context.Context, *DecrementRequest, *DecrementResponse) error
+	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest, *CreateCheckoutSessionResponse) error
 }
 
 func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.HandlerOption) error {
 	type stripe interface {
-		IncrementCustomerBalance(ctx context.Context, in *IncrementRequest, out *IncrementResponse) error
-		DecrementCustomerBalance(ctx context.Context, in *DecrementRequest, out *DecrementResponse) error
+		CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error
 	}
 	type Stripe struct {
 		stripe
@@ -101,10 +88,6 @@ type stripeHandler struct {
 	StripeHandler
 }
 
-func (h *stripeHandler) IncrementCustomerBalance(ctx context.Context, in *IncrementRequest, out *IncrementResponse) error {
-	return h.StripeHandler.IncrementCustomerBalance(ctx, in, out)
-}
-
-func (h *stripeHandler) DecrementCustomerBalance(ctx context.Context, in *DecrementRequest, out *DecrementResponse) error {
-	return h.StripeHandler.DecrementCustomerBalance(ctx, in, out)
+func (h *stripeHandler) CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error {
+	return h.StripeHandler.CreateCheckoutSession(ctx, in, out)
 }
