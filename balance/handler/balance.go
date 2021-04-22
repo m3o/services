@@ -122,14 +122,32 @@ func NewHandler(svc *service.Service) *Balance {
 }
 
 func (b Balance) Increment(ctx context.Context, request *balance.IncrementRequest, response *balance.IncrementResponse) error {
-	// check idempotency key
 	// increment counter
-	// TODO do we need to store each individual transaction
-	panic("implement me")
+	if err := verifyAdmin(ctx, "balance.Increment"); err != nil {
+		return err
+	}
+	// TODO idempotency
+	// increment the balance
+	currBal, err := b.c.incr(request.CustomerId, "$balance$", request.Delta)
+	if err != nil {
+		return err
+	}
+	response.NewBalance = currBal
+	return nil
 }
 
 func (b Balance) Decrement(ctx context.Context, request *balance.DecrementRequest, response *balance.DecrementResponse) error {
-	panic("implement me")
+	if err := verifyAdmin(ctx, "balance.Decrement"); err != nil {
+		return err
+	}
+	// TODO idempotency
+	// decrement the balance
+	currBal, err := b.c.decr(request.CustomerId, "$balance$", request.Delta)
+	if err != nil {
+		return err
+	}
+	response.NewBalance = currBal
+	return nil
 }
 
 func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
