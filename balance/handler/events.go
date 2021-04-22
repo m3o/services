@@ -184,5 +184,5 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		return err
 	}
 
-	return err
+	return nil
 }
