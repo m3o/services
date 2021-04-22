@@ -141,7 +141,7 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 		case "ChargeSucceeded":
 			if err := b.processChargeSucceeded(ve.ChargeSucceeded); err != nil {
 				ev.Nack()
-				logger.Errorf("Error processing charge succeeded event")
+				logger.Errorf("Error processing charge succeeded event %s", err)
 				continue
 			}
 		default:
@@ -180,7 +180,7 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		Namespace: namespace,
 	}, client.WithAuthToken()); err != nil {
 		// TODO if we fail here we might double count because the message will be retried
-		logger.Errorf("Error blocking key %s", err)
+		logger.Errorf("Error unblocking key %s", err)
 		return err
 	}
 
