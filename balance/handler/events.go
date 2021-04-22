@@ -153,6 +153,8 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 }
 
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
+	// TODO if we return error and we have already incremented the counter then we double count so make this idempotent
+
 	// safety first
 	if ev.Ammount == 0 {
 		return nil

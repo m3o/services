@@ -179,18 +179,18 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 	if request.Amount < 500 { // min spend
 		return errors.BadRequest("stripe.CreateCheckoutSession", "Amount must be at least 500")
 	}
+
 	params := &stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
-		CustomerEmail: stripe.String(acc.Name),
-		Mode:          stripe.String(string(stripe.CheckoutSessionModePayment)),
+		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
 				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 					Currency: stripe.String("usd"),
 					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-						Name: stripe.String("M3O top up"),
+						Name: stripe.String("M3O credit"),
 					},
 					UnitAmount: stripe.Int64(request.Amount),
 				},
@@ -199,6 +199,23 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 		},
 		SuccessURL: stripe.String(s.successURL),
 		CancelURL:  stripe.String(s.cancelURL),
+	}
+
+	// lookup customer
+	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
+	if err != nil && err != store.ErrNotFound {
+		log.Errorf("Error looking up stripe customer %s", err)
+		return errors.InternalServerError("stripe.CreateCheckoutSession", "Error creating checkout session")
+
+	}
+	if len(recs) == 0 {
+		// use email from account
+		params.CustomerEmail = stripe.String(acc.Name)
+	} else {
+		// use existing customer obj
+		var cm CustomerMapping
+		json.Unmarshal(recs[0].Value, &cm)
+		params.Customer = stripe.String(cm.StripeID)
 	}
 
 	session, err := session.New(params)
