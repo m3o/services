@@ -208,10 +208,8 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 		return errors.InternalServerError("stripe.CreateCheckoutSession", "Error creating checkout session")
 
 	}
-	if len(recs) == 0 {
-		// use email from account
-		params.CustomerEmail = stripe.String(acc.Name)
-	} else {
+	params.CustomerEmail = stripe.String(acc.Name)
+	if len(recs) > 0 {
 		// use existing customer obj
 		var cm CustomerMapping
 		json.Unmarshal(recs[0].Value, &cm)
