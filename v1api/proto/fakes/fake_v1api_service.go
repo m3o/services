@@ -10,6 +10,21 @@ import (
 )
 
 type FakeV1Service struct {
+	BlockKeyStub        func(context.Context, *v1api.BlockKeyRequest, ...client.CallOption) (*v1api.BlockKeyResponse, error)
+	blockKeyMutex       sync.RWMutex
+	blockKeyArgsForCall []struct {
+		arg1 context.Context
+		arg2 *v1api.BlockKeyRequest
+		arg3 []client.CallOption
+	}
+	blockKeyReturns struct {
+		result1 *v1api.BlockKeyResponse
+		result2 error
+	}
+	blockKeyReturnsOnCall map[int]struct {
+		result1 *v1api.BlockKeyResponse
+		result2 error
+	}
 	DisableAPIStub        func(context.Context, *v1api.DisableAPIRequest, ...client.CallOption) (*v1api.DisableAPIResponse, error)
 	disableAPIMutex       sync.RWMutex
 	disableAPIArgsForCall []struct {
@@ -100,23 +115,89 @@ type FakeV1Service struct {
 		result1 *v1api.RevokeResponse
 		result2 error
 	}
-	UpdateAllowedPathsStub        func(context.Context, *v1api.UpdateAllowedPathsRequest, ...client.CallOption) (*v1api.UpdateAllowedPathsResponse, error)
-	updateAllowedPathsMutex       sync.RWMutex
-	updateAllowedPathsArgsForCall []struct {
+	UnblockKeyStub        func(context.Context, *v1api.UnblockKeyRequest, ...client.CallOption) (*v1api.UnblockKeyResponse, error)
+	unblockKeyMutex       sync.RWMutex
+	unblockKeyArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.UpdateAllowedPathsRequest
+		arg2 *v1api.UnblockKeyRequest
 		arg3 []client.CallOption
 	}
-	updateAllowedPathsReturns struct {
-		result1 *v1api.UpdateAllowedPathsResponse
+	unblockKeyReturns struct {
+		result1 *v1api.UnblockKeyResponse
 		result2 error
 	}
-	updateAllowedPathsReturnsOnCall map[int]struct {
-		result1 *v1api.UpdateAllowedPathsResponse
+	unblockKeyReturnsOnCall map[int]struct {
+		result1 *v1api.UnblockKeyResponse
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeV1Service) BlockKey(arg1 context.Context, arg2 *v1api.BlockKeyRequest, arg3 ...client.CallOption) (*v1api.BlockKeyResponse, error) {
+	fake.blockKeyMutex.Lock()
+	ret, specificReturn := fake.blockKeyReturnsOnCall[len(fake.blockKeyArgsForCall)]
+	fake.blockKeyArgsForCall = append(fake.blockKeyArgsForCall, struct {
+		arg1 context.Context
+		arg2 *v1api.BlockKeyRequest
+		arg3 []client.CallOption
+	}{arg1, arg2, arg3})
+	stub := fake.BlockKeyStub
+	fakeReturns := fake.blockKeyReturns
+	fake.recordInvocation("BlockKey", []interface{}{arg1, arg2, arg3})
+	fake.blockKeyMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeV1Service) BlockKeyCallCount() int {
+	fake.blockKeyMutex.RLock()
+	defer fake.blockKeyMutex.RUnlock()
+	return len(fake.blockKeyArgsForCall)
+}
+
+func (fake *FakeV1Service) BlockKeyCalls(stub func(context.Context, *v1api.BlockKeyRequest, ...client.CallOption) (*v1api.BlockKeyResponse, error)) {
+	fake.blockKeyMutex.Lock()
+	defer fake.blockKeyMutex.Unlock()
+	fake.BlockKeyStub = stub
+}
+
+func (fake *FakeV1Service) BlockKeyArgsForCall(i int) (context.Context, *v1api.BlockKeyRequest, []client.CallOption) {
+	fake.blockKeyMutex.RLock()
+	defer fake.blockKeyMutex.RUnlock()
+	argsForCall := fake.blockKeyArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeV1Service) BlockKeyReturns(result1 *v1api.BlockKeyResponse, result2 error) {
+	fake.blockKeyMutex.Lock()
+	defer fake.blockKeyMutex.Unlock()
+	fake.BlockKeyStub = nil
+	fake.blockKeyReturns = struct {
+		result1 *v1api.BlockKeyResponse
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeV1Service) BlockKeyReturnsOnCall(i int, result1 *v1api.BlockKeyResponse, result2 error) {
+	fake.blockKeyMutex.Lock()
+	defer fake.blockKeyMutex.Unlock()
+	fake.BlockKeyStub = nil
+	if fake.blockKeyReturnsOnCall == nil {
+		fake.blockKeyReturnsOnCall = make(map[int]struct {
+			result1 *v1api.BlockKeyResponse
+			result2 error
+		})
+	}
+	fake.blockKeyReturnsOnCall[i] = struct {
+		result1 *v1api.BlockKeyResponse
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeV1Service) DisableAPI(arg1 context.Context, arg2 *v1api.DisableAPIRequest, arg3 ...client.CallOption) (*v1api.DisableAPIResponse, error) {
@@ -515,18 +596,18 @@ func (fake *FakeV1Service) RevokeKeyReturnsOnCall(i int, result1 *v1api.RevokeRe
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) UpdateAllowedPaths(arg1 context.Context, arg2 *v1api.UpdateAllowedPathsRequest, arg3 ...client.CallOption) (*v1api.UpdateAllowedPathsResponse, error) {
-	fake.updateAllowedPathsMutex.Lock()
-	ret, specificReturn := fake.updateAllowedPathsReturnsOnCall[len(fake.updateAllowedPathsArgsForCall)]
-	fake.updateAllowedPathsArgsForCall = append(fake.updateAllowedPathsArgsForCall, struct {
+func (fake *FakeV1Service) UnblockKey(arg1 context.Context, arg2 *v1api.UnblockKeyRequest, arg3 ...client.CallOption) (*v1api.UnblockKeyResponse, error) {
+	fake.unblockKeyMutex.Lock()
+	ret, specificReturn := fake.unblockKeyReturnsOnCall[len(fake.unblockKeyArgsForCall)]
+	fake.unblockKeyArgsForCall = append(fake.unblockKeyArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.UpdateAllowedPathsRequest
+		arg2 *v1api.UnblockKeyRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
-	stub := fake.UpdateAllowedPathsStub
-	fakeReturns := fake.updateAllowedPathsReturns
-	fake.recordInvocation("UpdateAllowedPaths", []interface{}{arg1, arg2, arg3})
-	fake.updateAllowedPathsMutex.Unlock()
+	stub := fake.UnblockKeyStub
+	fakeReturns := fake.unblockKeyReturns
+	fake.recordInvocation("UnblockKey", []interface{}{arg1, arg2, arg3})
+	fake.unblockKeyMutex.Unlock()
 	if stub != nil {
 		return stub(arg1, arg2, arg3...)
 	}
@@ -536,47 +617,47 @@ func (fake *FakeV1Service) UpdateAllowedPaths(arg1 context.Context, arg2 *v1api.
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeV1Service) UpdateAllowedPathsCallCount() int {
-	fake.updateAllowedPathsMutex.RLock()
-	defer fake.updateAllowedPathsMutex.RUnlock()
-	return len(fake.updateAllowedPathsArgsForCall)
+func (fake *FakeV1Service) UnblockKeyCallCount() int {
+	fake.unblockKeyMutex.RLock()
+	defer fake.unblockKeyMutex.RUnlock()
+	return len(fake.unblockKeyArgsForCall)
 }
 
-func (fake *FakeV1Service) UpdateAllowedPathsCalls(stub func(context.Context, *v1api.UpdateAllowedPathsRequest, ...client.CallOption) (*v1api.UpdateAllowedPathsResponse, error)) {
-	fake.updateAllowedPathsMutex.Lock()
-	defer fake.updateAllowedPathsMutex.Unlock()
-	fake.UpdateAllowedPathsStub = stub
+func (fake *FakeV1Service) UnblockKeyCalls(stub func(context.Context, *v1api.UnblockKeyRequest, ...client.CallOption) (*v1api.UnblockKeyResponse, error)) {
+	fake.unblockKeyMutex.Lock()
+	defer fake.unblockKeyMutex.Unlock()
+	fake.UnblockKeyStub = stub
 }
 
-func (fake *FakeV1Service) UpdateAllowedPathsArgsForCall(i int) (context.Context, *v1api.UpdateAllowedPathsRequest, []client.CallOption) {
-	fake.updateAllowedPathsMutex.RLock()
-	defer fake.updateAllowedPathsMutex.RUnlock()
-	argsForCall := fake.updateAllowedPathsArgsForCall[i]
+func (fake *FakeV1Service) UnblockKeyArgsForCall(i int) (context.Context, *v1api.UnblockKeyRequest, []client.CallOption) {
+	fake.unblockKeyMutex.RLock()
+	defer fake.unblockKeyMutex.RUnlock()
+	argsForCall := fake.unblockKeyArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) UpdateAllowedPathsReturns(result1 *v1api.UpdateAllowedPathsResponse, result2 error) {
-	fake.updateAllowedPathsMutex.Lock()
-	defer fake.updateAllowedPathsMutex.Unlock()
-	fake.UpdateAllowedPathsStub = nil
-	fake.updateAllowedPathsReturns = struct {
-		result1 *v1api.UpdateAllowedPathsResponse
+func (fake *FakeV1Service) UnblockKeyReturns(result1 *v1api.UnblockKeyResponse, result2 error) {
+	fake.unblockKeyMutex.Lock()
+	defer fake.unblockKeyMutex.Unlock()
+	fake.UnblockKeyStub = nil
+	fake.unblockKeyReturns = struct {
+		result1 *v1api.UnblockKeyResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) UpdateAllowedPathsReturnsOnCall(i int, result1 *v1api.UpdateAllowedPathsResponse, result2 error) {
-	fake.updateAllowedPathsMutex.Lock()
-	defer fake.updateAllowedPathsMutex.Unlock()
-	fake.UpdateAllowedPathsStub = nil
-	if fake.updateAllowedPathsReturnsOnCall == nil {
-		fake.updateAllowedPathsReturnsOnCall = make(map[int]struct {
-			result1 *v1api.UpdateAllowedPathsResponse
+func (fake *FakeV1Service) UnblockKeyReturnsOnCall(i int, result1 *v1api.UnblockKeyResponse, result2 error) {
+	fake.unblockKeyMutex.Lock()
+	defer fake.unblockKeyMutex.Unlock()
+	fake.UnblockKeyStub = nil
+	if fake.unblockKeyReturnsOnCall == nil {
+		fake.unblockKeyReturnsOnCall = make(map[int]struct {
+			result1 *v1api.UnblockKeyResponse
 			result2 error
 		})
 	}
-	fake.updateAllowedPathsReturnsOnCall[i] = struct {
-		result1 *v1api.UpdateAllowedPathsResponse
+	fake.unblockKeyReturnsOnCall[i] = struct {
+		result1 *v1api.UnblockKeyResponse
 		result2 error
 	}{result1, result2}
 }
@@ -584,6 +665,8 @@ func (fake *FakeV1Service) UpdateAllowedPathsReturnsOnCall(i int, result1 *v1api
 func (fake *FakeV1Service) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.blockKeyMutex.RLock()
+	defer fake.blockKeyMutex.RUnlock()
 	fake.disableAPIMutex.RLock()
 	defer fake.disableAPIMutex.RUnlock()
 	fake.enableAPIMutex.RLock()
@@ -596,8 +679,8 @@ func (fake *FakeV1Service) Invocations() map[string][][]interface{} {
 	defer fake.listKeysMutex.RUnlock()
 	fake.revokeKeyMutex.RLock()
 	defer fake.revokeKeyMutex.RUnlock()
-	fake.updateAllowedPathsMutex.RLock()
-	defer fake.updateAllowedPathsMutex.RUnlock()
+	fake.unblockKeyMutex.RLock()
+	defer fake.unblockKeyMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
