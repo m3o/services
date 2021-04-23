@@ -54,7 +54,8 @@ func (c *Customers) consumeEvents() {
 			var err error
 			evs, err = mevents.Consume(topic,
 				mevents.WithAutoAck(false, 30*time.Second),
-				mevents.WithRetryLimit(10)) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+				mevents.WithRetryLimit(10),
+				mevents.WithGroup("customers")) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 			if err == nil {
 				handler(evs)
 				start = time.Now()
