@@ -9,7 +9,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 )
 
-func (p *Publicapiusage) consumeEvents() {
+func (p *UsageSvc) consumeEvents() {
 	processTopic := func(topic string, handler func(ch <-chan mevents.Event)) {
 		var evs <-chan mevents.Event
 		start := time.Now()
@@ -18,7 +18,7 @@ func (p *Publicapiusage) consumeEvents() {
 			evs, err = mevents.Consume(topic,
 				mevents.WithAutoAck(false, 30*time.Second),
 				mevents.WithRetryLimit(10), // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-				mevents.WithGroup("publicapiusage"))
+				mevents.WithGroup("usage"))
 			if err == nil {
 				handler(evs)
 				start = time.Now()
@@ -35,7 +35,7 @@ func (p *Publicapiusage) consumeEvents() {
 	go processTopic("v1api", p.processV1apiEvents)
 }
 
-func (p *Publicapiusage) processV1apiEvents(ch <-chan mevents.Event) {
+func (p *UsageSvc) processV1apiEvents(ch <-chan mevents.Event) {
 	logger.Infof("Starting to process v1api events")
 	for ev := range ch {
 		ve := &v1api.Event{}
@@ -58,7 +58,7 @@ func (p *Publicapiusage) processV1apiEvents(ch <-chan mevents.Event) {
 	}
 }
 
-func (p *Publicapiusage) processRequest(event *v1api.RequestEvent, t time.Time) error {
+func (p *UsageSvc) processRequest(event *v1api.RequestEvent, t time.Time) error {
 	_, err := p.c.incr(event.UserId, event.ApiName, 1, t)
 	return err
 }
