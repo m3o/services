@@ -174,11 +174,10 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 
 	k := randStringBytesMaskImprSrc(8)
 	tok := &tokenToEmail{
-		Token:   k,
-		Email:   req.Email,
-		Created: time.Now().Unix(),
-		// @todo this is wrong
-		CustomerID: req.Email,
+		Token:      k,
+		Email:      req.Email,
+		Created:    time.Now().Unix(),
+		CustomerID: uuid.New().String(),
 	}
 
 	bytes, err := json.Marshal(tok)
