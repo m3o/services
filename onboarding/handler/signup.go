@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	namespace          = "backend"
+	namespace          = "micro"
 	internalErrorMsg   = "An error occurred during onboarding. Contact #m3o-support at slack.m3o.com if the issue persists"
 	notInvitedErrorMsg = "You have not been invited to the service. Please request an invite on m3o.com"
 )
