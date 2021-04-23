@@ -311,7 +311,7 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-	_, err = e.auth.Generate(tok.CustomerID, auth.WithSecret(secret), auth.WithIssuer(namespace), auth.WithName(req.Email), auth.WithMetadata(map[string]string{
+	_, err = e.auth.Generate(tok.CustomerID, auth.WithScopes("customer"), auth.WithSecret(secret), auth.WithIssuer(namespace), auth.WithName(req.Email), auth.WithMetadata(map[string]string{
 		"username": req.Username,
 	}))
 	if err != nil {
