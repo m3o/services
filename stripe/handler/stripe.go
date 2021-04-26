@@ -180,11 +180,15 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 		return errors.BadRequest("stripe.CreateCheckoutSession", "Amount must be at least 500")
 	}
 
+	mode := stripe.CheckoutSessionModePayment
+	if request.SaveCard {
+		mode = stripe.CheckoutSessionModeSetup
+	}
 	params := &stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
-		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		Mode: stripe.String(string(mode)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
 				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{

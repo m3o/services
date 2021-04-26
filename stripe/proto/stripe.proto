@@ -11,6 +11,7 @@ service Stripe {
 
 message CreateCheckoutSessionRequest {
 	int64 amount = 1;
+	bool save_card = 2;
 }
 
 message CreateCheckoutSessionResponse {
