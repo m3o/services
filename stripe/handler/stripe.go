@@ -321,6 +321,13 @@ func (s *Stripe) ChargeCard(ctx context.Context, request *stripepb.ChargeCardReq
 		log.Errorf("Error setting up payment intent %s", err)
 		return err
 	}
-	log.Infof("Completed payment %+v", intent.ID)
+
+	intent, err = paymentintent.Confirm(intent.ID, nil)
+	if err != nil {
+		log.Errorf("Error confirming payment intent %s", err)
+		return err
+	}
+
+	log.Infof("Completed payment %s %s", intent.ID, intent.Status)
 	return nil
 }
