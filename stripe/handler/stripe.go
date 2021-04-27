@@ -17,6 +17,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/stripe/stripe-go/v71/card"
+	"github.com/stripe/stripe-go/v71/paymentintent"
 	"github.com/stripe/stripe-go/v71/setupintent"
 
 	"github.com/stripe/stripe-go/v71"
@@ -272,6 +273,7 @@ func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsReque
 	iter := card.List(&stripe.CardListParams{
 		Customer: stripe.String(cm.StripeID),
 	})
+
 	response.Cards = []*stripepb.Card{}
 	for iter.Next() {
 		c := iter.Card()
@@ -289,4 +291,36 @@ func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsReque
 	}
 	return nil
 
+}
+
+func (s *Stripe) ChargeCard(ctx context.Context, request *stripepb.ChargeCardRequest, response *stripepb.ChargeCardResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("stripe.ChargeCard", "Unauthorized")
+	}
+	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
+	if err != nil && err != store.ErrNotFound {
+		log.Errorf("Error looking up stripe customer")
+		return err
+	}
+	if len(recs) == 0 {
+		return nil
+	}
+	var cm CustomerMapping
+	json.Unmarshal(recs[0].Value, &cm)
+
+	intent, err := paymentintent.New(&stripe.PaymentIntentParams{
+		Params:        stripe.Params{},
+		Amount:        stripe.Int64(request.Amount),
+		Currency:      stripe.String(string(stripe.CurrencyUSD)),
+		Customer:      stripe.String(cm.StripeID),
+		Description:   stripe.String("M3O funds"),
+		PaymentMethod: stripe.String(request.Id),
+	})
+	if err != nil {
+		log.Errorf("Error setting up payment intent %s", err)
+		return err
+	}
+	log.Infof("Completed payment %+v", intent.ID)
+	return nil
 }

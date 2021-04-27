@@ -7,6 +7,7 @@ option go_package = "./proto;stripe";
 service Stripe {
 	rpc CreateCheckoutSession(CreateCheckoutSessionRequest) returns (CreateCheckoutSessionResponse);
 	rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
+	rpc ChargeCard(ChargeCardRequest) returns (ChargeCardResponse);
 }
 
 message CreateCheckoutSessionRequest {
@@ -28,6 +29,15 @@ message ListCardsResponse {
 message Card {
 	string id = 1;
 	string last_four = 2;
+}
+
+message ChargeCardRequest {
+	string id = 1;
+	int64 amount = 2;
+}
+
+message ChargeCardResponse {
+
 }
 
 message Event {
