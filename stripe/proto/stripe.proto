@@ -8,6 +8,7 @@ service Stripe {
 	rpc CreateCheckoutSession(CreateCheckoutSessionRequest) returns (CreateCheckoutSessionResponse);
 	rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
 	rpc ChargeCard(ChargeCardRequest) returns (ChargeCardResponse);
+	rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
 }
 
 message CreateCheckoutSessionRequest {
@@ -39,6 +40,12 @@ message ChargeCardRequest {
 message ChargeCardResponse {
 	string client_secret = 1;
 }
+
+message DeleteCardRequest {
+	string id = 1;
+}
+
+message DeleteCardResponse {}
 
 message Event {
 	string type = 1;

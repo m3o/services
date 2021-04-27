@@ -45,6 +45,7 @@ type StripeService interface {
 	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error)
 	ListCards(ctx context.Context, in *ListCardsRequest, opts ...client.CallOption) (*ListCardsResponse, error)
 	ChargeCard(ctx context.Context, in *ChargeCardRequest, opts ...client.CallOption) (*ChargeCardResponse, error)
+	DeleteCard(ctx context.Context, in *DeleteCardRequest, opts ...client.CallOption) (*DeleteCardResponse, error)
 }
 
 type stripeService struct {
@@ -89,12 +90,23 @@ func (c *stripeService) ChargeCard(ctx context.Context, in *ChargeCardRequest, o
 	return out, nil
 }
 
+func (c *stripeService) DeleteCard(ctx context.Context, in *DeleteCardRequest, opts ...client.CallOption) (*DeleteCardResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.DeleteCard", in)
+	out := new(DeleteCardResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Stripe service
 
 type StripeHandler interface {
 	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest, *CreateCheckoutSessionResponse) error
 	ListCards(context.Context, *ListCardsRequest, *ListCardsResponse) error
 	ChargeCard(context.Context, *ChargeCardRequest, *ChargeCardResponse) error
+	DeleteCard(context.Context, *DeleteCardRequest, *DeleteCardResponse) error
 }
 
 func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.HandlerOption) error {
@@ -102,6 +114,7 @@ func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.H
 		CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error
 		ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error
 		ChargeCard(ctx context.Context, in *ChargeCardRequest, out *ChargeCardResponse) error
+		DeleteCard(ctx context.Context, in *DeleteCardRequest, out *DeleteCardResponse) error
 	}
 	type Stripe struct {
 		stripe
@@ -124,4 +137,8 @@ func (h *stripeHandler) ListCards(ctx context.Context, in *ListCardsRequest, out
 
 func (h *stripeHandler) ChargeCard(ctx context.Context, in *ChargeCardRequest, out *ChargeCardResponse) error {
 	return h.StripeHandler.ChargeCard(ctx, in, out)
+}
+
+func (h *stripeHandler) DeleteCard(ctx context.Context, in *DeleteCardRequest, out *DeleteCardResponse) error {
+	return h.StripeHandler.DeleteCard(ctx, in, out)
 }

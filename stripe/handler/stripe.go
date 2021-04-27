@@ -330,3 +330,26 @@ func (s *Stripe) ChargeCard(ctx context.Context, request *stripepb.ChargeCardReq
 
 	return nil
 }
+
+func (s *Stripe) DeleteCard(ctx context.Context, request *stripepb.DeleteCardRequest, response *stripepb.DeleteCardResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("stripe.ChargeCard", "Unauthorized")
+	}
+	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
+	if err != nil && err != store.ErrNotFound {
+		log.Errorf("Error looking up stripe customer")
+		return err
+	}
+	if len(recs) == 0 {
+		return nil
+	}
+	var cm CustomerMapping
+	json.Unmarshal(recs[0].Value, &cm)
+
+	_, err = paymentmethod.Detach(request.Id, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
