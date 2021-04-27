@@ -16,8 +16,8 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
-	"github.com/stripe/stripe-go/v71/card"
 	"github.com/stripe/stripe-go/v71/paymentintent"
+	"github.com/stripe/stripe-go/v71/paymentmethod"
 	"github.com/stripe/stripe-go/v71/setupintent"
 
 	"github.com/stripe/stripe-go/v71"
@@ -257,7 +257,7 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsRequest, response *stripepb.ListCardsResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
-		return errors.Unauthorized("stripe.CreateCheckoutSession", "Unauthorized")
+		return errors.Unauthorized("stripe.ListCards", "Unauthorized")
 	}
 	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
 	if err != nil && err != store.ErrNotFound {
@@ -269,21 +269,17 @@ func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsReque
 	}
 	var cm CustomerMapping
 	json.Unmarshal(recs[0].Value, &cm)
-
-	iter := card.List(&stripe.CardListParams{
+	iter := paymentmethod.List(&stripe.PaymentMethodListParams{
 		Customer: stripe.String(cm.StripeID),
+		Type:     stripe.String(string(stripe.PaymentMethodTypeCard)),
 	})
 
 	response.Cards = []*stripepb.Card{}
 	for iter.Next() {
-		c := iter.Card()
-		lastFour := c.Last4
-		if len(lastFour) == 0 {
-			lastFour = c.DynamicLast4
-		}
+		pm := iter.PaymentMethod()
 		response.Cards = append(response.Cards, &stripepb.Card{
-			Id:       c.ID,
-			LastFour: lastFour,
+			Id:       pm.ID,
+			LastFour: pm.Card.Last4,
 		})
 	}
 	if iter.Err() != nil {
