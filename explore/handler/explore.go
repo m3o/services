@@ -82,6 +82,7 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 			})
 			continue
 		}
+		found := false
 		for _, ep := range service.Endpoints {
 			if strings.Contains(ep.Name, req.SearchTerm) {
 				matchedEndpointName = append(matchedEndpointName, &proto.Service{
@@ -89,8 +90,12 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 					Readme:      meta.Readme,
 					OpenAPIJSON: meta.OpenAPIJSON,
 				})
-				continue
+				found = true
+				break
 			}
+		}
+		if found {
+			continue
 		}
 		if strings.Contains(meta.Readme, req.SearchTerm) {
 			matchedOther = append(matchedOther, &proto.Service{
