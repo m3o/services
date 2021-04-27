@@ -16,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/stripe/stripe-go/v71/card"
 	"github.com/stripe/stripe-go/v71/setupintent"
 
 	"github.com/stripe/stripe-go/v71"
@@ -250,4 +251,41 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 
 	response.Id = session.ID
 	return nil
+}
+
+func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsRequest, response *stripepb.ListCardsResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("stripe.CreateCheckoutSession", "Unauthorized")
+	}
+	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
+	if err != nil && err != store.ErrNotFound {
+		log.Errorf("Error looking up stripe customer")
+		return err
+	}
+	if len(recs) == 0 {
+		return nil
+	}
+	var cm CustomerMapping
+	json.Unmarshal(recs[0].Value, &cm)
+
+	iter := card.List(&stripe.CardListParams{
+		Customer: stripe.String(cm.StripeID),
+	})
+	response.Cards = []*stripepb.Card{}
+	for iter.Next() {
+		c := iter.Card()
+		lastFour := c.Last4
+		if len(lastFour) == 0 {
+			lastFour = c.DynamicLast4
+		}
+		response.Cards = append(response.Cards, &stripepb.Card{
+			LastFour: lastFour,
+		})
+	}
+	if iter.Err() != nil {
+		return iter.Err()
+	}
+	return nil
+
 }

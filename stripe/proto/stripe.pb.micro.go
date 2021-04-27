@@ -43,6 +43,7 @@ func NewStripeEndpoints() []*api.Endpoint {
 
 type StripeService interface {
 	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error)
+	ListCards(ctx context.Context, in *ListCardsRequest, opts ...client.CallOption) (*ListCardsResponse, error)
 }
 
 type stripeService struct {
@@ -67,15 +68,27 @@ func (c *stripeService) CreateCheckoutSession(ctx context.Context, in *CreateChe
 	return out, nil
 }
 
+func (c *stripeService) ListCards(ctx context.Context, in *ListCardsRequest, opts ...client.CallOption) (*ListCardsResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.ListCards", in)
+	out := new(ListCardsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Stripe service
 
 type StripeHandler interface {
 	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest, *CreateCheckoutSessionResponse) error
+	ListCards(context.Context, *ListCardsRequest, *ListCardsResponse) error
 }
 
 func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.HandlerOption) error {
 	type stripe interface {
 		CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error
+		ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error
 	}
 	type Stripe struct {
 		stripe
@@ -90,4 +103,8 @@ type stripeHandler struct {
 
 func (h *stripeHandler) CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error {
 	return h.StripeHandler.CreateCheckoutSession(ctx, in, out)
+}
+
+func (h *stripeHandler) ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error {
+	return h.StripeHandler.ListCards(ctx, in, out)
 }
