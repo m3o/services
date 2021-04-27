@@ -323,7 +323,10 @@ func (s *Stripe) ChargeCard(ctx context.Context, request *stripepb.ChargeCardReq
 		log.Errorf("Error confirming payment intent %s", err)
 		return err
 	}
+	if intent.Status != stripe.PaymentIntentStatusRequiresAction {
+		return nil
+	}
+	response.ClientSecret = intent.ClientSecret
 
-	log.Infof("Completed payment %s %s", intent.ID, intent.Status)
 	return nil
 }

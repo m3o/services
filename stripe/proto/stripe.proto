@@ -37,7 +37,7 @@ message ChargeCardRequest {
 }
 
 message ChargeCardResponse {
-
+	string client_secret = 1;
 }
 
 message Event {
