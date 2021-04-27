@@ -16,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/stripe/stripe-go/v71/setupintent"
 
 	"github.com/stripe/stripe-go/v71"
 	"github.com/stripe/stripe-go/v71/checkout/session"
@@ -74,6 +75,8 @@ func (s *Stripe) Webhook(ctx context.Context, ev *stripe.Event, rsp *api.Respons
 		return s.customerCreated(ctx, ev)
 	case "charge.succeeded":
 		return s.chargeSucceeded(ctx, ev)
+	case "checkout.session.completed":
+		return s.checkoutSessionCompleted(ctx, ev)
 	default:
 		log.Infof("Discarding event %s:%s", ev.ID, ev.Type)
 	}
@@ -155,6 +158,23 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 	return nil
 }
 
+func (s *Stripe) checkoutSessionCompleted(ctx context.Context, event *stripe.Event) error {
+	//
+	var ch stripe.CheckoutSession
+	if err := json.Unmarshal(event.Data.Raw, &ch); err != nil {
+		log.Errorf("Error unmarshalling event %s", err)
+		return err
+	}
+	intent, err := setupintent.Get(ch.SetupIntent.ID, nil)
+	if err != nil {
+		log.Errorf("Error looking up setup intent %s %s", ch.SetupIntent.ID, err)
+		return err
+	}
+	// if no existing customer create customer and attach
+	log.Infof("Intent %+v", intent)
+	return nil
+}
+
 func verifyAdmin(ctx context.Context, method string) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
@@ -176,7 +196,7 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 	if !ok {
 		return errors.Unauthorized("stripe.CreateCheckoutSession", "Unauthorized")
 	}
-	if request.Amount < 500 { // min spend
+	if !request.SaveCard && request.Amount < 500 { // min spend
 		return errors.BadRequest("stripe.CreateCheckoutSession", "Amount must be at least 500")
 	}
 
