@@ -84,7 +84,7 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 		}
 		found := false
 		for _, ep := range service.Endpoints {
-			if strings.Contains(ep.Name, req.SearchTerm) {
+			if strings.Contains(strings.ToLower(ep.Name), req.SearchTerm) {
 				matchedEndpointName = append(matchedEndpointName, &proto.Service{
 					Service:     regutil.ToProto(service),
 					Readme:      meta.Readme,
