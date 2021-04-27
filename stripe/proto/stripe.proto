@@ -26,7 +26,8 @@ message ListCardsResponse {
 }
 
 message Card {
-	string last_four = 1;
+	string id = 1;
+	string last_four = 2;
 }
 
 message Event {

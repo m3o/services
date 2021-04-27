@@ -280,6 +280,7 @@ func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsReque
 			lastFour = c.DynamicLast4
 		}
 		response.Cards = append(response.Cards, &stripepb.Card{
+			Id:       c.ID,
 			LastFour: lastFour,
 		})
 	}
