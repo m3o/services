@@ -43,7 +43,7 @@ func NewUsageEndpoints() []*api.Endpoint {
 
 type UsageService interface {
 	Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error)
-	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
+	Sweep(ctx context.Context, in *SweepRequest, opts ...client.CallOption) (*SweepResponse, error)
 }
 
 type usageService struct {
@@ -68,9 +68,9 @@ func (c *usageService) Read(ctx context.Context, in *ReadRequest, opts ...client
 	return out, nil
 }
 
-func (c *usageService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "Usage.List", in)
-	out := new(ListResponse)
+func (c *usageService) Sweep(ctx context.Context, in *SweepRequest, opts ...client.CallOption) (*SweepResponse, error) {
+	req := c.c.NewRequest(c.name, "Usage.Sweep", in)
+	out := new(SweepResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -82,13 +82,13 @@ func (c *usageService) List(ctx context.Context, in *ListRequest, opts ...client
 
 type UsageHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
-	List(context.Context, *ListRequest, *ListResponse) error
+	Sweep(context.Context, *SweepRequest, *SweepResponse) error
 }
 
 func RegisterUsageHandler(s server.Server, hdlr UsageHandler, opts ...server.HandlerOption) error {
 	type usage interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
-		List(ctx context.Context, in *ListRequest, out *ListResponse) error
+		Sweep(ctx context.Context, in *SweepRequest, out *SweepResponse) error
 	}
 	type Usage struct {
 		usage
@@ -105,6 +105,6 @@ func (h *usageHandler) Read(ctx context.Context, in *ReadRequest, out *ReadRespo
 	return h.UsageHandler.Read(ctx, in, out)
 }
 
-func (h *usageHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
-	return h.UsageHandler.List(ctx, in, out)
+func (h *usageHandler) Sweep(ctx context.Context, in *SweepRequest, out *SweepResponse) error {
+	return h.UsageHandler.Sweep(ctx, in, out)
 }

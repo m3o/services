@@ -2,37 +2,30 @@ syntax = "proto3";
 
 package usage;
 
-option go_package = "proto;usage";
+option go_package = "./proto;usage";
 
 service Usage {
 	rpc Read(ReadRequest) returns (ReadResponse) {}
-	rpc List(ListRequest) returns (ListResponse) {}
-}
-
-message Account {
-	string namespace = 1;
-	int64 users = 2;
-	int64 services = 3;
+	rpc Sweep(SweepRequest) returns (SweepResponse) {}
 }
 
 message ReadRequest {
-	// namespace is required
-	string namespace = 1;
+	string customer_id = 1;
+}
+
+message UsageHistory {
+	string api_name = 1;
+	repeated UsageRecord records = 2;
+}
+
+message UsageRecord {
+	int64 date = 1;
+	int64 requests = 2;
 }
 
 message ReadResponse {
-	repeated Account accounts = 1;
+	map<string, UsageHistory> usage = 1;
 }
 
-message ListRequest {}
-
-message ListResponse {
-	repeated Account accounts = 1;
-	Summary summary = 2;
-}
-
-message Summary {
-	int64 namespace_count = 1;
-	int64 user_count = 2;
-	int64 services_count = 3;
-}
+message SweepRequest {}
+message SweepResponse {}

@@ -7,11 +7,11 @@ init:
 	go get github.com/micro/micro/v3/cmd/protoc-gen-micro
 .PHONY: proto
 proto:
-	protoc --proto_path=. --micro_out=. --go_out=:. proto/usage.proto
+	protoc --proto_path=. --micro_out=. --go_out=:. proto/publicapi.proto
 	
 .PHONY: build
 build:
-	go build -o usage *.go
+	go build -o publicapi *.go
 
 .PHONY: test
 test:
@@ -19,4 +19,4 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t usage:latest
+	docker build . -t publicapi:latest

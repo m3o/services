@@ -45,7 +45,8 @@ type V1Service interface {
 	GenerateKey(ctx context.Context, in *GenerateKeyRequest, opts ...client.CallOption) (*GenerateKeyResponse, error)
 	ListKeys(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
-	UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error)
+	UnblockKey(ctx context.Context, in *UnblockKeyRequest, opts ...client.CallOption) (*UnblockKeyResponse, error)
+	BlockKey(ctx context.Context, in *BlockKeyRequest, opts ...client.CallOption) (*BlockKeyResponse, error)
 	EnableAPI(ctx context.Context, in *EnableAPIRequest, opts ...client.CallOption) (*EnableAPIResponse, error)
 	DisableAPI(ctx context.Context, in *DisableAPIRequest, opts ...client.CallOption) (*DisableAPIResponse, error)
 	ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error)
@@ -93,9 +94,19 @@ func (c *v1Service) RevokeKey(ctx context.Context, in *RevokeRequest, opts ...cl
 	return out, nil
 }
 
-func (c *v1Service) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, opts ...client.CallOption) (*UpdateAllowedPathsResponse, error) {
-	req := c.c.NewRequest(c.name, "V1.UpdateAllowedPaths", in)
-	out := new(UpdateAllowedPathsResponse)
+func (c *v1Service) UnblockKey(ctx context.Context, in *UnblockKeyRequest, opts ...client.CallOption) (*UnblockKeyResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.UnblockKey", in)
+	out := new(UnblockKeyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *v1Service) BlockKey(ctx context.Context, in *BlockKeyRequest, opts ...client.CallOption) (*BlockKeyResponse, error) {
+	req := c.c.NewRequest(c.name, "V1.BlockKey", in)
+	out := new(BlockKeyResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -139,7 +150,8 @@ type V1Handler interface {
 	GenerateKey(context.Context, *GenerateKeyRequest, *GenerateKeyResponse) error
 	ListKeys(context.Context, *ListRequest, *ListResponse) error
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
-	UpdateAllowedPaths(context.Context, *UpdateAllowedPathsRequest, *UpdateAllowedPathsResponse) error
+	UnblockKey(context.Context, *UnblockKeyRequest, *UnblockKeyResponse) error
+	BlockKey(context.Context, *BlockKeyRequest, *BlockKeyResponse) error
 	EnableAPI(context.Context, *EnableAPIRequest, *EnableAPIResponse) error
 	DisableAPI(context.Context, *DisableAPIRequest, *DisableAPIResponse) error
 	ListAPIs(context.Context, *ListAPIsRequest, *ListAPIsResponse) error
@@ -150,7 +162,8 @@ func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOp
 		GenerateKey(ctx context.Context, in *GenerateKeyRequest, out *GenerateKeyResponse) error
 		ListKeys(ctx context.Context, in *ListRequest, out *ListResponse) error
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
-		UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error
+		UnblockKey(ctx context.Context, in *UnblockKeyRequest, out *UnblockKeyResponse) error
+		BlockKey(ctx context.Context, in *BlockKeyRequest, out *BlockKeyResponse) error
 		EnableAPI(ctx context.Context, in *EnableAPIRequest, out *EnableAPIResponse) error
 		DisableAPI(ctx context.Context, in *DisableAPIRequest, out *DisableAPIResponse) error
 		ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error
@@ -178,8 +191,12 @@ func (h *v1Handler) RevokeKey(ctx context.Context, in *RevokeRequest, out *Revok
 	return h.V1Handler.RevokeKey(ctx, in, out)
 }
 
-func (h *v1Handler) UpdateAllowedPaths(ctx context.Context, in *UpdateAllowedPathsRequest, out *UpdateAllowedPathsResponse) error {
-	return h.V1Handler.UpdateAllowedPaths(ctx, in, out)
+func (h *v1Handler) UnblockKey(ctx context.Context, in *UnblockKeyRequest, out *UnblockKeyResponse) error {
+	return h.V1Handler.UnblockKey(ctx, in, out)
+}
+
+func (h *v1Handler) BlockKey(ctx context.Context, in *BlockKeyRequest, out *BlockKeyResponse) error {
+	return h.V1Handler.BlockKey(ctx, in, out)
 }
 
 func (h *v1Handler) EnableAPI(ctx context.Context, in *EnableAPIRequest, out *EnableAPIResponse) error {

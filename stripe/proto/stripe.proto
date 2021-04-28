@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package stripe;
+
+option go_package = "./proto;stripe";
+
+service Stripe {
+	rpc CreateCheckoutSession(CreateCheckoutSessionRequest) returns (CreateCheckoutSessionResponse);
+	rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
+	rpc ChargeCard(ChargeCardRequest) returns (ChargeCardResponse);
+	rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
+}
+
+message CreateCheckoutSessionRequest {
+	int64 amount = 1;
+	bool save_card = 2;
+}
+
+message CreateCheckoutSessionResponse {
+	string id = 1;
+}
+
+message ListCardsRequest {
+}
+
+message ListCardsResponse {
+	repeated Card cards = 1;
+}
+
+message Card {
+	string id = 1;
+	string last_four = 2;
+}
+
+message ChargeCardRequest {
+	string id = 1;
+	int64 amount = 2;
+}
+
+message ChargeCardResponse {
+	string client_secret = 1;
+}
+
+message DeleteCardRequest {
+	string id = 1;
+}
+
+message DeleteCardResponse {}
+
+message Event {
+	string type = 1;
+	ChargeSuceededEvent charge_succeeded = 2;
+}
+
+message ChargeSuceededEvent {
+	string customer_id = 1;
+	string currency = 2;
+	int64 ammount = 3; // in minor units e.g. cents, pence, etc
+
+}

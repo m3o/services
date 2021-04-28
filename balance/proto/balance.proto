@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package balance;
+
+option go_package = "./proto;balance";
+
+service Balance {
+	rpc Increment(IncrementRequest) returns (IncrementResponse) {}
+	rpc Decrement(DecrementRequest) returns (DecrementResponse) {}
+	rpc Current(CurrentRequest) returns (CurrentResponse) {}
+}
+
+message IncrementRequest {
+	string customer_id = 1;
+	int64 delta = 2;
+	string idempotency_key = 3;
+}
+
+message IncrementResponse {
+	int64 new_balance = 1;
+}
+
+message DecrementRequest {
+	string customer_id = 1;
+	int64 delta = 2;
+	string idempotency_key = 3;
+}
+
+message DecrementResponse {
+	int64 new_balance = 1;
+}
+
+message CurrentRequest {
+	string customer_id = 1;
+}
+
+message CurrentResponse {
+	int64 current_balance = 1;
+}

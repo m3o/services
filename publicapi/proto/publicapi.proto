@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package publicapi;
+
+option go_package = "./proto;publicapi";
+
+service Publicapi {
+	rpc Publish(PublishRequest) returns (PublishResponse) {}
+	rpc Update(UpdateRequest) returns (UpdateResponse) {}
+	rpc Get(GetRequest) returns (GetResponse) {}
+	rpc List(ListRequest) returns (ListResponse) {}
+	rpc Remove(RemoveRequest) returns (RemoveResponse) {}
+}
+
+message PublishRequest {
+	PublicAPI api = 1;
+}
+
+message PublicAPI {
+	string id = 1;
+	string name = 2;
+	string description = 3;
+	string open_api_json = 4;
+	map<string, int64> pricing = 6; // map of endpoints to price. Unit is 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
+	string owner_id = 7;
+}
+
+message PublishResponse {
+	PublicAPI api = 1;
+}
+
+message GetRequest {
+	string id = 1;
+	string name = 2;
+}
+
+message GetResponse {
+	PublicAPI api = 1;
+}
+
+message ListRequest {}
+
+message ListResponse {
+	repeated PublicAPI apis = 1;
+}
+
+message Event {
+	string type = 1;
+	APIEnableEvent api_enable = 2;
+}
+
+
+message APIEnableEvent {
+	string name = 1;
+}
+
+message RemoveRequest {
+	string id = 1;
+	string name = 2;
+}
+message RemoveResponse {}
+
+message UpdateRequest {
+	PublicAPI api = 1;
+}
+
+message UpdateResponse {
+	PublicAPI api = 1;
+}

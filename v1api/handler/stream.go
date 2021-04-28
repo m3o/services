@@ -96,7 +96,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 
 	reqURL, _ := md.Get("url")
 	// http long poll
-	publishEndpointEvent(reqURL, apiRec)
+	publishEndpointEvent(reqURL, service, endpoint, apiRec)
 
 	rsp := downStream.Response()
 
@@ -161,7 +161,15 @@ func serveWebsocket(ctx context.Context, serverStream server.Stream, service, en
 		msgType = websocket.TextMessage
 	}
 
-	s := stream{ctx: ctx, serverStream: serverStream, stream: downstream, messageType: msgType, apiRec: apiRec}
+	s := stream{
+		ctx:          ctx,
+		serverStream: serverStream,
+		stream:       downstream,
+		messageType:  msgType,
+		apiRec:       apiRec,
+		service:      service,
+		endpoint:     endpoint,
+	}
 	s.processWSReadsAndWrites()
 	return nil
 
@@ -178,6 +186,9 @@ type stream struct {
 	stream client.Stream
 	// the apiKeyRecord for this user
 	apiRec *apiKeyRecord
+
+	service  string
+	endpoint string
 }
 
 func (s *stream) processWSReadsAndWrites() {
@@ -285,7 +296,7 @@ func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGrou
 			logger.Error(err)
 			return
 		}
-		publishEndpointEvent(reqURL, s.apiRec)
+		publishEndpointEvent(reqURL, s.service, s.endpoint, s.apiRec)
 	}
 }
 

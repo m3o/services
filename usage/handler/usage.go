@@ -2,202 +2,320 @@ package handler
 
 import (
 	"context"
+	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
+	"sync"
 	"time"
 
+	"github.com/go-redis/redis/v8"
+	pb "github.com/m3o/services/usage/proto"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/config"
-	"github.com/slack-go/slack"
-
-	usage "github.com/m3o/services/usage/proto"
-
-	nsproto "github.com/m3o/services/namespaces/proto"
-	pb "github.com/micro/micro/v3/proto/auth"
-	rproto "github.com/micro/micro/v3/proto/runtime"
-	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 )
 
 const (
-	defaultNamespace = "micro"
+	prefixCounter         = "usage-service/counter"
+	prefixUsageByCustomer = "usageByCustomer" // customer ID / date
+	counterTTL            = 48 * time.Hour
 )
 
-type Usage struct {
-	ns       nsproto.NamespacesService
-	as       pb.AccountsService
-	runtime  rproto.RuntimeService
-	slackbot *slack.Client
+type counter struct {
+	sync.RWMutex
+	redisClient *redis.Client
 }
 
-func NewUsage(ns nsproto.NamespacesService, as pb.AccountsService, runtime rproto.RuntimeService) *Usage {
-	val, err := config.Get("micro.alert.slack_token")
+func (c *counter) incr(userID, path string, delta int64, t time.Time) (int64, error) {
+	t = t.UTC()
+	ctx := context.Background()
+	key := fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)
+	pipe := c.redisClient.TxPipeline()
+	incr := pipe.IncrBy(ctx, key, delta)
+	pipe.Expire(ctx, key, counterTTL) // make sure we expire the counters
+	_, err := pipe.Exec(ctx)
 	if err != nil {
-		log.Warnf("Error getting config: %v", err)
+		return 0, err
 	}
-	slackToken := val.String("")
-	if len(slackToken) == 0 {
-		log.Fatal("Missing required config micro.alert.slack_token")
-	}
-
-	u := &Usage{
-		ns:       ns,
-		as:       as,
-		runtime:  runtime,
-		slackbot: slack.New(slackToken),
-	}
-	return u
+	return incr.Result()
 }
 
-// Read account history by namespace, or lists latest values for each namespace if history is not provided.
-func (e *Usage) Read(ctx context.Context, req *usage.ReadRequest, rsp *usage.ReadResponse) error {
-	log.Infof("Received Usage.Read request, reading namespace '%v'", req.Namespace)
-	u, err := e.usageForNamespace(req.Namespace)
+func (c *counter) decr(userID, path string, delta int64, t time.Time) (int64, error) {
+	t = t.UTC()
+	ctx := context.Background()
+	key := fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)
+	pipe := c.redisClient.TxPipeline()
+	decr := pipe.DecrBy(ctx, key, delta)
+	pipe.Expire(ctx, key, counterTTL) // make sure we expire counters
+	_, err := pipe.Exec(ctx)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	rsp.Accounts = []*usage.Account{
-		{
-			Namespace: req.Namespace,
-			Users:     u.Users,
-			Services:  u.Services,
+	return decr.Result()
+}
+
+func (c *counter) read(userID, path string, t time.Time) (int64, error) {
+	t = t.UTC()
+	return c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)).Int64()
+}
+
+type listEntry struct {
+	Service string
+	Count   int64
+}
+
+func (c *counter) listForUser(userID string, t time.Time) ([]listEntry, error) {
+	ctx := context.Background()
+	keyPrefix := fmt.Sprintf("%s:%s:%s:", prefixCounter, userID, t.Format("20060102"))
+	sc := c.redisClient.Scan(ctx, 0, keyPrefix+"*", 0)
+	if err := sc.Err(); err != nil {
+		return nil, err
+	}
+	iter := sc.Iterator()
+	res := []listEntry{}
+	for {
+		if !iter.Next(ctx) {
+			break
+		}
+		key := iter.Val()
+		i, err := c.redisClient.Get(ctx, key).Int64()
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, listEntry{
+			Service: strings.TrimPrefix(key, keyPrefix),
+			Count:   i,
+		})
+	}
+	return res, iter.Err()
+}
+
+type UsageSvc struct {
+	c *counter
+}
+
+func NewHandler(svc *service.Service) *UsageSvc {
+	redisConfig := struct {
+		Address  string
+		User     string
+		Password string
+	}{}
+	val, err := config.Get("micro.usage.redis")
+	if err != nil {
+		log.Fatalf("No redis config found %s", err)
+	}
+	if err := val.Scan(&redisConfig); err != nil {
+		log.Fatalf("Error parsing redis config %s", err)
+	}
+	if len(redisConfig.Password) == 0 || len(redisConfig.User) == 0 || len(redisConfig.Password) == 0 {
+		log.Fatalf("Missing redis config %s", err)
+	}
+	rc := redis.NewClient(&redis.Options{
+		Addr:     redisConfig.Address,
+		Username: redisConfig.User,
+		Password: redisConfig.Password,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: false,
 		},
+	})
+	p := &UsageSvc{
+		c: &counter{redisClient: rc},
+	}
+	go p.consumeEvents()
+	return p
+}
+
+func (p *UsageSvc) Read(ctx context.Context, request *pb.ReadRequest, response *pb.ReadResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("usage.Read", "Unauthorized")
+	}
+	if len(request.CustomerId) == 0 {
+		request.CustomerId = acc.ID
+	}
+	if acc.ID != request.CustomerId {
+		err := verifyMicroAdmin(ctx, "usage.Read")
+		if err != nil {
+			return err
+		}
+	}
+
+	now := time.Now().UTC().Truncate(24 * time.Hour)
+	liveEntries, err := p.c.listForUser(request.CustomerId, now)
+	if err != nil {
+		log.Errorf("Error retrieving usage %s", err)
+		return errors.InternalServerError("usage.Read", "Error retrieving usage")
+	}
+
+	response.Usage = map[string]*pb.UsageHistory{}
+	// add live data on top of historical
+	keyPrefix := fmt.Sprintf("%s/%s/", prefixUsageByCustomer, request.CustomerId)
+	recs, err := store.Read(keyPrefix, store.ReadPrefix())
+	if err != nil {
+		log.Errorf("Error querying historical data %s", err)
+		return errors.InternalServerError("usage.Read", "Error retrieving usage")
+	}
+
+	addEntryToResponse := func(response *pb.ReadResponse, e listEntry, unixTime int64) {
+		use := response.Usage[e.Service]
+		if use == nil {
+			use = &pb.UsageHistory{
+				ApiName: e.Service,
+				Records: []*pb.UsageRecord{},
+			}
+		}
+		use.Records = append(use.Records, &pb.UsageRecord{Date: unixTime, Requests: e.Count})
+		response.Usage[e.Service] = use
+	}
+
+	// add to slices
+	for _, rec := range recs {
+		date := strings.TrimPrefix(rec.Key, keyPrefix)
+		dateObj, err := time.Parse("20060102", date)
+		if err != nil {
+			log.Errorf("Error parsing date obj %s", err)
+			return errors.InternalServerError("usage.Read", "Error retrieving usage")
+		}
+		var de dateEntry
+		if err := json.Unmarshal(rec.Value, &de); err != nil {
+			log.Errorf("Error parsing date obj %s", err)
+			return errors.InternalServerError("usage.Read", "Error retrieving usage")
+		}
+		for _, e := range de.Entries {
+			addEntryToResponse(response, e, dateObj.Unix())
+		}
+	}
+	for _, e := range liveEntries {
+		addEntryToResponse(response, e, now.Unix())
+	}
+	// sort slices
+	for _, v := range response.Usage {
+		sort.Slice(v.Records, func(i, j int) bool {
+			if v.Records[i].Date == v.Records[j].Date {
+				return v.Records[i].Requests < v.Records[j].Requests
+			}
+			return v.Records[i].Date < v.Records[j].Date
+		})
+	}
+	// remove dupe
+	for k, v := range response.Usage {
+		lenRecs := len(v.Records)
+		if lenRecs < 2 {
+			continue
+		}
+		if v.Records[lenRecs-2].Date != v.Records[lenRecs-1].Date {
+			continue
+		}
+		response.Usage[k].Records = append(v.Records[:lenRecs-2], v.Records[lenRecs-1])
+
 	}
 	return nil
 }
 
-type usg struct {
-	Users     int64
-	Services  int64
-	Namespace string
-}
-
-func (e *Usage) usageForNamespace(namespace string) (*usg, error) {
-	arsp, err := e.as.List(context.TODO(), &pb.ListAccountsRequest{
-		Options: &pb.Options{
-			Namespace: namespace,
-		},
-	}, client.WithAuthToken())
-	if err != nil {
-		return nil, err
+func verifyMicroAdmin(ctx context.Context, method string) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized(method, "Unauthorized")
 	}
-	userCount := 0
-	for _, account := range arsp.Accounts {
-		if account.Type == "user" {
-			userCount++
+	if acc.Issuer != "micro" {
+		return errors.Forbidden(method, "Forbidden")
+	}
+	admin := false
+	for _, s := range acc.Scopes {
+		if s == "admin" || s == "service" {
+			admin = true
+			break
 		}
 	}
-	rrsp, err := e.runtime.Read(context.TODO(), &rproto.ReadRequest{
-		Options: &rproto.ReadOptions{
-			Namespace: namespace,
-		},
-	}, client.WithAuthToken(), client.WithRequestTimeout(10*time.Second))
-	if err != nil {
-		return nil, err
-	}
-	serviceCount := len(rrsp.Services)
-	return &usg{
-		Users:     int64(userCount),
-		Services:  int64(serviceCount),
-		Namespace: namespace,
-	}, nil
-}
-
-func (e *Usage) List(ctx context.Context, request *usage.ListRequest, response *usage.ListResponse) error {
-	usages, err := e.usageForAllNamespaces()
-	if err != nil {
-		return err
-	}
-
-	response.Accounts = make([]*usage.Account, len(usages))
-	for i, us := range usages {
-		response.Accounts[i] = &usage.Account{
-			Namespace: us.Namespace,
-			Users:     us.Users,
-			Services:  us.Services,
-		}
-	}
-
-	nsCount := len(usages)
-	var svcCount, userCount int64
-	for _, u := range usages {
-		svcCount += u.Services
-		userCount += u.Users
-	}
-
-	response.Summary = &usage.Summary{
-		NamespaceCount: int64(nsCount),
-		UserCount:      userCount,
-		ServicesCount:  svcCount,
+	if !admin {
+		return errors.Forbidden(method, "Forbidden")
 	}
 	return nil
 }
 
-func (e *Usage) CheckUsageCron() {
-	usages, err := e.usageForAllNamespaces()
-	if err != nil {
-		log.Errorf("Error calculating usage %s", err)
+type dateEntry struct {
+	Entries []listEntry
+}
+
+func (p *UsageSvc) UsageCron() {
+	defer func() {
+		log.Infof("Usage sweep ended")
+	}()
+	log.Infof("Performing usage sweep")
+	// loop through counters and persist
+	ctx := context.Background()
+	sc := p.c.redisClient.Scan(ctx, 0, prefixCounter+":*", 0)
+	if err := sc.Err(); err != nil {
+		log.Errorf("Error running redis scan %s", err)
 		return
 	}
-	nsCount := len(usages)
-	var svcCount, userCount int64
-	for _, u := range usages {
-		svcCount += u.Services
-		userCount += u.Users
-	}
-	msg := fmt.Sprintf("Usage summary\nNamespaces: %d\nUsers: %d\nServices: %d\nFor a more detailed breakdown run `micro usage list`", nsCount, userCount, svcCount)
 
-	valUser, _ := config.Get("micro.usage.cron.user")
-	valChan, _ := config.Get("micro.usage.cron.channel")
-	e.slackbot.SendMessage(valChan.String("team-important"),
-		slack.MsgOptionUsername(valUser.String("Usage Service")),
-		slack.MsgOptionText(msg, false),
-	)
+	toPersist := map[string]map[string][]listEntry{} // userid->date->[]listEntry
+	it := sc.Iterator()
+	for {
+		if !it.Next(ctx) {
+			if err := it.Err(); err != nil {
+				log.Errorf("Error during iteration %s", err)
+			}
+			break
+		}
+
+		key := it.Val()
+		count, err := p.c.redisClient.Get(ctx, key).Int64()
+		if err != nil {
+			log.Errorf("Error retrieving value %s", err)
+			return
+		}
+		parts := strings.Split(strings.TrimPrefix(key, prefixCounter+":"), ":")
+		if len(parts) < 3 {
+			log.Errorf("Unexpected number of components in key %s", key)
+			continue
+		}
+		userID := parts[0]
+		date := parts[1]
+		service := parts[2]
+		dates := toPersist[userID]
+		if dates == nil {
+			dates = map[string][]listEntry{}
+			toPersist[userID] = dates
+		}
+		entries := dates[date]
+		if entries == nil {
+			entries = []listEntry{}
+		}
+		entries = append(entries, listEntry{
+			Service: service,
+			Count:   count,
+		})
+		dates[date] = entries
+	}
+
+	for userID, v := range toPersist {
+		for date, entry := range v {
+			de := dateEntry{
+				Entries: entry,
+			}
+			b, err := json.Marshal(de)
+			if err != nil {
+				log.Errorf("Error marshalling entry %s", err)
+				return
+			}
+			store.Write(&store.Record{
+				Key:   fmt.Sprintf("%s/%s/%s", prefixUsageByCustomer, userID, date),
+				Value: b,
+			})
+		}
+
+	}
 
 }
 
-func (e *Usage) usageForAllNamespaces() ([]*usg, error) {
-	rsp, err := e.ns.List(context.TODO(), &nsproto.ListRequest{}, client.WithAuthToken())
-	if err != nil {
-		return nil, err
-	}
-	jobs := make(chan string, 5)
-	res := make(chan *usg, 5)
-	defer close(res)
-	defer close(jobs)
-	errMap := map[string]int{}
-	worker := func() {
-		for nsID := range jobs {
-			usg, err := e.usageForNamespace(nsID)
-			if err != nil {
-				if errMap[nsID] < 3 {
-					errMap[nsID] += 1
-					// put it back on
-					jobs <- nsID
-					continue
-				}
-				// too many errors, break out
-				usg.Namespace = nsID
-				log.Errorf("Too many errors for %s", nsID)
-			}
-			res <- usg
-		}
-
-	}
-
-	//worker pool
-	for i := 0; i < 3; i++ {
-		go worker()
-	}
-
-	usages := []*usg{}
-	go func() {
-		for _, ns := range rsp.Namespaces {
-			jobs <- ns.Id
-		}
-
-	}()
-	for i := 0; i < len(rsp.Namespaces); i++ {
-		usages = append(usages, <-res)
-	}
-	return usages, nil
-
+func (p *UsageSvc) Sweep(ctx context.Context, request *pb.SweepRequest, response *pb.SweepResponse) error {
+	p.UsageCron()
+	return nil
 }

@@ -40,17 +40,25 @@ var (
 	errBlocked      = errors.Forbidden("v1api.blocked", "Client is blocked")
 )
 
+type keyStatus string
+
+const (
+	keyStatusActive  = "active"
+	keyStatusBlocked = "blocked" // blocked - probably because they've run out of money
+)
+
 type apiKeyRecord struct {
-	ID          string          `json:"id"`          // id of the key
-	ApiKey      string          `json:"apiKey"`      // hashed api key
-	Scopes      []string        `json:"scopes"`      // the scopes this key has granted
-	UserID      string          `json:"userID"`      // the ID of the key's owner
-	AccID       string          `json:"accID"`       // the ID of the service account
-	Description string          `json:"description"` // optional description of the API key as given by user
-	Namespace   string          `json:"namespace"`   // the namespace that this user belongs to (only because technically user IDs aren't globally unique)
-	Token       string          `json:"token"`       // the short lived JWT token
-	Created     int64           `json:"created"`     // creation time
-	AllowList   map[string]bool `json:"allowList"`   // map of allowed path prefixes
+	ID          string   `json:"id"`          // id of the key
+	ApiKey      string   `json:"apiKey"`      // hashed api key
+	Scopes      []string `json:"scopes"`      // the scopes this key has granted
+	UserID      string   `json:"userID"`      // the ID of the key's owner
+	AccID       string   `json:"accID"`       // the ID of the service account
+	Description string   `json:"description"` // optional description of the API key as given by user
+	Namespace   string   `json:"namespace"`   // the namespace that this user belongs to (only because technically user IDs aren't globally unique)
+	Token       string   `json:"token"`       // the short lived JWT token
+	Created     int64    `json:"created"`     // creation time
+	//AllowList   map[string]bool `json:"allowList"`   // map of allowed path prefixes
+	Status keyStatus `json:"status"` // status of the key
 }
 
 // Generate generates an API key
@@ -130,7 +138,7 @@ func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp
 		AccID:       authAcc.ID,
 		Token:       tok.AccessToken,
 		Created:     time.Now().Unix(),
-		AllowList:   map[string]bool{},
+		Status:      keyStatusBlocked,
 	}
 	if err := writeAPIRecord(&rec); err != nil {
 		log.Errorf("Failed to write api record %s", err)
@@ -203,7 +211,7 @@ func deleteAPIRecord(rec *apiKeyRecord) error {
 	return nil
 }
 
-func readAPIRecord(ns, user, keyID string) (*apiKeyRecord, error) {
+func readAPIRecordByKeyID(ns, user, keyID string) (*apiKeyRecord, error) {
 	recs, err := store.Read(fmt.Sprintf("%s:%s:%s:%s", storePrefixKeyID, ns, user, keyID))
 	if err != nil {
 		return nil, err
@@ -249,7 +257,7 @@ func (e *V1) checkRequestedScopes(account *auth.Account, requestedScopes []strin
 	return true
 }
 
-func loadAPIRec(authz string) (string, *apiKeyRecord, error) {
+func readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error) {
 	if len(authz) == 0 || !strings.HasPrefix(authz, "Bearer ") {
 		return "", nil, errUnauthorized
 	}
@@ -275,16 +283,20 @@ func loadAPIRec(authz string) (string, *apiKeyRecord, error) {
 		log.Errorf("Error while rehydrating api key record %s", err)
 		return "", nil, errUnauthorized
 	}
+
 	return key, &apiRec, nil
 }
 
 func verifyCallAllowed(apiRec *apiKeyRecord, reqURL string) error {
 	// checks
 	// We do 2 types of checks
-	// 1. Do the scopes of the token allow them to call the requested API? The name of the scopes correspond to the service
-	// 2. Has the key been explicitly blocked? Happens if it's exhausted it's quota for example
+	// 1. Has the key been explicitly blocked? Happens if it's exhausted it's money for example
+	// 2. Do the scopes of the token allow them to call the requested API? The name of the scopes correspond to the service
 
-	// Type 1 check. This is a bit belt and braces to be honest, the type 2 check should probably be enough
+	if apiRec.Status == keyStatusBlocked {
+		return errBlocked
+	}
+
 	scopeMatch := false
 	for _, s := range apiRec.Scopes {
 		if strings.HasPrefix(reqURL, fmt.Sprintf("/v1/%s/", s)) {
@@ -297,17 +309,6 @@ func verifyCallAllowed(apiRec *apiKeyRecord, reqURL string) error {
 		return errBlocked
 	}
 
-	// Type 2 check
-	allowed := false
-	for prefix := range apiRec.AllowList {
-		if strings.HasPrefix(reqURL[3:], prefix) {
-			allowed = true
-		}
-	}
-	if !allowed {
-		// TODO better error please
-		return errBlocked
-	}
 	return nil
 }
 
@@ -391,7 +392,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 		return errUnauthorized
 	}
 
-	key, apiRec, err := loadAPIRec(md["Authorization"])
+	key, apiRec, err := readAPIRecordByAPIKey(md["Authorization"])
 	if err != nil {
 		return err
 	}
@@ -443,20 +444,22 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 	if err := client.Call(ctx, request, &response); err != nil {
 		return err
 	}
-	publishEndpointEvent(reqURL, apiRec)
+	publishEndpointEvent(reqURL, service, endpoint, apiRec)
 
 	stream.Send(response)
 	return nil
 
 }
 
-func publishEndpointEvent(reqURL string, apiRec *apiKeyRecord) {
+func publishEndpointEvent(reqURL, apiName, endpointName string, apiRec *apiKeyRecord) {
 	if err := events.Publish("v1api", v1api.Event{Type: "Request",
 		Request: &v1api.RequestEvent{
-			UserId:    apiRec.UserID,
-			Namespace: apiRec.Namespace,
-			ApiKeyId:  apiRec.ID,
-			Url:       reqURL,
+			UserId:       apiRec.UserID,
+			Namespace:    apiRec.Namespace,
+			ApiKeyId:     apiRec.ID,
+			Url:          reqURL,
+			ApiName:      apiName,
+			EndpointName: endpointName,
 		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}
@@ -514,7 +517,7 @@ func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respon
 		return errors.BadRequest("v1api.Revoke", "Missing ID field")
 	}
 
-	rec, err := readAPIRecord(acc.Issuer, acc.ID, request.Id)
+	rec, err := readAPIRecordByKeyID(acc.Issuer, acc.ID, request.Id)
 	if err != nil {
 		if err == store.ErrNotFound {
 			return errors.NotFound("v1api.Revoke", "Not found")
@@ -539,45 +542,41 @@ func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respon
 	return nil
 }
 
-func (e *V1) UpdateAllowedPaths(ctx context.Context, request *v1api.UpdateAllowedPathsRequest, response *v1api.UpdateAllowedPathsResponse) error {
-	if err := verifyMicroAdmin(ctx, "v1api.UpdateAllowedPaths"); err != nil {
+func (e *V1) BlockKey(ctx context.Context, request *v1api.BlockKeyRequest, response *v1api.BlockKeyResponse) error {
+	return e.updateKeyStatus(ctx, "v1api.BlockKey", request.Namespace, request.UserId, request.KeyId, keyStatusBlocked)
+}
+
+func (e *V1) UnblockKey(ctx context.Context, request *v1api.UnblockKeyRequest, response *v1api.UnblockKeyResponse) error {
+	return e.updateKeyStatus(ctx, "v1api.UnblockKey", request.Namespace, request.UserId, request.KeyId, keyStatusActive)
+}
+
+func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID string, status keyStatus) error {
+
+	if err := verifyMicroAdmin(ctx, methodName); err != nil {
 		return err
 	}
 
 	var keys []*apiKeyRecord
-	if len(request.KeyId) > 0 {
-		rec, err := readAPIRecord(request.Namespace, request.UserId, request.KeyId)
+	if len(keyID) > 0 {
+		rec, err := readAPIRecordByKeyID(ns, userID, keyID)
 		if err != nil {
 			log.Errorf("Error reading key %s", err)
-			return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating user")
+			return errors.InternalServerError(methodName, "Error updating key")
 		}
 		keys = []*apiKeyRecord{rec}
 	} else {
-		recs, err := listKeysForUser(request.Namespace, request.UserId)
+		recs, err := listKeysForUser(ns, userID)
 		if err != nil {
 			log.Errorf("Error listing keys %s", err)
-			return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating user")
+			return errors.InternalServerError(methodName, "Error updating key")
 		}
 		keys = recs
 	}
-	update := func(key *apiKeyRecord, allow, block []string) error {
-		for _, a := range allow {
-			for _, s := range key.Scopes {
-				if strings.HasPrefix(a, fmt.Sprintf("/%s/", s)) {
-					key.AllowList[a] = true
-					break
-				}
-			}
-		}
-		for _, b := range block {
-			delete(key.AllowList, b)
-		}
-		return writeAPIRecord(key)
-	}
 	for _, k := range keys {
-		if err := update(k, request.Allowed, request.Blocked); err != nil {
-			log.Errorf("Error updating key api key record %s", err)
-			return errors.InternalServerError("v1api.UpdateAllowedPaths", "Error updating allowed paths")
+		k.Status = status
+		if err := writeAPIRecord(k); err != nil {
+			log.Errorf("Error updating api key record %s", err)
+			return errors.InternalServerError(methodName, "Error updating key")
 		}
 	}
 
