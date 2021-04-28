@@ -263,6 +263,7 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 		Created:      t.Created.Unix(),
 	}
 	rsp.CustomerID = tok.CustomerID
+	rsp.Namespace = microNamespace
 
 	return nil
 }

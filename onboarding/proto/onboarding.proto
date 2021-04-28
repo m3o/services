@@ -25,11 +25,13 @@ message CompleteSignupRequest {
 	string token = 2;
 	// The secret/password to use for the account
 	string secret = 4;
+
 }
 
 message CompleteSignupResponse {
 	AuthToken authToken = 1;
 	string customerID = 2;
+	string namespace = 3;
 }
 
 // lifted from https://github.com/micro/go-micro/blob/master/auth/service/proto/auth.proto
