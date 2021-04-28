@@ -8,16 +8,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/patrickmn/go-cache"
 
-	aproto "github.com/m3o/services/alert/proto/alert"
 	cproto "github.com/m3o/services/customers/proto"
 	eproto "github.com/m3o/services/emails/proto"
-	inviteproto "github.com/m3o/services/invite/proto"
-	nproto "github.com/m3o/services/namespaces/proto"
 	onboarding "github.com/m3o/services/onboarding/proto"
-	pproto "github.com/m3o/services/payments/proto"
-	sproto "github.com/m3o/services/subscriptions/proto"
 	authproto "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
@@ -33,6 +29,7 @@ import (
 const (
 	microNamespace   = "micro"
 	internalErrorMsg = "An error occurred during onboarding. Contact #m3o-support at slack.m3o.com if the issue persists"
+	topic            = "onboarding"
 )
 
 const (
@@ -49,18 +46,13 @@ type tokenToEmail struct {
 }
 
 type Signup struct {
-	inviteService       inviteproto.InviteService
-	customerService     cproto.CustomersService
-	namespaceService    nproto.NamespacesService
-	subscriptionService sproto.SubscriptionsService
-	alertService        aproto.AlertService
-	paymentService      pproto.ProviderService
-	emailService        eproto.EmailsService
-	auth                auth.Auth
-	accounts            authproto.AccountsService
-	config              conf
-	cache               *cache.Cache
-	resetCode           model.Model
+	customerService cproto.CustomersService
+	emailService    eproto.EmailsService
+	auth            auth.Auth
+	accounts        authproto.AccountsService
+	config          conf
+	cache           *cache.Cache
+	resetCode       model.Model
 }
 
 type ResetToken struct {
@@ -99,7 +91,6 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		accounts:        authproto.NewAccountsService("auth", srv.Client()),
 		config:          c,
 		cache:           cache.New(1*time.Minute, 5*time.Minute),
-		alertService:    aproto.NewAlertService("alert", srv.Client()),
 		resetCode:       model.New(ResetToken{}, nil),
 	}
 	return s
@@ -264,6 +255,9 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 	}
 	rsp.CustomerID = tok.CustomerID
 	rsp.Namespace = microNamespace
+	if err := mevents.Publish(topic, &onboarding.Event{Type: "newSignup", NewSignup: &onboarding.NewSignupEvent{Email: tok.Email, Id: tok.CustomerID}}); err != nil {
+		logger.Warnf("Error publishing %s", err)
+	}
 
 	return nil
 }
@@ -292,6 +286,10 @@ func (e *Signup) Recover(ctx context.Context, req *onboarding.RecoverRequest, rs
 	})
 	if err == nil {
 		e.cache.Set(req.Email, true, cache.DefaultExpiration)
+	}
+
+	if err := mevents.Publish(topic, &onboarding.Event{Type: "passwordReset", PasswordReset: &onboarding.PasswordResetEvent{Email: req.Email}}); err != nil {
+		logger.Warnf("Error publishing %s", err)
 	}
 
 	return err
