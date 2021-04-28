@@ -16,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/stripe/stripe-go/v71/customer"
 	"github.com/stripe/stripe-go/v71/paymentintent"
 	"github.com/stripe/stripe-go/v71/paymentmethod"
 	"github.com/stripe/stripe-go/v71/setupintent"
@@ -161,7 +162,7 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 }
 
 func (s *Stripe) checkoutSessionCompleted(ctx context.Context, event *stripe.Event) error {
-	//
+	// TODO do we actually need to do anything here?
 	var ch stripe.CheckoutSession
 	if err := json.Unmarshal(event.Data.Raw, &ch); err != nil {
 		log.Errorf("Error unmarshalling event %s", err)
@@ -214,7 +215,7 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 		params.Mode = stripe.String(string(stripe.CheckoutSessionModeSetup))
 
 	} else {
-		params.Mode = stripe.String(string(stripe.CheckoutSessionModeSetup))
+		params.Mode = stripe.String(string(stripe.CheckoutSessionModePayment))
 		params.LineItems = []*stripe.CheckoutSessionLineItemParams{
 			{
 				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
@@ -236,8 +237,30 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 
 	}
 	if len(recs) == 0 {
-		// use email from account
-		params.CustomerEmail = stripe.String(acc.Name)
+		if !request.SaveCard {
+			// use email from account
+			// in payment mode stripe will auto create a customer object for you
+			params.CustomerEmail = stripe.String(acc.Name)
+		} else {
+			// create a customer obj and attach
+
+			cust, err := customer.New(&stripe.CustomerParams{
+				Email: stripe.String(acc.Name),
+			})
+			if err != nil {
+				log.Errorf("Error creating stripe customer %s", err)
+				return errors.InternalServerError("stripe.CreateCheckoutSession", "Error creating checkout session")
+			}
+			cm := CustomerMapping{
+				ID:       acc.ID,
+				StripeID: cust.ID,
+			}
+			if err := s.storeMapping(&cm); err != nil {
+				log.Errorf("Error storing stripe customer mapping %s", err)
+				return errors.InternalServerError("stripe.CreateCheckoutSession", "Error creating checkout session")
+			}
+			params.Customer = stripe.String(cust.ID)
+		}
 	} else {
 		// use existing customer obj
 		var cm CustomerMapping
