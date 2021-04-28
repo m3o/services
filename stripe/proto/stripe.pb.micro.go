@@ -43,6 +43,7 @@ func NewStripeEndpoints() []*api.Endpoint {
 
 type StripeService interface {
 	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error)
+	CreatePortalSession(ctx context.Context, in *CreatePortalSessionRequest, opts ...client.CallOption) (*CreatePortalSessionResponse, error)
 	ListCards(ctx context.Context, in *ListCardsRequest, opts ...client.CallOption) (*ListCardsResponse, error)
 	ChargeCard(ctx context.Context, in *ChargeCardRequest, opts ...client.CallOption) (*ChargeCardResponse, error)
 	DeleteCard(ctx context.Context, in *DeleteCardRequest, opts ...client.CallOption) (*DeleteCardResponse, error)
@@ -63,6 +64,16 @@ func NewStripeService(name string, c client.Client) StripeService {
 func (c *stripeService) CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error) {
 	req := c.c.NewRequest(c.name, "Stripe.CreateCheckoutSession", in)
 	out := new(CreateCheckoutSessionResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stripeService) CreatePortalSession(ctx context.Context, in *CreatePortalSessionRequest, opts ...client.CallOption) (*CreatePortalSessionResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.CreatePortalSession", in)
+	out := new(CreatePortalSessionResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -104,6 +115,7 @@ func (c *stripeService) DeleteCard(ctx context.Context, in *DeleteCardRequest, o
 
 type StripeHandler interface {
 	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest, *CreateCheckoutSessionResponse) error
+	CreatePortalSession(context.Context, *CreatePortalSessionRequest, *CreatePortalSessionResponse) error
 	ListCards(context.Context, *ListCardsRequest, *ListCardsResponse) error
 	ChargeCard(context.Context, *ChargeCardRequest, *ChargeCardResponse) error
 	DeleteCard(context.Context, *DeleteCardRequest, *DeleteCardResponse) error
@@ -112,6 +124,7 @@ type StripeHandler interface {
 func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.HandlerOption) error {
 	type stripe interface {
 		CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error
+		CreatePortalSession(ctx context.Context, in *CreatePortalSessionRequest, out *CreatePortalSessionResponse) error
 		ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error
 		ChargeCard(ctx context.Context, in *ChargeCardRequest, out *ChargeCardResponse) error
 		DeleteCard(ctx context.Context, in *DeleteCardRequest, out *DeleteCardResponse) error
@@ -129,6 +142,10 @@ type stripeHandler struct {
 
 func (h *stripeHandler) CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error {
 	return h.StripeHandler.CreateCheckoutSession(ctx, in, out)
+}
+
+func (h *stripeHandler) CreatePortalSession(ctx context.Context, in *CreatePortalSessionRequest, out *CreatePortalSessionResponse) error {
+	return h.StripeHandler.CreatePortalSession(ctx, in, out)
 }
 
 func (h *stripeHandler) ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error {

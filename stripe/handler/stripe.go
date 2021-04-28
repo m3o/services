@@ -16,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
+	session2 "github.com/stripe/stripe-go/v71/billingportal/session"
 	"github.com/stripe/stripe-go/v71/customer"
 	"github.com/stripe/stripe-go/v71/paymentintent"
 	"github.com/stripe/stripe-go/v71/paymentmethod"
@@ -374,5 +375,31 @@ func (s *Stripe) DeleteCard(ctx context.Context, request *stripepb.DeleteCardReq
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *Stripe) CreatePortalSession(ctx context.Context, request *stripepb.CreatePortalSessionRequest, response *stripepb.CreatePortalSessionResponse) error {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("stripe.CreatePortalSession", "Unauthorized")
+	}
+	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
+	if err != nil {
+		log.Errorf("Error looking up stripe customer %s", err)
+		return err
+	}
+	var cm CustomerMapping
+	json.Unmarshal(recs[0].Value, &cm)
+
+	params := &stripe.BillingPortalSessionParams{
+		Customer:  stripe.String(cm.StripeID),
+		ReturnURL: stripe.String(s.successURL),
+	}
+	sess, err := session2.New(params)
+	if err != nil {
+		log.Errorf("Error creating session %s", err)
+		return err
+	}
+	response.Url = sess.URL
 	return nil
 }
