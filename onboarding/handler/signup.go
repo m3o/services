@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,14 +31,12 @@ import (
 )
 
 const (
-	namespace          = "micro"
-	internalErrorMsg   = "An error occurred during onboarding. Contact #m3o-support at slack.m3o.com if the issue persists"
-	notInvitedErrorMsg = "You have not been invited to the service. Please request an invite on m3o.com"
+	microNamespace   = "micro"
+	internalErrorMsg = "An error occurred during onboarding. Contact #m3o-support at slack.m3o.com if the issue persists"
 )
 
 const (
-	expiryDuration      = 5 * time.Minute
-	prefixPaymentMethod = "payment-method/"
+	expiryDuration = 5 * time.Minute
 
 	onboardingTopic = "onboarding"
 )
@@ -67,12 +63,6 @@ type Signup struct {
 	resetCode           model.Model
 }
 
-var (
-	// TODO: move this message to a better location
-	// Message is a predefined message returned during onboarding
-	Message = "Please complete onboarding at https://m3o.com/subscribe?email=%s. This command will now wait for you to finish."
-)
-
 type ResetToken struct {
 	Created int64
 	ID      string
@@ -85,44 +75,32 @@ type sendgridConf struct {
 }
 
 type conf struct {
-	TestMode       bool         `json:"test_env"`
-	PaymentMessage string       `json:"message"`
-	Sendgrid       sendgridConf `json:"sendgrid"`
-	// using a negative "nopayment" rather than "paymentrequired" because it will default to having to pay if not set
-	NoPayment bool `json:"no_payment"`
+	Sendgrid sendgridConf `json:"sendgrid"`
 }
 
 func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 	c := conf{}
 	val, err := mconfig.Get("micro.onboarding")
 	if err != nil {
-		logger.Warnf("Error getting config: %v", err)
+		logger.Fatalf("Error getting config: %v", err)
 	}
 	err = val.Scan(&c)
 	if err != nil {
-		logger.Warnf("Error scanning config: %v", err)
+		logger.Fatalf("Error scanning config: %v", err)
 	}
-
-	if len(strings.TrimSpace(c.PaymentMessage)) == 0 {
-		c.PaymentMessage = Message
-	}
-	if !c.TestMode && len(c.Sendgrid.TemplateID) == 0 {
-		logger.Warnf("No sendgrid template ID provided")
+	if len(c.Sendgrid.TemplateID) == 0 {
+		logger.Fatalf("No sendgrid template ID provided")
 	}
 
 	s := &Signup{
-		inviteService:       inviteproto.NewInviteService("invite", srv.Client()),
-		customerService:     cproto.NewCustomersService("customers", srv.Client()),
-		namespaceService:    nproto.NewNamespacesService("namespaces", srv.Client()),
-		subscriptionService: sproto.NewSubscriptionsService("subscriptions", srv.Client()),
-		paymentService:      pproto.NewProviderService("payments", srv.Client()),
-		emailService:        eproto.NewEmailsService("emails", srv.Client()),
-		auth:                auth,
-		accounts:            authproto.NewAccountsService("auth", srv.Client()),
-		config:              c,
-		cache:               cache.New(1*time.Minute, 5*time.Minute),
-		alertService:        aproto.NewAlertService("alert", srv.Client()),
-		resetCode:           model.New(ResetToken{}, nil),
+		customerService: cproto.NewCustomersService("customers", srv.Client()),
+		emailService:    eproto.NewEmailsService("emails", srv.Client()),
+		auth:            auth,
+		accounts:        authproto.NewAccountsService("auth", srv.Client()),
+		config:          c,
+		cache:           cache.New(1*time.Minute, 5*time.Minute),
+		alertService:    aproto.NewAlertService("alert", srv.Client()),
+		resetCode:       model.New(ResetToken{}, nil),
 	}
 	return s
 }
@@ -172,12 +150,19 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	rsp *onboarding.SendVerificationEmailResponse) error {
 	logger.Info("Received Signup.SendVerificationEmail request")
 
+	// create entry in customers service
+	crsp, err := e.customerService.Create(ctx, &cproto.CreateRequest{Email: req.Email}, client.WithAuthToken())
+	if err != nil {
+		logger.Error(err)
+		return merrors.InternalServerError("onboarding.SendVerificationEmail", internalErrorMsg)
+	}
+
 	k := randStringBytesMaskImprSrc(8)
 	tok := &tokenToEmail{
 		Token:      k,
 		Email:      req.Email,
 		Created:    time.Now().Unix(),
-		CustomerID: uuid.New().String(),
+		CustomerID: crsp.Customer.Id,
 	}
 
 	bytes, err := json.Marshal(tok)
@@ -193,24 +178,10 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 		logger.Error(err)
 		return merrors.InternalServerError("onboarding.SendVerificationEmail", internalErrorMsg)
 	}
-	// HasPaymentMethod needs to resolve email from token, so we save the
-	// same record under a token too
-	if err := mstore.Write(&mstore.Record{
-		Key:   tok.Token,
-		Value: bytes,
-	}); err != nil {
-		logger.Error(err)
-		return merrors.InternalServerError("onboarding.SendVerificationEmail", internalErrorMsg)
-	}
-
-	if e.config.TestMode {
-		logger.Infof("Sending verification token '%v'", k)
-	}
 
 	// Send email
 	// @todo send different emails based on if the account already exists
 	// ie. registration vs login email.
-
 	err = e.sendEmail(ctx, req.Email, e.config.Sendgrid.TemplateID, map[string]interface{}{
 		"token": k,
 	})
@@ -222,55 +193,10 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	return nil
 }
 
-// Lifted  from the invite service https://github.com/m3o/services/blob/master/projects/invite/handler/invite.go#L187
-// sendEmailInvite sends an email invite via the sendgrid API using the
-// predesigned email template. Docs: https://bit.ly/2VYPQD1
 func (e *Signup) sendEmail(ctx context.Context, email, templateID string, templateData map[string]interface{}) error {
 	b, _ := json.Marshal(templateData)
-	_, err := e.emailService.Send(context.TODO(), &eproto.SendRequest{To: email, TemplateId: templateID, TemplateData: b}, client.WithAuthToken())
+	_, err := e.emailService.Send(ctx, &eproto.SendRequest{To: email, TemplateId: templateID, TemplateData: b}, client.WithAuthToken())
 	return err
-}
-
-func (e *Signup) Verify(ctx context.Context, req *onboarding.VerifyRequest, rsp *onboarding.VerifyResponse) error {
-	err := e.verify(ctx, req, rsp)
-	if err != nil {
-		logger.Warnf("Error during verification: %v", err)
-	}
-	return err
-}
-
-func (e *Signup) verify(ctx context.Context, req *onboarding.VerifyRequest, rsp *onboarding.VerifyResponse) error {
-	logger.Info("Received Signup.Verify request")
-
-	recs, err := mstore.Read(req.Email)
-	if err == mstore.ErrNotFound {
-		logger.Errorf("Can't verify, record for %v is not found", req.Email)
-		return merrors.InternalServerError("onboarding.Verify", internalErrorMsg)
-	} else if err != nil {
-		logger.Errorf("email verification error: %v", err)
-		return merrors.InternalServerError("onboarding.Verify", internalErrorMsg)
-	}
-
-	tok := &tokenToEmail{}
-	if err := json.Unmarshal(recs[0].Value, tok); err != nil {
-		return err
-	}
-
-	if tok.Token != req.Token {
-		return merrors.Forbidden("onboarding.Verify", "The token you provided is invalid")
-	}
-
-	if time.Since(time.Unix(tok.Created, 0)) > expiryDuration {
-		return merrors.Forbidden("onboarding.Verify", "The token you provided has expired")
-	}
-
-	// set the response message
-	rsp.Message = fmt.Sprintf(e.config.PaymentMessage, req.Email)
-
-	rsp.Namespaces = []string{namespace}
-	rsp.CustomerID = tok.CustomerID
-
-	return nil
 }
 
 func (e *Signup) CompleteSignup(ctx context.Context, req *onboarding.CompleteSignupRequest, rsp *onboarding.CompleteSignupResponse) error {
@@ -298,11 +224,19 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 		logger.Errorf("Error when unmarshaling stored token object for %v: %v", req.Email, err)
 		return merrors.InternalServerError("onboarding.CompleteSignup", internalErrorMsg)
 	}
-	if tok.Token != req.Token { // not checking expiry here because we've already checked it during Verify() step
-		return merrors.Forbidden("onboarding.CompleteSignup.invalid_token", "The token you provided is incorrect")
+	if tok.Token != req.Token {
+		return merrors.Forbidden("onboarding.CompleteSignup", "The token you provided is invalid")
 	}
 
-	rsp.Namespace = namespace
+	if time.Since(time.Unix(tok.Created, 0)) > expiryDuration {
+		return merrors.Forbidden("onboarding.CompleteSignup", "The token you provided has expired")
+	}
+
+	rsp.CustomerID = tok.CustomerID
+	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{Email: tok.Email}); err != nil {
+		logger.Errorf("Error marking customer as verified: %v", err)
+		return merrors.InternalServerError("onboarding.CompleteSignup", internalErrorMsg)
+	}
 
 	// take secret from the request
 	secret := req.Secret
@@ -311,15 +245,13 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-	_, err = e.auth.Generate(tok.CustomerID, auth.WithScopes("customer"), auth.WithSecret(secret), auth.WithIssuer(namespace), auth.WithName(req.Email), auth.WithMetadata(map[string]string{
-		"username": req.Username,
-	}))
+	_, err = e.auth.Generate(tok.CustomerID, auth.WithScopes("customer"), auth.WithSecret(secret), auth.WithIssuer(microNamespace), auth.WithName(req.Email))
 	if err != nil {
 		logger.Errorf("Error generating token for %v: %v", tok.CustomerID, err)
 		return merrors.InternalServerError("onboarding.CompleteSignup", internalErrorMsg)
 	}
 
-	t, err := e.auth.Token(auth.WithCredentials(tok.CustomerID, secret), auth.WithTokenIssuer(namespace))
+	t, err := e.auth.Token(auth.WithCredentials(tok.CustomerID, secret), auth.WithTokenIssuer(microNamespace))
 	if err != nil {
 		logger.Errorf("Can't get token for %v: %v", tok.CustomerID, err)
 		return merrors.InternalServerError("onboarding.CompleteSignup", internalErrorMsg)
@@ -330,6 +262,7 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 		Expiry:       t.Expiry.Unix(),
 		Created:      t.Created.Unix(),
 	}
+	rsp.CustomerID = tok.CustomerID
 
 	return nil
 }
@@ -393,7 +326,7 @@ func (e *Signup) ResetPassword(ctx context.Context, req *onboarding.ResetPasswor
 		Id:        req.Email,
 		NewSecret: req.Password,
 		Options: &authproto.Options{
-			Namespace: req.Namespace,
+			Namespace: microNamespace,
 		},
 	}, client.WithAuthToken())
 	if err != nil {
