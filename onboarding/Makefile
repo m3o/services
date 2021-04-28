@@ -5,13 +5,13 @@ MODIFY=Mproto/imports/api.proto=github.com/micro/micro/v3/proto/api
 .PHONY: proto
 proto:
     
-	protoc --proto_path=. --micro_out=${MODIFY}:. --go_out=${MODIFY}:. proto/signup/signup.proto
+	protoc --proto_path=. --micro_out=${MODIFY}:. --go_out=${MODIFY}:. proto/onboarding.proto
     
 
 .PHONY: build
 build: proto
 
-	go build -o signup-service *.go
+	go build -o onboarding-service *.go
 
 .PHONY: test
 test:
@@ -19,4 +19,4 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t signup-service:latest
+	docker build . -t onboarding-service:latest

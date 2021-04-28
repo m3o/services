@@ -1,12 +1,12 @@
 # Signup Service
 
-To run the whole signup/onboarding flow you will need the following configs:
+To run the whole onboarding/onboarding flow you will need the following configs:
 
 ```
 micro config set micro.payments.stripe.api_key ...
-micro config set micro.signup.sendgrid.api_key ...
-micro config set micro.signup.sendgrid.template_id ...
-micro config set micro.signup.plan_id ...
+micro config set micro.onboarding.sendgrid.api_key ...
+micro config set micro.onboarding.sendgrid.template_id ...
+micro config set micro.onboarding.plan_id ...
 ```
 
 This is the Signup service
@@ -14,7 +14,7 @@ This is the Signup service
 Generated with
 
 ```
-micro new --namespace=go.micro --type=service signup
+micro new --namespace=go.micro --type=service onboarding
 ```
 
 ## Getting Started
@@ -25,9 +25,9 @@ micro new --namespace=go.micro --type=service signup
 
 ## Configuration
 
-- FQDN: go.micro.service.signup
+- FQDN: go.micro.service.onboarding
 - Type: service
-- Alias: signup
+- Alias: onboarding
 
 ## Dependencies
 
@@ -55,7 +55,7 @@ make build
 
 Run the service
 ```
-./signup-service
+./onboarding-service
 ```
 
 Build a docker image
