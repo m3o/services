@@ -233,7 +233,7 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 	}
 
 	rsp.CustomerID = tok.CustomerID
-	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{Email: tok.Email}, client.WithRequestTimeout()); err != nil {
+	if _, err := e.customerService.MarkVerified(ctx, &cproto.MarkVerifiedRequest{Email: tok.Email}, client.WithAuthToken()); err != nil {
 		logger.Errorf("Error marking customer as verified: %v", err)
 		return merrors.InternalServerError("onboarding.CompleteSignup", internalErrorMsg)
 	}
