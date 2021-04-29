@@ -10,6 +10,7 @@ service Stripe {
 	rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
 	rpc ChargeCard(ChargeCardRequest) returns (ChargeCardResponse);
 	rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
+	rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse);
 }
 
 message CreateCheckoutSessionRequest {
@@ -53,6 +54,19 @@ message CreatePortalSessionRequest {}
 
 message CreatePortalSessionResponse {
 	string url = 1;
+}
+
+message ListPaymentsRequest {}
+
+message Payment {
+	string id = 1;
+	int64 amount = 2;
+	string currency = 3;
+	int64 date = 4;
+}
+
+message ListPaymentsResponse {
+	repeated Payment payments = 1;
 }
 
 message Event {
