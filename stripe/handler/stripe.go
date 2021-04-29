@@ -304,7 +304,7 @@ func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsReque
 		response.Cards = append(response.Cards, &stripepb.Card{
 			Id:       pm.ID,
 			LastFour: pm.Card.Last4,
-			Expires:  fmt.Sprintf("%s/%s", pm.Card.ExpMonth, pm.Card.ExpYear),
+			Expires:  fmt.Sprintf("%d/%d", pm.Card.ExpMonth, pm.Card.ExpYear),
 		})
 	}
 	if iter.Err() != nil {
