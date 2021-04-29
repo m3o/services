@@ -43,6 +43,10 @@ func NewStripeEndpoints() []*api.Endpoint {
 
 type StripeService interface {
 	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...client.CallOption) (*CreateCheckoutSessionResponse, error)
+	ListCards(ctx context.Context, in *ListCardsRequest, opts ...client.CallOption) (*ListCardsResponse, error)
+	ChargeCard(ctx context.Context, in *ChargeCardRequest, opts ...client.CallOption) (*ChargeCardResponse, error)
+	DeleteCard(ctx context.Context, in *DeleteCardRequest, opts ...client.CallOption) (*DeleteCardResponse, error)
+	ListPayments(ctx context.Context, in *ListPaymentsRequest, opts ...client.CallOption) (*ListPaymentsResponse, error)
 }
 
 type stripeService struct {
@@ -67,15 +71,63 @@ func (c *stripeService) CreateCheckoutSession(ctx context.Context, in *CreateChe
 	return out, nil
 }
 
+func (c *stripeService) ListCards(ctx context.Context, in *ListCardsRequest, opts ...client.CallOption) (*ListCardsResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.ListCards", in)
+	out := new(ListCardsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stripeService) ChargeCard(ctx context.Context, in *ChargeCardRequest, opts ...client.CallOption) (*ChargeCardResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.ChargeCard", in)
+	out := new(ChargeCardResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stripeService) DeleteCard(ctx context.Context, in *DeleteCardRequest, opts ...client.CallOption) (*DeleteCardResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.DeleteCard", in)
+	out := new(DeleteCardResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stripeService) ListPayments(ctx context.Context, in *ListPaymentsRequest, opts ...client.CallOption) (*ListPaymentsResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.ListPayments", in)
+	out := new(ListPaymentsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Stripe service
 
 type StripeHandler interface {
 	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest, *CreateCheckoutSessionResponse) error
+	ListCards(context.Context, *ListCardsRequest, *ListCardsResponse) error
+	ChargeCard(context.Context, *ChargeCardRequest, *ChargeCardResponse) error
+	DeleteCard(context.Context, *DeleteCardRequest, *DeleteCardResponse) error
+	ListPayments(context.Context, *ListPaymentsRequest, *ListPaymentsResponse) error
 }
 
 func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.HandlerOption) error {
 	type stripe interface {
 		CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error
+		ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error
+		ChargeCard(ctx context.Context, in *ChargeCardRequest, out *ChargeCardResponse) error
+		DeleteCard(ctx context.Context, in *DeleteCardRequest, out *DeleteCardResponse) error
+		ListPayments(ctx context.Context, in *ListPaymentsRequest, out *ListPaymentsResponse) error
 	}
 	type Stripe struct {
 		stripe
@@ -90,4 +142,20 @@ type stripeHandler struct {
 
 func (h *stripeHandler) CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, out *CreateCheckoutSessionResponse) error {
 	return h.StripeHandler.CreateCheckoutSession(ctx, in, out)
+}
+
+func (h *stripeHandler) ListCards(ctx context.Context, in *ListCardsRequest, out *ListCardsResponse) error {
+	return h.StripeHandler.ListCards(ctx, in, out)
+}
+
+func (h *stripeHandler) ChargeCard(ctx context.Context, in *ChargeCardRequest, out *ChargeCardResponse) error {
+	return h.StripeHandler.ChargeCard(ctx, in, out)
+}
+
+func (h *stripeHandler) DeleteCard(ctx context.Context, in *DeleteCardRequest, out *DeleteCardResponse) error {
+	return h.StripeHandler.DeleteCard(ctx, in, out)
+}
+
+func (h *stripeHandler) ListPayments(ctx context.Context, in *ListPaymentsRequest, out *ListPaymentsResponse) error {
+	return h.StripeHandler.ListPayments(ctx, in, out)
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	v1api "github.com/m3o/services/v1api/proto"
@@ -60,5 +61,9 @@ func (p *UsageSvc) processV1apiEvents(ch <-chan mevents.Event) {
 
 func (p *UsageSvc) processRequest(event *v1api.RequestEvent, t time.Time) error {
 	_, err := p.c.incr(event.UserId, event.ApiName, 1, t)
+	p.c.incr(event.UserId, fmt.Sprintf("%s$%s", event.ApiName, event.EndpointName), 1, t)
+	// incr total counts for the API and individual endpoint
+	p.c.incr("total", event.ApiName, 1, t)
+	p.c.incr("total", fmt.Sprintf("%s$%s", event.ApiName, event.EndpointName), 1, t)
 	return err
 }

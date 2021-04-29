@@ -169,7 +169,7 @@ func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, r
 		}
 	}
 	currBal, err := b.c.read(request.CustomerId, "$balance$")
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		log.Errorf("Error reading from counter %s", err)
 		return errors.InternalServerError("balance.Current", "Error retrieving current balance")
 	}

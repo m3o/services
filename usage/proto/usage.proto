@@ -11,6 +11,7 @@ service Usage {
 
 message ReadRequest {
 	string customer_id = 1;
+	bool detail = 2;
 }
 
 message UsageHistory {
