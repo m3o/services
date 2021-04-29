@@ -31,6 +31,7 @@ message ListCardsResponse {
 message Card {
 	string id = 1;
 	string last_four = 2;
+	string expires = 3;
 }
 
 message ChargeCardRequest {
