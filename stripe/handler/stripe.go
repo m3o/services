@@ -427,10 +427,11 @@ func (s *Stripe) ListPayments(ctx context.Context, request *stripepb.ListPayment
 	for iter.Next() {
 		c := iter.Charge()
 		response.Payments = append(response.Payments, &stripepb.Payment{
-			Id:       c.ID,
-			Amount:   c.Amount,
-			Currency: string(c.Currency),
-			Date:     c.Created,
+			Id:         c.ID,
+			Amount:     c.Amount,
+			Currency:   string(c.Currency),
+			Date:       c.Created,
+			ReceiptUrl: c.ReceiptURL,
 		})
 	}
 	if err := iter.Err(); err != nil {
