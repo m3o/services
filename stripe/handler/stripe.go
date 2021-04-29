@@ -16,7 +16,6 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
-	session2 "github.com/stripe/stripe-go/v71/billingportal/session"
 	"github.com/stripe/stripe-go/v71/charge"
 	"github.com/stripe/stripe-go/v71/customer"
 	"github.com/stripe/stripe-go/v71/paymentintent"
@@ -377,24 +376,6 @@ func (s *Stripe) ownsCard(cm *CustomerMapping, cardID string) error {
 		log.Errorf("Card does not belong to this user %s. Card %s belongs to %s", cm.StripeID, cardID, pm.Customer.ID)
 		return fmt.Errorf("card does not belong to user")
 	}
-	return nil
-}
-
-func (s *Stripe) CreatePortalSession(ctx context.Context, request *stripepb.CreatePortalSessionRequest, response *stripepb.CreatePortalSessionResponse) error {
-	cm, err := mappingForCustomer(ctx, "stripe.CreatePortalSession")
-	if err != nil {
-		return err
-	}
-	params := &stripe.BillingPortalSessionParams{
-		Customer:  stripe.String(cm.StripeID),
-		ReturnURL: stripe.String(s.successURL),
-	}
-	sess, err := session2.New(params)
-	if err != nil {
-		log.Errorf("Error creating session %s", err)
-		return err
-	}
-	response.Url = sess.URL
 	return nil
 }
 

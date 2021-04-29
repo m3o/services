@@ -6,7 +6,6 @@ option go_package = "./proto;stripe";
 
 service Stripe {
 	rpc CreateCheckoutSession(CreateCheckoutSessionRequest) returns (CreateCheckoutSessionResponse);
-	rpc CreatePortalSession(CreatePortalSessionRequest) returns (CreatePortalSessionResponse);
 	rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
 	rpc ChargeCard(ChargeCardRequest) returns (ChargeCardResponse);
 	rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
@@ -49,12 +48,6 @@ message DeleteCardRequest {
 }
 
 message DeleteCardResponse {}
-
-message CreatePortalSessionRequest {}
-
-message CreatePortalSessionResponse {
-	string url = 1;
-}
 
 message ListPaymentsRequest {}
 
