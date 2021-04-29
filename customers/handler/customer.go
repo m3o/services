@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 
 	customer "github.com/m3o/services/customers/proto"
-	nsproto "github.com/m3o/services/namespaces/proto"
 	aproto "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
@@ -21,8 +20,7 @@ import (
 )
 
 type Customers struct {
-	accountsService   aproto.AccountsService
-	namespacesService nsproto.NamespacesService
+	accountsService aproto.AccountsService
 }
 
 const (
@@ -52,10 +50,8 @@ type CustomerModel struct {
 
 func New(service *service.Service) *Customers {
 	c := &Customers{
-		accountsService:   aproto.NewAccountsService("auth", service.Client()),
-		namespacesService: nsproto.NewNamespacesService("namespaces", service.Client()),
+		accountsService: aproto.NewAccountsService("auth", service.Client()),
 	}
-	go c.consumeEvents()
 	return c
 }
 
@@ -287,34 +283,14 @@ func authorizeCall(ctx context.Context) error {
 }
 
 func (c *Customers) deleteCustomer(ctx context.Context, customerID string, force bool) error {
-	// auth accounts are tied to namespaces so get that list and delete all
-	rsp, err := c.namespacesService.List(ctx, &nsproto.ListRequest{User: customerID}, client.WithAuthToken())
-	if err != nil {
+	_, err := c.accountsService.Delete(ctx, &aproto.DeleteAccountRequest{
+		Id:      customerID,
+		Options: &aproto.Options{Namespace: "micro"},
+	}, client.WithAuthToken())
+	if ignoreDeleteError(err) != nil {
 		return err
 	}
 
-	owned := []string{}
-	for _, ns := range rsp.Namespaces {
-		_, err := c.accountsService.Delete(ctx, &aproto.DeleteAccountRequest{
-			Id:      customerID,
-			Options: &aproto.Options{Namespace: ns.Id},
-		}, client.WithAuthToken())
-		if ignoreDeleteError(err) != nil {
-			return err
-		}
-		// are we the owner
-		if len(ns.Owners) == 1 && ns.Owners[0] == customerID {
-			owned = append(owned, ns.Id)
-		}
-	}
-
-	// delete any owned namespaces
-	for _, ns := range owned {
-		_, err := c.namespacesService.Delete(ctx, &nsproto.DeleteRequest{Id: ns}, client.WithAuthToken())
-		if ignoreDeleteError(err) != nil {
-			return err
-		}
-	}
 	var cust *CustomerModel
 	// delete customer
 	if !force {
