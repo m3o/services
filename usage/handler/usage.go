@@ -162,6 +162,10 @@ func (p *UsageSvc) Read(ctx context.Context, request *pb.ReadRequest, response *
 	}
 
 	addEntryToResponse := func(response *pb.ReadResponse, e listEntry, unixTime int64) {
+		// detailed view includes data for individual endpoints
+		if !request.Detail && strings.Contains(e.Service, "$") {
+			return
+		}
 		use := response.Usage[e.Service]
 		if use == nil {
 			use = &pb.UsageHistory{
