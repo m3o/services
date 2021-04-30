@@ -152,6 +152,9 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 
 func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.Current")
+	if err != nil {
+		return err
+	}
 	if len(request.CustomerId) == 0 {
 		request.CustomerId = acc.ID
 	}
