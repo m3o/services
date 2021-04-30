@@ -5,7 +5,7 @@ MODIFY=Mproto/imports/registry.proto=github.com/micro/micro/v3/proto/registry
 .PHONY: proto
 proto:
     
-	protoc --proto_path=. --micro_out=${MODIFY}:. --go_out=${MODIFY}:. proto/explore/explore.proto
+	protoc --proto_path=. --micro_out=${MODIFY}:. --go_out=${MODIFY}:. proto/explore.proto
     
 
 .PHONY: build

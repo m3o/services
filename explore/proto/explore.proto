@@ -2,11 +2,20 @@ syntax = "proto3";
 
 package explore;
 
+option go_package = "./proto;explore";
+
 import "proto/imports/registry.proto";
 
 service Explore {
+	rpc Index(IndexRequest) returns (IndexResponse) {}
 	rpc Search(SearchRequest) returns (SearchResponse) {}
 	rpc SaveMeta(SaveMetaRequest) returns (SaveMetaResponse) {}
+}
+
+message IndexRequest {}
+
+message IndexResponse {
+	repeated Service services = 1;
 }
 
 message SearchRequest {

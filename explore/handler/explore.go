@@ -3,8 +3,10 @@ package handler
 import (
 	"context"
 	"strings"
+	"sync"
+	"time"
 
-	proto "github.com/m3o/services/explore/proto/explore"
+	proto "github.com/m3o/services/explore/proto"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
@@ -16,6 +18,11 @@ import (
 type Explore struct {
 	reg  registry.Registry
 	meta model.Model
+
+	// store a cache for the index
+	sync.RWMutex
+	cache       []*proto.Service
+	lastUpdated time.Time
 }
 
 // NewexploreHandler returns a explore handler configured to report the explore of the given services
@@ -26,10 +33,52 @@ func NewExploreHandler(reg registry.Registry) *Explore {
 	)
 	m.Register(proto.SaveMetaRequest{})
 
-	return &Explore{
+	// create the handler
+	e := &Explore{
 		reg:  reg,
 		meta: m,
 	}
+
+	// create the index
+	e.Index(context.TODO(), &proto.IndexRequest{}, &proto.IndexResponse{})
+
+	// return the handler
+	return e
+}
+
+func (e *Explore) Index(ctx context.Context, req *proto.IndexRequest, rsp *proto.IndexResponse) error {
+	// get the existing cache
+	e.RLock()
+	cache := e.cache
+	lastUpdate := e.lastUpdated
+	e.RUnlock()
+
+	// do the lookup and cache now if it doesn't exist or is older than a minute
+	if len(cache) == 0 || time.Since(lastUpdate) > time.Minute {
+		e.Lock()
+		defer e.Unlock()
+
+		// get the services
+		resp := new(proto.SearchResponse)
+		err := e.Search(context.TODO(), &proto.SearchRequest{}, resp)
+		if err != nil {
+			return err
+		}
+
+		// set the cache
+		e.cache = resp.Services
+		e.lastUpdated = time.Now()
+
+		// set and return the response
+		rsp.Services = resp.Services
+		return nil
+	}
+
+	// otherwise use the cache
+	rsp.Services = cache
+
+	return nil
+
 }
 
 func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *proto.SearchResponse) error {
