@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	m3oauth "github.com/m3o/services/pkg/auth"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
@@ -69,30 +70,16 @@ func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp
 	if len(req.Description) == 0 {
 		return errors.BadRequest("v1api.generate", "Missing description field")
 	}
-	// Check account
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("v1api.generate", "Unauthorized call to generate")
-	}
-	// only namespace admins can generate a key
-	admin := false
-	for _, s := range acc.Scopes {
-		if s == "admin" {
-			admin = true
-			break
-		}
-	}
-	if !admin {
-		return errors.Forbidden("v1api.generate", "Forbidden")
-	}
-	// generate a new API key
 
+	acc, err := m3oauth.VerifyMicroCustomer(ctx, "v1api.generate")
+	if err != nil {
+		return err
+	}
 	// are they allowed to generate with the requested scopes?
-	if !e.checkRequestedScopes(acc, req.Scopes) {
+	if !e.checkRequestedScopes(ctx, req.Scopes) {
 		return errors.Forbidden("v1api.generate", "Not allowed to generate a key with requested scopes")
 	}
 
-	// generate API key
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return errors.InternalServerError("v1api.generate", "Failed to generate api key")
@@ -233,8 +220,7 @@ func hashSecret(s string) (string, error) {
 }
 
 // checkRequestedScopes returns true if account has sufficient privileges for them to generate the requestedScopes.
-// e.g. micro "admin" can generate whatever scopes they want
-func (e *V1) checkRequestedScopes(account *auth.Account, requestedScopes []string) bool {
+func (e *V1) checkRequestedScopes(ctx context.Context, requestedScopes []string) bool {
 	allowedScopes, err := e.listAPIs()
 	if err != nil {
 		// fail closed
@@ -468,9 +454,9 @@ func publishEndpointEvent(reqURL, apiName, endpointName string, apiRec *apiKeyRe
 // ListKeys lists all keys for a user
 func (e *V1) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.ListResponse) error {
 	// Check account
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("v1api.listkeys", "Unauthorized call to listkeys")
+	acc, err := m3oauth.VerifyMicroCustomer(ctx, "v1api.listkeys")
+	if err != nil {
+		return err
 	}
 	recs, err := listKeysForUser(acc.Issuer, acc.ID)
 	if err != nil {
@@ -509,12 +495,12 @@ func listKeysForUser(ns, userID string) ([]*apiKeyRecord, error) {
 }
 
 func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, response *v1api.RevokeResponse) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("v1api.Revoke", "Unauthorized call to revoke")
-	}
 	if len(request.Id) == 0 {
 		return errors.BadRequest("v1api.Revoke", "Missing ID field")
+	}
+	acc, err := m3oauth.VerifyMicroCustomer(ctx, "v1api.Revoke")
+	if err != nil {
+		return err
 	}
 
 	rec, err := readAPIRecordByKeyID(acc.Issuer, acc.ID, request.Id)
@@ -552,7 +538,7 @@ func (e *V1) UnblockKey(ctx context.Context, request *v1api.UnblockKeyRequest, r
 
 func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID string, status keyStatus) error {
 
-	if err := verifyMicroAdmin(ctx, methodName); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, methodName); err != nil {
 		return err
 	}
 
@@ -583,33 +569,12 @@ func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID 
 	return nil
 }
 
-func verifyMicroAdmin(ctx context.Context, method string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized(method, "Unauthorized")
-	}
-	if acc.Issuer != "micro" {
-		return errors.Forbidden(method, "Forbidden")
-	}
-	admin := false
-	for _, s := range acc.Scopes {
-		if s == "admin" || s == "service" {
-			admin = true
-			break
-		}
-	}
-	if !admin {
-		return errors.Forbidden(method, "Forbidden")
-	}
-	return nil
-}
-
 type apiEntry struct {
 	Name string
 }
 
 func (e *V1) EnableAPI(ctx context.Context, request *v1api.EnableAPIRequest, response *v1api.EnableAPIResponse) error {
-	if err := verifyMicroAdmin(ctx, "v1api.EnableAPI"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "v1api.EnableAPI"); err != nil {
 		return err
 	}
 	if len(request.Name) == 0 {
@@ -677,7 +642,7 @@ func (e *V1) EnableAPI(ctx context.Context, request *v1api.EnableAPIRequest, res
 }
 
 func (e *V1) DisableAPI(ctx context.Context, request *v1api.DisableAPIRequest, response *v1api.DisableAPIResponse) error {
-	if err := verifyMicroAdmin(ctx, "v1api.DisableAPI"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "v1api.DisableAPI"); err != nil {
 		return err
 	}
 	if len(request.Name) == 0 {

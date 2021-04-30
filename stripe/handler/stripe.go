@@ -179,22 +179,6 @@ func (s *Stripe) checkoutSessionCompleted(ctx context.Context, event *stripe.Eve
 	return nil
 }
 
-func verifyAdmin(ctx context.Context, method string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized(method, "Unauthorized")
-	}
-	if acc.Issuer != "micro" {
-		return errors.Forbidden(method, "Forbidden")
-	}
-	for _, s := range acc.Scopes {
-		if s == "admin" || s == "service" {
-			return nil
-		}
-	}
-	return errors.Forbidden(method, "Forbidden")
-}
-
 func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.CreateCheckoutSessionRequest, response *stripepb.CreateCheckoutSessionResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
