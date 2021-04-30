@@ -578,7 +578,7 @@ func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID 
 }
 
 func (e *V1) listAPIs() ([]string, error) {
-	rsp, err := e.papi.List(context.Background(), &publicapi.ListRequest{})
+	rsp, err := e.papi.List(context.Background(), &publicapi.ListRequest{}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
