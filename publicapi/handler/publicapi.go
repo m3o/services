@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/m3o/services/explore/proto/explore"
+	"github.com/m3o/services/explore/proto"
 	pb "github.com/m3o/services/publicapi/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
