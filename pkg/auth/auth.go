@@ -6,7 +6,6 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 const (
@@ -15,19 +14,15 @@ const (
 
 func VerifyMicroCustomer(ctx context.Context, method string) (*auth.Account, error) {
 	authStr, _ := metadata.Get(ctx, "Authorization")
-	logger.Infof("Auth string is %s", authStr)
 
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return nil, errors.Unauthorized(method, "Unauthorized")
 	}
-	logger.Infof("Checking scopes %+v %s %s %s", acc, acc.Issuer, acc.Type, acc.Scopes)
 	if acc.Issuer != CustomerNamespace {
-		logger.Infof("Bad issuer")
 		return nil, errors.Forbidden(method, "Forbidden")
 	}
 	if acc.Type != "user" {
-		logger.Infof("Bad type")
 		return nil, errors.Forbidden(method, "Forbidden")
 	}
 	allowed := false
@@ -38,7 +33,6 @@ func VerifyMicroCustomer(ctx context.Context, method string) (*auth.Account, err
 		}
 	}
 	if !allowed {
-		logger.Infof("No scope")
 		return nil, errors.Forbidden(method, "Forbidden")
 	}
 	return acc, nil
