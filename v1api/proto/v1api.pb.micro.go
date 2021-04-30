@@ -47,8 +47,6 @@ type V1Service interface {
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
 	UnblockKey(ctx context.Context, in *UnblockKeyRequest, opts ...client.CallOption) (*UnblockKeyResponse, error)
 	BlockKey(ctx context.Context, in *BlockKeyRequest, opts ...client.CallOption) (*BlockKeyResponse, error)
-	EnableAPI(ctx context.Context, in *EnableAPIRequest, opts ...client.CallOption) (*EnableAPIResponse, error)
-	DisableAPI(ctx context.Context, in *DisableAPIRequest, opts ...client.CallOption) (*DisableAPIResponse, error)
 	ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error)
 }
 
@@ -114,26 +112,6 @@ func (c *v1Service) BlockKey(ctx context.Context, in *BlockKeyRequest, opts ...c
 	return out, nil
 }
 
-func (c *v1Service) EnableAPI(ctx context.Context, in *EnableAPIRequest, opts ...client.CallOption) (*EnableAPIResponse, error) {
-	req := c.c.NewRequest(c.name, "V1.EnableAPI", in)
-	out := new(EnableAPIResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *v1Service) DisableAPI(ctx context.Context, in *DisableAPIRequest, opts ...client.CallOption) (*DisableAPIResponse, error) {
-	req := c.c.NewRequest(c.name, "V1.DisableAPI", in)
-	out := new(DisableAPIResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *v1Service) ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error) {
 	req := c.c.NewRequest(c.name, "V1.ListAPIs", in)
 	out := new(ListAPIsResponse)
@@ -152,8 +130,6 @@ type V1Handler interface {
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
 	UnblockKey(context.Context, *UnblockKeyRequest, *UnblockKeyResponse) error
 	BlockKey(context.Context, *BlockKeyRequest, *BlockKeyResponse) error
-	EnableAPI(context.Context, *EnableAPIRequest, *EnableAPIResponse) error
-	DisableAPI(context.Context, *DisableAPIRequest, *DisableAPIResponse) error
 	ListAPIs(context.Context, *ListAPIsRequest, *ListAPIsResponse) error
 }
 
@@ -164,8 +140,6 @@ func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOp
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
 		UnblockKey(ctx context.Context, in *UnblockKeyRequest, out *UnblockKeyResponse) error
 		BlockKey(ctx context.Context, in *BlockKeyRequest, out *BlockKeyResponse) error
-		EnableAPI(ctx context.Context, in *EnableAPIRequest, out *EnableAPIResponse) error
-		DisableAPI(ctx context.Context, in *DisableAPIRequest, out *DisableAPIResponse) error
 		ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error
 	}
 	type V1 struct {
@@ -197,14 +171,6 @@ func (h *v1Handler) UnblockKey(ctx context.Context, in *UnblockKeyRequest, out *
 
 func (h *v1Handler) BlockKey(ctx context.Context, in *BlockKeyRequest, out *BlockKeyResponse) error {
 	return h.V1Handler.BlockKey(ctx, in, out)
-}
-
-func (h *v1Handler) EnableAPI(ctx context.Context, in *EnableAPIRequest, out *EnableAPIResponse) error {
-	return h.V1Handler.EnableAPI(ctx, in, out)
-}
-
-func (h *v1Handler) DisableAPI(ctx context.Context, in *DisableAPIRequest, out *DisableAPIResponse) error {
-	return h.V1Handler.DisableAPI(ctx, in, out)
 }
 
 func (h *v1Handler) ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error {

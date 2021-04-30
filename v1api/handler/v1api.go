@@ -11,7 +11,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	m3oauth "github.com/m3o/services/pkg/auth"
+	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
+	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context/metadata"
@@ -26,13 +28,13 @@ import (
 )
 
 type V1 struct {
+	papi publicapi.PublicapiService
 }
 
 const (
 	storePrefixHashedKey = "hashed"
 	storePrefixUserID    = "user"
 	storePrefixKeyID     = "key"
-	storePrefixAPI       = "api"
 )
 
 var (
@@ -60,6 +62,12 @@ type apiKeyRecord struct {
 	Created     int64    `json:"created"`     // creation time
 	//AllowList   map[string]bool `json:"allowList"`   // map of allowed path prefixes
 	Status keyStatus `json:"status"` // status of the key
+}
+
+func NewHandler(srv *service.Service) *V1 {
+	return &V1{
+		papi: publicapi.NewPublicapiService("publicapi", srv.Client()),
+	}
 }
 
 // Generate generates an API key
@@ -569,133 +577,15 @@ func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID 
 	return nil
 }
 
-type apiEntry struct {
-	Name string
-}
-
-func (e *V1) EnableAPI(ctx context.Context, request *v1api.EnableAPIRequest, response *v1api.EnableAPIResponse) error {
-	if _, err := m3oauth.VerifyMicroAdmin(ctx, "v1api.EnableAPI"); err != nil {
-		return err
-	}
-	if len(request.Name) == 0 {
-		return errors.BadRequest("v1api.EnableAPI", "Missing Name field")
-	}
-	// store
-	ae := &apiEntry{
-		Name: request.Name,
-	}
-	b, err := json.Marshal(ae)
-	if err != nil {
-		log.Errorf("Error marshalling API %s", err)
-		return errors.InternalServerError("v1api.EnableAPI", "Error enabling API")
-	}
-	if err := store.Write(&store.Record{
-		Key:   fmt.Sprintf("%s:%s", storePrefixAPI, request.Name),
-		Value: b,
-	}); err != nil {
-		log.Errorf("Error persisting API %s", err)
-		return errors.InternalServerError("v1api.EnableAPI", "Error enabling API")
-	}
-	// rules
-	// we need two rules, one for the /v1/foo/bar from public internet and one for v1api->foo
-	//micro auth create rule --resource="service:v1.helloworld:*" --priority 1 helloworld-v1
-	//micro auth create rule --resource="service:helloworld:*" --priority 1 --scope '+' helloworld-internal
-	if err := auth.Grant(&auth.Rule{
-		ID:    fmt.Sprintf("%s-v1", request.Name),
-		Scope: "",
-		Resource: &auth.Resource{
-			Name:     fmt.Sprintf("v1.%s", request.Name),
-			Type:     "service",
-			Endpoint: "*",
-		},
-		Access:   auth.AccessGranted,
-		Priority: 1,
-	}); err != nil {
-		log.Errorf("Error adding rule %s", err)
-		return errors.InternalServerError("v1api.EnableAPI", "Error enabling API")
-	}
-
-	if err := auth.Grant(&auth.Rule{
-		ID:    fmt.Sprintf("%s-internal", request.Name),
-		Scope: "+",
-		Resource: &auth.Resource{
-			Name:     request.Name,
-			Type:     "service",
-			Endpoint: "*",
-		},
-		Access:   auth.AccessGranted,
-		Priority: 1,
-	}); err != nil {
-		log.Errorf("Error adding rule %s", err)
-		return errors.InternalServerError("v1api.EnableAPI", "Error enabling API")
-	}
-
-	// event
-	if err := events.Publish("v1api", v1api.Event{Type: "APIEnable",
-		ApiEnable: &v1api.APIEnableEvent{
-			Name: request.Name,
-		}}); err != nil {
-		log.Errorf("Error publishing event %s", err)
-	}
-
-	return nil
-}
-
-func (e *V1) DisableAPI(ctx context.Context, request *v1api.DisableAPIRequest, response *v1api.DisableAPIResponse) error {
-	if _, err := m3oauth.VerifyMicroAdmin(ctx, "v1api.DisableAPI"); err != nil {
-		return err
-	}
-	if len(request.Name) == 0 {
-		return errors.BadRequest("v1api.DisableAPI", "Missing Name field")
-	}
-
-	// delete from store
-	if err := store.Delete(fmt.Sprintf("%s:%s", storePrefixAPI, request.Name)); err != nil {
-		log.Errorf("Error deleting store entry %s", err)
-		return errors.InternalServerError("v1pi.Disable", "Error disabling API")
-	}
-	// delete rules
-	if err := auth.Revoke(&auth.Rule{ID: fmt.Sprintf("%s-internal", request.Name)}); err != nil {
-		log.Errorf("Error deleting rule %s", err)
-		return errors.InternalServerError("v1pi.Disable", "Error disabling API")
-	}
-	if err := auth.Revoke(&auth.Rule{ID: fmt.Sprintf("%s-v1", request.Name)}); err != nil {
-		log.Errorf("Error deleting rule %s", err)
-		return errors.InternalServerError("v1pi.Disable", "Error disabling API")
-	}
-	// event
-	if err := events.Publish("v1api", v1api.Event{Type: "APIDisable",
-		ApiDisable: &v1api.APIDisableEvent{
-			Name: request.Name,
-		}}); err != nil {
-		log.Errorf("Error publishing event %s", err)
-	}
-
-	return nil
-}
-
-func (e *V1) ListAPIs(ctx context.Context, request *v1api.ListAPIsRequest, response *v1api.ListAPIsResponse) error {
-	ret, err := e.listAPIs()
-	if err != nil {
-		log.Errorf("Error listing APIs %s", err)
-		return errors.InternalServerError("v1pi.ListAPIs", "Error listing APIs")
-	}
-	response.Names = ret
-	return nil
-}
-
 func (e *V1) listAPIs() ([]string, error) {
-	recs, err := store.Read(fmt.Sprintf("%s:", storePrefixAPI), store.ReadPrefix())
-	if err != nil && err != store.ErrNotFound {
+	rsp, err := e.papi.List(context.Background(), &publicapi.ListRequest{})
+	if err != nil {
 		return nil, err
 	}
-	ret := make([]string, len(recs))
-	for i, v := range recs {
-		ae := &apiEntry{}
-		if err := json.Unmarshal(v.Value, ae); err != nil {
-			return nil, err
-		}
-		ret[i] = ae.Name
+
+	ret := make([]string, len(rsp.Apis))
+	for i, v := range rsp.Apis {
+		ret[i] = v.Name
 	}
 	return ret, nil
 }

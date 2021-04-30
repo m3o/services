@@ -10,9 +10,6 @@ service V1 {
 	rpc RevokeKey(RevokeRequest) returns (RevokeResponse) {}
 	rpc UnblockKey(UnblockKeyRequest) returns (UnblockKeyResponse) {}
 	rpc BlockKey(BlockKeyRequest) returns (BlockKeyResponse) {}
-	rpc EnableAPI(EnableAPIRequest) returns (EnableAPIResponse) {}
-	rpc DisableAPI(DisableAPIRequest) returns (DisableAPIResponse) {}
-	rpc ListAPIs(ListAPIsRequest) returns (ListAPIsResponse) {}
 }
 
 
