@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 )
 
@@ -13,8 +12,6 @@ const (
 )
 
 func VerifyMicroCustomer(ctx context.Context, method string) (*auth.Account, error) {
-	authStr, _ := metadata.Get(ctx, "Authorization")
-
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return nil, errors.Unauthorized(method, "Unauthorized")
