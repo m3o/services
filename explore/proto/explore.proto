@@ -2,21 +2,40 @@ syntax = "proto3";
 
 package explore;
 
+option go_package = "./proto;explore";
+
 import "proto/imports/registry.proto";
 
 service Explore {
+	rpc Index(IndexRequest) returns (IndexResponse) {}
 	rpc Search(SearchRequest) returns (SearchResponse) {}
+	rpc Service(ServiceRequest) returns (ServiceResponse) {}
 	rpc SaveMeta(SaveMetaRequest) returns (SaveMetaResponse) {}
+}
+
+message IndexRequest {}
+
+message IndexResponse {
+	repeated Service services = 1;
 }
 
 message SearchRequest {
 	string searchTerm = 1;
 }
 
+message ServiceRequest {
+	string name = 1;
+}
+
+message ServiceResponse {
+	Service service = 1;
+}
+
 message Service {
 	string readme = 1;
 	string openAPIJSON = 2;
 	registry.Service service = 3;
+	string examplesJSON = 4;
 }
 
 message SearchResponse {
@@ -29,6 +48,7 @@ message SaveMetaRequest{
 	string readme = 2;
 	// marshalled JSON OpenAPI spec
 	string openAPIJSON = 3;
+	string examplesJSON = 4;
 }
 
 message SaveMetaResponse {
