@@ -9,6 +9,7 @@ import "proto/imports/registry.proto";
 service Explore {
 	rpc Index(IndexRequest) returns (IndexResponse) {}
 	rpc Search(SearchRequest) returns (SearchResponse) {}
+	rpc Service(ServiceRequest) returns (ServiceResponse) {}
 	rpc SaveMeta(SaveMetaRequest) returns (SaveMetaResponse) {}
 }
 
@@ -20,6 +21,14 @@ message IndexResponse {
 
 message SearchRequest {
 	string searchTerm = 1;
+}
+
+message ServiceRequest {
+	string name = 1;
+}
+
+message ServiceResponse {
+	Service service = 1;
 }
 
 message Service {

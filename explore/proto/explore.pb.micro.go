@@ -45,6 +45,7 @@ func NewExploreEndpoints() []*api.Endpoint {
 type ExploreService interface {
 	Index(ctx context.Context, in *IndexRequest, opts ...client.CallOption) (*IndexResponse, error)
 	Search(ctx context.Context, in *SearchRequest, opts ...client.CallOption) (*SearchResponse, error)
+	Service(ctx context.Context, in *ServiceRequest, opts ...client.CallOption) (*ServiceResponse, error)
 	SaveMeta(ctx context.Context, in *SaveMetaRequest, opts ...client.CallOption) (*SaveMetaResponse, error)
 }
 
@@ -80,6 +81,16 @@ func (c *exploreService) Search(ctx context.Context, in *SearchRequest, opts ...
 	return out, nil
 }
 
+func (c *exploreService) Service(ctx context.Context, in *ServiceRequest, opts ...client.CallOption) (*ServiceResponse, error) {
+	req := c.c.NewRequest(c.name, "Explore.Service", in)
+	out := new(ServiceResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *exploreService) SaveMeta(ctx context.Context, in *SaveMetaRequest, opts ...client.CallOption) (*SaveMetaResponse, error) {
 	req := c.c.NewRequest(c.name, "Explore.SaveMeta", in)
 	out := new(SaveMetaResponse)
@@ -95,6 +106,7 @@ func (c *exploreService) SaveMeta(ctx context.Context, in *SaveMetaRequest, opts
 type ExploreHandler interface {
 	Index(context.Context, *IndexRequest, *IndexResponse) error
 	Search(context.Context, *SearchRequest, *SearchResponse) error
+	Service(context.Context, *ServiceRequest, *ServiceResponse) error
 	SaveMeta(context.Context, *SaveMetaRequest, *SaveMetaResponse) error
 }
 
@@ -102,6 +114,7 @@ func RegisterExploreHandler(s server.Server, hdlr ExploreHandler, opts ...server
 	type explore interface {
 		Index(ctx context.Context, in *IndexRequest, out *IndexResponse) error
 		Search(ctx context.Context, in *SearchRequest, out *SearchResponse) error
+		Service(ctx context.Context, in *ServiceRequest, out *ServiceResponse) error
 		SaveMeta(ctx context.Context, in *SaveMetaRequest, out *SaveMetaResponse) error
 	}
 	type Explore struct {
@@ -121,6 +134,10 @@ func (h *exploreHandler) Index(ctx context.Context, in *IndexRequest, out *Index
 
 func (h *exploreHandler) Search(ctx context.Context, in *SearchRequest, out *SearchResponse) error {
 	return h.ExploreHandler.Search(ctx, in, out)
+}
+
+func (h *exploreHandler) Service(ctx context.Context, in *ServiceRequest, out *ServiceResponse) error {
+	return h.ExploreHandler.Service(ctx, in, out)
 }
 
 func (h *exploreHandler) SaveMeta(ctx context.Context, in *SaveMetaRequest, out *SaveMetaResponse) error {

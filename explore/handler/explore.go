@@ -167,6 +167,55 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 	return nil
 }
 
+func (e *Explore) Service(ctx context.Context, req *proto.ServiceRequest, rsp *proto.ServiceResponse) error {
+	if len(req.Name) == 0 {
+		return errors.BadRequest("explore.service", "missing name")
+	}
+
+	// check the cache for the service
+	var service *proto.Service
+	e.RLock()
+	for _, s := range e.cache {
+		if s.Service.Name == req.Name {
+			service = s
+			break
+		}
+	}
+	e.RUnlock()
+
+	if service != nil {
+		rsp.Service = service
+		return nil
+	}
+
+	// get the service from the registry
+	srv, err := e.reg.GetService(req.Name)
+	if err != nil {
+		return err
+	}
+
+	if len(srv) == 0 {
+		return errors.NotFound("explore.service", "service not found")
+	}
+
+	// get service metadata
+	meta := new(proto.SaveMetaRequest)
+	err = e.meta.Read(model.QueryEquals("ServiceName", req.Name), &meta)
+	if err != nil {
+		return err
+	}
+
+	// return response
+	rsp.Service = &proto.Service{
+		Service:      regutil.ToProto(srv[0]),
+		Readme:       meta.Readme,
+		OpenAPIJSON:  meta.OpenAPIJSON,
+		ExamplesJSON: meta.ExamplesJSON,
+	}
+
+	return nil
+}
+
 func (e *Explore) SaveMeta(ctx context.Context, req *proto.SaveMetaRequest, rsp *proto.SaveMetaResponse) error {
 	acc, ok := auth.AccountFromContext(ctx)
 	isAdmin := func(ss []string) bool {
