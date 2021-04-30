@@ -117,17 +117,19 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 
 		if req.SearchTerm == "" {
 			rsp.Services = append(rsp.Services, &proto.Service{
-				Service:     regutil.ToProto(service),
-				Readme:      meta.Readme,
-				OpenAPIJSON: meta.OpenAPIJSON,
+				Service:      regutil.ToProto(service),
+				Readme:       meta.Readme,
+				OpenAPIJSON:  meta.OpenAPIJSON,
+				ExamplesJSON: meta.ExamplesJSON,
 			})
 			continue
 		}
 		if strings.Contains(service.Name, req.SearchTerm) {
 			matchedName = append(matchedName, &proto.Service{
-				Service:     regutil.ToProto(service),
-				Readme:      meta.Readme,
-				OpenAPIJSON: meta.OpenAPIJSON,
+				Service:      regutil.ToProto(service),
+				Readme:       meta.Readme,
+				OpenAPIJSON:  meta.OpenAPIJSON,
+				ExamplesJSON: meta.ExamplesJSON,
 			})
 			continue
 		}
@@ -135,9 +137,10 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 		for _, ep := range service.Endpoints {
 			if strings.Contains(strings.ToLower(ep.Name), req.SearchTerm) {
 				matchedEndpointName = append(matchedEndpointName, &proto.Service{
-					Service:     regutil.ToProto(service),
-					Readme:      meta.Readme,
-					OpenAPIJSON: meta.OpenAPIJSON,
+					Service:      regutil.ToProto(service),
+					Readme:       meta.Readme,
+					OpenAPIJSON:  meta.OpenAPIJSON,
+					ExamplesJSON: meta.ExamplesJSON,
 				})
 				found = true
 				break
@@ -148,9 +151,10 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 		}
 		if strings.Contains(meta.Readme, req.SearchTerm) {
 			matchedOther = append(matchedOther, &proto.Service{
-				Service:     regutil.ToProto(service),
-				Readme:      meta.Readme,
-				OpenAPIJSON: meta.OpenAPIJSON,
+				Service:      regutil.ToProto(service),
+				Readme:       meta.Readme,
+				OpenAPIJSON:  meta.OpenAPIJSON,
+				ExamplesJSON: meta.ExamplesJSON,
 			})
 		}
 	}

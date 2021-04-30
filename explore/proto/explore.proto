@@ -26,6 +26,7 @@ message Service {
 	string readme = 1;
 	string openAPIJSON = 2;
 	registry.Service service = 3;
+	string examplesJSON = 4;
 }
 
 message SearchResponse {
@@ -38,6 +39,7 @@ message SaveMetaRequest{
 	string readme = 2;
 	// marshalled JSON OpenAPI spec
 	string openAPIJSON = 3;
+	string examplesJSON = 4;
 }
 
 message SaveMetaResponse {
