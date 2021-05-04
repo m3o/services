@@ -57,6 +57,7 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 	for _, s := range svcs {
 		e.regCache[s.Name] = s
 	}
+	log.Infof("Registry cache is %+v", e.cache)
 	e.lastUpdated = time.Now()
 
 	recs, err := store.Read(fmt.Sprintf(prefixName, ""), store.ReadPrefix())
@@ -70,6 +71,7 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 		if err := json.Unmarshal(v.Value, &ae); err != nil {
 			return nil, err
 		}
+		log.Infof("Marshalling %+v", ae)
 		ret[i] = marshalExploreAPI(&ae, e.regCache[ae.Name])
 	}
 
