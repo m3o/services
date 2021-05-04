@@ -72,7 +72,12 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 			return nil, err
 		}
 		log.Infof("Marshalling %+v", ae)
-		ret[i] = marshalExploreAPI(&ae, e.regCache[ae.Name])
+		reg, ok := e.regCache[ae.Name]
+		if !ok {
+			// entry without matching registry entry probably means an old entry, ignore
+			continue
+		}
+		ret[i] = marshalExploreAPI(&ae, reg)
 	}
 
 	e.cache = ret
