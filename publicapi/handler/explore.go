@@ -65,8 +65,8 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 		log.Errorf("Error reading from store %s", err)
 		return nil, err
 	}
-	ret := make([]*pb.ExploreAPI, len(recs))
-	for i, v := range recs {
+	ret := []*pb.ExploreAPI{}
+	for _, v := range recs {
 		var ae APIEntry
 		if err := json.Unmarshal(v.Value, &ae); err != nil {
 			return nil, err
@@ -77,7 +77,7 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 			// entry without matching registry entry probably means an old entry, ignore
 			continue
 		}
-		ret[i] = marshalExploreAPI(&ae, reg)
+		ret = append(ret, marshalExploreAPI(&ae, reg))
 	}
 
 	e.cache = ret
