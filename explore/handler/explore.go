@@ -123,6 +123,11 @@ func (e *Explore) Search(ctx context.Context, req *proto.SearchRequest, rsp *pro
 			}
 		}
 
+		// only return services with a readme
+		if len(meta.Readme) == 0 || len(meta.OpenAPIJSON) == 0 {
+			continue
+		}
+
 		if req.SearchTerm == "" {
 			rsp.Services = append(rsp.Services, &proto.Service{
 				Service:      regutil.ToProto(service),
