@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	m3oauth "github.com/m3o/services/pkg/auth"
-	"github.com/m3o/services/explore/proto"
 	pb "github.com/m3o/services/publicapi/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
@@ -23,36 +22,35 @@ const (
 )
 
 type APIEntry struct {
-	ID          string
-	Name        string
-	Description string
-	OpenAPIJSON string
-	Pricing     map[string]int64 // pricing mapping endpoints to price in 1/100 of a cent
-	OwnerID     string
+	ID           string
+	Name         string
+	Description  string
+	OpenAPIJSON  string
+	Pricing      map[string]int64 // pricing mapping endpoints to price in 1/100 of a cent
+	OwnerID      string
+	ExamplesJSON string
 }
 
 type Publicapi struct {
-	explSvc explore.ExploreService
 }
 
-func NewHandler(srv *service.Service) *Publicapi {
-	return &Publicapi{
-		explSvc: explore.NewExploreService("explore", srv.Client()),
-	}
+func NewPublicAPIHandler(srv *service.Service) *Publicapi {
+	return &Publicapi{}
 }
 
 func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, response *pb.PublishResponse) error {
-	if _, err := m3oauth.VerifyMicroAdmin(ctx, "publicapi.Remove"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "publicapi.Publish"); err != nil {
 		return err
 	}
 	acc, _ := auth.AccountFromContext(ctx)
 	ae := &APIEntry{
-		ID:          uuid.New().String(),
-		Name:        request.Api.Name,
-		Description: request.Api.Description,
-		OpenAPIJSON: request.Api.OpenApiJson,
-		Pricing:     request.Api.Pricing,
-		OwnerID:     acc.ID,
+		ID:           uuid.New().String(),
+		Name:         request.Api.Name,
+		Description:  request.Api.Description,
+		OpenAPIJSON:  request.Api.OpenApiJson,
+		Pricing:      request.Api.Pricing,
+		OwnerID:      acc.ID,
+		ExamplesJSON: request.Api.ExamplesJson,
 	}
 
 	if err := p.updateEntry(ctx, ae); err != nil {
@@ -74,7 +72,7 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		Priority: 1,
 	}); err != nil {
 		log.Errorf("Error adding rule %s", err)
-		return errors.InternalServerError("v1api.EnableAPI", "Error enabling API")
+		return errors.InternalServerError("publicapi.Publish", "Error enabling API")
 	}
 
 	if err := auth.Grant(&auth.Rule{
@@ -89,12 +87,12 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		Priority: 1,
 	}); err != nil {
 		log.Errorf("Error adding rule %s", err)
-		return errors.InternalServerError("v1api.EnableAPI", "Error enabling API")
+		return errors.InternalServerError("publicapi.Publish", "Error enabling API")
 	}
 
 	// event
 	if err := events.Publish("publicapi", pb.Event{Type: "APIPublish",
-		ApiEnable: &pb.APIEnableEvent{
+		ApiPublish: &pb.APIPublishEvent{
 			Name: ae.Name,
 		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
@@ -125,15 +123,6 @@ func (p *Publicapi) updateEntry(ctx context.Context, ae *APIEntry) error {
 		return err
 	}
 
-	// publish to explore API
-	if _, err := p.explSvc.SaveMeta(ctx, &explore.SaveMetaRequest{
-		ServiceName: ae.Name,
-		Readme:      ae.Description,
-		OpenAPIJSON: ae.OpenAPIJSON,
-	}); err != nil {
-		log.Errorf("Error publishing to explore service %s", err)
-		return err
-	}
 	return nil
 }
 
@@ -194,9 +183,47 @@ func (p *Publicapi) Remove(ctx context.Context, request *pb.RemoveRequest, respo
 	if len(key) == 0 {
 		return errors.BadRequest("publicapi.Remove", "ID or name must be specified")
 	}
-	if err := store.Delete(key); err != nil {
+	recs, err := store.Read(key)
+	if err != nil {
+		return err
+	}
+	var ae APIEntry
+	if err := json.Unmarshal(recs[0].Value, &ae); err != nil {
+		return err
+	}
+
+	// delete entries
+	if err := store.Delete(fmt.Sprintf(prefixID, ae.ID)); err != nil {
 		return errors.InternalServerError("publicapi.Remove", "Error removing API")
 	}
+	if err := store.Delete(fmt.Sprintf(prefixName, ae.Name)); err != nil {
+		return errors.InternalServerError("publicapi.Remove", "Error removing API")
+	}
+	// TODO
+	// delete rules
+
+	if err := auth.Revoke(&auth.Rule{
+		ID: fmt.Sprintf("%s-v1", ae.Name),
+	}); err != nil {
+		log.Errorf("Error deleting rule %s", err)
+		return errors.InternalServerError("publicapi.Remove", "Error removing API")
+	}
+
+	if err := auth.Revoke(&auth.Rule{
+		ID: fmt.Sprintf("%s-internal", ae.Name),
+	}); err != nil {
+		log.Errorf("Error deleting rule %s", err)
+		return errors.InternalServerError("publicapi.Remove", "Error removing API")
+	}
+
+	// event
+	if err := events.Publish("publicapi", pb.Event{Type: "APIRemove",
+		ApiRemove: &pb.APIRemoveEvent{
+			Name: ae.Name,
+		}}); err != nil {
+		log.Errorf("Error publishing event %s", err)
+	}
+
 	return nil
 }
 
@@ -229,21 +256,26 @@ func (p *Publicapi) Update(ctx context.Context, request *pb.UpdateRequest, respo
 	if len(request.Api.Pricing) > 0 {
 		ae.Pricing = request.Api.Pricing
 	}
+	if len(request.Api.ExamplesJson) > 0 {
+		ae.ExamplesJSON = request.Api.ExamplesJson
+	}
 	if err := p.updateEntry(ctx, &ae); err != nil {
 		log.Errorf("Error updating entry %s", err)
 		return errors.InternalServerError("publicapi.Update", "Error updating API")
 	}
 	response.Api = marshal(&ae)
+	// TODO update explore service
 	return nil
 }
 
 func marshal(ae *APIEntry) *pb.PublicAPI {
 	return &pb.PublicAPI{
-		Id:          ae.ID,
-		Name:        ae.Name,
-		Description: ae.Description,
-		OpenApiJson: ae.OpenAPIJSON,
-		Pricing:     ae.Pricing,
-		OwnerId:     ae.OwnerID,
+		Id:           ae.ID,
+		Name:         ae.Name,
+		Description:  ae.Description,
+		OpenApiJson:  ae.OpenAPIJSON,
+		Pricing:      ae.Pricing,
+		OwnerId:      ae.OwnerID,
+		ExamplesJson: ae.ExamplesJSON,
 	}
 }

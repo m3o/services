@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package publicapi;
+
+option go_package = "./proto;publicapi";
+
+import "proto/imports/registry.proto";
+import "proto/publicapi.proto";
+
+service Explore {
+	rpc Index(IndexRequest) returns (IndexResponse) {}
+	rpc Search(SearchRequest) returns (SearchResponse) {}
+	rpc API(APIRequest) returns (APIResponse) {}
+}
+
+message IndexRequest {}
+
+message IndexResponse {
+	repeated ExploreAPI apis = 1;
+}
+
+message SearchRequest {
+	string searchTerm = 1;
+}
+
+message APIRequest {
+	string name = 1;
+}
+
+message APIResponse {
+	ExploreAPI api = 1;
+}
+
+message ExploreAPI {
+	PublicAPI api = 1;
+	registry.Service service = 2;
+}
+
+message SearchResponse {
+	repeated ExploreAPI apis = 1;
+}
+

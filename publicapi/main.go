@@ -16,7 +16,8 @@ func main() {
 	)
 
 	// Register handler
-	pb.RegisterPublicapiHandler(srv.Server(), handler.NewHandler(srv))
+	pb.RegisterPublicapiHandler(srv.Server(), handler.NewPublicAPIHandler(srv))
+	pb.RegisterExploreHandler(srv.Server(), handler.NewExploreAPIHandler(srv))
 
 	// Run service
 	if err := srv.Run(); err != nil {
