@@ -10,10 +10,10 @@ import (
 	"github.com/go-redis/redis/v8"
 	balance "github.com/m3o/services/balance/proto"
 	ns "github.com/m3o/services/namespaces/proto"
+	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
@@ -123,7 +123,7 @@ func NewHandler(svc *service.Service) *Balance {
 
 func (b Balance) Increment(ctx context.Context, request *balance.IncrementRequest, response *balance.IncrementResponse) error {
 	// increment counter
-	if err := verifyAdmin(ctx, "balance.Increment"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Increment"); err != nil {
 		return err
 	}
 	// TODO idempotency
@@ -137,7 +137,7 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 }
 
 func (b Balance) Decrement(ctx context.Context, request *balance.DecrementRequest, response *balance.DecrementResponse) error {
-	if err := verifyAdmin(ctx, "balance.Decrement"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Decrement"); err != nil {
 		return err
 	}
 	// TODO idempotency
@@ -151,20 +151,16 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 }
 
 func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("balance.Current", "Unauthorized")
-	}
-	if acc.Issuer != "micro" {
-		// reject
-		return errors.Forbidden("balance.Current", "Forbidden")
+	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.Current")
+	if err != nil {
+		return err
 	}
 	if len(request.CustomerId) == 0 {
 		request.CustomerId = acc.ID
 	}
 	if acc.ID != request.CustomerId {
 		// is this an admin?
-		if err := verifyAdmin(ctx, "balance.Current"); err != nil {
+		if _, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Current"); err != nil {
 			return err
 		}
 	}
@@ -175,20 +171,4 @@ func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, r
 	}
 	response.CurrentBalance = currBal
 	return nil
-}
-
-func verifyAdmin(ctx context.Context, method string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized(method, "Unauthorized")
-	}
-	if acc.Issuer != "micro" {
-		return errors.Forbidden(method, "Forbidden")
-	}
-	for _, s := range acc.Scopes {
-		if s == "admin" || s == "service" {
-			return nil
-		}
-	}
-	return errors.Forbidden(method, "Forbidden")
 }

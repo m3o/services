@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	m3oauth "github.com/m3o/services/pkg/auth"
 	"github.com/m3o/services/explore/proto"
 	pb "github.com/m3o/services/publicapi/proto"
 	"github.com/micro/micro/v3/service"
@@ -41,7 +42,7 @@ func NewHandler(srv *service.Service) *Publicapi {
 }
 
 func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, response *pb.PublishResponse) error {
-	if err := verifyAdmin(ctx, "publicapi.Remove"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "publicapi.Remove"); err != nil {
 		return err
 	}
 	acc, _ := auth.AccountFromContext(ctx)
@@ -181,7 +182,7 @@ func (p *Publicapi) List(ctx context.Context, request *pb.ListRequest, response 
 }
 
 func (p *Publicapi) Remove(ctx context.Context, request *pb.RemoveRequest, response *pb.RemoveResponse) error {
-	if err := verifyAdmin(ctx, "publicapi.Remove"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "publicapi.Remove"); err != nil {
 		return err
 	}
 	var key string
@@ -199,24 +200,8 @@ func (p *Publicapi) Remove(ctx context.Context, request *pb.RemoveRequest, respo
 	return nil
 }
 
-func verifyAdmin(ctx context.Context, method string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized(method, "Unauthorized")
-	}
-	if acc.Issuer != "micro" {
-		return errors.Forbidden(method, "Forbidden")
-	}
-	for _, s := range acc.Scopes {
-		if s == "admin" || s == "service" {
-			return nil
-		}
-	}
-	return errors.Forbidden(method, "Forbidden")
-}
-
 func (p *Publicapi) Update(ctx context.Context, request *pb.UpdateRequest, response *pb.UpdateResponse) error {
-	if err := verifyAdmin(ctx, "publicapi.Update"); err != nil {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "publicapi.Update"); err != nil {
 		return err
 	}
 	// work out which fields have been passed and update

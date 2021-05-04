@@ -18,7 +18,7 @@ func main() {
 
 	srv.Server().Handle(
 		srv.Server().NewHandler(
-			new(handler.V1),
+			handler.NewHandler(srv),
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "V1.Endpoint",
