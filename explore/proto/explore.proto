@@ -13,7 +13,10 @@ service Explore {
 	rpc SaveMeta(SaveMetaRequest) returns (SaveMetaResponse) {}
 }
 
-message IndexRequest {}
+message IndexRequest {
+	// limit the results
+	int64 limit = 1;
+}
 
 message IndexResponse {
 	repeated Service services = 1;
