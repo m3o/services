@@ -20,7 +20,7 @@ message IndexResponse {
 }
 
 message SearchRequest {
-	string searchTerm = 1;
+	string search_term = 1;
 }
 
 message APIRequest {
