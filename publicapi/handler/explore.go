@@ -49,8 +49,6 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 	}
 	e.Lock()
 	defer e.Unlock()
-	e.Lock()
-	defer e.Unlock()
 	svcs, err := registry.ListServices()
 	if err != nil {
 		return nil, err
