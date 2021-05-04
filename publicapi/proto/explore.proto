@@ -33,7 +33,7 @@ message APIResponse {
 
 message ExploreAPI {
 	PublicAPI api = 1;
-	registry.Service service = 2;
+	registry.Service detail = 2;
 }
 
 message SearchResponse {

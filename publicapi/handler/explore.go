@@ -57,7 +57,6 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 	for _, s := range svcs {
 		e.regCache[s.Name] = s
 	}
-	log.Infof("Registry cache is %+v", e.cache)
 	e.lastUpdated = time.Now()
 
 	recs, err := store.Read(fmt.Sprintf(prefixName, ""), store.ReadPrefix())
@@ -71,7 +70,6 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 		if err := json.Unmarshal(v.Value, &ae); err != nil {
 			return nil, err
 		}
-		log.Infof("Marshalling %+v", ae)
 		reg, ok := e.regCache[ae.Name]
 		if !ok {
 			// entry without matching registry entry probably means an old entry, ignore
@@ -86,8 +84,8 @@ func (e *Explore) exploreList() ([]*publicapi.ExploreAPI, error) {
 
 func marshalExploreAPI(ae *APIEntry, svc *registry.Service) *publicapi.ExploreAPI {
 	return &publicapi.ExploreAPI{
-		Api:     marshal(ae),
-		Service: regutil.ToProto(svc),
+		Api:    marshal(ae),
+		Detail: regutil.ToProto(svc),
 	}
 
 }
@@ -116,7 +114,7 @@ func (e *Explore) Search(ctx context.Context, request *publicapi.SearchRequest, 
 			continue
 		}
 		found := false
-		for _, ep := range api.Service.Endpoints {
+		for _, ep := range api.Detail.Endpoints {
 			if strings.Contains(strings.ToLower(ep.Name), request.SearchTerm) {
 				matchedEndpointName = append(matchedEndpointName, api)
 				found = true
