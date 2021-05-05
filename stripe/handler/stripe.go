@@ -83,10 +83,10 @@ func (s *Stripe) Webhook(ctx context.Context, req *json.RawMessage, rsp *api.Res
 		log.Errorf("Missing metadata from request")
 		return errors.BadRequest("stripe.Webhook", "Missing headers")
 	}
+	b, _ := json.MarshalIndent(req, "", "  ")
 	log.Infof("Signature %s", md["Stripe-Signature"])
-	payload, _ := req.MarshalJSON()
-	log.Infof("Payload %s", string(payload))
-	ev, err := webhook.ConstructEvent(payload, md["Stripe-Signature"], s.signingSecret)
+	log.Infof("Payload %s", string(b))
+	ev, err := webhook.ConstructEvent(b, md["Stripe-Signature"], s.signingSecret)
 	if err != nil {
 		log.Errorf("Error verifying signature %s", err)
 		return errors.BadRequest("stripe.Webhook", "Bad signature")
