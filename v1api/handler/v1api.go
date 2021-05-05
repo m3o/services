@@ -291,19 +291,19 @@ func verifyCallAllowed(apiRec *apiKeyRecord, reqURL string) error {
 		return errBlocked
 	}
 
-	scopeMatch := false
 	for _, s := range apiRec.Scopes {
+		if s == "*" {
+			// they can call anything they like
+			return nil
+		}
 		if strings.HasPrefix(reqURL, fmt.Sprintf("/v1/%s/", s)) {
-			scopeMatch = true
-			break
+			// match
+			return nil
 		}
 	}
-	if !scopeMatch {
-		// TODO better error please
-		return errBlocked
-	}
+	// TODO better error please
+	return errBlocked
 
-	return nil
 }
 
 func refreshToken(apiRec *apiKeyRecord, key string) error {
