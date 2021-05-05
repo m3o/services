@@ -12,6 +12,7 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
@@ -21,6 +22,7 @@ import (
 	"github.com/stripe/stripe-go/v71/paymentintent"
 	"github.com/stripe/stripe-go/v71/paymentmethod"
 	"github.com/stripe/stripe-go/v71/setupintent"
+	"github.com/stripe/stripe-go/v71/webhook"
 
 	"github.com/stripe/stripe-go/v71"
 	"github.com/stripe/stripe-go/v71/checkout/session"
@@ -40,17 +42,19 @@ type CustomerMapping struct {
 }
 
 type Stripe struct {
-	custSvc    custpb.CustomersService
-	client     *stripeclient.API // stripe api client
-	successURL string
-	cancelURL  string
+	custSvc       custpb.CustomersService
+	client        *stripeclient.API // stripe api client
+	successURL    string
+	cancelURL     string
+	signingSecret string
 }
 
 func NewHandler(serv *service.Service) stripepb.StripeHandler {
 	configObj := struct {
-		ApiKey     string `json:"api_key"`
-		SuccessURL string `json:"success_url"`
-		CancelURL  string `json:"cancel_url"`
+		ApiKey        string `json:"api_key"`
+		SuccessURL    string `json:"success_url"`
+		CancelURL     string `json:"cancel_url"`
+		SigningSecret string `json:"signing_secret"`
 	}{}
 	val, err := config.Get("micro.stripe")
 	if err != nil {
@@ -60,27 +64,38 @@ func NewHandler(serv *service.Service) stripepb.StripeHandler {
 		log.Fatalf("Error retrieving config %s", err)
 	}
 
-	if len(configObj.ApiKey) == 0 || len(configObj.CancelURL) == 0 || len(configObj.SuccessURL) == 0 {
+	if len(configObj.ApiKey) == 0 || len(configObj.CancelURL) == 0 || len(configObj.SuccessURL) == 0 || len(configObj.SigningSecret) == 0 {
 		log.Fatalf("Missing required config: micro.stripe")
 	}
 
 	return &Stripe{
-		custSvc:    custpb.NewCustomersService("customers", serv.Client()),
-		client:     stripeclient.New(configObj.ApiKey, nil),
-		successURL: configObj.SuccessURL,
-		cancelURL:  configObj.CancelURL,
+		custSvc:       custpb.NewCustomersService("customers", serv.Client()),
+		client:        stripeclient.New(configObj.ApiKey, nil),
+		successURL:    configObj.SuccessURL,
+		cancelURL:     configObj.CancelURL,
+		signingSecret: configObj.SigningSecret,
 	}
 }
 
-func (s *Stripe) Webhook(ctx context.Context, ev *stripe.Event, rsp *api.Response) error {
+func (s *Stripe) Webhook(ctx context.Context, req *json.RawMessage, rsp *api.Response) error {
+	md, ok := metadata.FromContext(ctx)
+	if !ok {
+		log.Errorf("Missing metadata from request")
+		return errors.BadRequest("stripe.Webhook", "Missing headers")
+	}
+	ev, err := webhook.ConstructEvent(*req, md["Stripe-Signature"], s.signingSecret)
+	if err != nil {
+		log.Errorf("Error verifying signature")
+		return errors.BadRequest("stripe.Webhook", "Bad signature")
+	}
 	log.Infof("Received event %s:%s", ev.ID, ev.Type)
 	switch ev.Type {
 	case "customer.created":
-		return s.customerCreated(ctx, ev)
+		return s.customerCreated(ctx, &ev)
 	case "charge.succeeded":
-		return s.chargeSucceeded(ctx, ev)
+		return s.chargeSucceeded(ctx, &ev)
 	case "checkout.session.completed":
-		return s.checkoutSessionCompleted(ctx, ev)
+		return s.checkoutSessionCompleted(ctx, &ev)
 	default:
 		log.Infof("Discarding event %s:%s", ev.ID, ev.Type)
 	}
