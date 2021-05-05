@@ -35,7 +35,14 @@ func (e *Explore) Index(ctx context.Context, request *publicapi.IndexRequest, re
 	if err != nil {
 		return err
 	}
-	response.Apis = ret
+	end := len(ret)
+	if request.Limit > 0 {
+		maxEnd := int(request.Limit + request.Offset)
+		if maxEnd < end {
+			end = maxEnd
+		}
+	}
+	response.Apis = ret[request.Offset:end]
 	return nil
 }
 

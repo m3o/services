@@ -13,7 +13,10 @@ service Explore {
 	rpc API(APIRequest) returns (APIResponse) {}
 }
 
-message IndexRequest {}
+message IndexRequest {
+	int64 limit = 1;
+	int64 offset = 2;
+}
 
 message IndexResponse {
 	repeated ExploreAPI apis = 1;
