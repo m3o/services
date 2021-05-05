@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	m3oauth "github.com/m3o/services/pkg/auth"
@@ -70,9 +71,10 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		},
 		Access:   auth.AccessGranted,
 		Priority: 1,
-	}); err != nil {
+	}); err != nil && !strings.Contains(err.Error(), "already exists") {
 		log.Errorf("Error adding rule %s", err)
 		return errors.InternalServerError("publicapi.Publish", "Error enabling API")
+
 	}
 
 	if err := auth.Grant(&auth.Rule{
@@ -85,7 +87,7 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		},
 		Access:   auth.AccessGranted,
 		Priority: 1,
-	}); err != nil {
+	}); err != nil && !strings.Contains(err.Error(), "already exists") {
 		log.Errorf("Error adding rule %s", err)
 		return errors.InternalServerError("publicapi.Publish", "Error enabling API")
 	}
@@ -199,7 +201,6 @@ func (p *Publicapi) Remove(ctx context.Context, request *pb.RemoveRequest, respo
 	if err := store.Delete(fmt.Sprintf(prefixName, ae.Name)); err != nil {
 		return errors.InternalServerError("publicapi.Remove", "Error removing API")
 	}
-	// TODO
 	// delete rules
 
 	if err := auth.Revoke(&auth.Rule{
@@ -264,7 +265,6 @@ func (p *Publicapi) Update(ctx context.Context, request *pb.UpdateRequest, respo
 		return errors.InternalServerError("publicapi.Update", "Error updating API")
 	}
 	response.Api = marshal(&ae)
-	// TODO update explore service
 	return nil
 }
 
