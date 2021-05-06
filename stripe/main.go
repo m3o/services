@@ -21,7 +21,7 @@ func main() {
 			api.WithEndpoint(
 				&api.Endpoint{
 					Name:    "Stripe.Webhook",
-					Handler: "http",
+					Handler: "api",
 					Method:  []string{"POST"},
 				}),
 		))
