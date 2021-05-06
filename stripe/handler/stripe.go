@@ -77,13 +77,13 @@ func NewHandler(serv *service.Service) stripepb.StripeHandler {
 	}
 }
 
-func (s *Stripe) Webhook(ctx context.Context, req *json.RawMessage, rsp *api.Response) error {
+func (s *Stripe) Webhook(ctx context.Context, req *api.Request, rsp *api.Response) error {
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
 		log.Errorf("Missing metadata from request")
 		return errors.BadRequest("stripe.Webhook", "Missing headers")
 	}
-	b, _ := json.MarshalIndent(req, "", "  ")
+	b := []byte(req.Body)
 	log.Infof("Signature %s", md["Stripe-Signature"])
 	log.Infof("Payload %s", string(b))
 	ev, err := webhook.ConstructEvent(b, md["Stripe-Signature"], s.signingSecret)
