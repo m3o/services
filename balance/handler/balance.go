@@ -59,7 +59,6 @@ type publicAPICache struct {
 
 func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
 	// check the cache
-	// TODO mutex
 	p.RLock()
 	cached := p.cache[name]
 	p.RUnlock()

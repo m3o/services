@@ -47,7 +47,6 @@ type V1Service interface {
 	RevokeKey(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
 	UnblockKey(ctx context.Context, in *UnblockKeyRequest, opts ...client.CallOption) (*UnblockKeyResponse, error)
 	BlockKey(ctx context.Context, in *BlockKeyRequest, opts ...client.CallOption) (*BlockKeyResponse, error)
-	ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error)
 }
 
 type v1Service struct {
@@ -112,16 +111,6 @@ func (c *v1Service) BlockKey(ctx context.Context, in *BlockKeyRequest, opts ...c
 	return out, nil
 }
 
-func (c *v1Service) ListAPIs(ctx context.Context, in *ListAPIsRequest, opts ...client.CallOption) (*ListAPIsResponse, error) {
-	req := c.c.NewRequest(c.name, "V1.ListAPIs", in)
-	out := new(ListAPIsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for V1 service
 
 type V1Handler interface {
@@ -130,7 +119,6 @@ type V1Handler interface {
 	RevokeKey(context.Context, *RevokeRequest, *RevokeResponse) error
 	UnblockKey(context.Context, *UnblockKeyRequest, *UnblockKeyResponse) error
 	BlockKey(context.Context, *BlockKeyRequest, *BlockKeyResponse) error
-	ListAPIs(context.Context, *ListAPIsRequest, *ListAPIsResponse) error
 }
 
 func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOption) error {
@@ -140,7 +128,6 @@ func RegisterV1Handler(s server.Server, hdlr V1Handler, opts ...server.HandlerOp
 		RevokeKey(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error
 		UnblockKey(ctx context.Context, in *UnblockKeyRequest, out *UnblockKeyResponse) error
 		BlockKey(ctx context.Context, in *BlockKeyRequest, out *BlockKeyResponse) error
-		ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error
 	}
 	type V1 struct {
 		v1
@@ -171,8 +158,4 @@ func (h *v1Handler) UnblockKey(ctx context.Context, in *UnblockKeyRequest, out *
 
 func (h *v1Handler) BlockKey(ctx context.Context, in *BlockKeyRequest, out *BlockKeyResponse) error {
 	return h.V1Handler.BlockKey(ctx, in, out)
-}
-
-func (h *v1Handler) ListAPIs(ctx context.Context, in *ListAPIsRequest, out *ListAPIsResponse) error {
-	return h.V1Handler.ListAPIs(ctx, in, out)
 }

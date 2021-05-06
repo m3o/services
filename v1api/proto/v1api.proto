@@ -84,6 +84,7 @@ message BlockKeyRequest {
 	string user_id = 1;
 	string namespace = 2;
 	string key_id = 3;
+	string message = 4;
 }
 
 message BlockKeyResponse {}
