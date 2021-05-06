@@ -87,7 +87,7 @@ func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 			Namespace: ac.Namespace,
 			Message:   msgInsufficientFunds,
 		}, client.WithAuthToken()); err != nil {
-			logger.Errorf("Error unblocking key %s", err)
+			logger.Errorf("Error blocking key %s", err)
 			return err
 		}
 		return nil
@@ -178,12 +178,13 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 	if err != nil {
 		logger.Errorf("Error incrementing balance %s", err)
 	}
-	namespace := "micro"
 
 	// For now, builders have accounts issued by non micro namespace
 	rsp, err := b.nsSvc.List(context.Background(), &ns.ListRequest{
 		Owner: ev.CustomerId,
 	})
+
+	namespace := microNamespace
 	if err == nil {
 		// TODO at some point builders will actually have accounts issued from micro namespace
 		namespace = rsp.Namespaces[0].Id
