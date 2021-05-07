@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -51,7 +52,7 @@ func (o *Onboarding) consumeEvents() {
 			evs, err = mevents.Consume(topic,
 				mevents.WithAutoAck(false, 30*time.Second),
 				mevents.WithRetryLimit(10), // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-				mevents.WithGroup("onboarding"))
+				mevents.WithGroup(fmt.Sprintf("%s-%s", "onboarding", topic)))
 			if err == nil {
 				handler(evs)
 				start = time.Now()

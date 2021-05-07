@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	ns "github.com/m3o/services/namespaces/proto"
@@ -26,7 +27,7 @@ func (b *Balance) consumeEvents() {
 			evs, err = mevents.Consume(topic,
 				mevents.WithAutoAck(false, 30*time.Second),
 				mevents.WithRetryLimit(10),
-				mevents.WithGroup("balance")) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
+				mevents.WithGroup(fmt.Sprintf("%s-%s", "balance", topic))) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
 			if err == nil {
 				handler(evs)
 				start = time.Now()
