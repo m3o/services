@@ -70,8 +70,8 @@ func (o *Onboarding) consumeEvents() {
 func (o *Onboarding) processOnboardingEvents(ch <-chan mevents.Event) {
 	logger.Infof("Starting to process onboarding events")
 	for ev := range ch {
-		var ve *onboarding.Event
-		if err := json.Unmarshal(ev.Payload, ve); err != nil {
+		var ve onboarding.Event
+		if err := json.Unmarshal(ev.Payload, &ve); err != nil {
 			ev.Nack()
 			logger.Errorf("Error unmarshalling onboarding event: $s", err)
 			continue
