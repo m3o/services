@@ -52,6 +52,7 @@ message Adjustment {
 	int64 created = 2;
 	int64 delta = 3;
 	string reference = 4;
+	map<string,string> meta = 5;
 }
 
 message ListAdjustmentsResponse {

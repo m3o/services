@@ -286,6 +286,7 @@ func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjus
 			Created:   adj.Created.Unix(),
 			Delta:     adj.Amount,
 			Reference: adj.Reference,
+			Meta:      adj.Meta,
 		})
 	}
 	return nil
