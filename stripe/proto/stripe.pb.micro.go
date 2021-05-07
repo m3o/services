@@ -47,6 +47,7 @@ type StripeService interface {
 	ChargeCard(ctx context.Context, in *ChargeCardRequest, opts ...client.CallOption) (*ChargeCardResponse, error)
 	DeleteCard(ctx context.Context, in *DeleteCardRequest, opts ...client.CallOption) (*DeleteCardResponse, error)
 	ListPayments(ctx context.Context, in *ListPaymentsRequest, opts ...client.CallOption) (*ListPaymentsResponse, error)
+	GetPayment(ctx context.Context, in *GetPaymentRequest, opts ...client.CallOption) (*GetPaymentResponse, error)
 }
 
 type stripeService struct {
@@ -111,6 +112,16 @@ func (c *stripeService) ListPayments(ctx context.Context, in *ListPaymentsReques
 	return out, nil
 }
 
+func (c *stripeService) GetPayment(ctx context.Context, in *GetPaymentRequest, opts ...client.CallOption) (*GetPaymentResponse, error) {
+	req := c.c.NewRequest(c.name, "Stripe.GetPayment", in)
+	out := new(GetPaymentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Stripe service
 
 type StripeHandler interface {
@@ -119,6 +130,7 @@ type StripeHandler interface {
 	ChargeCard(context.Context, *ChargeCardRequest, *ChargeCardResponse) error
 	DeleteCard(context.Context, *DeleteCardRequest, *DeleteCardResponse) error
 	ListPayments(context.Context, *ListPaymentsRequest, *ListPaymentsResponse) error
+	GetPayment(context.Context, *GetPaymentRequest, *GetPaymentResponse) error
 }
 
 func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.HandlerOption) error {
@@ -128,6 +140,7 @@ func RegisterStripeHandler(s server.Server, hdlr StripeHandler, opts ...server.H
 		ChargeCard(ctx context.Context, in *ChargeCardRequest, out *ChargeCardResponse) error
 		DeleteCard(ctx context.Context, in *DeleteCardRequest, out *DeleteCardResponse) error
 		ListPayments(ctx context.Context, in *ListPaymentsRequest, out *ListPaymentsResponse) error
+		GetPayment(ctx context.Context, in *GetPaymentRequest, out *GetPaymentResponse) error
 	}
 	type Stripe struct {
 		stripe
@@ -158,4 +171,8 @@ func (h *stripeHandler) DeleteCard(ctx context.Context, in *DeleteCardRequest, o
 
 func (h *stripeHandler) ListPayments(ctx context.Context, in *ListPaymentsRequest, out *ListPaymentsResponse) error {
 	return h.StripeHandler.ListPayments(ctx, in, out)
+}
+
+func (h *stripeHandler) GetPayment(ctx context.Context, in *GetPaymentRequest, out *GetPaymentResponse) error {
+	return h.StripeHandler.GetPayment(ctx, in, out)
 }

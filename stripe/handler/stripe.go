@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	custpb "github.com/m3o/services/customers/proto"
+	m3oauth "github.com/m3o/services/pkg/auth"
 	stripepb "github.com/m3o/services/stripe/proto"
 	api "github.com/micro/micro/v3/proto/api"
 	"github.com/micro/micro/v3/service"
@@ -172,6 +173,7 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 			CustomerId: cm.ID,
 			Currency:   string(ch.Currency), // TOOD
 			Ammount:    ch.Amount,
+			ChargeId:   ch.ID,
 		},
 	})
 	return nil
@@ -278,20 +280,10 @@ func (s *Stripe) CreateCheckoutSession(ctx context.Context, request *stripepb.Cr
 }
 
 func (s *Stripe) ListCards(ctx context.Context, request *stripepb.ListCardsRequest, response *stripepb.ListCardsResponse) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("stripe.ListCards", "Unauthorized")
-	}
-	recs, err := store.Read(fmt.Sprintf(prefixM3OID, acc.ID))
-	if err != nil && err != store.ErrNotFound {
-		log.Errorf("Error looking up stripe customer")
+	cm, err := mappingForCustomer(ctx, "stripe.ListCards")
+	if err != nil {
 		return err
 	}
-	if len(recs) == 0 {
-		return nil
-	}
-	var cm CustomerMapping
-	json.Unmarshal(recs[0].Value, &cm)
 	iter := paymentmethod.List(&stripe.PaymentMethodListParams{
 		Customer: stripe.String(cm.StripeID),
 		Type:     stripe.String(string(stripe.PaymentMethodTypeCard)),
@@ -416,6 +408,27 @@ func (s *Stripe) ListPayments(ctx context.Context, request *stripepb.ListPayment
 	}
 	if err := iter.Err(); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (s *Stripe) GetPayment(ctx context.Context, request *stripepb.GetPaymentRequest, response *stripepb.GetPaymentResponse) error {
+	// only for admins right now
+	_, err := m3oauth.VerifyMicroAdmin(ctx, "stripe.GetPayment")
+	if err != nil {
+		return err
+	}
+
+	c, err := charge.Get(request.Id, &stripe.ChargeParams{})
+	if err != nil {
+		return err
+	}
+	response.Payment = &stripepb.Payment{
+		Id:         c.ID,
+		Amount:     c.Amount,
+		Currency:   string(c.Currency),
+		Date:       c.Created,
+		ReceiptUrl: c.ReceiptURL,
 	}
 	return nil
 }

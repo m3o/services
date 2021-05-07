@@ -14,9 +14,9 @@ import (
 	ns "github.com/m3o/services/namespaces/proto"
 	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
+	stripe "github.com/m3o/services/stripe/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
@@ -73,6 +73,7 @@ type Adjustment struct {
 	Visible    bool   // should this be visible to the customer? If false, it only displays to admins
 	CustomerID string
 	ActionedBy string // who made the adjustment
+	Meta       map[string]string
 }
 
 func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
@@ -94,10 +95,11 @@ func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
 }
 
 type Balance struct {
-	c      *counter // counts the balance. Balance is expressed in 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
-	v1Svc  v1api.V1Service
-	pubSvc *publicAPICache
-	nsSvc  ns.NamespacesService
+	c         *counter // counts the balance. Balance is expressed in 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
+	v1Svc     v1api.V1Service
+	pubSvc    *publicAPICache
+	nsSvc     ns.NamespacesService
+	stripeSvc stripe.StripeService
 }
 
 func NewHandler(svc *service.Service) *Balance {
@@ -132,7 +134,8 @@ func NewHandler(svc *service.Service) *Balance {
 			cache:  map[string]*publicAPICacheEntry{},
 			ttl:    5 * time.Minute,
 		},
-		nsSvc: ns.NewNamespacesService("namespaces", svc.Client()),
+		nsSvc:     ns.NewNamespacesService("namespaces", svc.Client()),
+		stripeSvc: stripe.NewStripeService("stripe", svc.Client()),
 	}
 	go b.consumeEvents()
 	return b
@@ -155,7 +158,7 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 		return err
 	}
 	response.NewBalance = currBal
-	if err := storeAdjustment(acc, request.Delta, request.CustomerId, request.Reference, request.Visible); err != nil {
+	if err := storeAdjustment(acc.ID, request.Delta, request.CustomerId, request.Reference, request.Visible, nil); err != nil {
 		return err
 	}
 
@@ -174,7 +177,7 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 	return nil
 }
 
-func storeAdjustment(acc *auth.Account, delta int64, customerID, reference string, visible bool) error {
+func storeAdjustment(actionedBy string, delta int64, customerID, reference string, visible bool, meta map[string]string) error {
 
 	// record it
 	rec := &Adjustment{
@@ -184,7 +187,8 @@ func storeAdjustment(acc *auth.Account, delta int64, customerID, reference strin
 		Reference:  reference,
 		Visible:    visible,
 		CustomerID: customerID,
-		ActionedBy: acc.ID,
+		ActionedBy: actionedBy,
+		Meta:       meta,
 	}
 	adj, err := json.Marshal(rec)
 	if err != nil {
@@ -216,7 +220,7 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 	}
 
 	response.NewBalance = currBal
-	if err := storeAdjustment(acc, -request.Delta, request.CustomerId, request.Reference, request.Visible); err != nil {
+	if err := storeAdjustment(acc.ID, -request.Delta, request.CustomerId, request.Reference, request.Visible, nil); err != nil {
 		return err
 	}
 

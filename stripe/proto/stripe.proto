@@ -10,6 +10,7 @@ service Stripe {
 	rpc ChargeCard(ChargeCardRequest) returns (ChargeCardResponse);
 	rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
 	rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse);
+	rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
 }
 
 message CreateCheckoutSessionRequest {
@@ -63,6 +64,14 @@ message ListPaymentsResponse {
 	repeated Payment payments = 1;
 }
 
+message GetPaymentRequest {
+	string id = 1;
+}
+
+message GetPaymentResponse {
+	Payment payment = 1;
+}
+
 message Event {
 	string type = 1;
 	ChargeSuceededEvent charge_succeeded = 2;
@@ -72,6 +81,6 @@ message ChargeSuceededEvent {
 	string customer_id = 1;
 	string currency = 2;
 	int64 ammount = 3; // in minor units e.g. cents, pence, etc
-
+	string charge_id = 4;
 }
 

@@ -179,6 +179,18 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		logger.Errorf("Error incrementing balance %s", err)
 	}
 
+	srsp, err := b.stripeSvc.GetPayment(context.Background(), &stripepb.GetPaymentRequest{Id: ev.ChargeId}, client.WithAuthToken())
+	if err != nil {
+		return err
+	}
+
+	err = storeAdjustment(ev.CustomerId, ev.Ammount*100, ev.CustomerId, "Funds added", true, map[string]string{
+		"receipt_url": srsp.Payment.ReceiptUrl,
+	})
+	if err != nil {
+		return err
+	}
+
 	// For now, builders have accounts issued by non micro namespace
 	rsp, err := b.nsSvc.List(context.Background(), &ns.ListRequest{
 		Owner: ev.CustomerId,
