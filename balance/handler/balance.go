@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 
@@ -272,7 +273,8 @@ func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjus
 	if err != nil {
 		return err
 	}
-	response.Adjustments = []*balance.Adjustment{}
+
+	ret := []*balance.Adjustment{}
 	for _, rec := range recs {
 		var adj Adjustment
 		if err := json.Unmarshal(rec.Value, &adj); err != nil {
@@ -281,7 +283,7 @@ func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjus
 		if !adj.Visible {
 			continue
 		}
-		response.Adjustments = append(response.Adjustments, &balance.Adjustment{
+		ret = append(ret, &balance.Adjustment{
 			Id:        adj.ID,
 			Created:   adj.Created.Unix(),
 			Delta:     adj.Amount,
@@ -289,5 +291,9 @@ func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjus
 			Meta:      adj.Meta,
 		})
 	}
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].Created < ret[j].Created
+	})
+	response.Adjustments = ret
 	return nil
 }
