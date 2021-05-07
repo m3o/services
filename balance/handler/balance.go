@@ -3,27 +3,32 @@ package handler
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
 	balance "github.com/m3o/services/balance/proto"
 	ns "github.com/m3o/services/namespaces/proto"
 	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 )
 
 const (
-	prefixCounter  = "balance-service/counter"
-	microNamespace = "micro"
+	prefixCounter         = "balance-service/counter"
+	microNamespace        = "micro"
+	prefixStoreByCustomer = "adjByCust"
 )
 
 type counter struct {
@@ -57,6 +62,17 @@ type publicAPICache struct {
 	cache  map[string]*publicAPICacheEntry
 	pubSvc publicapi.PublicapiService
 	ttl    time.Duration
+}
+
+// Adjustment represents a balance adjustment (not including normal API usage). e.g. funds being added, promo codes, manual adjustment for customer service etc
+type Adjustment struct {
+	ID         string
+	Created    time.Time
+	Amount     int64  // positive is credit, negative is debit
+	Reference  string // reference description
+	Visible    bool   // should this be visible to the customer? If false, it only displays to admins
+	CustomerID string
+	ActionedBy string // who made the adjustment
 }
 
 func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
@@ -124,9 +140,14 @@ func NewHandler(svc *service.Service) *Balance {
 
 func (b Balance) Increment(ctx context.Context, request *balance.IncrementRequest, response *balance.IncrementResponse) error {
 	// increment counter
-	if _, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Increment"); err != nil {
+	acc, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Increment")
+	if err != nil {
 		return err
 	}
+	if len(request.Reference) == 0 {
+		return errors.BadRequest("balance.Increment", "Missing reference")
+	}
+
 	// TODO idempotency
 	// increment the balance
 	currBal, err := b.c.incr(request.CustomerId, "$balance$", request.Delta)
@@ -134,6 +155,9 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 		return err
 	}
 	response.NewBalance = currBal
+	if err := storeAdjustment(acc, request.Delta, request.CustomerId, request.Reference, request.Visible); err != nil {
+		return err
+	}
 
 	if currBal < 0 {
 		return nil
@@ -150,9 +174,39 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 	return nil
 }
 
-func (b Balance) Decrement(ctx context.Context, request *balance.DecrementRequest, response *balance.DecrementResponse) error {
-	if _, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Decrement"); err != nil {
+func storeAdjustment(acc *auth.Account, delta int64, customerID, reference string, visible bool) error {
+
+	// record it
+	rec := &Adjustment{
+		ID:         uuid.New().String(),
+		Created:    time.Now(),
+		Amount:     delta,
+		Reference:  reference,
+		Visible:    visible,
+		CustomerID: customerID,
+		ActionedBy: acc.ID,
+	}
+	adj, err := json.Marshal(rec)
+	if err != nil {
 		return err
+	}
+
+	if err := store.Write(&store.Record{
+		Key:   fmt.Sprintf("%s/%s/%s", prefixStoreByCustomer, customerID, rec.ID),
+		Value: adj,
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b Balance) Decrement(ctx context.Context, request *balance.DecrementRequest, response *balance.DecrementResponse) error {
+	acc, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Decrement")
+	if err != nil {
+		return err
+	}
+	if len(request.Reference) == 0 {
+		return errors.BadRequest("balance.Decrement", "Missing reference")
 	}
 	// TODO idempotency
 	// decrement the balance
@@ -162,6 +216,10 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 	}
 
 	response.NewBalance = currBal
+	if err := storeAdjustment(acc, -request.Delta, request.CustomerId, request.Reference, request.Visible); err != nil {
+		return err
+	}
+
 	if currBal > 0 {
 		return nil
 	}
@@ -197,5 +255,34 @@ func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, r
 		return errors.InternalServerError("balance.Current", "Error retrieving current balance")
 	}
 	response.CurrentBalance = currBal
+	return nil
+}
+
+func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjustmentsRequest, response *balance.ListAdjustmentsResponse) error {
+	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.ListAdjustments")
+	if err != nil {
+		// TODO check for micro admin
+		return err
+	}
+	recs, err := store.Read(fmt.Sprintf("%s/%s/", prefixStoreByCustomer, acc.ID), store.ReadPrefix())
+	if err != nil {
+		return err
+	}
+	response.Adjustments = []*balance.Adjustment{}
+	for _, rec := range recs {
+		var adj Adjustment
+		if err := json.Unmarshal(rec.Value, &adj); err != nil {
+			return err
+		}
+		if !adj.Visible {
+			continue
+		}
+		response.Adjustments = append(response.Adjustments, &balance.Adjustment{
+			Id:        adj.ID,
+			Created:   adj.Created.Unix(),
+			Delta:     adj.Amount,
+			Reference: adj.Reference,
+		})
+	}
 	return nil
 }

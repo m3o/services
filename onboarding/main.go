@@ -19,6 +19,9 @@ func main() {
 	// Register Handler
 	srv.Handle(handler.NewSignup(srv, auth))
 
+	// kick off event consumption
+	handler.NewOnboarding(srv)
+
 	// Run service
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)

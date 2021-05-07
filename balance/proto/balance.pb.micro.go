@@ -45,6 +45,7 @@ type BalanceService interface {
 	Increment(ctx context.Context, in *IncrementRequest, opts ...client.CallOption) (*IncrementResponse, error)
 	Decrement(ctx context.Context, in *DecrementRequest, opts ...client.CallOption) (*DecrementResponse, error)
 	Current(ctx context.Context, in *CurrentRequest, opts ...client.CallOption) (*CurrentResponse, error)
+	ListAdjustments(ctx context.Context, in *ListAdjustmentsRequest, opts ...client.CallOption) (*ListAdjustmentsResponse, error)
 }
 
 type balanceService struct {
@@ -89,12 +90,23 @@ func (c *balanceService) Current(ctx context.Context, in *CurrentRequest, opts .
 	return out, nil
 }
 
+func (c *balanceService) ListAdjustments(ctx context.Context, in *ListAdjustmentsRequest, opts ...client.CallOption) (*ListAdjustmentsResponse, error) {
+	req := c.c.NewRequest(c.name, "Balance.ListAdjustments", in)
+	out := new(ListAdjustmentsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Balance service
 
 type BalanceHandler interface {
 	Increment(context.Context, *IncrementRequest, *IncrementResponse) error
 	Decrement(context.Context, *DecrementRequest, *DecrementResponse) error
 	Current(context.Context, *CurrentRequest, *CurrentResponse) error
+	ListAdjustments(context.Context, *ListAdjustmentsRequest, *ListAdjustmentsResponse) error
 }
 
 func RegisterBalanceHandler(s server.Server, hdlr BalanceHandler, opts ...server.HandlerOption) error {
@@ -102,6 +114,7 @@ func RegisterBalanceHandler(s server.Server, hdlr BalanceHandler, opts ...server
 		Increment(ctx context.Context, in *IncrementRequest, out *IncrementResponse) error
 		Decrement(ctx context.Context, in *DecrementRequest, out *DecrementResponse) error
 		Current(ctx context.Context, in *CurrentRequest, out *CurrentResponse) error
+		ListAdjustments(ctx context.Context, in *ListAdjustmentsRequest, out *ListAdjustmentsResponse) error
 	}
 	type Balance struct {
 		balance
@@ -124,4 +137,8 @@ func (h *balanceHandler) Decrement(ctx context.Context, in *DecrementRequest, ou
 
 func (h *balanceHandler) Current(ctx context.Context, in *CurrentRequest, out *CurrentResponse) error {
 	return h.BalanceHandler.Current(ctx, in, out)
+}
+
+func (h *balanceHandler) ListAdjustments(ctx context.Context, in *ListAdjustmentsRequest, out *ListAdjustmentsResponse) error {
+	return h.BalanceHandler.ListAdjustments(ctx, in, out)
 }
