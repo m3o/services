@@ -21,15 +21,12 @@ type Onboarding struct {
 }
 
 func NewOnboarding(svc *service.Service) *Onboarding {
-	cfg := struct {
-		PromoCredit  int64
-		PromoMessage string
-	}{}
+	cfg := conf{}
 	v, err := config.Get("micro.onboarding")
 	if err != nil {
 		log.Fatalf("Failed to load config %s", err)
 	}
-	if err := v.Scan(cfg); err != nil {
+	if err := v.Scan(&cfg); err != nil {
 		log.Fatalf("Failed to load config %s", err)
 	}
 	if cfg.PromoCredit == 0 || len(cfg.PromoMessage) == 0 {

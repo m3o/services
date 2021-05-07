@@ -67,7 +67,9 @@ type sendgridConf struct {
 }
 
 type conf struct {
-	Sendgrid sendgridConf `json:"sendgrid"`
+	Sendgrid     sendgridConf `json:"sendgrid"`
+	PromoCredit  int64        `json:"promoCredit"`
+	PromoMessage string       `json:"promoMessage"`
 }
 
 func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
