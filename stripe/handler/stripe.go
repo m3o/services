@@ -167,7 +167,7 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 		return err
 	}
 
-	events.Publish("stripe", &stripepb.Event{
+	if err := events.Publish("stripe", &stripepb.Event{
 		Type: "ChargeSucceeded",
 		ChargeSucceeded: &stripepb.ChargeSuceededEvent{
 			CustomerId: cm.ID,
@@ -175,7 +175,10 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 			Ammount:    ch.Amount,
 			ChargeId:   ch.ID,
 		},
-	})
+	}); err != nil {
+		log.Errorf("Error publishing event %s", err)
+		return err
+	}
 	return nil
 }
 

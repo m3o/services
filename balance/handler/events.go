@@ -145,6 +145,7 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 	logger.Infof("Starting to process stripe events")
 	for ev := range ch {
 		ve := &stripepb.Event{}
+		logger.Infof("Processing event %+v", ev)
 		if err := json.Unmarshal(ev.Payload, ve); err != nil {
 			ev.Nack()
 			logger.Errorf("Error unmarshalling stripe event: $s", err)
@@ -167,7 +168,6 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
 	// TODO if we return error and we have already incremented the counter then we double count so make this idempotent
-
 	// safety first
 	if ev.Ammount == 0 {
 		return nil
