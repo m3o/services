@@ -211,6 +211,5 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		logger.Errorf("Error unblocking key %s", err)
 		return err
 	}
-
 	return nil
 }

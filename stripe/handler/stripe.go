@@ -179,6 +179,7 @@ func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error
 		log.Errorf("Error publishing event %s", err)
 		return err
 	}
+	log.Infof("Processing complete for %s", event.ID)
 	return nil
 }
 
