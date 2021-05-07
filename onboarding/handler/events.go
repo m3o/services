@@ -9,6 +9,7 @@ import (
 	balance "github.com/m3o/services/balance/proto"
 	onboarding "github.com/m3o/services/onboarding/proto"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	mevents "github.com/micro/micro/v3/service/events"
 	logger "github.com/micro/micro/v3/service/logger"
@@ -97,6 +98,6 @@ func (o *Onboarding) processSignup(ev *onboarding.NewSignupEvent) error {
 		Delta:      o.promoCredit,
 		Visible:    true,
 		Reference:  o.promoMessage,
-	})
+	}, client.WithAuthToken())
 	return err
 }
