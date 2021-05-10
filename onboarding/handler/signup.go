@@ -238,7 +238,12 @@ func (e *Signup) completeSignup(ctx context.Context, req *onboarding.CompleteSig
 	if len(req.Secret) == 0 {
 		secret = uuid.New().String()
 	}
-	_, err = e.auth.Generate(tok.CustomerID, auth.WithScopes("customer"), auth.WithSecret(secret), auth.WithIssuer(microNamespace), auth.WithName(req.Email))
+	_, err = e.auth.Generate(tok.CustomerID,
+		auth.WithScopes("customer"),
+		auth.WithSecret(secret),
+		auth.WithIssuer(microNamespace),
+		auth.WithName(req.Email),
+		auth.WithType("customer"))
 	if err != nil {
 		logger.Errorf("Error generating token for %v: %v", tok.CustomerID, err)
 		return merrors.InternalServerError("onboarding.CompleteSignup", internalErrorMsg)
