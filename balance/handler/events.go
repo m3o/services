@@ -170,12 +170,12 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
 	// TODO if we return error and we have already incremented the counter then we double count so make this idempotent
 	// safety first
-	if ev.Ammount == 0 {
+	if ev.Amount == 0 {
 		return nil
 	}
 	// add to balance
 	// stripe event is in cents, multiply by 100 to get the fraction that balance represents
-	_, err := b.c.incr(ev.CustomerId, "$balance$", ev.Ammount*100)
+	_, err := b.c.incr(ev.CustomerId, "$balance$", ev.Amount*100)
 	if err != nil {
 		logger.Errorf("Error incrementing balance %s", err)
 	}
@@ -185,7 +185,7 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		return err
 	}
 
-	err = storeAdjustment(ev.CustomerId, ev.Ammount*100, ev.CustomerId, "Funds added", true, map[string]string{
+	err = storeAdjustment(ev.CustomerId, ev.Amount*100, ev.CustomerId, "Funds added", true, map[string]string{
 		"receipt_url": srsp.Payment.ReceiptUrl,
 	})
 	if err != nil {

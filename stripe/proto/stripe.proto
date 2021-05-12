@@ -80,7 +80,7 @@ message Event {
 message ChargeSuceededEvent {
 	string customer_id = 1;
 	string currency = 2;
-	int64 ammount = 3; // in minor units e.g. cents, pence, etc
+	int64 amount = 3; // in minor units e.g. cents, pence, etc
 	string charge_id = 4;
 }
 
