@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	lru "github.com/hashicorp/golang-lru"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
@@ -25,10 +25,8 @@ import (
 )
 
 type V1 struct {
-	sync.RWMutex
-	papi publicapi.PublicapiService
-	// todo make this lru cache
-	keyRecCache map[string]*apiKeyRecord
+	papi        publicapi.PublicapiService
+	keyRecCache *lru.Cache
 }
 
 const (
@@ -43,9 +41,13 @@ var (
 )
 
 func NewHandler(srv *service.Service) *V1 {
+	keyRecCache, err := lru.New(10000) // TODO how big should this be?
+	if err != nil {
+		log.Fatalf("Failed to create LRU cache %s", err)
+	}
 	return &V1{
 		papi:        publicapi.NewPublicapiService("publicapi", srv.Client()),
-		keyRecCache: map[string]*apiKeyRecord{},
+		keyRecCache: keyRecCache,
 	}
 }
 
@@ -79,10 +81,7 @@ func (v1 *V1) writeAPIRecord(rec *apiKeyRecord) error {
 		return err
 	}
 
-	v1.Lock()
-	delete(v1.keyRecCache, rec.ApiKey)
-	v1.Unlock()
-
+	v1.keyRecCache.Remove(rec.ApiKey)
 	return nil
 }
 
@@ -101,9 +100,7 @@ func (v1 *V1) deleteAPIRecord(rec *apiKeyRecord) error {
 	if err := store.Delete(fmt.Sprintf("%s:%s:%s:%s", storePrefixKeyID, rec.Namespace, rec.UserID, rec.ID)); err != nil {
 		return err
 	}
-	v1.Lock()
-	delete(v1.keyRecCache, rec.ApiKey)
-	v1.Unlock()
+	v1.keyRecCache.Remove(rec.ApiKey)
 
 	return nil
 }
@@ -165,11 +162,9 @@ func (v1 *V1) readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error)
 		return "", nil, errUnauthorized
 	}
 
-	v1.RLock()
-	cached, ok := v1.keyRecCache[hashed]
-	v1.RUnlock()
+	cached, ok := v1.keyRecCache.Get(hashed)
 	if ok {
-		return key, cached, nil
+		return key, cached.(*apiKeyRecord), nil
 	}
 
 	recs, err := store.Read(fmt.Sprintf("%s:%s", storePrefixHashedKey, hashed))
@@ -187,9 +182,7 @@ func (v1 *V1) readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error)
 		log.Errorf("Error while rehydrating api key record %s", err)
 		return "", nil, errUnauthorized
 	}
-	v1.Lock()
-	v1.keyRecCache[hashed] = &apiRec
-	v1.Unlock()
+	v1.keyRecCache.Add(hashed, &apiRec)
 
 	return key, &apiRec, nil
 }
