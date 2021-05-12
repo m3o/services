@@ -129,8 +129,8 @@ func hashSecret(s string) (string, error) {
 }
 
 // checkRequestedScopes returns true if account has sufficient privileges for them to generate the requestedScopes.
-func (e *V1) checkRequestedScopes(ctx context.Context, requestedScopes []string) bool {
-	allowedScopes, err := e.listAPIs()
+func (v1 *V1) checkRequestedScopes(ctx context.Context, requestedScopes []string) bool {
+	allowedScopes, err := v1.listAPIs()
 	if err != nil {
 		// fail closed
 		return false
@@ -375,8 +375,8 @@ func publishEndpointEvent(reqURL, apiName, endpointName string, apiRec *apiKeyRe
 	}
 }
 
-func (e *V1) listAPIs() ([]string, error) {
-	rsp, err := e.papi.List(context.Background(), &publicapi.ListRequest{}, client.WithAuthToken())
+func (v1 *V1) listAPIs() ([]string, error) {
+	rsp, err := v1.papi.List(context.Background(), &publicapi.ListRequest{}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

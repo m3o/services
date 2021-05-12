@@ -39,7 +39,7 @@ type apiKeyRecord struct {
 }
 
 // GenerateKey generates an API key
-func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp *v1api.GenerateKeyResponse) error {
+func (v1 *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp *v1api.GenerateKeyResponse) error {
 	if len(req.Scopes) == 0 {
 		return errors.BadRequest("v1api.generate", "Missing scopes field")
 	}
@@ -52,7 +52,7 @@ func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp
 		return err
 	}
 	// are they allowed to generate with the requested scopes?
-	if !e.checkRequestedScopes(ctx, req.Scopes) {
+	if !v1.checkRequestedScopes(ctx, req.Scopes) {
 		return errors.Forbidden("v1api.generate", "Not allowed to generate a key with requested scopes")
 	}
 
@@ -103,7 +103,7 @@ func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp
 		Created:     time.Now().Unix(),
 		Status:      keyStatusBlocked,
 	}
-	if err := writeAPIRecord(&rec); err != nil {
+	if err := v1.writeAPIRecord(&rec); err != nil {
 		log.Errorf("Failed to write api record %s", err)
 		return errors.InternalServerError("v1api.generate", "Failed to generate api key")
 	}
@@ -123,7 +123,7 @@ func (e *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rsp
 }
 
 // ListKeys lists all keys for a user
-func (e *V1) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.ListResponse) error {
+func (v1 *V1) ListKeys(ctx context.Context, req *v1api.ListRequest, rsp *v1api.ListResponse) error {
 	// Check account
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "v1api.listkeys")
 	if err != nil {
@@ -165,7 +165,7 @@ func listKeysForUser(ns, userID string) ([]*apiKeyRecord, error) {
 	return ret, nil
 }
 
-func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, response *v1api.RevokeResponse) error {
+func (v1 *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, response *v1api.RevokeResponse) error {
 	if len(request.Id) == 0 {
 		return errors.BadRequest("v1api.Revoke", "Missing ID field")
 	}
@@ -182,7 +182,7 @@ func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respon
 		log.Errorf("Error reading API key record %s", err)
 		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
 	}
-	if err := deleteAPIRecord(rec); err != nil {
+	if err := v1.deleteAPIRecord(rec); err != nil {
 		log.Errorf("Error deleting API key record %s", err)
 		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
 	}
@@ -199,15 +199,15 @@ func (e *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respon
 	return nil
 }
 
-func (e *V1) BlockKey(ctx context.Context, request *v1api.BlockKeyRequest, response *v1api.BlockKeyResponse) error {
-	return e.updateKeyStatus(ctx, "v1api.BlockKey", request.Namespace, request.UserId, request.KeyId, keyStatusBlocked, request.Message)
+func (v1 *V1) BlockKey(ctx context.Context, request *v1api.BlockKeyRequest, response *v1api.BlockKeyResponse) error {
+	return v1.updateKeyStatus(ctx, "v1api.BlockKey", request.Namespace, request.UserId, request.KeyId, keyStatusBlocked, request.Message)
 }
 
-func (e *V1) UnblockKey(ctx context.Context, request *v1api.UnblockKeyRequest, response *v1api.UnblockKeyResponse) error {
-	return e.updateKeyStatus(ctx, "v1api.UnblockKey", request.Namespace, request.UserId, request.KeyId, keyStatusActive, "")
+func (v1 *V1) UnblockKey(ctx context.Context, request *v1api.UnblockKeyRequest, response *v1api.UnblockKeyResponse) error {
+	return v1.updateKeyStatus(ctx, "v1api.UnblockKey", request.Namespace, request.UserId, request.KeyId, keyStatusActive, "")
 }
 
-func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID string, status keyStatus, statusMessage string) error {
+func (v1 *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID string, status keyStatus, statusMessage string) error {
 
 	if _, err := m3oauth.VerifyMicroAdmin(ctx, methodName); err != nil {
 		return err
@@ -232,7 +232,7 @@ func (e *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID 
 	for _, k := range keys {
 		k.Status = status
 		k.StatusMessage = statusMessage
-		if err := writeAPIRecord(k); err != nil {
+		if err := v1.writeAPIRecord(k); err != nil {
 			log.Errorf("Error updating api key record %s", err)
 			return errors.InternalServerError(methodName, "Error updating key")
 		}
