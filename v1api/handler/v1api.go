@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -24,7 +25,9 @@ import (
 )
 
 type V1 struct {
-	papi publicapi.PublicapiService
+	sync.RWMutex
+	papi        publicapi.PublicapiService
+	keyRecCache map[string]*apiKeyRecord
 }
 
 const (
@@ -40,11 +43,12 @@ var (
 
 func NewHandler(srv *service.Service) *V1 {
 	return &V1{
-		papi: publicapi.NewPublicapiService("publicapi", srv.Client()),
+		papi:        publicapi.NewPublicapiService("publicapi", srv.Client()),
+		keyRecCache: map[string]*apiKeyRecord{},
 	}
 }
 
-func writeAPIRecord(rec *apiKeyRecord) error {
+func (v1 *V1) writeAPIRecord(rec *apiKeyRecord) error {
 	b, err := json.Marshal(rec)
 	if err != nil {
 		return err
@@ -74,10 +78,14 @@ func writeAPIRecord(rec *apiKeyRecord) error {
 		return err
 	}
 
+	v1.Lock()
+	delete(v1.keyRecCache, rec.ApiKey)
+	v1.Unlock()
+
 	return nil
 }
 
-func deleteAPIRecord(rec *apiKeyRecord) error {
+func (v1 *V1) deleteAPIRecord(rec *apiKeyRecord) error {
 	// store under hashed key for API usage
 	if err := store.Delete(fmt.Sprintf("%s:%s", storePrefixHashedKey, rec.ApiKey)); err != nil {
 		return err
@@ -92,6 +100,9 @@ func deleteAPIRecord(rec *apiKeyRecord) error {
 	if err := store.Delete(fmt.Sprintf("%s:%s:%s:%s", storePrefixKeyID, rec.Namespace, rec.UserID, rec.ID)); err != nil {
 		return err
 	}
+	v1.Lock()
+	delete(v1.keyRecCache, rec.ApiKey)
+	v1.Unlock()
 
 	return nil
 }
@@ -141,7 +152,7 @@ func (e *V1) checkRequestedScopes(ctx context.Context, requestedScopes []string)
 	return true
 }
 
-func readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error) {
+func (v1 *V1) readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error) {
 	if len(authz) == 0 || !strings.HasPrefix(authz, "Bearer ") {
 		return "", nil, errUnauthorized
 	}
@@ -152,6 +163,14 @@ func readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error) {
 	if err != nil {
 		return "", nil, errUnauthorized
 	}
+
+	v1.RLock()
+	cached, ok := v1.keyRecCache[hashed]
+	v1.RUnlock()
+	if ok {
+		return key, cached, nil
+	}
+
 	recs, err := store.Read(fmt.Sprintf("%s:%s", storePrefixHashedKey, hashed))
 	if err != nil {
 		if err != store.ErrNotFound {
@@ -167,6 +186,9 @@ func readAPIRecordByAPIKey(authz string) (string, *apiKeyRecord, error) {
 		log.Errorf("Error while rehydrating api key record %s", err)
 		return "", nil, errUnauthorized
 	}
+	v1.Lock()
+	v1.keyRecCache[hashed] = &apiRec
+	v1.Unlock()
 
 	return key, &apiRec, nil
 }
@@ -200,7 +222,7 @@ func errBlocked(msg string) error {
 	return errors.Forbidden("v1api.blocked", fmt.Sprintf("Request blocked. %s", msg))
 }
 
-func refreshToken(apiRec *apiKeyRecord, key string) error {
+func (v1 *V1) refreshToken(apiRec *apiKeyRecord, key string) error {
 	// do we need to refresh the token?
 	tok, _, err := new(jwt.Parser).ParseUnverified(apiRec.Token, jwt.MapClaims{})
 	if err != nil {
@@ -219,7 +241,7 @@ func refreshToken(apiRec *apiKeyRecord, key string) error {
 				return errInternal
 			}
 			apiRec.Token = tok.AccessToken
-			if err := writeAPIRecord(apiRec); err != nil {
+			if err := v1.writeAPIRecord(apiRec); err != nil {
 				log.Errorf("Error updating API record %s", err)
 				return errInternal
 			}
@@ -271,7 +293,7 @@ func parseContentType(ct string) string {
 }
 
 // Endpoint is a catch all for endpoints
-func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) {
+func (v1 *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) {
 	// check api key
 	defer stream.Close()
 
@@ -280,7 +302,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 		return errUnauthorized
 	}
 
-	key, apiRec, err := readAPIRecordByAPIKey(md["Authorization"])
+	key, apiRec, err := v1.readAPIRecordByAPIKey(md["Authorization"])
 	if err != nil {
 		return err
 	}
@@ -295,7 +317,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 		return err
 	}
 
-	if err := refreshToken(apiRec, key); err != nil {
+	if err := v1.refreshToken(apiRec, key); err != nil {
 		return err
 	}
 	// set the auth
@@ -332,7 +354,7 @@ func (e *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) 
 	if err := client.Call(ctx, request, &response); err != nil {
 		return err
 	}
-	publishEndpointEvent(reqURL, service, endpoint, apiRec)
+	go publishEndpointEvent(reqURL, service, endpoint, apiRec)
 
 	stream.Send(response)
 	return nil
