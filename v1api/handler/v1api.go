@@ -26,7 +26,8 @@ import (
 
 type V1 struct {
 	sync.RWMutex
-	papi        publicapi.PublicapiService
+	papi publicapi.PublicapiService
+	// todo make this lru cache
 	keyRecCache map[string]*apiKeyRecord
 }
 
@@ -294,6 +295,7 @@ func parseContentType(ct string) string {
 
 // Endpoint is a catch all for endpoints
 func (v1 *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error) {
+	start := time.Now()
 	// check api key
 	defer stream.Close()
 
@@ -347,7 +349,7 @@ func (v1 *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error)
 		&payload,
 		client.WithContentType(ct),
 	)
-
+	log.Infof("Extra processing caused %s", time.Since(start))
 	// create request/response
 	var response json.RawMessage
 	// make the call
