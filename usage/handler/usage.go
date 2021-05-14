@@ -61,7 +61,11 @@ func (c *counter) decr(userID, path string, delta int64, t time.Time) (int64, er
 
 func (c *counter) read(userID, path string, t time.Time) (int64, error) {
 	t = t.UTC()
-	return c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)).Int64()
+	ret, err := c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)).Int64()
+	if err == redis.Nil {
+		return 0, nil
+	}
+	return ret, err
 }
 
 type listEntry struct {

@@ -46,7 +46,11 @@ func (c *counter) decr(userID, path string, delta int64) (int64, error) {
 }
 
 func (c *counter) read(userID, path string) (int64, error) {
-	return c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path)).Int64()
+	ret, err := c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path)).Int64()
+	if err == redis.Nil {
+		return 0, nil
+	}
+	return ret, err
 }
 
 func (c *counter) reset(userID, path string) error {
