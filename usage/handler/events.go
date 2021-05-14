@@ -38,7 +38,21 @@ func (p *UsageSvc) consumeEvents() {
 
 func (p *UsageSvc) processV1apiEvents(ch <-chan mevents.Event) {
 	logger.Infof("Starting to process v1api events")
-	for ev := range ch {
+	for {
+		var ev mevents.Event
+		select {
+		case ev = <-ch:
+			if len(ev.ID) == 0 {
+				// channel closed
+				logger.Infof("Channel closed, retrying stream connection")
+				return
+			}
+		case <-time.After(2 * time.Minute):
+			// safety net in case we stop receiving messages for some reason
+			logger.Infof("No messages received for last 2 minutes retrying connection")
+			return
+		}
+
 		ve := &v1api.Event{}
 		if err := json.Unmarshal(ev.Payload, ve); err != nil {
 			ev.Nack()

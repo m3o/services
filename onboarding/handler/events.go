@@ -71,7 +71,21 @@ func (o *Onboarding) consumeEvents() {
 
 func (o *Onboarding) processOnboardingEvents(ch <-chan mevents.Event) {
 	logger.Infof("Starting to process onboarding events")
-	for ev := range ch {
+	for {
+		var ev mevents.Event
+		select {
+		case ev = <-ch:
+			if len(ev.ID) == 0 {
+				// channel closed
+				logger.Infof("Channel closed, retrying stream connection")
+				return
+			}
+		case <-time.After(2 * time.Minute):
+			// safety net in case we stop receiving messages for some reason
+			logger.Infof("No messages received for last 2 minutes retrying connection")
+			return
+		}
+
 		var ve onboarding.Event
 		if err := json.Unmarshal(ev.Payload, &ve); err != nil {
 			ev.Nack()
