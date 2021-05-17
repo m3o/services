@@ -16,7 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	mevents "github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
-	mstore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store"
 
 	"github.com/sethvargo/go-diceware/diceware"
 )
@@ -117,7 +117,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	if err != nil {
 		return err
 	}
-	if err := mstore.Write(&mstore.Record{
+	if err := store.Write(&store.Record{
 		Key:   prefixNs + ns.ID,
 		Value: b,
 	}); err != nil {
@@ -125,7 +125,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	}
 	// index by owner
 	for _, owner := range ns.Owners {
-		if err := mstore.Write(&mstore.Record{
+		if err := store.Write(&store.Record{
 			Key:   prefixOwner + owner + "/" + ns.ID,
 			Value: b,
 		}); err != nil {
@@ -134,7 +134,7 @@ func writeNamespace(ns *NamespaceModel) error {
 	}
 	// index by user
 	for _, user := range ns.Users {
-		if err := mstore.Write(&mstore.Record{
+		if err := store.Write(&store.Record{
 			Key:   prefixUser + user + "/" + ns.ID,
 			Value: b,
 		}); err != nil {
@@ -164,7 +164,7 @@ func (n Namespaces) Read(ctx context.Context, request *namespace.ReadRequest, re
 }
 
 func readNamespace(id string) (*NamespaceModel, error) {
-	recs, err := mstore.Read(prefixNs + id)
+	recs, err := store.Read(prefixNs + id)
 	if err != nil {
 		return nil, err
 	}
@@ -260,8 +260,30 @@ func (n Namespaces) List(ctx context.Context, request *namespace.ListRequest, re
 		key = prefixUser + request.User + "/"
 	}
 
-	recs, err := mstore.Read(key, mstore.ReadPrefix())
-	if err != nil && err != mstore.ErrNotFound {
+	opts := []store.ReadOption{
+		store.ReadPrefix(),
+	}
+
+	if request.Limit > 0 {
+		opts = append(opts, store.ReadLimit(uint(request.Limit)))
+	}
+
+	if request.Offset > 0 {
+		opts = append(opts, store.ReadOffset(uint(request.Offset)))
+	}
+
+	if request.Order != "" {
+		order := store.OrderAsc
+
+		if request.Order == "desc" {
+			order = store.OrderDesc
+		}
+
+		opts = append(opts, store.ReadOrder(order))
+	}
+
+	recs, err := store.Read(key, opts...)
+	if err != nil && err != store.ErrNotFound {
 		return err
 	}
 	res := []*namespace.Namespace{}

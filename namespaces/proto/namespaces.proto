@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package namespaces;
 
-option go_package = "proto;namespaces";
+option go_package = "./proto;namespaces";
 
 service Namespaces {
 	rpc Create(CreateRequest) returns (CreateResponse) {}
@@ -48,6 +48,9 @@ message DeleteResponse {}
 message ListRequest {
 	string owner = 1;
 	string user = 2;
+	int64 limit = 3;
+	int64 offset = 4;
+	string order = 5;
 }
 
 message ListResponse {
