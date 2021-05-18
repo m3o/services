@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -13,6 +16,7 @@ import (
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context/metadata"
@@ -307,6 +311,13 @@ func (v1 *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error)
 		return errInternal
 	}
 
+	// reqURL likely contains the query params
+	u, err := url.Parse(reqURL)
+	if err == nil {
+		// only set the path not the params
+		reqURL = u.Path
+	}
+
 	if err := verifyCallAllowed(apiRec, reqURL); err != nil {
 		return err
 	}
@@ -335,6 +346,11 @@ func (v1 *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error)
 		return errInternal
 	}
 
+	// because we have a query we want to merge params and payload
+	if u != nil && len(u.RawQuery) > 0 {
+		payload = mergeURLPayload(ctx, md, u, payload)
+	}
+
 	request := client.DefaultClient.NewRequest(
 		service,
 		endpoint,
@@ -352,6 +368,33 @@ func (v1 *V1) Endpoint(ctx context.Context, stream server.Stream) (retErr error)
 	stream.Send(response)
 	return nil
 
+}
+
+// mergePayload will attempt to generate a new payload including query params
+func mergeURLPayload(ctx context.Context, md metadata.Metadata, u *url.URL, payload json.RawMessage) json.RawMessage {
+	method, ok := md.Get("Method")
+	if !ok {
+		method = "POST"
+	}
+	// generate a new http request
+	req, err := http.NewRequestWithContext(
+		ctx,
+		method,
+		u.String(),
+		bytes.NewReader(payload),
+	)
+
+	if err != nil {
+		return payload
+	}
+
+	// attempt to parse out the params into the payload
+	b, err := api.RequestPayload(req)
+	if err != nil {
+		return payload
+	}
+
+	return json.RawMessage(b)
 }
 
 func publishEndpointEvent(reqURL, apiName, endpointName string, apiRec *apiKeyRecord) {
