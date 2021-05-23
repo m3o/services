@@ -30,6 +30,8 @@ type APIEntry struct {
 	Pricing      map[string]int64 // pricing mapping endpoints to price in 1/100 of a cent
 	OwnerID      string
 	ExamplesJSON string
+	Category     string
+	Icon         string
 }
 
 type Publicapi struct {
@@ -70,6 +72,8 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		Pricing:      request.Api.Pricing,
 		OwnerID:      acc.ID,
 		ExamplesJSON: request.Api.ExamplesJson,
+		Category:     request.Api.Category,
+		Icon:         request.Api.Icon,
 	}
 
 	if err := p.updateEntry(ctx, ae); err != nil {
@@ -278,6 +282,13 @@ func (p *Publicapi) Update(ctx context.Context, request *pb.UpdateRequest, respo
 	if len(request.Api.ExamplesJson) > 0 {
 		ae.ExamplesJSON = request.Api.ExamplesJson
 	}
+	if len(request.Api.Category) > 0 {
+		ae.Category = request.Api.Category
+	}
+	if len(request.Api.Icon) > 0 {
+		ae.Category = request.Api.Icon
+	}
+
 	if err := p.updateEntry(ctx, &ae); err != nil {
 		log.Errorf("Error updating entry %s", err)
 		return errors.InternalServerError("publicapi.Update", "Error updating API")
@@ -295,5 +306,7 @@ func marshal(ae *APIEntry) *pb.PublicAPI {
 		Pricing:      ae.Pricing,
 		OwnerId:      ae.OwnerID,
 		ExamplesJson: ae.ExamplesJSON,
+		Category:     ae.Category,
+		Icon:         ae.Icon,
 	}
 }
