@@ -17,7 +17,6 @@ require (
 	github.com/slack-go/slack v0.6.5
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stripe/stripe-go/v71 v71.28.0
-	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0
 )
