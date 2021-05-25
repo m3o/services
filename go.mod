@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/micro/micro/v3 v3.2.2-0.20210518152250-df554a095b6a
+	github.com/micro/micro/v3 v3.2.2-0.20210525145314-b96010c1b191
 	github.com/onsi/gomega v1.10.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
