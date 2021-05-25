@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	ns "github.com/m3o/services/namespaces/proto"
@@ -115,6 +116,9 @@ func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 		KeyId:     ac.ApiKeyId,
 	}, client.WithAuthToken()); err != nil {
 		logger.Errorf("Error unblocking key %s", err)
+		if strings.Contains(err.Error(), "not found") {
+			return nil
+		}
 		return err
 	}
 	return nil
@@ -152,6 +156,9 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 	}, client.WithAuthToken()); err != nil {
 		// TODO if we fail here we might double count because the message will be retried
 		logger.Errorf("Error blocking key %s", err)
+		if strings.Contains(err.Error(), "not found") {
+			return nil
+		}
 		return err
 	}
 
@@ -202,7 +209,7 @@ func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
 	// TODO if we return error and we have already incremented the counter then we double count so make this idempotent
 	// safety first
-	if ev.Amount == 0 {
+	if ev == nil || ev.Amount == 0 {
 		return nil
 	}
 	// add to balance

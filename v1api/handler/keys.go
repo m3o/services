@@ -218,6 +218,9 @@ func (v1 *V1) updateKeyStatus(ctx context.Context, methodName, ns, userID, keyID
 		rec, err := readAPIRecordByKeyID(ns, userID, keyID)
 		if err != nil {
 			log.Errorf("Error reading key %s", err)
+			if err == store.ErrNotFound {
+				return errors.NotFound(methodName, "Not found")
+			}
 			return errors.InternalServerError(methodName, "Error updating key")
 		}
 		keys = []*apiKeyRecord{rec}
