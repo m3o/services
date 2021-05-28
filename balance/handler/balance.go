@@ -86,7 +86,7 @@ func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
 	p.RLock()
 	cached := p.cache[name]
 	p.RUnlock()
-	if cached != nil && cached.created.After(time.Now().Add(p.ttl)) {
+	if cached != nil && cached.created.Add(p.ttl).After(time.Now()) {
 		return cached.api, nil
 	}
 	rsp, err := p.pubSvc.Get(context.Background(), &publicapi.GetRequest{Name: name}, client.WithAuthToken())
