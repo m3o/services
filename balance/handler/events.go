@@ -6,16 +6,18 @@ import (
 	"fmt"
 	"time"
 
-	ns "github.com/m3o/services/namespaces/proto"
+	pb "github.com/m3o/services/balance/proto"
 	stripepb "github.com/m3o/services/stripe/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/events"
 	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 )
 
 const (
+	topic                = "balance"
 	msgInsufficientFunds = "Insufficient funds"
 )
 
@@ -151,6 +153,14 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 		return nil
 	}
 
+	evt := pb.Event{
+		Type:       pb.EventType_EventTypeZeroBalance,
+		CustomerId: rqe.UserId,
+	}
+	if err := events.Publish(topic, &evt); err != nil {
+		logger.Errorf("Error publishing event %+v", evt)
+	}
+
 	// no more money, cut them off
 	if _, err := b.v1Svc.BlockKey(context.TODO(), &v1api.BlockKeyRequest{
 		UserId:    rqe.UserId,
@@ -227,26 +237,32 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		return err
 	}
 
-	err = storeAdjustment(ev.CustomerId, ev.Amount*100, ev.CustomerId, "Funds added", true, map[string]string{
+	adj, err := storeAdjustment(ev.CustomerId, ev.Amount*100, ev.CustomerId, "Funds added", true, map[string]string{
 		"receipt_url": srsp.Payment.ReceiptUrl,
 	})
 	if err != nil {
 		return err
 	}
 
-	// For now, builders have accounts issued by non micro namespace
-	rsp, err := b.nsSvc.List(context.Background(), &ns.ListRequest{
-		Owner: ev.CustomerId,
-	})
-
-	namespace := microNamespace
-	if err == nil {
-		// TODO at some point builders will actually have accounts issued from micro namespace
-		namespace = rsp.Namespaces[0].Id
+	evt := pb.Event{
+		Type: pb.EventType_EventTypeIncrement,
+		Adjustment: &pb.Adjustment{
+			Id:        adj.ID,
+			Created:   adj.Created.Unix(),
+			Delta:     adj.Amount,
+			Reference: adj.Reference,
+			Meta:      adj.Meta,
+		},
+		CustomerId: adj.CustomerID,
+	}
+	if err := events.Publish(topic, &evt); err != nil {
+		logger.Errorf("Error publishing event %+v", evt)
 	}
 
+	namespace := microNamespace
+
 	// unblock key
-	if _, err := b.v1Svc.UnblockKey(context.TODO(), &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(context.Background(), &v1api.UnblockKeyRequest{
 		UserId:    ev.CustomerId,
 		Namespace: namespace,
 	}, client.WithAuthToken()); err != nil {

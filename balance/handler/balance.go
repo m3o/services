@@ -21,6 +21,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
@@ -163,8 +164,24 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 		return err
 	}
 	response.NewBalance = currBal
-	if err := storeAdjustment(acc.ID, request.Delta, request.CustomerId, request.Reference, request.Visible, nil); err != nil {
+	adj, err := storeAdjustment(acc.ID, request.Delta, request.CustomerId, request.Reference, request.Visible, nil)
+	if err != nil {
 		return err
+	}
+
+	evt := balance.Event{
+		Type: balance.EventType_EventTypeIncrement,
+		Adjustment: &balance.Adjustment{
+			Id:        adj.ID,
+			Created:   adj.Created.Unix(),
+			Delta:     adj.Amount,
+			Reference: adj.Reference,
+			Meta:      adj.Meta,
+		},
+		CustomerId: adj.CustomerID,
+	}
+	if err := events.Publish(topic, &evt); err != nil {
+		logger.Errorf("Error publishing event %+v", evt)
 	}
 
 	if currBal < 0 {
@@ -182,7 +199,7 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 	return nil
 }
 
-func storeAdjustment(actionedBy string, delta int64, customerID, reference string, visible bool, meta map[string]string) error {
+func storeAdjustment(actionedBy string, delta int64, customerID, reference string, visible bool, meta map[string]string) (*Adjustment, error) {
 
 	// record it
 	rec := &Adjustment{
@@ -197,16 +214,16 @@ func storeAdjustment(actionedBy string, delta int64, customerID, reference strin
 	}
 	adj, err := json.Marshal(rec)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := store.Write(&store.Record{
 		Key:   fmt.Sprintf("%s/%s/%s", prefixStoreByCustomer, customerID, rec.ID),
 		Value: adj,
 	}); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return rec, nil
 }
 
 func (b Balance) Decrement(ctx context.Context, request *balance.DecrementRequest, response *balance.DecrementResponse) error {
@@ -225,12 +242,35 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 	}
 
 	response.NewBalance = currBal
-	if err := storeAdjustment(acc.ID, -request.Delta, request.CustomerId, request.Reference, request.Visible, nil); err != nil {
+	adj, err := storeAdjustment(acc.ID, -request.Delta, request.CustomerId, request.Reference, request.Visible, nil)
+	if err != nil {
 		return err
+	}
+
+	evt := balance.Event{
+		Type: balance.EventType_EventTypeDecrement,
+		Adjustment: &balance.Adjustment{
+			Id:        adj.ID,
+			Created:   adj.Created.Unix(),
+			Delta:     adj.Amount,
+			Reference: adj.Reference,
+			Meta:      adj.Meta,
+		},
+		CustomerId: adj.CustomerID,
+	}
+	if err := events.Publish(topic, &evt); err != nil {
+		logger.Errorf("Error publishing event %+v", evt)
 	}
 
 	if currBal > 0 {
 		return nil
+	}
+	evt = balance.Event{
+		Type:       balance.EventType_EventTypeZeroBalance,
+		CustomerId: adj.CustomerID,
+	}
+	if err := events.Publish(topic, &evt); err != nil {
+		logger.Errorf("Error publishing event %+v", evt)
 	}
 	if _, err := b.v1Svc.BlockKey(context.Background(), &v1api.BlockKeyRequest{
 		UserId:    request.CustomerId,
