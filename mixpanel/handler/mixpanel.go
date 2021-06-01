@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	pb "github.com/m3o/services/mixpanel/proto"
 	"github.com/micro/micro/v3/service/config"
@@ -83,7 +84,9 @@ func (m *MixpanelClient) Track(ev Event) error {
 		return err
 	}
 	req.SetBasicAuth(m.User, m.Pass)
-	req.PostForm.Add("data", string(b))
+	req.PostForm = url.Values{
+		"data": {string(b)},
+	}
 	rsp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
