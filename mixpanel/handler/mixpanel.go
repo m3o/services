@@ -2,11 +2,13 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 
+	pb "github.com/m3o/services/mixpanel/proto"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
 )
@@ -103,5 +105,9 @@ func (m *MixpanelClient) Track(ev Event) error {
 		return nil // ignore
 	}
 	logger.Infof("Response %s", string(b))
+	return nil
+}
+
+func (b *Mixpanel) Ping(ctx context.Context, request *pb.PingRequest, response *pb.PingResponse) error {
 	return nil
 }

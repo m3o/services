@@ -42,6 +42,7 @@ func NewMixpanelEndpoints() []*api.Endpoint {
 // Client API for Mixpanel service
 
 type MixpanelService interface {
+	Ping(ctx context.Context, in *PingRequest, opts ...client.CallOption) (*PingResponse, error)
 }
 
 type mixpanelService struct {
@@ -56,13 +57,25 @@ func NewMixpanelService(name string, c client.Client) MixpanelService {
 	}
 }
 
+func (c *mixpanelService) Ping(ctx context.Context, in *PingRequest, opts ...client.CallOption) (*PingResponse, error) {
+	req := c.c.NewRequest(c.name, "Mixpanel.Ping", in)
+	out := new(PingResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Mixpanel service
 
 type MixpanelHandler interface {
+	Ping(context.Context, *PingRequest, *PingResponse) error
 }
 
 func RegisterMixpanelHandler(s server.Server, hdlr MixpanelHandler, opts ...server.HandlerOption) error {
 	type mixpanel interface {
+		Ping(ctx context.Context, in *PingRequest, out *PingResponse) error
 	}
 	type Mixpanel struct {
 		mixpanel
@@ -73,4 +86,8 @@ func RegisterMixpanelHandler(s server.Server, hdlr MixpanelHandler, opts ...serv
 
 type mixpanelHandler struct {
 	MixpanelHandler
+}
+
+func (h *mixpanelHandler) Ping(ctx context.Context, in *PingRequest, out *PingResponse) error {
+	return h.MixpanelHandler.Ping(ctx, in, out)
 }

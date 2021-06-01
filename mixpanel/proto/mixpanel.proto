@@ -5,5 +5,9 @@ package mixpanel;
 option go_package = "./proto;mixpanel";
 
 service Mixpanel {
-
+  rpc Ping(PingRequest) returns (PingResponse) {}
 }
+
+message PingRequest {}
+
+message PingResponse {}
