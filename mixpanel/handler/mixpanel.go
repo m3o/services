@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -43,17 +42,13 @@ func NewHandler() *Mixpanel {
 	return m
 }
 
-type EventData struct {
+type Event struct {
 	Event string `json:"event"`
 	// distinct_id property tracks a user
 	// token property maps your mixpanel project
 	// time property is unix timestamp in secs
 	// $insert_id is the UUID of the event
 	Properties map[string]interface{} `json:"properties"`
-}
-
-type Event struct {
-	Data EventData `json:"data"`
 }
 
 type MixpanelClient struct {
@@ -64,15 +59,13 @@ type MixpanelClient struct {
 
 func (m *MixpanelClient) newMixpanelEvent(topic, typeStr, customerID, evtID string, ts int64, data interface{}) Event {
 	mev := Event{
-		Data: EventData{
-			Event: fmt.Sprintf("%s_%s", topic, typeStr),
-			Properties: map[string]interface{}{
-				"token":       m.Project,
-				"time":        ts,
-				"distinct_id": customerID,
-				"$insert_id":  evtID,
-				"data":        data,
-			},
+		Event: fmt.Sprintf("%s_%s", topic, typeStr),
+		Properties: map[string]interface{}{
+			"token":       m.Project,
+			"time":        ts,
+			"distinct_id": customerID,
+			"$insert_id":  evtID,
+			"data":        data,
 		},
 	}
 	return mev
@@ -84,12 +77,13 @@ func (m *MixpanelClient) Track(ev Event) error {
 		return err
 	}
 	logger.Infof("Tracking %s", string(b))
-	req, err := http.NewRequest(http.MethodPost, "https://api.mixpanel.com/track#live-event-deduplicate", bytes.NewReader(b))
+	req, err := http.NewRequest(http.MethodPost, "https://api.mixpanel.com/track#live-event-deduplicate", nil)
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
 		return err
 	}
 	req.SetBasicAuth(m.User, m.Pass)
+	req.PostForm.Add("data", string(b))
 	rsp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
