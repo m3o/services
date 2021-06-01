@@ -89,6 +89,7 @@ func (m *MixpanelClient) Track(ev Event) error {
 		logger.Errorf("Error creating http req %s", err)
 		return err
 	}
+	req.SetBasicAuth(m.User, m.Pass)
 	rsp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
