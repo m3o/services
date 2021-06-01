@@ -66,7 +66,7 @@ func objToProto(cust *CustomerModel) *customer.Customer {
 }
 
 func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest, response *customer.CreateResponse) error {
-	if err := authorizeCall(ctx); err != nil {
+	if err := authorizeCall(ctx, ""); err != nil {
 		return err
 	}
 	email := request.Email
@@ -122,9 +122,6 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 }
 
 func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVerifiedRequest, response *customer.MarkVerifiedResponse) error {
-	if err := authorizeCall(ctx); err != nil {
-		return err
-	}
 	email := request.Email
 	if email == "" {
 		// try deprecated fallback
@@ -133,6 +130,14 @@ func (c *Customers) MarkVerified(ctx context.Context, request *customer.MarkVeri
 
 	if strings.TrimSpace(email) == "" {
 		return errors.BadRequest("customers.markverified", "Email is required")
+	}
+
+	cust, err := readCustomerByEmail(email)
+	if err != nil {
+		return err
+	}
+	if err := authorizeCall(ctx, cust.ID); err != nil {
+		return err
 	}
 
 	cus, err := updateCustomerStatusByEmail(email, statusVerified)
@@ -185,10 +190,6 @@ func readCustomer(id, prefix string) (*CustomerModel, error) {
 }
 
 func (c *Customers) Read(ctx context.Context, request *customer.ReadRequest, response *customer.ReadResponse) error {
-	// TODO at some point we'll need to relax this
-	if err := authorizeCall(ctx); err != nil {
-		return err
-	}
 	if strings.TrimSpace(request.Id) == "" && strings.TrimSpace(request.Email) == "" {
 		return errors.BadRequest("customers.read", "ID or Email is required")
 	}
@@ -202,14 +203,14 @@ func (c *Customers) Read(ctx context.Context, request *customer.ReadRequest, res
 	if err != nil {
 		return err
 	}
+	if err := authorizeCall(ctx, cust.ID); err != nil {
+		return err
+	}
 	response.Customer = objToProto(cust)
 	return nil
 }
 
 func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest, response *customer.DeleteResponse) error {
-	if err := authorizeCall(ctx); err != nil {
-		return err
-	}
 	if strings.TrimSpace(request.Id) == "" && strings.TrimSpace(request.Email) == "" {
 		return errors.BadRequest("customers.delete", "ID or Email is required")
 	}
@@ -219,6 +220,9 @@ func (c *Customers) Delete(ctx context.Context, request *customer.DeleteRequest,
 			return err
 		}
 		request.Id = c.ID
+	}
+	if err := authorizeCall(ctx, request.Id); err != nil {
+		return err
 	}
 
 	if err := c.deleteCustomer(ctx, request.Id, request.Force); err != nil {
@@ -271,7 +275,7 @@ func writeCustomer(cust *CustomerModel) error {
 	return nil
 }
 
-func authorizeCall(ctx context.Context) error {
+func authorizeCall(ctx context.Context, customerID string) error {
 	account, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return errors.Unauthorized("customers", "Unauthorized request")
@@ -279,7 +283,25 @@ func authorizeCall(ctx context.Context) error {
 	if account.Issuer != "micro" {
 		return errors.Unauthorized("customers", "Unauthorized request")
 	}
-	return nil
+	if account.Type == "customer" && account.ID == customerID {
+		return nil
+	}
+	if account.Type == "user" && hasScope("admin", account.Scopes) {
+		return nil
+	}
+	if account.Type == "service" {
+		return nil
+	}
+	return errors.Unauthorized("customers", "Unauthorized request")
+}
+
+func hasScope(scope string, scopes []string) bool {
+	for _, sc := range scopes {
+		if sc == scope {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Customers) deleteCustomer(ctx context.Context, customerID string, force bool) error {
@@ -356,9 +378,11 @@ func ignoreDeleteError(err error) error {
 
 // List is a temporary endpoint which will very quickly become unusable due to the way it lists entries
 func (c *Customers) List(ctx context.Context, request *customer.ListRequest, response *customer.ListResponse) error {
-	if err := authorizeCall(ctx); err != nil {
-		return err
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok || acc.Issuer != "micro" || acc.Type != "user" || !hasScope("admin", acc.Scopes) {
+		return errors.Unauthorized("customers", "Unauthorized")
 	}
+
 	recs, err := mstore.Read(prefixCustomer, mstore.ReadPrefix())
 	if err != nil {
 		return err
@@ -387,7 +411,7 @@ func (c *Customers) List(ctx context.Context, request *customer.ListRequest, res
 }
 
 func (c *Customers) Update(ctx context.Context, request *customer.UpdateRequest, response *customer.UpdateResponse) error {
-	if err := authorizeCall(ctx); err != nil {
+	if err := authorizeCall(ctx, request.Customer.Id); err != nil {
 		return err
 	}
 	cust, err := readCustomerByID(request.Customer.Id)
@@ -408,5 +432,20 @@ func (c *Customers) Update(ctx context.Context, request *customer.UpdateRequest,
 	if !changed {
 		return nil
 	}
+
+	// Publish the event
+	var callerID string
+	if acc, ok := auth.AccountFromContext(ctx); ok {
+		callerID = acc.ID
+	}
+	ev := &customer.Event{
+		Type:     customer.EventType_EventTypeUpdated,
+		Customer: objToProto(cust),
+		CallerId: callerID,
+	}
+	if err := mevents.Publish(customer.EventsTopic, ev); err != nil {
+		log.Errorf("Error publishing event %+v", ev)
+	}
+
 	return writeCustomer(cust)
 }

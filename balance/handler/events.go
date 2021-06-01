@@ -17,7 +17,6 @@ import (
 )
 
 const (
-	topic                = "balance"
 	msgInsufficientFunds = "Insufficient funds"
 )
 
@@ -157,7 +156,7 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 		Type:       pb.EventType_EventTypeZeroBalance,
 		CustomerId: rqe.UserId,
 	}
-	if err := events.Publish(topic, &evt); err != nil {
+	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
 
@@ -255,7 +254,7 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 		},
 		CustomerId: adj.CustomerID,
 	}
-	if err := events.Publish(topic, &evt); err != nil {
+	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
 

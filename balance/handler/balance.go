@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	balance "github.com/m3o/services/balance/proto"
+	pb "github.com/m3o/services/balance/proto"
 	ns "github.com/m3o/services/namespaces/proto"
 	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
@@ -147,7 +147,7 @@ func NewHandler(svc *service.Service) *Balance {
 	return b
 }
 
-func (b Balance) Increment(ctx context.Context, request *balance.IncrementRequest, response *balance.IncrementResponse) error {
+func (b Balance) Increment(ctx context.Context, request *pb.IncrementRequest, response *pb.IncrementResponse) error {
 	// increment counter
 	acc, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Increment")
 	if err != nil {
@@ -169,9 +169,9 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 		return err
 	}
 
-	evt := balance.Event{
-		Type: balance.EventType_EventTypeIncrement,
-		Adjustment: &balance.Adjustment{
+	evt := pb.Event{
+		Type: pb.EventType_EventTypeIncrement,
+		Adjustment: &pb.Adjustment{
 			Id:        adj.ID,
 			Created:   adj.Created.Unix(),
 			Delta:     adj.Amount,
@@ -180,7 +180,7 @@ func (b Balance) Increment(ctx context.Context, request *balance.IncrementReques
 		},
 		CustomerId: adj.CustomerID,
 	}
-	if err := events.Publish(topic, &evt); err != nil {
+	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
 
@@ -226,7 +226,7 @@ func storeAdjustment(actionedBy string, delta int64, customerID, reference strin
 	return rec, nil
 }
 
-func (b Balance) Decrement(ctx context.Context, request *balance.DecrementRequest, response *balance.DecrementResponse) error {
+func (b Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, response *pb.DecrementResponse) error {
 	acc, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Decrement")
 	if err != nil {
 		return err
@@ -247,9 +247,9 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 		return err
 	}
 
-	evt := balance.Event{
-		Type: balance.EventType_EventTypeDecrement,
-		Adjustment: &balance.Adjustment{
+	evt := pb.Event{
+		Type: pb.EventType_EventTypeDecrement,
+		Adjustment: &pb.Adjustment{
 			Id:        adj.ID,
 			Created:   adj.Created.Unix(),
 			Delta:     adj.Amount,
@@ -258,18 +258,18 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 		},
 		CustomerId: adj.CustomerID,
 	}
-	if err := events.Publish(topic, &evt); err != nil {
+	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
 
 	if currBal > 0 {
 		return nil
 	}
-	evt = balance.Event{
-		Type:       balance.EventType_EventTypeZeroBalance,
+	evt = pb.Event{
+		Type:       pb.EventType_EventTypeZeroBalance,
 		CustomerId: adj.CustomerID,
 	}
-	if err := events.Publish(topic, &evt); err != nil {
+	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
 	if _, err := b.v1Svc.BlockKey(context.Background(), &v1api.BlockKeyRequest{
@@ -284,7 +284,7 @@ func (b Balance) Decrement(ctx context.Context, request *balance.DecrementReques
 	return nil
 }
 
-func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, response *balance.CurrentResponse) error {
+func (b Balance) Current(ctx context.Context, request *pb.CurrentRequest, response *pb.CurrentResponse) error {
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.Current")
 	if err != nil {
 		return err
@@ -307,7 +307,7 @@ func (b Balance) Current(ctx context.Context, request *balance.CurrentRequest, r
 	return nil
 }
 
-func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjustmentsRequest, response *balance.ListAdjustmentsResponse) error {
+func (b Balance) ListAdjustments(ctx context.Context, request *pb.ListAdjustmentsRequest, response *pb.ListAdjustmentsResponse) error {
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.ListAdjustments")
 	if err != nil {
 		// TODO check for micro admin
@@ -318,7 +318,7 @@ func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjus
 		return err
 	}
 
-	ret := []*balance.Adjustment{}
+	ret := []*pb.Adjustment{}
 	for _, rec := range recs {
 		var adj Adjustment
 		if err := json.Unmarshal(rec.Value, &adj); err != nil {
@@ -327,7 +327,7 @@ func (b Balance) ListAdjustments(ctx context.Context, request *balance.ListAdjus
 		if !adj.Visible {
 			continue
 		}
-		ret = append(ret, &balance.Adjustment{
+		ret = append(ret, &pb.Adjustment{
 			Id:        adj.ID,
 			Created:   adj.Created.Unix(),
 			Delta:     adj.Amount,
