@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package mixpanel;
+
+option go_package = "./proto;mixpanel";
+
+service Mixpanel {
+
+}
