@@ -81,6 +81,7 @@ func (m *MixpanelClient) Track(ev Event) error {
 	if err != nil {
 		return err
 	}
+	logger.Infof("Tracking %s", string(b))
 	req, err := http.NewRequest(http.MethodPost, "https://api.mixpanel.com/track#live-event-deduplicate", bytes.NewReader(b))
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
@@ -101,5 +102,6 @@ func (m *MixpanelClient) Track(ev Event) error {
 		logger.Errorf("Error reading http rsp %s %s", err, string(b))
 		return nil // ignore
 	}
+	logger.Infof("Response %s", string(b))
 	return nil
 }

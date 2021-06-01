@@ -84,7 +84,7 @@ func (b *Mixpanel) processV1apiEvents(ch <-chan mevents.Event) {
 
 		mEv := b.client.newMixpanelEvent(ev.Topic, ve.Type, customerID, ev.ID, ev.Timestamp.Unix(), ev)
 		if err := b.client.Track(mEv); err != nil {
-			logger.Errorf("Error tracking event")
+			logger.Errorf("Error tracking event %s", err)
 			ev.Nack()
 			continue
 		}
@@ -123,7 +123,7 @@ func (b *Mixpanel) processBalanceEvents(ch <-chan mevents.Event) {
 
 		mEv := b.client.newMixpanelEvent(ev.Topic, ve.Type.String(), customerID, ev.ID, ev.Timestamp.Unix(), ev)
 		if err := b.client.Track(mEv); err != nil {
-			logger.Errorf("Error tracking event")
+			logger.Errorf("Error tracking event %s", err)
 			ev.Nack()
 			continue
 		}
@@ -163,7 +163,7 @@ func (b *Mixpanel) processCustomerEvents(ch <-chan mevents.Event) {
 
 		mEv := b.client.newMixpanelEvent(ev.Topic, ve.Type.String(), customerID, ev.ID, ev.Timestamp.Unix(), ev)
 		if err := b.client.Track(mEv); err != nil {
-			logger.Errorf("Error tracking event")
+			logger.Errorf("Error tracking event %s", err)
 			ev.Nack()
 			continue
 		}
