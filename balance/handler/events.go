@@ -3,10 +3,9 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"time"
 
 	pb "github.com/m3o/services/balance/proto"
+	pevents "github.com/m3o/services/pkg/events"
 	stripepb "github.com/m3o/services/stripe/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	"github.com/micro/micro/v3/service/client"
@@ -21,76 +20,33 @@ const (
 )
 
 func (b *Balance) consumeEvents() {
-	processTopic := func(topic string, handler func(ch <-chan mevents.Event)) {
-		var evs <-chan mevents.Event
-		start := time.Now()
-		for {
-			var err error
-			evs, err = mevents.Consume(topic,
-				mevents.WithAutoAck(false, 30*time.Second),
-				mevents.WithRetryLimit(10),
-				mevents.WithGroup(fmt.Sprintf("%s-%s", "balance", topic))) // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-			if err == nil {
-				handler(evs)
-				start = time.Now()
-				continue // if for some reason evs closes we loop and try subscribing again
-			}
-			// TODO fix me
-			if time.Since(start) > 2*time.Minute {
-				logger.Fatalf("Failed to subscribe to topic %s: %s", topic, err)
-			}
-			logger.Warnf("Unable to subscribe to topic %s. Will retry in 20 secs. %s", topic, err)
-			time.Sleep(20 * time.Second)
-		}
-	}
-	go processTopic("v1api", b.processV1apiEvents)
-	go processTopic("stripe", b.processStripeEvents)
+	go pevents.ProcessTopic("v1api", "balance", b.processV1apiEvents)
+	go pevents.ProcessTopic("stripe", "balance", b.processStripeEvents)
 }
 
-func (b *Balance) processV1apiEvents(ch <-chan mevents.Event) {
-	logger.Infof("Starting to process v1api events")
-	for {
-		t := time.NewTimer(600 * time.Minute)
-		var ev mevents.Event
-		select {
-		case ev = <-ch:
-			t.Stop()
-			if len(ev.ID) == 0 {
-				// channel closed
-				logger.Infof("Channel closed, retrying stream connection")
-				return
-			}
-		case <-t.C:
-			// safety net in case we stop receiving messages for some reason
-			logger.Infof("No messages received for last 2 minutes retrying connection")
-			return
-		}
-
-		ve := &v1api.Event{}
-		if err := json.Unmarshal(ev.Payload, ve); err != nil {
-			ev.Nack()
-			logger.Errorf("Error unmarshalling v1api event: $s", err)
-			continue
-		}
-		switch ve.Type {
-		case "APIKeyCreate":
-			if err := b.processAPIKeyCreated(ve.ApiKeyCreate); err != nil {
-				ev.Nack()
-				logger.Errorf("Error processing API key created event %s", err)
-				continue
-			}
-		case "Request":
-			if err := b.processRequest(ve.Request); err != nil {
-				ev.Nack()
-				logger.Errorf("Error processing request event %s", err)
-				continue
-			}
-		default:
-			logger.Infof("Unrecognised event %+v", ve)
-
-		}
-		ev.Ack()
+func (b *Balance) processV1apiEvents(ev mevents.Event) error {
+	ve := &v1api.Event{}
+	if err := json.Unmarshal(ev.Payload, ve); err != nil {
+		logger.Errorf("Error unmarshalling v1api event: $s", err)
+		return nil
 	}
+	switch ve.Type {
+	case "APIKeyCreate":
+		if err := b.processAPIKeyCreated(ve.ApiKeyCreate); err != nil {
+			logger.Errorf("Error processing API key created event %s", err)
+			return err
+		}
+	case "Request":
+		if err := b.processRequest(ve.Request); err != nil {
+			logger.Errorf("Error processing request event %s", err)
+			return err
+		}
+	default:
+		logger.Infof("Unrecognised event %+v", ve)
+
+	}
+	return nil
+
 }
 
 func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
@@ -177,45 +133,25 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 	return nil
 }
 
-func (b *Balance) processStripeEvents(ch <-chan mevents.Event) {
-	logger.Infof("Starting to process stripe events")
-	for {
-		t := time.NewTimer(600 * time.Minute)
-		var ev mevents.Event
-		select {
-		case ev = <-ch:
-			t.Stop()
-			if len(ev.ID) == 0 {
-				// channel closed
-				logger.Infof("Channel closed, retrying stream connection")
-				return
-			}
-		case <-t.C:
-			// safety net in case we stop receiving messages for some reason
-			logger.Infof("No messages received for last 2 minutes retrying connection")
-			return
-		}
-
-		ve := &stripepb.Event{}
-		logger.Infof("Processing event %+v", ev)
-		if err := json.Unmarshal(ev.Payload, ve); err != nil {
-			ev.Nack()
-			logger.Errorf("Error unmarshalling stripe event: $s", err)
-			continue
-		}
-		switch ve.Type {
-		case "ChargeSucceeded":
-			if err := b.processChargeSucceeded(ve.ChargeSucceeded); err != nil {
-				ev.Nack()
-				logger.Errorf("Error processing charge succeeded event %s", err)
-				continue
-			}
-		default:
-			logger.Infof("Unrecognised event %+v", ve)
-
-		}
-		ev.Ack()
+func (b *Balance) processStripeEvents(ev mevents.Event) error {
+	ve := &stripepb.Event{}
+	logger.Infof("Processing event %+v", ev)
+	if err := json.Unmarshal(ev.Payload, ve); err != nil {
+		logger.Errorf("Error unmarshalling stripe event: $s", err)
+		return nil
 	}
+	switch ve.Type {
+	case "ChargeSucceeded":
+		if err := b.processChargeSucceeded(ve.ChargeSucceeded); err != nil {
+			logger.Errorf("Error processing charge succeeded event %s", err)
+			return err
+		}
+	default:
+		logger.Infof("Unrecognised event %+v", ve)
+
+	}
+	return nil
+
 }
 
 func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {

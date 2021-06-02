@@ -5,74 +5,33 @@ import (
 	"fmt"
 	"time"
 
+	pevents "github.com/m3o/services/pkg/events"
 	v1api "github.com/m3o/services/v1api/proto"
 	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 )
 
 func (p *UsageSvc) consumeEvents() {
-	processTopic := func(topic string, handler func(ch <-chan mevents.Event)) {
-		var evs <-chan mevents.Event
-		start := time.Now()
-		for {
-			var err error
-			evs, err = mevents.Consume(topic,
-				mevents.WithAutoAck(false, 30*time.Second),
-				mevents.WithRetryLimit(10), // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-				mevents.WithGroup(fmt.Sprintf("%s-%s", "usage", topic)))
-			if err == nil {
-				handler(evs)
-				start = time.Now()
-				continue // if for some reason evs closes we loop and try subscribing again
-			}
-			// TODO fix me
-			if time.Since(start) > 2*time.Minute {
-				logger.Fatalf("Failed to subscribe to topic %s: %s", topic, err)
-			}
-			logger.Warnf("Unable to subscribe to topic %s. Will retry in 20 secs. %s", topic, err)
-			time.Sleep(20 * time.Second)
-		}
-	}
-	go processTopic("v1api", p.processV1apiEvents)
+	go pevents.ProcessTopic("v1api", "usage", p.processV1apiEvents)
 }
 
-func (p *UsageSvc) processV1apiEvents(ch <-chan mevents.Event) {
-	logger.Infof("Starting to process v1api events")
-	for {
-		t := time.NewTimer(600 * time.Minute)
-		var ev mevents.Event
-		select {
-		case ev = <-ch:
-			t.Stop()
-			if len(ev.ID) == 0 {
-				// channel closed
-				logger.Infof("Channel closed, retrying stream connection")
-				return
-			}
-		case <-t.C:
-			// safety net in case we stop receiving messages for some reason
-			logger.Infof("No messages received for last 2 minutes retrying connection")
-			return
-		}
-
-		ve := &v1api.Event{}
-		if err := json.Unmarshal(ev.Payload, ve); err != nil {
-			ev.Nack()
-			logger.Errorf("Error unmarshalling v1api event: $s", err)
-			continue
-		}
-		switch ve.Type {
-		case "Request":
-			if err := p.processRequest(ve.Request, ev.Timestamp); err != nil {
-				ev.Nack()
-				logger.Errorf("Error processing request event %s", err)
-				continue
-			}
-		default:
-			logger.Infof("Unrecognised event %+v", ve)
-		}
-		ev.Ack()
+func (p *UsageSvc) processV1apiEvents(ev mevents.Event) error {
+	ve := &v1api.Event{}
+	if err := json.Unmarshal(ev.Payload, ve); err != nil {
+		logger.Errorf("Error unmarshalling v1api event: $s", err)
+		return nil
 	}
+	switch ve.Type {
+	case "Request":
+		if err := p.processRequest(ve.Request, ev.Timestamp); err != nil {
+			logger.Errorf("Error processing request event %s", err)
+			return err
+		}
+	default:
+		logger.Infof("Unrecognised event %+v", ve)
+	}
+	return nil
+
 }
 
 func (p *UsageSvc) processRequest(event *v1api.RequestEvent, t time.Time) error {

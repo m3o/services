@@ -3,12 +3,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
-	"time"
 
 	balance "github.com/m3o/services/balance/proto"
 	onboarding "github.com/m3o/services/onboarding/proto"
+	pevents "github.com/m3o/services/pkg/events"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
@@ -44,68 +43,26 @@ func NewOnboarding(svc *service.Service) *Onboarding {
 }
 
 func (o *Onboarding) consumeEvents() {
-	processTopic := func(topic string, handler func(ch <-chan mevents.Event)) {
-		var evs <-chan mevents.Event
-		start := time.Now()
-		for {
-			var err error
-			evs, err = mevents.Consume(topic,
-				mevents.WithAutoAck(false, 30*time.Second),
-				mevents.WithRetryLimit(10), // 10 retries * 30 secs ackWait gives us 5 mins of tolerance for issues
-				mevents.WithGroup(fmt.Sprintf("%s-%s", "onboarding", topic)))
-			if err == nil {
-				handler(evs)
-				start = time.Now()
-				continue // if for some reason evs closes we loop and try subscribing again
-			}
-			// TODO fix me
-			if time.Since(start) > 2*time.Minute {
-				logger.Fatalf("Failed to subscribe to topic %s: %s", topic, err)
-			}
-			logger.Warnf("Unable to subscribe to topic %s. Will retry in 20 secs. %s", topic, err)
-			time.Sleep(20 * time.Second)
-		}
-	}
-	go processTopic(topic, o.processOnboardingEvents)
+	go pevents.ProcessTopic(topic, "onboarding", o.processOnboardingEvents)
 }
 
-func (o *Onboarding) processOnboardingEvents(ch <-chan mevents.Event) {
-	logger.Infof("Starting to process onboarding events")
-	for {
-		t := time.NewTimer(600 * time.Minute)
-		var ev mevents.Event
-		select {
-		case ev = <-ch:
-			t.Stop()
-			if len(ev.ID) == 0 {
-				// channel closed
-				logger.Infof("Channel closed, retrying stream connection")
-				return
-			}
-		case <-t.C:
-			// safety net in case we stop receiving messages for some reason
-			logger.Infof("No messages received for last 2 minutes retrying connection")
-			return
-		}
-
-		var ve onboarding.Event
-		if err := json.Unmarshal(ev.Payload, &ve); err != nil {
-			ev.Nack()
-			logger.Errorf("Error unmarshalling onboarding event: $s", err)
-			continue
-		}
-		switch ve.Type {
-		case "newSignup":
-			if err := o.processSignup(ve.NewSignup); err != nil {
-				ev.Nack()
-				logger.Errorf("Error processing signup event %s", err)
-				continue
-			}
-		default:
-			logger.Infof("Unrecognised event %+v", ve)
-		}
-		ev.Ack()
+func (o *Onboarding) processOnboardingEvents(ev mevents.Event) error {
+	var ve onboarding.Event
+	if err := json.Unmarshal(ev.Payload, &ve); err != nil {
+		logger.Errorf("Error unmarshalling onboarding event: $s", err)
+		return nil
 	}
+	switch ve.Type {
+	case "newSignup":
+		if err := o.processSignup(ve.NewSignup); err != nil {
+			logger.Errorf("Error processing signup event %s", err)
+			return err
+		}
+	default:
+		logger.Infof("Unrecognised event %+v", ve)
+	}
+	return nil
+
 }
 
 func (o *Onboarding) processSignup(ev *onboarding.NewSignupEvent) error {
