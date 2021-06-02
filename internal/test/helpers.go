@@ -11,10 +11,10 @@ import (
 func ContextWithAccount(issuer, id string) context.Context {
 	return auth.ContextWithAccount(context.TODO(), &auth.Account{
 		ID:       id,
-		Type:     "",
+		Type:     "user",
 		Issuer:   issuer,
 		Metadata: nil,
-		Scopes:   nil,
+		Scopes:   []string{"admin"},
 		Secret:   "",
 		Name:     "",
 	})
