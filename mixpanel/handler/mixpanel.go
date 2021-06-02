@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	pb "github.com/m3o/services/mixpanel/proto"
 	"github.com/micro/micro/v3/service/config"
@@ -78,15 +79,16 @@ func (m *MixpanelClient) Track(ev Event) error {
 		return err
 	}
 	logger.Infof("Tracking %s", string(b))
-	req, err := http.NewRequest(http.MethodPost, "https://api.mixpanel.com/track#live-event-deduplicate", nil)
+	data := url.Values{
+		"data": {string(b)},
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://api.mixpanel.com/track#live-event-deduplicate", strings.NewReader(data.Encode()))
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
 		return err
 	}
 	req.SetBasicAuth(m.User, m.Pass)
-	req.PostForm = url.Values{
-		"data": {string(b)},
-	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	rsp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Errorf("Error creating http req %s", err)
