@@ -33,12 +33,15 @@ func ProcessTopic(topic, groupPrefix string, handler func(ev mevents.Event) erro
 }
 
 func processEvents(ch <-chan mevents.Event, handler func(ev mevents.Event) error) {
+	timeout := 60 * time.Minute
+	t := time.NewTimer(timeout)
 	for {
-		t := time.NewTimer(60 * time.Minute)
 		var ev mevents.Event
 		select {
 		case ev = <-ch:
-			t.Stop()
+			if !t.Stop() {
+				<-t.C
+			}
 			if len(ev.ID) == 0 {
 				// channel closed
 				logger.Infof("Channel closed, retrying stream connection")
@@ -49,6 +52,7 @@ func processEvents(ch <-chan mevents.Event, handler func(ev mevents.Event) error
 			logger.Infof("No messages received for last 60 minutes retrying connection")
 			return
 		}
+		t.Reset(timeout)
 		if err := handler(ev); err != nil {
 			ev.Nack()
 			continue
