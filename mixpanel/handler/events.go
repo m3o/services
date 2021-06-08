@@ -8,6 +8,7 @@ import (
 	customers "github.com/m3o/services/customers/proto"
 	"github.com/m3o/services/pkg/events"
 	v1api "github.com/m3o/services/v1api/proto"
+	"github.com/micro/micro/v3/service/client"
 	merrors "github.com/micro/micro/v3/service/errors"
 	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
@@ -59,7 +60,7 @@ func (b *Mixpanel) processV1APIEvent(ev mevents.Event) error {
 
 func (b *Mixpanel) ignoreCustomer(customerID string) (bool, error) {
 	// should we ignore?
-	rsp, err := b.custSvc.Read(context.Background(), &customers.ReadRequest{Id: customerID})
+	rsp, err := b.custSvc.Read(context.Background(), &customers.ReadRequest{Id: customerID}, client.WithAuthToken())
 	if err != nil {
 		merr, ok := err.(*merrors.Error)
 		if ok {
