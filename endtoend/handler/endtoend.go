@@ -339,7 +339,14 @@ func (e *Endtoend) signup() error {
 					continue
 				}
 
-				rsp, err = http.Post(fmt.Sprintf("https://api.m3o.com/v1/%s/%s", api.Name, endpointName), "application/json", bytes.NewReader(b))
+				req, err := http.NewRequest("POST", fmt.Sprintf("https://api.m3o.com/v1/%s/%s", api.Name, endpointName), bytes.NewReader(b))
+				if err != nil {
+					log.Errorf("Error generating example request %s %s %s %s", api.Name, endpointName, ex.Title, err)
+					continue
+				}
+				req.Header.Set("Authorization", "Bearer "+keyRsp.ApiKey)
+				req.Header.Set("Content-Type", "application/json")
+				rsp, err = http.DefaultClient.Do(req)
 				if err != nil {
 					log.Errorf("Error running example %s %s %s %s", api.Name, endpointName, ex.Title, err)
 					continue
