@@ -2,12 +2,14 @@ package handler
 
 import (
 	alertpb "github.com/m3o/services/alert/proto/alert"
+	balancepb "github.com/m3o/services/balance/proto"
 	custpb "github.com/m3o/services/customers/proto"
 )
 
 type Endtoend struct {
 	custSvc  custpb.CustomersService
 	alertSvc alertpb.AlertService
+	balSvc   balancepb.BalanceService
 	email    string
 }
 

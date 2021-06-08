@@ -10,11 +10,13 @@ import (
 	"strings"
 	"time"
 
+	balancepb "github.com/m3o/services/balance/proto"
 	"github.com/micro/micro/v3/service"
 
 	alertpb "github.com/m3o/services/alert/proto/alert"
 	custpb "github.com/m3o/services/customers/proto"
 	endtoend "github.com/m3o/services/endtoend/proto"
+	onpb "github.com/m3o/services/onboarding/proto"
 	"github.com/micro/micro/v3/service/client"
 	mconfig "github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
@@ -51,6 +53,7 @@ func NewEndToEnd(srv *service.Service) *Endtoend {
 		email:    email,
 		custSvc:  custpb.NewCustomersService("customers", srv.Client()),
 		alertSvc: alertpb.NewAlertService("alert", srv.Client()),
+		balSvc:   balancepb.NewBalanceService("balanace", srv.Client()),
 	}
 }
 
@@ -247,10 +250,12 @@ func (e *Endtoend) signup() error {
 		return fmt.Errorf("error completing signup %s", err)
 	}
 	defer rsp.Body.Close()
+	b, _ := ioutil.ReadAll(rsp.Body)
 	if rsp.StatusCode != 200 {
-		b, _ := ioutil.ReadAll(rsp.Body)
 		return fmt.Errorf("error completing signup %s %s", rsp.Status, string(b))
 	}
+	var srsp onpb.CompleteSignupResponse
+	json.Unmarshal(b, &srsp)
 
 	var custErr error
 	loopStart = time.Now()
@@ -273,7 +278,20 @@ func (e *Endtoend) signup() error {
 		return custErr
 	}
 
-	// TODO check balance for intro credit
+	loopStart = time.Now()
+	currBal := int64(0)
+	for time.Now().Sub(loopStart) < 1*time.Minute {
+		// check balance for intro credit
+		balRsp, err := e.balSvc.Current(context.Background(), &balancepb.CurrentRequest{CustomerId: srsp.CustomerID}, client.WithAuthToken())
+		if err != nil && balRsp.CurrentBalance > 0 {
+			currBal = balRsp.CurrentBalance
+			break
+		}
+	}
+	log.Infof("Balance is %d", currBal)
+	if currBal == 0 {
+		return fmt.Errorf("no intro credit was applied to customer")
+	}
 	// TODO run some apis
 	// TODO add credit via stripe
 
