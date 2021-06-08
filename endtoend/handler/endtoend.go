@@ -53,7 +53,7 @@ func NewEndToEnd(srv *service.Service) *Endtoend {
 		email:    email,
 		custSvc:  custpb.NewCustomersService("customers", srv.Client()),
 		alertSvc: alertpb.NewAlertService("alert", srv.Client()),
-		balSvc:   balancepb.NewBalanceService("balanace", srv.Client()),
+		balSvc:   balancepb.NewBalanceService("balance", srv.Client()),
 	}
 }
 
