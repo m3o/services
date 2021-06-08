@@ -49,8 +49,7 @@ func processEvents(ch <-chan mevents.Event, handler func(ev mevents.Event) error
 			}
 		case <-t.C:
 			// safety net in case we stop receiving messages for some reason
-			logger.Infof("No messages received for last 60 minutes retrying connection")
-			return
+			logger.Fatalf("No messages received for last 60 minutes retrying connection")
 		}
 		t.Reset(timeout)
 		if err := handler(ev); err != nil {
