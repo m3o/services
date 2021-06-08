@@ -9,22 +9,27 @@ import (
 	"net/url"
 	"strings"
 
+	cpb "github.com/m3o/services/customers/proto"
 	pb "github.com/m3o/services/mixpanel/proto"
+	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
 )
 
 type Mixpanel struct {
-	client *MixpanelClient
+	client     *MixpanelClient
+	ignoreList []string
+	custSvc    cpb.CustomersService
 }
 
 type conf struct {
-	User    string
-	Secret  string
-	Project string
+	User       string
+	Secret     string
+	Project    string
+	IgnoreList string
 }
 
-func NewHandler() *Mixpanel {
+func NewHandler(svc *service.Service) *Mixpanel {
 	c, err := config.Get("micro.mixpanel")
 	if err != nil {
 		logger.Fatalf("Failed to load config %s", err)
@@ -39,6 +44,8 @@ func NewHandler() *Mixpanel {
 			Pass:    cObj.Secret,
 			Project: cObj.Project,
 		},
+		ignoreList: strings.Split(cObj.IgnoreList, ","),
+		custSvc:    cpb.NewCustomersService("customers", svc.Client()),
 	}
 	go m.consumeEvents()
 	return m

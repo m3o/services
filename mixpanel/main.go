@@ -17,7 +17,7 @@ func main() {
 	)
 
 	// Register handler
-	pb.RegisterMixpanelHandler(srv.Server(), handler.NewHandler())
+	pb.RegisterMixpanelHandler(srv.Server(), handler.NewHandler(srv))
 
 	// Run service
 	if err := srv.Run(); err != nil {
