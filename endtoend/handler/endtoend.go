@@ -261,8 +261,8 @@ func (e *Endtoend) signup() error {
 			custErr = fmt.Errorf("error checking customer status %s", err)
 			continue
 		}
-		if rsp.Customer.Status != "active" {
-			custErr = fmt.Errorf("customer status should be active but is %s", rsp.Customer.Status)
+		if rsp.Customer.Status != "verified" {
+			custErr = fmt.Errorf("customer status should be verified but is %s", rsp.Customer.Status)
 			continue
 		}
 		custErr = nil
