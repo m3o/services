@@ -287,6 +287,7 @@ func (e *Endtoend) signup() error {
 			currBal = balRsp.CurrentBalance
 			break
 		}
+		log.Errorf("balance response %s", err)
 	}
 	log.Infof("Balance is %d", currBal)
 	if currBal == 0 {
