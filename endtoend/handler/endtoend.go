@@ -298,7 +298,7 @@ func (e *Endtoend) signup() error {
 	}
 
 	// generate a key
-	rsp, err = http.Post("https://api.m3o.com/v1/api/keys/generate", "application/json", strings.NewReader(`{"description":"test key", "scopes": ["*"]]}`))
+	rsp, err = http.Post("https://api.m3o.com/v1/api/keys/generate", "application/json", strings.NewReader(`{"description":"test key", "scopes": ["*"]}`))
 	if err != nil {
 		return fmt.Errorf("error generating key %s", err)
 	}
