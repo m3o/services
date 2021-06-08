@@ -298,7 +298,13 @@ func (e *Endtoend) signup() error {
 	}
 
 	// generate a key
-	rsp, err = http.Post("https://api.m3o.com/v1/api/keys/generate", "application/json", strings.NewReader(`{"description":"test key", "scopes": ["*"]}`))
+	req, err := http.NewRequest("POST", "https://api.m3o.com/v1/api/keys/generate", strings.NewReader(`{"description":"test key", "scopes": ["*"]}`))
+	if err != nil {
+		return fmt.Errorf("error generating key request %s", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+srsp.AuthToken.AccessToken)
+	req.Header.Set("Content-Type", "application/json")
+	rsp, err = http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error generating key %s", err)
 	}
