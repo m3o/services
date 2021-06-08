@@ -19,8 +19,8 @@ func VerifyMicroCustomer(ctx context.Context, method string) (*auth.Account, err
 	}
 	if err := verifyMicroCustomer(acc, method); err != nil {
 		// are they admin?
-		if err := verifyMicroAdmin(acc, method); err != nil {
-			return nil, err
+		if err := verifyMicroAdmin(acc, method); err == nil {
+			return acc, nil
 		}
 		return nil, err
 	}
