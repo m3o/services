@@ -344,7 +344,7 @@ func (e *Endtoend) signup() error {
 					log.Errorf("Error running example %s %s %s key %s", api.Name, endpointName, ex.Title, err)
 					continue
 				}
-
+				log.Infof("API response %s", string(b))
 				// TODO test response against expected response with fuzzy matching
 
 			}
