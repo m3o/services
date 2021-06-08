@@ -327,6 +327,10 @@ func (e *Endtoend) signup() error {
 	}
 	for _, api := range pubrsp.Apis {
 		var examples apiExamples
+		if len(api.ExamplesJson) == 0 {
+			log.Infof("No examples, skipping %s", api.Name)
+			continue
+		}
 		if err := json.Unmarshal([]byte(api.ExamplesJson), &examples); err != nil {
 			log.Errorf("Failed to unmarshal examples for %s %s", api.Name, err)
 			continue
@@ -357,7 +361,7 @@ func (e *Endtoend) signup() error {
 					log.Errorf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
 					continue
 				}
-				log.Infof("API response %s", string(b))
+				log.Infof("API response for example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
 				// TODO test response against expected response with fuzzy matching
 
 			}
