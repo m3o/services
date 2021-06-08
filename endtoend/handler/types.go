@@ -40,6 +40,6 @@ type apiExamples map[string][]apiExample // map of endpoint name to list of exam
 type apiExample struct {
 	Title       string
 	Description string
-	Request     map[string]interface{}
-	Response    map[string]interface{}
+	Request     interface{}
+	Response    interface{}
 }
