@@ -283,7 +283,7 @@ func (e *Endtoend) signup() error {
 	for time.Now().Sub(loopStart) < 1*time.Minute {
 		// check balance for intro credit
 		balRsp, err := e.balSvc.Current(context.Background(), &balancepb.CurrentRequest{CustomerId: srsp.CustomerID}, client.WithAuthToken())
-		if err != nil && balRsp.CurrentBalance > 0 {
+		if err == nil && balRsp.CurrentBalance > 0 {
 			currBal = balRsp.CurrentBalance
 			break
 		}
