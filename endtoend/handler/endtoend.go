@@ -341,13 +341,13 @@ func (e *Endtoend) signup() error {
 
 				rsp, err = http.Post(fmt.Sprintf("https://api.m3o.com/v1/%s/%s", api.Name, endpointName), "application/json", bytes.NewReader(b))
 				if err != nil {
-					log.Errorf("Error running example %s %s %s key %s", api.Name, endpointName, ex.Title, err)
+					log.Errorf("Error running example %s %s %s %s", api.Name, endpointName, ex.Title, err)
 					continue
 				}
 				defer rsp.Body.Close()
 				b, _ = ioutil.ReadAll(rsp.Body)
 				if rsp.StatusCode != 200 {
-					log.Errorf("Error running example %s %s %s key %s", api.Name, endpointName, ex.Title, err)
+					log.Errorf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
 					continue
 				}
 				log.Infof("API response %s", string(b))
