@@ -4,12 +4,14 @@ import (
 	alertpb "github.com/m3o/services/alert/proto/alert"
 	balancepb "github.com/m3o/services/balance/proto"
 	custpb "github.com/m3o/services/customers/proto"
+	pubpb "github.com/m3o/services/publicapi/proto"
 )
 
 type Endtoend struct {
 	custSvc  custpb.CustomersService
 	alertSvc alertpb.AlertService
 	balSvc   balancepb.BalanceService
+	pubSvc   pubpb.PublicapiService
 	email    string
 }
 
@@ -32,3 +34,12 @@ type checkResult struct {
 }
 
 type MailinResponse struct{}
+
+type apiExamples map[string][]apiExample // map of endpoint name to list of examples
+
+type apiExample struct {
+	Title       string
+	Description string
+	Request     map[string]interface{}
+	Response    map[string]interface{}
+}

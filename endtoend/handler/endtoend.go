@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 	custpb "github.com/m3o/services/customers/proto"
 	endtoend "github.com/m3o/services/endtoend/proto"
 	onpb "github.com/m3o/services/onboarding/proto"
+	pubpb "github.com/m3o/services/publicapi/proto"
 	"github.com/micro/micro/v3/service/client"
 	mconfig "github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/errors"
@@ -54,6 +56,7 @@ func NewEndToEnd(srv *service.Service) *Endtoend {
 		custSvc:  custpb.NewCustomersService("customers", srv.Client()),
 		alertSvc: alertpb.NewAlertService("alert", srv.Client()),
 		balSvc:   balancepb.NewBalanceService("balance", srv.Client()),
+		pubSvc:   pubpb.NewPublicapiService("publicapi", srv.Client()),
 	}
 }
 
@@ -293,7 +296,60 @@ func (e *Endtoend) signup() error {
 	if currBal == 0 {
 		return fmt.Errorf("no intro credit was applied to customer")
 	}
-	// TODO run some apis
+
+	// generate a key
+	rsp, err = http.Post("https://api.m3o.com/v1/api/keys/generate", "application/json", strings.NewReader(`{"description":"test key", "scopes": ["*"]]}`))
+	if err != nil {
+		return fmt.Errorf("error generating key %s", err)
+	}
+	defer rsp.Body.Close()
+	b, _ = ioutil.ReadAll(rsp.Body)
+	if rsp.StatusCode != 200 {
+		return fmt.Errorf("error generating key %s %s", rsp.Status, string(b))
+	}
+	keyRsp := struct {
+		ApiKey string `json:"api_key"`
+	}{}
+	if err := json.Unmarshal(b, &keyRsp); err != nil {
+		return fmt.Errorf("error generating key, failed to unmarshal response %s", err)
+	}
+
+	// run some apis
+	pubrsp, err := e.pubSvc.List(context.Background(), &pubpb.ListRequest{}, client.WithAuthToken())
+	if err != nil {
+		return fmt.Errorf("error listing apis %s", err)
+	}
+	for _, api := range pubrsp.Apis {
+		var examples apiExamples
+		if err := json.Unmarshal([]byte(api.ExamplesJson), &examples); err != nil {
+			log.Errorf("Failed to unmarshal examples for %s %s", api.Name, err)
+			continue
+		}
+		for endpointName, exs := range examples {
+			for _, ex := range exs {
+				b, err := json.Marshal(ex.Request)
+				if err != nil {
+					log.Errorf("Failed to marshal example request for %s %s %s %s", api.Name, endpointName, ex.Title, err)
+					continue
+				}
+
+				rsp, err = http.Post(fmt.Sprintf("https://api.m3o.com/v1/%s/%s", api.Name, endpointName), "application/json", bytes.NewReader(b))
+				if err != nil {
+					log.Errorf("Error running example %s %s %s key %s", api.Name, endpointName, ex.Title, err)
+					continue
+				}
+				defer rsp.Body.Close()
+				b, _ = ioutil.ReadAll(rsp.Body)
+				if rsp.StatusCode != 200 {
+					log.Errorf("Error running example %s %s %s key %s", api.Name, endpointName, ex.Title, err)
+					continue
+				}
+
+				// TODO test response against expected response with fuzzy matching
+
+			}
+		}
+	}
 	// TODO add credit via stripe
 
 	return nil
