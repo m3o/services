@@ -25,21 +25,17 @@ import (
 )
 
 const (
-	signupFrom          = "Micro Team <support@m3o.com>"
-	signupSubject       = "Welcome to the M3O Platform"
-	microInstallScript  = "https://install.m3o.com/micro"
-	signupSuccessString = "Signup complete"
-	keyOtp              = "otp"
-	keyCheckResult      = "checkResult"
+	signupFrom     = "Micro Team <support@m3o.com>"
+	signupSubject  = "M3O Platform - Email Verification"
+	keyOtp         = "otp"
+	keyCheckResult = "checkResult"
 
 	// how fresh does a check need to be? cron runs every 5 mins and check takes just over 1min.
 	checkBuffer = 7 * time.Minute
-
-	microBinary = "/root/bin/micro"
 )
 
 var (
-	otpRegexp = regexp.MustCompile("please copy and paste this one time token into your terminal:\\s*([a-zA-Z]*)\\s*This token expires")
+	otpRegexp = regexp.MustCompile("please copy and paste this verification code into the signup form:\\s*([a-zA-Z]*)\\s*This code expires")
 )
 
 func NewEndToEnd(srv *service.Service) *Endtoend {
