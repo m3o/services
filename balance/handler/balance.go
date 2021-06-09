@@ -82,7 +82,7 @@ type Adjustment struct {
 	Meta       map[string]string
 }
 
-func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
+func (p *publicAPICache) get(ctx context.Context, name string) (*publicapi.PublicAPI, error) {
 	// check the cache
 	p.RLock()
 	cached := p.cache[name]
@@ -90,7 +90,7 @@ func (p *publicAPICache) get(name string) (*publicapi.PublicAPI, error) {
 	if cached != nil && cached.created.Add(p.ttl).After(time.Now()) {
 		return cached.api, nil
 	}
-	rsp, err := p.pubSvc.Get(context.Background(), &publicapi.GetRequest{Name: name}, client.WithAuthToken())
+	rsp, err := p.pubSvc.Get(ctx, &publicapi.GetRequest{Name: name}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (b Balance) Increment(ctx context.Context, request *pb.IncrementRequest, re
 		return nil
 	}
 
-	if _, err := b.v1Svc.UnblockKey(context.Background(), &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(ctx, &v1api.UnblockKeyRequest{
 		UserId:    request.CustomerId,
 		Namespace: microNamespace,
 	}, client.WithAuthToken()); err != nil {
@@ -272,7 +272,7 @@ func (b Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, re
 	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
-	if _, err := b.v1Svc.BlockKey(context.Background(), &v1api.BlockKeyRequest{
+	if _, err := b.v1Svc.BlockKey(ctx, &v1api.BlockKeyRequest{
 		UserId:    request.CustomerId,
 		Namespace: microNamespace,
 		Message:   msgInsufficientFunds,

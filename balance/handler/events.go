@@ -86,7 +86,7 @@ func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 
 func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 	apiName := rqe.ApiName
-	rsp, err := b.pubSvc.get(apiName)
+	rsp, err := b.pubSvc.get(context.Background(), apiName)
 	if err != nil {
 		logger.Errorf("Error looking up API %s", err)
 		return err
