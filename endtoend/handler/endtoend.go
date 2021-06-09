@@ -326,6 +326,8 @@ func (e *Endtoend) signup() error {
 	if err != nil {
 		return fmt.Errorf("error listing apis %s", err)
 	}
+
+	exampleErrs := []string{}
 	for _, api := range pubrsp.Apis {
 		var examples apiExamples
 		if len(api.ExamplesJson) == 0 {
@@ -336,10 +338,12 @@ func (e *Endtoend) signup() error {
 		keys, err := objectKeys(api.ExamplesJson)
 		if err != nil {
 			log.Errorf("Failed to find keys for %s %s", api.Name, err)
+			exampleErrs = append(exampleErrs, fmt.Sprintf("Failed to find keys for %s %s", api.Name, err))
 			continue
 		}
 		if err := json.Unmarshal([]byte(api.ExamplesJson), &examples); err != nil {
 			log.Errorf("Failed to unmarshal examples for %s %s", api.Name, err)
+			exampleErrs = append(exampleErrs, fmt.Sprintf("Failed to unmarshal examples for %s %s", api.Name, err))
 			continue
 		}
 
@@ -350,12 +354,14 @@ func (e *Endtoend) signup() error {
 				b, err := json.Marshal(ex.Request)
 				if err != nil {
 					log.Errorf("Failed to marshal example request for %s %s %s %s", api.Name, endpointName, ex.Title, err)
+					exampleErrs = append(exampleErrs, fmt.Sprintf("Failed to marshal example request for %s %s %s %s", api.Name, endpointName, ex.Title, err))
 					continue
 				}
 
 				req, err := http.NewRequest("POST", fmt.Sprintf("https://api.m3o.com/v1/%s/%s", api.Name, endpointName), bytes.NewReader(b))
 				if err != nil {
 					log.Errorf("Error generating example request %s %s %s %s", api.Name, endpointName, ex.Title, err)
+					exampleErrs = append(exampleErrs, fmt.Sprintf("Error generating example request %s %s %s %s", api.Name, endpointName, ex.Title, err))
 					continue
 				}
 				req.Header.Set("Authorization", "Bearer "+keyRsp.ApiKey)
@@ -363,12 +369,14 @@ func (e *Endtoend) signup() error {
 				rsp, err = http.DefaultClient.Do(req)
 				if err != nil {
 					log.Errorf("Error running example %s %s %s %s", api.Name, endpointName, ex.Title, err)
+					exampleErrs = append(exampleErrs, fmt.Sprintf("Error running example %s %s %s %s", api.Name, endpointName, ex.Title, err))
 					continue
 				}
 				defer rsp.Body.Close()
 				b, _ = ioutil.ReadAll(rsp.Body)
 				if rsp.StatusCode != 200 {
 					log.Errorf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
+					exampleErrs = append(exampleErrs, fmt.Sprintf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
 					continue
 				}
 				log.Infof("API response for example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
@@ -378,7 +386,9 @@ func (e *Endtoend) signup() error {
 		}
 	}
 	// TODO add credit via stripe
-
+	if len(exampleErrs) >0 {
+		return fmt.Errorf("Errors running api examples. %s", strings.Join(exampleErrs, ". "))
+	}
 	return nil
 }
 
