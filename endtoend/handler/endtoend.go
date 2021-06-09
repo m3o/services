@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -21,7 +22,7 @@ import (
 	pubpb "github.com/m3o/services/publicapi/proto"
 	"github.com/micro/micro/v3/service/client"
 	mconfig "github.com/micro/micro/v3/service/config"
-	"github.com/micro/micro/v3/service/errors"
+	merrors "github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
 	mstore "github.com/micro/micro/v3/service/store"
 
@@ -108,14 +109,14 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 	log.Info("Received Endtoend.Check request")
 	recs, err := mstore.Read(keyCheckResult)
 	if err != nil {
-		return errors.InternalServerError("endtoend.check.store", "Failed to load last result %s", err)
+		return merrors.InternalServerError("endtoend.check.store", "Failed to load last result %s", err)
 	}
 	if len(recs) == 0 {
-		return errors.InternalServerError("endtoend.check.noresults", "Failed to load last result, no results found")
+		return merrors.InternalServerError("endtoend.check.noresults", "Failed to load last result, no results found")
 	}
 	cr := checkResult{}
 	if err := json.Unmarshal(recs[0].Value, &cr); err != nil {
-		return errors.InternalServerError("endtoend.check.unmarshal", "Failed to unmarshal last result %s", err)
+		return merrors.InternalServerError("endtoend.check.unmarshal", "Failed to unmarshal last result %s", err)
 	}
 	if cr.Passed && time.Now().Add(-checkBuffer).Unix() < cr.Time {
 		response.StatusCode = 200
@@ -126,7 +127,7 @@ func (e *Endtoend) Check(ctx context.Context, request *endtoend.Request, respons
 	if len(response.Body) == 0 {
 		response.Body = "No recent successful check"
 	}
-	return errors.New("endtoend.chack.failed", response.Body, response.StatusCode)
+	return merrors.New("endtoend.chack.failed", response.Body, response.StatusCode)
 
 }
 
@@ -189,7 +190,7 @@ func (e *Endtoend) signup() error {
 			delErr = nil
 			break
 		}
-		merr, ok := err.(*errors.Error)
+		merr, ok := err.(*merrors.Error)
 		if ok && (merr.Code == 404 || strings.Contains(merr.Detail, "not found")) {
 			delErr = nil
 			break
@@ -331,11 +332,20 @@ func (e *Endtoend) signup() error {
 			log.Infof("No examples, skipping %s", api.Name)
 			continue
 		}
+
+		keys, err := objectKeys(api.ExamplesJson)
+		if err != nil {
+			log.Errorf("Failed to find keys for %s %s", api.Name, err)
+			continue
+		}
 		if err := json.Unmarshal([]byte(api.ExamplesJson), &examples); err != nil {
 			log.Errorf("Failed to unmarshal examples for %s %s", api.Name, err)
 			continue
 		}
-		for endpointName, exs := range examples {
+
+		// process the examples in json order to respect implicit dependencies
+		for _, endpointName := range keys {
+			exs := examples[endpointName]
 			for _, ex := range exs {
 				b, err := json.Marshal(ex.Request)
 				if err != nil {
@@ -371,3 +381,50 @@ func (e *Endtoend) signup() error {
 
 	return nil
 }
+
+func objectKeys(s string) ([]string, error) {
+	d := json.NewDecoder(strings.NewReader(s))
+	t, err := d.Token()
+	if err != nil {
+		return nil, err
+	}
+	if t != json.Delim('{') {
+		return nil, errors.New("expected start of object")
+	}
+	var keys []string
+	for {
+		t, err := d.Token()
+		if err != nil {
+			return nil, err
+		}
+		if t == json.Delim('}') {
+			return keys, nil
+		}
+		keys = append(keys, t.(string))
+		if err := skipValue(d); err != nil {
+			return nil, err
+		}
+	}
+}
+func skipValue(d *json.Decoder) error {
+	t, err := d.Token()
+	if err != nil {
+		return err
+	}
+	switch t {
+	case json.Delim('['), json.Delim('{'):
+		for {
+			if err := skipValue(d); err != nil {
+				if err == end {
+					break
+				}
+				return err
+			}
+		}
+	case json.Delim(']'), json.Delim('}'):
+		return end
+	}
+	return nil
+}
+
+var end = errors.New("invalid end of array or object")
