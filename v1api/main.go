@@ -4,9 +4,12 @@ import (
 	"github.com/m3o/services/v1api/handler"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/cache"
+	"github.com/micro/micro/v3/util/opentelemetry"
+	"github.com/micro/micro/v3/util/opentelemetry/jaeger"
 )
 
 func main() {
@@ -63,6 +66,18 @@ func main() {
 		logger.Infof("Setting up cached registry for %s", regName)
 		registry.DefaultRegistry = cache.New(registry.DefaultRegistry)
 	}
+	c, _ := config.Get("jaegeraddress")
+
+	openTracer, _, err := jaeger.New(
+		opentelemetry.WithServiceName("v1api"),
+		opentelemetry.WithTraceReporterAddress(c.String("localhost:6831")),
+	)
+	if err != nil {
+		logger.Fatalf("Error configuring opentracing: %v", err)
+	}
+	logger.Infof("Configured jaeger to %s", c.String("localhost:6831"))
+
+	opentelemetry.DefaultOpenTracer = openTracer
 
 	// Run service
 	if err := srv.Run(); err != nil {
