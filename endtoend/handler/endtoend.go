@@ -376,7 +376,7 @@ func (e *Endtoend) signup() error {
 				b, _ = ioutil.ReadAll(rsp.Body)
 				if rsp.StatusCode != 200 {
 					log.Errorf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
-					exampleErrs = append(exampleErrs, fmt.Sprintf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
+					exampleErrs = append(exampleErrs, fmt.Sprintf("Error running example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b)))
 					continue
 				}
 				log.Infof("API response for example %s %s %s %s %s", api.Name, endpointName, ex.Title, rsp.Status, string(b))
@@ -386,7 +386,7 @@ func (e *Endtoend) signup() error {
 		}
 	}
 	// TODO add credit via stripe
-	if len(exampleErrs) >0 {
+	if len(exampleErrs) > 0 {
 		return fmt.Errorf("Errors running api examples. %s", strings.Join(exampleErrs, ". "))
 	}
 	return nil
