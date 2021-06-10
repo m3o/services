@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/klauspost/cpuid v1.3.1 // indirect
-	github.com/micro/micro/v3 v3.2.2-0.20210610161551-6806e20b109a
+	github.com/micro/micro/v3 v3.3.1-0.20210610212656-d96ddacd522b
 	github.com/onsi/gomega v1.10.5
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
