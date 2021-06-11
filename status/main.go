@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/m3o/services/pkg/tracing"
 	"github.com/m3o/services/status/handler"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/config"
@@ -24,6 +25,8 @@ func main() {
 
 	// Register Handler
 	srv.Handle(handler.NewStatusHandler(services))
+	traceCloser := tracing.SetupOpentracing("status")
+	defer traceCloser.Close()
 
 	// Run service
 	if err := srv.Run(); err != nil {

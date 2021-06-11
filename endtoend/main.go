@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/m3o/services/endtoend/handler"
+	"github.com/m3o/services/pkg/tracing"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/robfig/cron/v3"
@@ -21,6 +22,8 @@ func main() {
 	c := cron.New()
 	c.AddFunc("0/5 * * * *", e.CronCheck)
 	c.Start()
+	traceCloser := tracing.SetupOpentracing("endtoend")
+	defer traceCloser.Close()
 
 	// Run service
 	if err := srv.Run(); err != nil {

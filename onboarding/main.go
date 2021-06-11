@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/m3o/services/onboarding/handler"
+	"github.com/m3o/services/pkg/tracing"
 	"github.com/micro/micro/v3/service"
 	mauth "github.com/micro/micro/v3/service/auth/client"
 	log "github.com/micro/micro/v3/service/logger"
@@ -21,6 +22,8 @@ func main() {
 
 	// kick off event consumption
 	handler.NewOnboarding(srv)
+	traceCloser := tracing.SetupOpentracing("onboarding")
+	defer traceCloser.Close()
 
 	// Run service
 	if err := srv.Run(); err != nil {

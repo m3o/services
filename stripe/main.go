@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/m3o/services/pkg/tracing"
 	"github.com/m3o/services/stripe/handler"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
@@ -24,6 +25,8 @@ func main() {
 					Path:    []string{"/stripe/webhook"},
 				}),
 		))
+	traceCloser := tracing.SetupOpentracing("stripe")
+	defer traceCloser.Close()
 
 	// Run service
 	if err := srv.Run(); err != nil {
