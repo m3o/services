@@ -109,6 +109,9 @@ func (e *Explore) Search(ctx context.Context, request *publicapi.SearchRequest, 
 		return nil
 	}
 
+	// lowercase the search term
+	request.SearchTerm = strings.ToLower(request.SearchTerm)
+
 	// Very rudimentary search result ranking
 	// prioritize name and endoint name matches
 	matchedName := []*publicapi.ExploreAPI{}
