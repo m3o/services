@@ -59,7 +59,7 @@ func (c *counter) reset(ctx context.Context, userID, path string) error {
 }
 
 func (c *counter) deleteUser(ctx context.Context, userID string) error {
-	keys, err := c.redisClient.Keys(ctx, fmt.Sprintf("%s:%s:*")).Result()
+	keys, err := c.redisClient.Keys(ctx, fmt.Sprintf("%s:%s:*", prefixCounter, userID)).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil
