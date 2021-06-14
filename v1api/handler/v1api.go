@@ -51,11 +51,13 @@ func NewHandler(srv *service.Service) *V1 {
 	if err != nil {
 		log.Fatalf("Failed to create LRU cache %s", err)
 	}
-	return &V1{
+	v1 := &V1{
 		papi:        publicapi.NewPublicapiService("publicapi", srv.Client()),
 		accsvc:      authpb.NewAccountsService("auth", srv.Client()),
 		keyRecCache: keyRecCache,
 	}
+	go v1.consumeEvents()
+	return v1
 }
 
 func (v1 *V1) writeAPIRecord(rec *apiKeyRecord) error {

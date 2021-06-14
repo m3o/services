@@ -12,6 +12,7 @@ import (
 	v1api "github.com/m3o/services/v1api/proto"
 	authpb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
@@ -197,7 +198,7 @@ func (v1 *V1) deleteKey(ctx context.Context, rec *apiKeyRecord) error {
 		Options: &authpb.Options{
 			Namespace: rec.Namespace,
 		},
-	})
+	}, client.WithAuthToken())
 	if err != nil {
 		log.Errorf("Error deleting account for API key %s", err)
 		return err
