@@ -38,24 +38,39 @@ type counter struct {
 	redisClient *redis.Client
 }
 
-func (c *counter) incr(userID, path string, delta int64) (int64, error) {
-	return c.redisClient.IncrBy(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), delta).Result()
+func (c *counter) incr(ctx context.Context, userID, path string, delta int64) (int64, error) {
+	return c.redisClient.IncrBy(ctx, fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), delta).Result()
 }
 
-func (c *counter) decr(userID, path string, delta int64) (int64, error) {
-	return c.redisClient.DecrBy(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), delta).Result()
+func (c *counter) decr(ctx context.Context, userID, path string, delta int64) (int64, error) {
+	return c.redisClient.DecrBy(ctx, fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), delta).Result()
 }
 
-func (c *counter) read(userID, path string) (int64, error) {
-	ret, err := c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path)).Int64()
+func (c *counter) read(ctx context.Context, userID, path string) (int64, error) {
+	ret, err := c.redisClient.Get(ctx, fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path)).Int64()
 	if err == redis.Nil {
 		return 0, nil
 	}
 	return ret, err
 }
 
-func (c *counter) reset(userID, path string) error {
-	return c.redisClient.Set(context.Background(), fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), 0, 0).Err()
+func (c *counter) reset(ctx context.Context, userID, path string) error {
+	return c.redisClient.Set(ctx, fmt.Sprintf("%s:%s:%s", prefixCounter, userID, path), 0, 0).Err()
+}
+
+func (c *counter) deleteUser(ctx context.Context, userID string) error {
+	keys, err := c.redisClient.Keys(ctx, fmt.Sprintf("%s:%s:*")).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil
+		}
+		return err
+	}
+	if err := c.redisClient.Del(ctx, keys...).Err(); err != nil && err != redis.Nil {
+		return err
+	}
+
+	return nil
 }
 
 type publicAPICacheEntry struct {
@@ -159,7 +174,7 @@ func (b Balance) Increment(ctx context.Context, request *pb.IncrementRequest, re
 
 	// TODO idempotency
 	// increment the balance
-	currBal, err := b.c.incr(request.CustomerId, "$balance$", request.Delta)
+	currBal, err := b.c.incr(ctx, request.CustomerId, "$balance$", request.Delta)
 	if err != nil {
 		return err
 	}
@@ -226,7 +241,7 @@ func storeAdjustment(actionedBy string, delta int64, customerID, reference strin
 	return rec, nil
 }
 
-func (b Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, response *pb.DecrementResponse) error {
+func (b *Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, response *pb.DecrementResponse) error {
 	acc, err := m3oauth.VerifyMicroAdmin(ctx, "balance.Decrement")
 	if err != nil {
 		return err
@@ -236,7 +251,7 @@ func (b Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, re
 	}
 	// TODO idempotency
 	// decrement the balance
-	currBal, err := b.c.decr(request.CustomerId, "$balance$", request.Delta)
+	currBal, err := b.c.decr(ctx, request.CustomerId, "$balance$", request.Delta)
 	if err != nil {
 		return err
 	}
@@ -284,7 +299,7 @@ func (b Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, re
 	return nil
 }
 
-func (b Balance) Current(ctx context.Context, request *pb.CurrentRequest, response *pb.CurrentResponse) error {
+func (b *Balance) Current(ctx context.Context, request *pb.CurrentRequest, response *pb.CurrentResponse) error {
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.Current")
 	if err != nil {
 		return err
@@ -298,7 +313,7 @@ func (b Balance) Current(ctx context.Context, request *pb.CurrentRequest, respon
 			return err
 		}
 	}
-	currBal, err := b.c.read(request.CustomerId, "$balance$")
+	currBal, err := b.c.read(ctx, request.CustomerId, "$balance$")
 	if err != nil && err != redis.Nil {
 		log.Errorf("Error reading from counter %s", err)
 		return errors.InternalServerError("balance.Current", "Error retrieving current balance")
@@ -307,7 +322,7 @@ func (b Balance) Current(ctx context.Context, request *pb.CurrentRequest, respon
 	return nil
 }
 
-func (b Balance) ListAdjustments(ctx context.Context, request *pb.ListAdjustmentsRequest, response *pb.ListAdjustmentsResponse) error {
+func (b *Balance) ListAdjustments(ctx context.Context, request *pb.ListAdjustmentsRequest, response *pb.ListAdjustmentsResponse) error {
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "balance.ListAdjustments")
 	if err != nil {
 		// TODO check for micro admin
@@ -340,4 +355,21 @@ func (b Balance) ListAdjustments(ctx context.Context, request *pb.ListAdjustment
 	})
 	response.Adjustments = ret
 	return nil
+}
+
+func (b *Balance) deleteCustomer(ctx context.Context, userID string) error {
+	if err := b.c.deleteUser(ctx, userID); err != nil {
+		return err
+	}
+	recs, err := store.Read(fmt.Sprintf("%s/%s/", prefixStoreByCustomer, userID), store.ReadPrefix())
+	if err != nil {
+		return err
+	}
+	for _, rec := range recs {
+		if err := store.Delete(rec.Key); err != nil {
+			return err
+		}
+	}
+	return nil
+
 }

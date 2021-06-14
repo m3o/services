@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	m3oauth "github.com/m3o/services/pkg/auth"
 	v1api "github.com/m3o/services/v1api/proto"
+	authpb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
@@ -182,16 +183,31 @@ func (v1 *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respo
 		log.Errorf("Error reading API key record %s", err)
 		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
 	}
+	return v1.deleteKey(ctx, rec, acc.ID, acc.Issuer)
+}
+
+func (v1 *V1) deleteKey(ctx context.Context, rec *apiKeyRecord) error {
 	if err := v1.deleteAPIRecord(rec); err != nil {
 		log.Errorf("Error deleting API key record %s", err)
 		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
 	}
 
+	_, err := v1.accsvc.Delete(ctx, &authpb.DeleteAccountRequest{
+		Id: rec.AccID,
+		Options: &authpb.Options{
+			Namespace: rec.Namespace,
+		},
+	})
+	if err != nil {
+		log.Errorf("Error deleting account for API key %s", err)
+		return err
+	}
+
 	if err := events.Publish("v1api", v1api.Event{Type: "APIKeyRevoke",
 		ApiKeyRevoke: &v1api.APIKeyRevokeEvent{
-			UserId:    acc.ID,
-			Namespace: acc.Issuer,
-			ApiKeyId:  request.Id,
+			UserId:    rec.UserID,
+			Namespace: rec.Namespace,
+			ApiKeyId:  rec.ID,
 		}}); err != nil {
 		log.Errorf("Error publishing event %s", err)
 	}

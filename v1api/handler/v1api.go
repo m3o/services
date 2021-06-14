@@ -15,6 +15,7 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
+	authpb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/auth"
@@ -31,6 +32,7 @@ import (
 
 type V1 struct {
 	papi        publicapi.PublicapiService
+	accsvc      authpb.AccountsService
 	keyRecCache *lru.Cache
 }
 
@@ -52,6 +54,7 @@ func NewHandler(srv *service.Service) *V1 {
 	}
 	return &V1{
 		papi:        publicapi.NewPublicapiService("publicapi", srv.Client()),
+		accsvc:      authpb.NewAccountsService("auth", srv.Client()),
 		keyRecCache: keyRecCache,
 		registry: cache.New(registry.DefaultRegistry),
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	pb "github.com/m3o/services/balance/proto"
+	cpb "github.com/m3o/services/customers/proto"
 	pevents "github.com/m3o/services/pkg/events"
 	stripepb "github.com/m3o/services/stripe/proto"
 	v1api "github.com/m3o/services/v1api/proto"
@@ -22,9 +23,11 @@ const (
 func (b *Balance) consumeEvents() {
 	go pevents.ProcessTopic("v1api", "balance", b.processV1apiEvents)
 	go pevents.ProcessTopic("stripe", "balance", b.processStripeEvents)
+	go pevents.ProcessTopic("customers", "balance", b.processCustomerEvents)
 }
 
 func (b *Balance) processV1apiEvents(ev mevents.Event) error {
+	ctx := context.Background()
 	ve := &v1api.Event{}
 	if err := json.Unmarshal(ev.Payload, ve); err != nil {
 		logger.Errorf("Error unmarshalling v1api event: $s", err)
@@ -32,12 +35,12 @@ func (b *Balance) processV1apiEvents(ev mevents.Event) error {
 	}
 	switch ve.Type {
 	case "APIKeyCreate":
-		if err := b.processAPIKeyCreated(ve.ApiKeyCreate); err != nil {
+		if err := b.processAPIKeyCreated(ctx, ve.ApiKeyCreate); err != nil {
 			logger.Errorf("Error processing API key created event %s", err)
 			return err
 		}
 	case "Request":
-		if err := b.processRequest(ve.Request); err != nil {
+		if err := b.processRequest(ctx, ve.Request); err != nil {
 			logger.Errorf("Error processing request event %s", err)
 			return err
 		}
@@ -49,15 +52,15 @@ func (b *Balance) processV1apiEvents(ev mevents.Event) error {
 
 }
 
-func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
-	currBal, err := b.c.read(ac.UserId, "$balance$")
+func (b *Balance) processAPIKeyCreated(ctx context.Context, ac *v1api.APIKeyCreateEvent) error {
+	currBal, err := b.c.read(ctx, ac.UserId, "$balance$")
 	if err != nil {
 		return err
 	}
 
 	// Keys start in blocked status, so unblock if they have the cash
 	if currBal <= 0 {
-		if _, err := b.v1Svc.BlockKey(context.Background(), &v1api.BlockKeyRequest{
+		if _, err := b.v1Svc.BlockKey(ctx, &v1api.BlockKeyRequest{
 			UserId:    ac.UserId,
 			Namespace: ac.Namespace,
 			Message:   msgInsufficientFunds,
@@ -70,7 +73,7 @@ func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 		}
 		return nil
 	}
-	if _, err := b.v1Svc.UnblockKey(context.Background(), &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(ctx, &v1api.UnblockKeyRequest{
 		UserId:    ac.UserId,
 		Namespace: ac.Namespace,
 		KeyId:     ac.ApiKeyId,
@@ -84,9 +87,9 @@ func (b *Balance) processAPIKeyCreated(ac *v1api.APIKeyCreateEvent) error {
 	return nil
 }
 
-func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
+func (b *Balance) processRequest(ctx context.Context, rqe *v1api.RequestEvent) error {
 	apiName := rqe.ApiName
-	rsp, err := b.pubSvc.get(context.Background(), apiName)
+	rsp, err := b.pubSvc.get(ctx, apiName)
 	if err != nil {
 		logger.Errorf("Error looking up API %s", err)
 		return err
@@ -99,7 +102,7 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 		return nil
 	}
 	// decrement the balance
-	currBal, err := b.c.decr(rqe.UserId, "$balance$", price)
+	currBal, err := b.c.decr(ctx, rqe.UserId, "$balance$", price)
 	if err != nil {
 		return err
 	}
@@ -134,6 +137,7 @@ func (b *Balance) processRequest(rqe *v1api.RequestEvent) error {
 }
 
 func (b *Balance) processStripeEvents(ev mevents.Event) error {
+	ctx := context.Background()
 	ve := &stripepb.Event{}
 	logger.Infof("Processing event %+v", ev)
 	if err := json.Unmarshal(ev.Payload, ve); err != nil {
@@ -142,7 +146,7 @@ func (b *Balance) processStripeEvents(ev mevents.Event) error {
 	}
 	switch ve.Type {
 	case "ChargeSucceeded":
-		if err := b.processChargeSucceeded(ve.ChargeSucceeded); err != nil {
+		if err := b.processChargeSucceeded(ctx, ve.ChargeSucceeded); err != nil {
 			logger.Errorf("Error processing charge succeeded event %s", err)
 			return err
 		}
@@ -154,7 +158,7 @@ func (b *Balance) processStripeEvents(ev mevents.Event) error {
 
 }
 
-func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error {
+func (b *Balance) processChargeSucceeded(ctx context.Context, ev *stripepb.ChargeSuceededEvent) error {
 	// TODO if we return error and we have already incremented the counter then we double count so make this idempotent
 	// safety first
 	if ev == nil || ev.Amount == 0 {
@@ -162,12 +166,12 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 	}
 	// add to balance
 	// stripe event is in cents, multiply by 100 to get the fraction that balance represents
-	_, err := b.c.incr(ev.CustomerId, "$balance$", ev.Amount*100)
+	_, err := b.c.incr(ctx, ev.CustomerId, "$balance$", ev.Amount*100)
 	if err != nil {
 		logger.Errorf("Error incrementing balance %s", err)
 	}
 
-	srsp, err := b.stripeSvc.GetPayment(context.Background(), &stripepb.GetPaymentRequest{Id: ev.ChargeId}, client.WithAuthToken())
+	srsp, err := b.stripeSvc.GetPayment(ctx, &stripepb.GetPaymentRequest{Id: ev.ChargeId}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -197,12 +201,41 @@ func (b *Balance) processChargeSucceeded(ev *stripepb.ChargeSuceededEvent) error
 	namespace := microNamespace
 
 	// unblock key
-	if _, err := b.v1Svc.UnblockKey(context.Background(), &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(ctx, &v1api.UnblockKeyRequest{
 		UserId:    ev.CustomerId,
 		Namespace: namespace,
 	}, client.WithAuthToken()); err != nil {
 		// TODO if we fail here we might double count because the message will be retried
 		logger.Errorf("Error unblocking key %s", err)
+		return err
+	}
+	return nil
+}
+
+func (b *Balance) processCustomerEvents(ev mevents.Event) error {
+	ctx := context.Background()
+	ce := &cpb.Event{}
+	if err := json.Unmarshal(ev.Payload, ce); err != nil {
+		logger.Errorf("Error unmarshalling customer event: $s", err)
+		return nil
+	}
+	switch ce.Type {
+	case cpb.EventType_EventTypeDeleted:
+		if err := b.processCustomerDelete(ctx, ce); err != nil {
+			logger.Errorf("Error processing request event %s", err)
+			return err
+		}
+	default:
+		logger.Infof("Skipping event %+v", ce)
+	}
+	return nil
+
+}
+
+func (b *Balance) processCustomerDelete(ctx context.Context, event *cpb.Event) error {
+	// delete all their balances
+	if err := b.deleteCustomer(ctx, event.Customer.Id); err != nil {
+		logger.Errorf("Error deleting customer %s", err)
 		return err
 	}
 	return nil
