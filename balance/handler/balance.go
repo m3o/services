@@ -66,6 +66,9 @@ func (c *counter) deleteUser(ctx context.Context, userID string) error {
 		}
 		return err
 	}
+	if len(keys) == 0 {
+		return nil
+	}
 	if err := c.redisClient.Del(ctx, keys...).Err(); err != nil && err != redis.Nil {
 		return err
 	}
