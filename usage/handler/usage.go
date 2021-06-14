@@ -31,9 +31,8 @@ type counter struct {
 	redisClient *redis.Client
 }
 
-func (c *counter) incr(userID, path string, delta int64, t time.Time) (int64, error) {
+func (c *counter) incr(ctx context.Context, userID, path string, delta int64, t time.Time) (int64, error) {
 	t = t.UTC()
-	ctx := context.Background()
 	key := fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)
 	pipe := c.redisClient.TxPipeline()
 	incr := pipe.IncrBy(ctx, key, delta)
@@ -45,9 +44,8 @@ func (c *counter) incr(userID, path string, delta int64, t time.Time) (int64, er
 	return incr.Result()
 }
 
-func (c *counter) decr(userID, path string, delta int64, t time.Time) (int64, error) {
+func (c *counter) decr(ctx context.Context, userID, path string, delta int64, t time.Time) (int64, error) {
 	t = t.UTC()
-	ctx := context.Background()
 	key := fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)
 	pipe := c.redisClient.TxPipeline()
 	decr := pipe.DecrBy(ctx, key, delta)
@@ -59,13 +57,31 @@ func (c *counter) decr(userID, path string, delta int64, t time.Time) (int64, er
 	return decr.Result()
 }
 
-func (c *counter) read(userID, path string, t time.Time) (int64, error) {
+func (c *counter) read(ctx context.Context, userID, path string, t time.Time) (int64, error) {
 	t = t.UTC()
-	ret, err := c.redisClient.Get(context.Background(), fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)).Int64()
+	ret, err := c.redisClient.Get(ctx, fmt.Sprintf("%s:%s:%s:%s", prefixCounter, userID, t.Format("20060102"), path)).Int64()
 	if err == redis.Nil {
 		return 0, nil
 	}
 	return ret, err
+}
+
+func (c *counter) deleteUser(ctx context.Context, userID string) error {
+	keys, err := c.redisClient.Keys(ctx, fmt.Sprintf("%s:%s:*", prefixCounter, userID)).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil
+		}
+		return err
+	}
+	if len(keys) == 0 {
+		return nil
+	}
+	if err := c.redisClient.Del(ctx, keys...).Err(); err != nil && err != redis.Nil {
+		return err
+	}
+
+	return nil
 }
 
 type listEntry struct {
@@ -326,4 +342,22 @@ func (p *UsageSvc) UsageCron() {
 func (p *UsageSvc) Sweep(ctx context.Context, request *pb.SweepRequest, response *pb.SweepResponse) error {
 	p.UsageCron()
 	return nil
+}
+
+func (p *UsageSvc) deleteUser(ctx context.Context, userID string) error {
+	if err := p.c.deleteUser(ctx, userID); err != nil {
+		return err
+	}
+
+	recs, err := store.Read(fmt.Sprintf("%s/%s/", prefixUsageByCustomer, userID), store.ReadPrefix())
+	if err != nil {
+		return err
+	}
+	for _, rec := range recs {
+		if err := store.Delete(rec.Key); err != nil {
+			return err
+		}
+	}
+	return nil
+
 }
