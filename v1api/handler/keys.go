@@ -183,7 +183,7 @@ func (v1 *V1) RevokeKey(ctx context.Context, request *v1api.RevokeRequest, respo
 		log.Errorf("Error reading API key record %s", err)
 		return errors.InternalServerError("v1pi.Revoke", "Error revoking key")
 	}
-	return v1.deleteKey(ctx, rec, acc.ID, acc.Issuer)
+	return v1.deleteKey(ctx, rec)
 }
 
 func (v1 *V1) deleteKey(ctx context.Context, rec *apiKeyRecord) error {

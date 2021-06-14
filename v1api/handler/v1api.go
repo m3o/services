@@ -25,7 +25,6 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/cache"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -56,7 +55,6 @@ func NewHandler(srv *service.Service) *V1 {
 		papi:        publicapi.NewPublicapiService("publicapi", srv.Client()),
 		accsvc:      authpb.NewAccountsService("auth", srv.Client()),
 		keyRecCache: keyRecCache,
-		registry: cache.New(registry.DefaultRegistry),
 	}
 }
 
