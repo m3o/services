@@ -44,6 +44,7 @@ func NewUsageEndpoints() []*api.Endpoint {
 type UsageService interface {
 	Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error)
 	Sweep(ctx context.Context, in *SweepRequest, opts ...client.CallOption) (*SweepResponse, error)
+	DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, opts ...client.CallOption) (*DeleteCustomerResponse, error)
 }
 
 type usageService struct {
@@ -78,17 +79,29 @@ func (c *usageService) Sweep(ctx context.Context, in *SweepRequest, opts ...clie
 	return out, nil
 }
 
+func (c *usageService) DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, opts ...client.CallOption) (*DeleteCustomerResponse, error) {
+	req := c.c.NewRequest(c.name, "Usage.DeleteCustomer", in)
+	out := new(DeleteCustomerResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Usage service
 
 type UsageHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
 	Sweep(context.Context, *SweepRequest, *SweepResponse) error
+	DeleteCustomer(context.Context, *DeleteCustomerRequest, *DeleteCustomerResponse) error
 }
 
 func RegisterUsageHandler(s server.Server, hdlr UsageHandler, opts ...server.HandlerOption) error {
 	type usage interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 		Sweep(ctx context.Context, in *SweepRequest, out *SweepResponse) error
+		DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, out *DeleteCustomerResponse) error
 	}
 	type Usage struct {
 		usage
@@ -107,4 +120,8 @@ func (h *usageHandler) Read(ctx context.Context, in *ReadRequest, out *ReadRespo
 
 func (h *usageHandler) Sweep(ctx context.Context, in *SweepRequest, out *SweepResponse) error {
 	return h.UsageHandler.Sweep(ctx, in, out)
+}
+
+func (h *usageHandler) DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, out *DeleteCustomerResponse) error {
+	return h.UsageHandler.DeleteCustomer(ctx, in, out)
 }

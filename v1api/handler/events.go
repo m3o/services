@@ -8,7 +8,6 @@ import (
 	pevents "github.com/m3o/services/pkg/events"
 	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/store"
 )
 
 func (v *V1) consumeEvents() {
@@ -36,16 +35,5 @@ func (v1 *V1) processCustomerEvents(ev mevents.Event) error {
 }
 
 func (v1 *V1) processCustomerDelete(ctx context.Context, event *cpb.Event) error {
-	// delete all their keys
-	keys, err := listKeysForUser("micro", event.Customer.Id)
-	if err != nil && err != store.ErrNotFound {
-		return err
-	}
-	for _, k := range keys {
-		if err := v1.deleteKey(ctx, k); err != nil {
-			logger.Errorf("Error deleting key %s", err)
-			return err
-		}
-	}
-	return nil
+	return v1.deleteCustomer(ctx, event.Customer.Id)
 }

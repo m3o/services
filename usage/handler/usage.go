@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	m3oauth "github.com/m3o/services/pkg/auth"
 	pb "github.com/m3o/services/usage/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
@@ -159,7 +160,7 @@ func (p *UsageSvc) Read(ctx context.Context, request *pb.ReadRequest, response *
 		request.CustomerId = acc.ID
 	}
 	if acc.ID != request.CustomerId {
-		err := verifyMicroAdmin(ctx, "usage.Read")
+		_, err := m3oauth.VerifyMicroAdmin(ctx, "usage.Read")
 		if err != nil {
 			return err
 		}
@@ -237,27 +238,6 @@ func (p *UsageSvc) Read(ctx context.Context, request *pb.ReadRequest, response *
 		}
 		response.Usage[k].Records = append(v.Records[:lenRecs-2], v.Records[lenRecs-1])
 
-	}
-	return nil
-}
-
-func verifyMicroAdmin(ctx context.Context, method string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized(method, "Unauthorized")
-	}
-	if acc.Issuer != "micro" {
-		return errors.Forbidden(method, "Forbidden")
-	}
-	admin := false
-	for _, s := range acc.Scopes {
-		if s == "admin" || s == "service" {
-			admin = true
-			break
-		}
-	}
-	if !admin {
-		return errors.Forbidden(method, "Forbidden")
 	}
 	return nil
 }
@@ -360,4 +340,20 @@ func (p *UsageSvc) deleteUser(ctx context.Context, userID string) error {
 	}
 	return nil
 
+}
+
+func (p *UsageSvc) DeleteCustomer(ctx context.Context, request *pb.DeleteCustomerRequest, response *pb.DeleteCustomerResponse) error {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "usage.DeleteCustomer"); err != nil {
+		return err
+	}
+
+	if len(request.Id) == 0 {
+		return errors.BadRequest("usage.DeleteCustomer", "Error deleting customer")
+	}
+
+	if err := p.deleteUser(ctx, request.Id); err != nil {
+		log.Errorf("Error deleting customer %s", err)
+		return err
+	}
+	return nil
 }

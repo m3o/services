@@ -13,6 +13,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	lru "github.com/hashicorp/golang-lru"
+	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	v1api "github.com/m3o/services/v1api/proto"
 	authpb "github.com/micro/micro/v3/proto/auth"
@@ -23,6 +24,7 @@ import (
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
+	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
@@ -427,4 +429,35 @@ func (v1 *V1) listAPIs() ([]string, error) {
 		ret[i] = v.Name
 	}
 	return ret, nil
+}
+
+func (v1 *V1) DeleteCustomer(ctx context.Context, request *v1api.DeleteCustomerRequest, response *v1api.DeleteCustomerResponse) error {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "v1.DeleteCustomer"); err != nil {
+		return err
+	}
+
+	if len(request.Id) == 0 {
+		return errors.BadRequest("v1.DeleteCustomer", "Missing ID")
+	}
+
+	if err := v1.deleteCustomer(ctx, request.Id); err != nil {
+		log.Errorf("Error deleting customer %s", err)
+		return err
+	}
+	return nil
+}
+
+func (v1 *V1) deleteCustomer(ctx context.Context, userID string) error {
+	// delete all their keys
+	keys, err := listKeysForUser("micro", userID)
+	if err != nil && err != store.ErrNotFound {
+		return err
+	}
+	for _, k := range keys {
+		if err := v1.deleteKey(ctx, k); err != nil {
+			logger.Errorf("Error deleting key %s", err)
+			return err
+		}
+	}
+	return nil
 }

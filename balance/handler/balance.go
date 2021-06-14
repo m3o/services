@@ -376,3 +376,18 @@ func (b *Balance) deleteCustomer(ctx context.Context, userID string) error {
 	return nil
 
 }
+
+func (b *Balance) DeleteCustomer(ctx context.Context, request *pb.DeleteCustomerRequest, response *pb.DeleteCustomerResponse) error {
+	if _, err := m3oauth.VerifyMicroAdmin(ctx, "balance.DeleteCustomer"); err != nil {
+		return err
+	}
+	if len(request.UserId) == 0 {
+		return errors.BadRequest("balance.DeleteCustomer", "Missing user ID")
+	}
+
+	if err := b.deleteCustomer(ctx, request.UserId); err != nil {
+		logger.Errorf("Error deleting customer %s", err)
+		return err
+	}
+	return nil
+}
