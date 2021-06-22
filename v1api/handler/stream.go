@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"strings"
 	"sync"
 
@@ -111,8 +112,12 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 			// read backend response body
 			buf, err := rsp.Read()
 			if err != nil {
-				// wants to avoid import  grpc/status.Status
+				// wants to avoid import grpc/status.Status
 				if strings.Contains(err.Error(), "context canceled") {
+					return nil
+				}
+				// end of stream
+				if err == io.EOF {
 					return nil
 				}
 				logger.Error(err)
