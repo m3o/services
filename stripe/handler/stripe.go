@@ -73,7 +73,7 @@ func NewHandler(serv *service.Service) stripepb.StripeHandler {
 		log.Fatalf("Missing required config: micro.stripe")
 	}
 
-	return &Stripe{
+	s := &Stripe{
 		custSvc:           custpb.NewCustomersService("customers", serv.Client()),
 		client:            stripeclient.New(configObj.ApiKey, nil),
 		successURL:        configObj.SuccessURL,
@@ -82,6 +82,8 @@ func NewHandler(serv *service.Service) stripepb.StripeHandler {
 		testClient:        stripeclient.New(configObj.TestAPIKey, nil),
 		testSigningSecret: configObj.TestSigningSecret,
 	}
+	s.consumeEvents()
+	return s
 }
 
 func (s *Stripe) Webhook(ctx context.Context, req *api.Request, rsp *api.Response) error {
@@ -163,6 +165,16 @@ func (s *Stripe) storeMapping(cm *CustomerMapping) error {
 			Value: b,
 		},
 	)
+}
+
+func (s *Stripe) deleteMapping(cm *CustomerMapping) error {
+	if err := store.Delete(fmt.Sprintf(prefixM3OID, cm.ID)); err != nil {
+		return err
+	}
+	if err := store.Delete(fmt.Sprintf(prefixStripeID, cm.StripeID)); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Stripe) chargeSucceeded(ctx context.Context, event *stripe.Event) error {
