@@ -10,7 +10,9 @@ import (
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	goclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
@@ -43,6 +45,10 @@ func NewStatusHandler(services []string) status.StatusHandler {
 
 // Call is called by the API as /status/call with post body {"name": "foo"}
 func (e *Status) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
+	md, _ := metadata.FromContext(ctx)
+	for k, v := range md {
+		logger.Infof("%s %s", k, v)
+	}
 	response := map[string]string{}
 	overallOK := true
 
