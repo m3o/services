@@ -41,11 +41,12 @@ var validStatus = map[string]bool{
 }
 
 type CustomerModel struct {
-	ID      string
-	Email   string
-	Status  string
-	Created int64
-	Updated int64
+	ID       string
+	Email    string
+	Status   string
+	Created  int64
+	Updated  int64
+	Metadata map[string]string
 }
 
 func New(service *service.Service) *Customers {
@@ -86,9 +87,10 @@ func (c *Customers) Create(ctx context.Context, request *customer.CreateRequest,
 		}
 		// not seen before so let's mint a new customer object
 		cust = &CustomerModel{
-			ID:     uuid.New().String(),
-			Status: statusUnverified,
-			Email:  email,
+			ID:       uuid.New().String(),
+			Status:   statusUnverified,
+			Email:    email,
+			Metadata: request.Metadata,
 		}
 	} else {
 		if existingCust.Status == statusUnverified {
