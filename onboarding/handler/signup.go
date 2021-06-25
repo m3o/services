@@ -144,7 +144,7 @@ func (e *Signup) sendVerificationEmail(ctx context.Context,
 	logger.Info("Received Signup.SendVerificationEmail request")
 
 	// create entry in customers service
-	crsp, err := e.customerService.Create(ctx, &cproto.CreateRequest{Email: req.Email}, client.WithAuthToken())
+	crsp, err := e.customerService.Create(ctx, &cproto.CreateRequest{Email: req.Email, Metadata: req.Metadata}, client.WithAuthToken())
 	if err != nil {
 		logger.Error(err)
 		return merrors.InternalServerError("onboarding.SendVerificationEmail", internalErrorMsg)

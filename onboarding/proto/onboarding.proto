@@ -15,6 +15,7 @@ service Signup {
 
 message SendVerificationEmailRequest {
 	string email = 1;
+	map<string, string> metadata = 2;
 }
 
 message SendVerificationEmailResponse {}
@@ -25,7 +26,6 @@ message CompleteSignupRequest {
 	string token = 2;
 	// The secret/password to use for the account
 	string secret = 4;
-
 }
 
 message CompleteSignupResponse {
