@@ -53,6 +53,7 @@ type Signup struct {
 	config          conf
 	cache           *cache.Cache
 	resetCode       model.Model
+	track           model.Model
 }
 
 type ResetToken struct {
@@ -94,6 +95,7 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		config:          c,
 		cache:           cache.New(1*time.Minute, 5*time.Minute),
 		resetCode:       model.New(ResetToken{}, nil),
+		track:           model.New(onboarding.TrackRequest{}, nil),
 	}
 	return s
 }
@@ -340,4 +342,37 @@ func (e *Signup) ResetPassword(ctx context.Context, req *onboarding.ResetPasswor
 	}
 	e.resetCode.Delete(model.QueryByID(m.ID))
 	return err
+}
+
+func (e *Signup) Track(ctx context.Context,
+	req *onboarding.TrackRequest,
+	rsp *onboarding.TrackResponse) error {
+	if req.Id == "" {
+		return errors.New("no tracking id")
+	}
+	oldTrack := []*onboarding.TrackRequest{}
+	err := e.track.Read(model.QueryByID(req.Id), &oldTrack)
+	if err != nil {
+		return err
+	}
+	if len(oldTrack) == 0 {
+		return e.track.Create(req)
+	}
+	// support partial update
+	if req.GetFirstVisit() == 0 {
+		req.FirstVisit = oldTrack[0].FirstVisit
+	}
+	if req.GetFirstVerification() == 0 {
+		req.FirstVerification = oldTrack[0].FirstVerification
+	}
+	if req.Referrer == "" {
+		req.Referrer = oldTrack[0].Referrer
+	}
+	if req.Registration == 0 {
+		req.Registration = oldTrack[0].Registration
+	}
+	if req.Email == "" {
+		req.Email = oldTrack[0].Email
+	}
+	return e.track.Update(req)
 }

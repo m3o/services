@@ -11,6 +11,7 @@ service Signup {
 	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
 	rpc Recover(RecoverRequest) returns (RecoverResponse);
 	rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+	rpc Track(TrackRequest) returns (TrackResponse);
 }
 
 message SendVerificationEmailRequest {
@@ -25,7 +26,6 @@ message CompleteSignupRequest {
 	string token = 2;
 	// The secret/password to use for the account
 	string secret = 4;
-
 }
 
 message CompleteSignupResponse {
@@ -72,4 +72,18 @@ message NewSignupEvent {
 
 message PasswordResetEvent {
 	string email = 1;
+}
+
+message TrackRequest {
+	// tracking id, generated on the frontend
+	string id = 1;
+	string email = 2;
+	int64 firstVisit = 3;
+	int64 firstVerification = 4;
+	int64 registration = 5;
+	string referrer = 6;
+}
+
+message TrackResponse {
+
 }
