@@ -351,7 +351,7 @@ func (e *Signup) Track(ctx context.Context,
 		return errors.New("no tracking id")
 	}
 	oldTrack := []*onboarding.TrackRequest{}
-	err := e.track.Read(model.QueryByID(req.Id), &oldTrack)
+	err := e.track.Read(model.QueryEquals("id", req.Id), &oldTrack)
 	if err != nil {
 		return err
 	}
