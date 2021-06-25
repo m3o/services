@@ -165,8 +165,8 @@ func (b *Balance) processChargeSucceeded(ctx context.Context, ev *stripepb.Charg
 		return nil
 	}
 	// add to balance
-	// stripe event is in cents, multiply by 100 to get the fraction that balance represents
-	_, err := b.c.incr(ctx, ev.CustomerId, "$balance$", ev.Amount*100)
+	// stripe event is in cents, multiply by 10000 to get the fraction that balance represents
+	_, err := b.c.incr(ctx, ev.CustomerId, "$balance$", ev.Amount*10000)
 	if err != nil {
 		logger.Errorf("Error incrementing balance %s", err)
 	}

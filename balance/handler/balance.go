@@ -119,7 +119,7 @@ func (p *publicAPICache) get(ctx context.Context, name string) (*publicapi.Publi
 }
 
 type Balance struct {
-	c         *counter // counts the balance. Balance is expressed in 1/100ths of a cent which allows us to price in fractions e.g. a request costs 0.01 cents or 100 requests for 1 cent
+	c         *counter // counts the balance. Balance is expressed in 1/10,000ths of a cent which allows us to price in fractions e.g. a request costs 0.0001 cents or 10,000 requests for 1 cent
 	v1Svc     v1api.V1Service
 	pubSvc    *publicAPICache
 	nsSvc     ns.NamespacesService
