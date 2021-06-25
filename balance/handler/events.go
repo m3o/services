@@ -176,7 +176,7 @@ func (b *Balance) processChargeSucceeded(ctx context.Context, ev *stripepb.Charg
 		return err
 	}
 
-	adj, err := storeAdjustment(ev.CustomerId, ev.Amount*100, ev.CustomerId, "Funds added", true, map[string]string{
+	adj, err := storeAdjustment(ev.CustomerId, ev.Amount*10000, ev.CustomerId, "Funds added", true, map[string]string{
 		"receipt_url": srsp.Payment.ReceiptUrl,
 	})
 	if err != nil {
