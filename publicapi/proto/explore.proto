@@ -4,13 +4,27 @@ package publicapi;
 
 option go_package = "./proto;publicapi";
 
-import "proto/imports/registry.proto";
 import "proto/publicapi.proto";
 
 service Explore {
 	rpc Index(IndexRequest) returns (IndexResponse) {}
 	rpc Search(SearchRequest) returns (SearchResponse) {}
 	rpc API(APIRequest) returns (APIResponse) {}
+}
+
+// ExploreAPI is returned for index/search endpoints
+message ExploreAPI {
+	string name = 1;
+	string description = 2;
+	string category = 3;
+	string icon = 4;
+	repeated Endpoint endpoints = 5;
+}
+
+// Endpoint is a simple named api endpoint
+message Endpoint {
+	// name of the endpoint e.g Cache.Get
+	string name = 1;
 }
 
 message IndexRequest {
@@ -26,20 +40,16 @@ message SearchRequest {
 	string search_term = 1;
 }
 
+message SearchResponse {
+	repeated ExploreAPI apis = 1;
+}
+
 message APIRequest {
 	string name = 1;
 }
 
 message APIResponse {
-	ExploreAPI api = 1;
-}
-
-message ExploreAPI {
-	PublicAPI api = 1;
-	registry.Service detail = 2;
-}
-
-message SearchResponse {
-	repeated ExploreAPI apis = 1;
+	ExploreAPI summary = 1;
+	PublicAPI api = 2;
 }
 

@@ -6,7 +6,6 @@ package publicapi
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/micro/micro/v3/proto/registry"
 	math "math"
 )
 
