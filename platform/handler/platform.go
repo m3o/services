@@ -3,15 +3,15 @@ package handler
 import (
 	"context"
 
-	nproto "github.com/m3o/services/namespaces/proto"
 	cproto "github.com/m3o/services/customers/proto"
+	nproto "github.com/m3o/services/namespaces/proto"
 	pb "github.com/m3o/services/platform/proto"
 	rproto "github.com/micro/micro/v3/proto/runtime"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 var (
@@ -24,10 +24,10 @@ var (
 
 // Platform implements the platform service interface
 type Platform struct {
-	name    string
-	runtime rproto.RuntimeService
-	customer     cproto.CustomersService
-	namespace    nproto.NamespacesService
+	name      string
+	runtime   rproto.RuntimeService
+	customer  cproto.CustomersService
+	namespace nproto.NamespacesService
 }
 
 // New returns an initialised platform handler
@@ -52,9 +52,9 @@ func New(service *service.Service) *Platform {
 	defaultResourceRequests.Memory = int32(val.Int(8000))
 
 	return &Platform{
-		name:    service.Name(),
-		runtime: rproto.NewRuntimeService("runtime", client.DefaultClient),
-		customer: cproto.NewCustomersService("customers", client.DefaultClient),
+		name:      service.Name(),
+		runtime:   rproto.NewRuntimeService("runtime", client.DefaultClient),
+		customer:  cproto.NewCustomersService("customers", client.DefaultClient),
 		namespace: nproto.NewNamespacesService("namespaces", client.DefaultClient),
 	}
 }
