@@ -6,7 +6,6 @@ import (
 	pb "github.com/m3o/services/publicapi/proto"
 
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -22,9 +21,6 @@ func main() {
 	pb.RegisterExploreHandler(srv.Server(), handler.NewExploreAPIHandler(srv))
 	traceCloser := tracing.SetupOpentracing("publicapi")
 	defer traceCloser.Close()
-
-	// hard code the table
-	store.DefaultStore.Init(store.Table("publicapi"))
 
 	// Run service
 	if err := srv.Run(); err != nil {
