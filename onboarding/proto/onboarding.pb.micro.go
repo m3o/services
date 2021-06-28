@@ -49,6 +49,7 @@ type SignupService interface {
 	Recover(ctx context.Context, in *RecoverRequest, opts ...client.CallOption) (*RecoverResponse, error)
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...client.CallOption) (*ResetPasswordResponse, error)
 	Track(ctx context.Context, in *TrackRequest, opts ...client.CallOption) (*TrackResponse, error)
+	TrackSearch(ctx context.Context, in *TrackSearchRequest, opts ...client.CallOption) (*TrackSearchResponse, error)
 }
 
 type signupService struct {
@@ -113,6 +114,16 @@ func (c *signupService) Track(ctx context.Context, in *TrackRequest, opts ...cli
 	return out, nil
 }
 
+func (c *signupService) TrackSearch(ctx context.Context, in *TrackSearchRequest, opts ...client.CallOption) (*TrackSearchResponse, error) {
+	req := c.c.NewRequest(c.name, "Signup.TrackSearch", in)
+	out := new(TrackSearchResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Signup service
 
 type SignupHandler interface {
@@ -123,6 +134,7 @@ type SignupHandler interface {
 	Recover(context.Context, *RecoverRequest, *RecoverResponse) error
 	ResetPassword(context.Context, *ResetPasswordRequest, *ResetPasswordResponse) error
 	Track(context.Context, *TrackRequest, *TrackResponse) error
+	TrackSearch(context.Context, *TrackSearchRequest, *TrackSearchResponse) error
 }
 
 func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.HandlerOption) error {
@@ -132,6 +144,7 @@ func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.H
 		Recover(ctx context.Context, in *RecoverRequest, out *RecoverResponse) error
 		ResetPassword(ctx context.Context, in *ResetPasswordRequest, out *ResetPasswordResponse) error
 		Track(ctx context.Context, in *TrackRequest, out *TrackResponse) error
+		TrackSearch(ctx context.Context, in *TrackSearchRequest, out *TrackSearchResponse) error
 	}
 	type Signup struct {
 		signup
@@ -162,4 +175,8 @@ func (h *signupHandler) ResetPassword(ctx context.Context, in *ResetPasswordRequ
 
 func (h *signupHandler) Track(ctx context.Context, in *TrackRequest, out *TrackResponse) error {
 	return h.SignupHandler.Track(ctx, in, out)
+}
+
+func (h *signupHandler) TrackSearch(ctx context.Context, in *TrackSearchRequest, out *TrackSearchResponse) error {
+	return h.SignupHandler.TrackSearch(ctx, in, out)
 }

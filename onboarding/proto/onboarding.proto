@@ -12,6 +12,7 @@ service Signup {
 	rpc Recover(RecoverRequest) returns (RecoverResponse);
 	rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
 	rpc Track(TrackRequest) returns (TrackResponse);
+	rpc TrackSearch(TrackSearchRequest) returns (TrackSearchResponse);
 }
 
 message SendVerificationEmailRequest {
@@ -85,5 +86,13 @@ message TrackRequest {
 }
 
 message TrackResponse {
+
+}
+
+message TrackSearchRequest {
+	string searchTerm = 1;
+}
+
+message TrackSearchResponse {
 
 }

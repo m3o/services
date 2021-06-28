@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -54,12 +55,18 @@ type Signup struct {
 	cache           *cache.Cache
 	resetCode       model.Model
 	track           model.Model
+	trackSearch     model.Model
 }
 
 type ResetToken struct {
 	Created int64
 	ID      string
 	Token   string
+}
+
+type SearchCount struct {
+	Term  string `json:"term"`
+	Count int64  `json:"count"`
 }
 
 type sendgridConf struct {
@@ -97,6 +104,9 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 		resetCode:       model.New(ResetToken{}, nil),
 		track: model.New(onboarding.TrackRequest{}, &model.Options{
 			Key: "id",
+		}),
+		trackSearch: model.New(SearchCount{}, &model.Options{
+			Key: "term",
 		}),
 	}
 	return s
@@ -377,4 +387,26 @@ func (e *Signup) Track(ctx context.Context,
 		req.Email = oldTrack[0].Email
 	}
 	return e.track.Update(req)
+}
+
+func (e *Signup) TrackSearch(ctx context.Context,
+	req *onboarding.TrackSearchRequest,
+	rsp *onboarding.TrackSearchResponse) error {
+	req.SearchTerm = strings.ToLower(req.SearchTerm)
+	if req.SearchTerm == "" {
+		return errors.New("no search term to track")
+	}
+	oldTrack := []*SearchCount{}
+	err := e.track.Read(model.QueryEquals("term", req.SearchTerm), &oldTrack)
+	if err != nil {
+		return err
+	}
+	if len(oldTrack) == 0 {
+		return e.track.Create(SearchCount{
+			Term:  req.SearchTerm,
+			Count: 1,
+		})
+	}
+	oldTrack[0].Count += 1
+	return e.track.Update(oldTrack[0])
 }
