@@ -405,11 +405,11 @@ func (e *Signup) TrackSearch(ctx context.Context,
 		return err
 	}
 	if len(oldTrack) == 0 {
-		return e.track.Create(SearchCount{
+		return e.trackSearch.Create(SearchCount{
 			Id:    req.SearchTerm,
 			Count: 1,
 		})
 	}
 	oldTrack[0].Count += 1
-	return e.track.Update(oldTrack[0])
+	return e.trackSearch.Update(oldTrack[0])
 }
