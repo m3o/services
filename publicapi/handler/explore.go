@@ -199,6 +199,9 @@ func (e *Explore) recordSearch(searchTerm string) error {
 // Search returns APIs based on the given search term
 func (e *Explore) Search(ctx context.Context, request *pb.SearchRequest, response *pb.SearchResponse) error {
 	go func() {
+		if request.SearchTerm == "" {
+			return
+		}
 		err := e.recordSearch(request.SearchTerm)
 		if err != nil {
 			logger.Error(err)
