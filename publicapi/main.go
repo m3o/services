@@ -7,17 +7,14 @@ import (
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/store"
 )
 
 func main() {
 	// Create service
 	srv := service.New(
-		service.Name("publicapi1"),
+		service.Name("publicapi"),
 		service.Version("latest"),
 	)
-
-	store.DefaultStore.Init(store.Table("publicapi"))
 
 	// Register handler
 	pb.RegisterPublicapiHandler(srv.Server(), handler.NewPublicAPIHandler(srv))
