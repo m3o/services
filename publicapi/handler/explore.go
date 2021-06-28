@@ -198,6 +198,12 @@ func (e *Explore) recordSearch(searchTerm string) error {
 
 // Search returns APIs based on the given search term
 func (e *Explore) Search(ctx context.Context, request *pb.SearchRequest, response *pb.SearchResponse) error {
+	go func() {
+		err := e.recordSearch(request.SearchTerm)
+		if err != nil {
+			logger.Error(err)
+		}
+	}()
 	list, err := e.exploreList()
 	if err != nil {
 		return err
@@ -241,12 +247,6 @@ func (e *Explore) Search(ctx context.Context, request *pb.SearchRequest, respons
 		}
 
 	}
-	go func() {
-		err := e.recordSearch(request.SearchTerm)
-		if err != nil {
-			logger.Error(err)
-		}
-	}()
 	response.Apis = append(response.Apis, matchedName...)
 	response.Apis = append(response.Apis, matchedEndpoint...)
 	response.Apis = append(response.Apis, matchedOther...)
