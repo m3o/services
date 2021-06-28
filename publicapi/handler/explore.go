@@ -12,6 +12,8 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
+	logger "github.com/micro/micro/v3/service/logger"
+	model "github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -21,6 +23,13 @@ type Explore struct {
 	apiCache    []*API
 	regCache    map[string]*registry.Service
 	lastUpdated time.Time
+	trackSearch model.Model
+}
+
+type SearchCount struct {
+	// search term itself
+	Id    string `json:"id"`
+	Count int64  `json:"count"`
 }
 
 // The API consisting of the public api def and the summary explore api info
@@ -159,6 +168,30 @@ func (e *Explore) exploreList() ([]*API, error) {
 	return e.loadCache()
 }
 
+func (e *Explore) recordSearch(searchTerm string) error {
+	searchTerm = strings.ToLower(searchTerm)
+	searchTerm = strings.Replace(searchTerm, " ", "-", -1)
+
+	if searchTerm == "" {
+		return fmt.Errorf("no search term to track")
+	}
+	oldTrack := []*SearchCount{}
+	err := e.trackSearch.Read(model.QueryEquals("id", searchTerm), &oldTrack)
+	if err != nil {
+		return err
+	}
+	if len(oldTrack) == 0 {
+		return e.trackSearch.Create(SearchCount{
+			Id:    searchTerm,
+			Count: 1,
+		})
+	}
+	tr := oldTrack[0]
+	logger.Infof("Found %v %v", tr.Id, tr.Count)
+	tr.Count += 1
+	return e.trackSearch.Update(tr)
+}
+
 // Search returns APIs based on the given search term
 func (e *Explore) Search(ctx context.Context, request *pb.SearchRequest, response *pb.SearchResponse) error {
 	list, err := e.exploreList()
@@ -204,6 +237,12 @@ func (e *Explore) Search(ctx context.Context, request *pb.SearchRequest, respons
 		}
 
 	}
+	go func() {
+		err := e.recordSearch(request.SearchTerm)
+		if err != nil {
+			logger.Error(err)
+		}
+	}()
 	response.Apis = append(response.Apis, matchedName...)
 	response.Apis = append(response.Apis, matchedEndpoint...)
 	response.Apis = append(response.Apis, matchedOther...)
