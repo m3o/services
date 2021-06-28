@@ -397,7 +397,9 @@ func (e *Signup) TrackSearch(ctx context.Context,
 		return errors.New("no search term to track")
 	}
 	oldTrack := []*SearchCount{}
-	err := e.track.Read(model.QueryEquals("term", req.SearchTerm), &oldTrack)
+	q := model.QueryEquals("term", req.SearchTerm)
+	q.Order.Type = model.OrderTypeUnordered
+	err := e.track.Read(q, &oldTrack)
 	if err != nil {
 		return err
 	}
