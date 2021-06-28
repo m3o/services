@@ -57,7 +57,11 @@ func marshalExploreAPI(ae *APIEntry, svc *registry.Service) *pb.ExploreAPI {
 }
 
 func NewExploreAPIHandler(srv *service.Service) *Explore {
-	e := &Explore{}
+	e := &Explore{
+		trackSearch: model.New(SearchCount{}, &model.Options{
+			Key: "id",
+		}),
+	}
 	// start the cache
 	go e.runCache()
 	return e
