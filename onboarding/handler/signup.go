@@ -410,6 +410,8 @@ func (e *Signup) TrackSearch(ctx context.Context,
 			Count: 1,
 		})
 	}
-	oldTrack[0].Count += 1
-	return e.trackSearch.Update(oldTrack[0])
+	tr := oldTrack[0]
+	logger.Infof("Found %v %v", tr.Id, tr.Count)
+	tr.Count += 1
+	return e.trackSearch.Update(tr)
 }
