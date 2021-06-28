@@ -191,7 +191,6 @@ func (e *Explore) recordSearch(searchTerm string) error {
 		})
 	}
 	tr := oldTrack[0]
-	logger.Infof("Found %v %v", tr.Id, tr.Count)
 	tr.Count += 1
 	return e.trackSearch.Update(tr)
 }
