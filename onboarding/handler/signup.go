@@ -65,7 +65,8 @@ type ResetToken struct {
 }
 
 type SearchCount struct {
-	Term  string `json:"term"`
+	// search term itself
+	Id    string `json:"id"`
 	Count int64  `json:"count"`
 }
 
@@ -106,7 +107,7 @@ func NewSignup(srv *service.Service, auth auth.Auth) *Signup {
 			Key: "id",
 		}),
 		trackSearch: model.New(SearchCount{}, &model.Options{
-			Key: "term",
+			Key: "id",
 		}),
 	}
 	return s
@@ -393,19 +394,19 @@ func (e *Signup) TrackSearch(ctx context.Context,
 	req *onboarding.TrackSearchRequest,
 	rsp *onboarding.TrackSearchResponse) error {
 	req.SearchTerm = strings.ToLower(req.SearchTerm)
+	req.SearchTerm = strings.Replace(req.SearchTerm, " ", "-", -1)
+
 	if req.SearchTerm == "" {
 		return errors.New("no search term to track")
 	}
 	oldTrack := []*SearchCount{}
-	q := model.QueryEquals("term", req.SearchTerm)
-	q.Order.Type = model.OrderTypeUnordered
-	err := e.track.Read(q, &oldTrack)
+	err := e.track.Read(model.QueryEquals("id", req.SearchTerm), &oldTrack)
 	if err != nil {
 		return err
 	}
 	if len(oldTrack) == 0 {
 		return e.track.Create(SearchCount{
-			Term:  req.SearchTerm,
+			Id:    req.SearchTerm,
 			Count: 1,
 		})
 	}
