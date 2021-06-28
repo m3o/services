@@ -121,6 +121,7 @@ func (v1 *V1) GenerateKey(ctx context.Context, req *v1api.GenerateKeyRequest, rs
 	}
 	// return the unhashed key
 	rsp.ApiKey = apiKey
+	rsp.ApiId = rec.ID
 	return nil
 }
 

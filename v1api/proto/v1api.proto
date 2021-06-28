@@ -21,6 +21,7 @@ message GenerateKeyRequest {
 
 message GenerateKeyResponse {
 	string api_key = 1;
+	string api_id = 2;
 }
 
 message ListRequest {}
