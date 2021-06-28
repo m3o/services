@@ -11,7 +11,7 @@ import (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("onboarding1"),
+		service.Name("onboarding"),
 	)
 
 	// passing in auth because the DefaultAuth is the one used to set up the service
