@@ -32,6 +32,7 @@ type APIEntry struct {
 	ExamplesJSON string
 	Category     string
 	Icon         string
+	PostmanJSON  string
 }
 
 type Publicapi struct {
@@ -74,6 +75,7 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		ExamplesJSON: request.Api.ExamplesJson,
 		Category:     request.Api.Category,
 		Icon:         request.Api.Icon,
+		PostmanJSON:  request.Api.PostmanJson,
 	}
 
 	if err := p.updateEntry(ctx, ae); err != nil {
@@ -288,6 +290,9 @@ func (p *Publicapi) Update(ctx context.Context, request *pb.UpdateRequest, respo
 	if len(request.Api.Icon) > 0 {
 		ae.Category = request.Api.Icon
 	}
+	if len(request.Api.PostmanJson) > 0 {
+		ae.PostmanJSON = request.Api.PostmanJson
+	}
 
 	if err := p.updateEntry(ctx, &ae); err != nil {
 		log.Errorf("Error updating entry %s", err)
@@ -308,5 +313,6 @@ func marshal(ae *APIEntry) *pb.PublicAPI {
 		ExamplesJson: ae.ExamplesJSON,
 		Category:     ae.Category,
 		Icon:         ae.Icon,
+		PostmanJson:  ae.PostmanJSON,
 	}
 }

@@ -26,6 +26,7 @@ message PublicAPI {
 	string examples_json = 8;
 	string category = 9;
 	string icon = 10;
+	string postman_json = 11;
 }
 
 message PublishResponse {
