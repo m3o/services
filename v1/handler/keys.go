@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	m3oauth "github.com/m3o/services/pkg/auth"
-	v1 "github.com/m3o/services/v1/proto"
+	pb "github.com/m3o/services/v1/proto"
 	authpb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
@@ -41,7 +41,7 @@ type apiKeyRecord struct {
 }
 
 // GenerateKey generates an API key
-func (v1 *V1) GenerateKey(ctx context.Context, req *v1.GenerateKeyRequest, rsp *v1.GenerateKeyResponse) error {
+func (v1 *V1) GenerateKey(ctx context.Context, req *pb.GenerateKeyRequest, rsp *pb.GenerateKeyResponse) error {
 	if len(req.Scopes) == 0 {
 		return errors.BadRequest("v1.generate", "Missing scopes field")
 	}
@@ -110,8 +110,8 @@ func (v1 *V1) GenerateKey(ctx context.Context, req *v1.GenerateKeyRequest, rsp *
 		return errors.InternalServerError("v1.generate", "Failed to generate api key")
 	}
 
-	if err := events.Publish("v1api", v1.Event{Type: "APIKeyCreate",
-		ApiKeyCreate: &v1.APIKeyCreateEvent{
+	if err := events.Publish("v1api", pb.Event{Type: "APIKeyCreate",
+		ApiKeyCreate: &pb.APIKeyCreateEvent{
 			UserId:    rec.UserID,
 			Namespace: rec.Namespace,
 			ApiKeyId:  rec.ID,
@@ -126,7 +126,7 @@ func (v1 *V1) GenerateKey(ctx context.Context, req *v1.GenerateKeyRequest, rsp *
 }
 
 // ListKeys lists all keys for a user
-func (v1 *V1) ListKeys(ctx context.Context, req *v1.ListRequest, rsp *v1.ListResponse) error {
+func (v1 *V1) ListKeys(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
 	// Check account
 	acc, err := m3oauth.VerifyMicroCustomer(ctx, "v1.listkeys")
 	if err != nil {
@@ -137,9 +137,9 @@ func (v1 *V1) ListKeys(ctx context.Context, req *v1.ListRequest, rsp *v1.ListRes
 		log.Errorf("Error listing keys %s", err)
 		return errors.InternalServerError("v1aapi.listkeys", "Error listing keys")
 	}
-	rsp.ApiKeys = make([]*v1.APIKey, len(recs))
+	rsp.ApiKeys = make([]*pb.APIKey, len(recs))
 	for i, apiRec := range recs {
-		rsp.ApiKeys[i] = &v1.APIKey{
+		rsp.ApiKeys[i] = &pb.APIKey{
 			Id:          apiRec.ID,
 			Description: apiRec.Description,
 			CreatedTime: apiRec.Created,
@@ -168,7 +168,7 @@ func listKeysForUser(ns, userID string) ([]*apiKeyRecord, error) {
 	return ret, nil
 }
 
-func (v1 *V1) RevokeKey(ctx context.Context, request *v1.RevokeRequest, response *v1.RevokeResponse) error {
+func (v1 *V1) RevokeKey(ctx context.Context, request *pb.RevokeRequest, response *pb.RevokeResponse) error {
 	if len(request.Id) == 0 {
 		return errors.BadRequest("v1.Revoke", "Missing ID field")
 	}
@@ -205,8 +205,8 @@ func (v1 *V1) deleteKey(ctx context.Context, rec *apiKeyRecord) error {
 		return err
 	}
 
-	if err := events.Publish("v1api", v1.Event{Type: "APIKeyRevoke",
-		ApiKeyRevoke: &v1.APIKeyRevokeEvent{
+	if err := events.Publish("v1api", pb.Event{Type: "APIKeyRevoke",
+		ApiKeyRevoke: &pb.APIKeyRevokeEvent{
 			UserId:    rec.UserID,
 			Namespace: rec.Namespace,
 			ApiKeyId:  rec.ID,
@@ -217,11 +217,11 @@ func (v1 *V1) deleteKey(ctx context.Context, rec *apiKeyRecord) error {
 	return nil
 }
 
-func (v1 *V1) BlockKey(ctx context.Context, request *v1.BlockKeyRequest, response *v1.BlockKeyResponse) error {
+func (v1 *V1) BlockKey(ctx context.Context, request *pb.BlockKeyRequest, response *pb.BlockKeyResponse) error {
 	return v1.updateKeyStatus(ctx, "v1.BlockKey", request.Namespace, request.UserId, request.KeyId, keyStatusBlocked, request.Message)
 }
 
-func (v1 *V1) UnblockKey(ctx context.Context, request *v1.UnblockKeyRequest, response *v1.UnblockKeyResponse) error {
+func (v1 *V1) UnblockKey(ctx context.Context, request *pb.UnblockKeyRequest, response *pb.UnblockKeyResponse) error {
 	return v1.updateKeyStatus(ctx, "v1.UnblockKey", request.Namespace, request.UserId, request.KeyId, keyStatusActive, "")
 }
 
