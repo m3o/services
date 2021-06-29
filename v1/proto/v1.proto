@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package v1api;
+package v1;
 
-option go_package = "./proto;v1api";
+option go_package = "./proto;v1";
 
 service V1 {
 	rpc GenerateKey(GenerateKeyRequest) returns (GenerateKeyResponse) {}

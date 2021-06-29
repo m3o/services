@@ -8,7 +8,7 @@ import (
 
 	cpb "github.com/m3o/services/customers/proto"
 	pevents "github.com/m3o/services/pkg/events"
-	v1api "github.com/m3o/services/v1api/proto"
+	v1 "github.com/m3o/services/v1/proto"
 	mevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/logger"
 )
@@ -20,9 +20,9 @@ func (p *UsageSvc) consumeEvents() {
 
 func (p *UsageSvc) processV1apiEvents(ev mevents.Event) error {
 	ctx := context.Background()
-	ve := &v1api.Event{}
+	ve := &v1.Event{}
 	if err := json.Unmarshal(ev.Payload, ve); err != nil {
-		logger.Errorf("Error unmarshalling v1api event: $s", err)
+		logger.Errorf("Error unmarshalling v1 event: $s", err)
 		return nil
 	}
 	switch ve.Type {
@@ -38,7 +38,7 @@ func (p *UsageSvc) processV1apiEvents(ev mevents.Event) error {
 
 }
 
-func (p *UsageSvc) processRequest(ctx context.Context, event *v1api.RequestEvent, t time.Time) error {
+func (p *UsageSvc) processRequest(ctx context.Context, event *v1.RequestEvent, t time.Time) error {
 	_, err := p.c.incr(ctx, event.UserId, event.ApiName, 1, t)
 	p.c.incr(ctx, event.UserId, fmt.Sprintf("%s$%s", event.ApiName, event.EndpointName), 1, t)
 	// incr total counts for the API and individual endpoint

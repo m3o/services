@@ -5,111 +5,111 @@ import (
 	"context"
 	"sync"
 
-	v1api "github.com/m3o/services/v1api/proto"
+	v1 "github.com/m3o/services/v1/proto"
 	"github.com/micro/micro/v3/service/client"
 )
 
 type FakeV1Service struct {
-	BlockKeyStub        func(context.Context, *v1api.BlockKeyRequest, ...client.CallOption) (*v1api.BlockKeyResponse, error)
+	BlockKeyStub        func(context.Context, *v1.BlockKeyRequest, ...client.CallOption) (*v1.BlockKeyResponse, error)
 	blockKeyMutex       sync.RWMutex
 	blockKeyArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.BlockKeyRequest
+		arg2 *v1.BlockKeyRequest
 		arg3 []client.CallOption
 	}
 	blockKeyReturns struct {
-		result1 *v1api.BlockKeyResponse
+		result1 *v1.BlockKeyResponse
 		result2 error
 	}
 	blockKeyReturnsOnCall map[int]struct {
-		result1 *v1api.BlockKeyResponse
+		result1 *v1.BlockKeyResponse
 		result2 error
 	}
-	DeleteCustomerStub        func(context.Context, *v1api.DeleteCustomerRequest, ...client.CallOption) (*v1api.DeleteCustomerResponse, error)
+	DeleteCustomerStub        func(context.Context, *v1.DeleteCustomerRequest, ...client.CallOption) (*v1.DeleteCustomerResponse, error)
 	deleteCustomerMutex       sync.RWMutex
 	deleteCustomerArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.DeleteCustomerRequest
+		arg2 *v1.DeleteCustomerRequest
 		arg3 []client.CallOption
 	}
 	deleteCustomerReturns struct {
-		result1 *v1api.DeleteCustomerResponse
+		result1 *v1.DeleteCustomerResponse
 		result2 error
 	}
 	deleteCustomerReturnsOnCall map[int]struct {
-		result1 *v1api.DeleteCustomerResponse
+		result1 *v1.DeleteCustomerResponse
 		result2 error
 	}
-	GenerateKeyStub        func(context.Context, *v1api.GenerateKeyRequest, ...client.CallOption) (*v1api.GenerateKeyResponse, error)
+	GenerateKeyStub        func(context.Context, *v1.GenerateKeyRequest, ...client.CallOption) (*v1.GenerateKeyResponse, error)
 	generateKeyMutex       sync.RWMutex
 	generateKeyArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.GenerateKeyRequest
+		arg2 *v1.GenerateKeyRequest
 		arg3 []client.CallOption
 	}
 	generateKeyReturns struct {
-		result1 *v1api.GenerateKeyResponse
+		result1 *v1.GenerateKeyResponse
 		result2 error
 	}
 	generateKeyReturnsOnCall map[int]struct {
-		result1 *v1api.GenerateKeyResponse
+		result1 *v1.GenerateKeyResponse
 		result2 error
 	}
-	ListKeysStub        func(context.Context, *v1api.ListRequest, ...client.CallOption) (*v1api.ListResponse, error)
+	ListKeysStub        func(context.Context, *v1.ListRequest, ...client.CallOption) (*v1.ListResponse, error)
 	listKeysMutex       sync.RWMutex
 	listKeysArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.ListRequest
+		arg2 *v1.ListRequest
 		arg3 []client.CallOption
 	}
 	listKeysReturns struct {
-		result1 *v1api.ListResponse
+		result1 *v1.ListResponse
 		result2 error
 	}
 	listKeysReturnsOnCall map[int]struct {
-		result1 *v1api.ListResponse
+		result1 *v1.ListResponse
 		result2 error
 	}
-	RevokeKeyStub        func(context.Context, *v1api.RevokeRequest, ...client.CallOption) (*v1api.RevokeResponse, error)
+	RevokeKeyStub        func(context.Context, *v1.RevokeRequest, ...client.CallOption) (*v1.RevokeResponse, error)
 	revokeKeyMutex       sync.RWMutex
 	revokeKeyArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.RevokeRequest
+		arg2 *v1.RevokeRequest
 		arg3 []client.CallOption
 	}
 	revokeKeyReturns struct {
-		result1 *v1api.RevokeResponse
+		result1 *v1.RevokeResponse
 		result2 error
 	}
 	revokeKeyReturnsOnCall map[int]struct {
-		result1 *v1api.RevokeResponse
+		result1 *v1.RevokeResponse
 		result2 error
 	}
-	UnblockKeyStub        func(context.Context, *v1api.UnblockKeyRequest, ...client.CallOption) (*v1api.UnblockKeyResponse, error)
+	UnblockKeyStub        func(context.Context, *v1.UnblockKeyRequest, ...client.CallOption) (*v1.UnblockKeyResponse, error)
 	unblockKeyMutex       sync.RWMutex
 	unblockKeyArgsForCall []struct {
 		arg1 context.Context
-		arg2 *v1api.UnblockKeyRequest
+		arg2 *v1.UnblockKeyRequest
 		arg3 []client.CallOption
 	}
 	unblockKeyReturns struct {
-		result1 *v1api.UnblockKeyResponse
+		result1 *v1.UnblockKeyResponse
 		result2 error
 	}
 	unblockKeyReturnsOnCall map[int]struct {
-		result1 *v1api.UnblockKeyResponse
+		result1 *v1.UnblockKeyResponse
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeV1Service) BlockKey(arg1 context.Context, arg2 *v1api.BlockKeyRequest, arg3 ...client.CallOption) (*v1api.BlockKeyResponse, error) {
+func (fake *FakeV1Service) BlockKey(arg1 context.Context, arg2 *v1.BlockKeyRequest, arg3 ...client.CallOption) (*v1.BlockKeyResponse, error) {
 	fake.blockKeyMutex.Lock()
 	ret, specificReturn := fake.blockKeyReturnsOnCall[len(fake.blockKeyArgsForCall)]
 	fake.blockKeyArgsForCall = append(fake.blockKeyArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.BlockKeyRequest
+		arg2 *v1.BlockKeyRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
 	stub := fake.BlockKeyStub
@@ -131,51 +131,51 @@ func (fake *FakeV1Service) BlockKeyCallCount() int {
 	return len(fake.blockKeyArgsForCall)
 }
 
-func (fake *FakeV1Service) BlockKeyCalls(stub func(context.Context, *v1api.BlockKeyRequest, ...client.CallOption) (*v1api.BlockKeyResponse, error)) {
+func (fake *FakeV1Service) BlockKeyCalls(stub func(context.Context, *v1.BlockKeyRequest, ...client.CallOption) (*v1.BlockKeyResponse, error)) {
 	fake.blockKeyMutex.Lock()
 	defer fake.blockKeyMutex.Unlock()
 	fake.BlockKeyStub = stub
 }
 
-func (fake *FakeV1Service) BlockKeyArgsForCall(i int) (context.Context, *v1api.BlockKeyRequest, []client.CallOption) {
+func (fake *FakeV1Service) BlockKeyArgsForCall(i int) (context.Context, *v1.BlockKeyRequest, []client.CallOption) {
 	fake.blockKeyMutex.RLock()
 	defer fake.blockKeyMutex.RUnlock()
 	argsForCall := fake.blockKeyArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) BlockKeyReturns(result1 *v1api.BlockKeyResponse, result2 error) {
+func (fake *FakeV1Service) BlockKeyReturns(result1 *v1.BlockKeyResponse, result2 error) {
 	fake.blockKeyMutex.Lock()
 	defer fake.blockKeyMutex.Unlock()
 	fake.BlockKeyStub = nil
 	fake.blockKeyReturns = struct {
-		result1 *v1api.BlockKeyResponse
+		result1 *v1.BlockKeyResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) BlockKeyReturnsOnCall(i int, result1 *v1api.BlockKeyResponse, result2 error) {
+func (fake *FakeV1Service) BlockKeyReturnsOnCall(i int, result1 *v1.BlockKeyResponse, result2 error) {
 	fake.blockKeyMutex.Lock()
 	defer fake.blockKeyMutex.Unlock()
 	fake.BlockKeyStub = nil
 	if fake.blockKeyReturnsOnCall == nil {
 		fake.blockKeyReturnsOnCall = make(map[int]struct {
-			result1 *v1api.BlockKeyResponse
+			result1 *v1.BlockKeyResponse
 			result2 error
 		})
 	}
 	fake.blockKeyReturnsOnCall[i] = struct {
-		result1 *v1api.BlockKeyResponse
+		result1 *v1.BlockKeyResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) DeleteCustomer(arg1 context.Context, arg2 *v1api.DeleteCustomerRequest, arg3 ...client.CallOption) (*v1api.DeleteCustomerResponse, error) {
+func (fake *FakeV1Service) DeleteCustomer(arg1 context.Context, arg2 *v1.DeleteCustomerRequest, arg3 ...client.CallOption) (*v1.DeleteCustomerResponse, error) {
 	fake.deleteCustomerMutex.Lock()
 	ret, specificReturn := fake.deleteCustomerReturnsOnCall[len(fake.deleteCustomerArgsForCall)]
 	fake.deleteCustomerArgsForCall = append(fake.deleteCustomerArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.DeleteCustomerRequest
+		arg2 *v1.DeleteCustomerRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
 	stub := fake.DeleteCustomerStub
@@ -197,51 +197,51 @@ func (fake *FakeV1Service) DeleteCustomerCallCount() int {
 	return len(fake.deleteCustomerArgsForCall)
 }
 
-func (fake *FakeV1Service) DeleteCustomerCalls(stub func(context.Context, *v1api.DeleteCustomerRequest, ...client.CallOption) (*v1api.DeleteCustomerResponse, error)) {
+func (fake *FakeV1Service) DeleteCustomerCalls(stub func(context.Context, *v1.DeleteCustomerRequest, ...client.CallOption) (*v1.DeleteCustomerResponse, error)) {
 	fake.deleteCustomerMutex.Lock()
 	defer fake.deleteCustomerMutex.Unlock()
 	fake.DeleteCustomerStub = stub
 }
 
-func (fake *FakeV1Service) DeleteCustomerArgsForCall(i int) (context.Context, *v1api.DeleteCustomerRequest, []client.CallOption) {
+func (fake *FakeV1Service) DeleteCustomerArgsForCall(i int) (context.Context, *v1.DeleteCustomerRequest, []client.CallOption) {
 	fake.deleteCustomerMutex.RLock()
 	defer fake.deleteCustomerMutex.RUnlock()
 	argsForCall := fake.deleteCustomerArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) DeleteCustomerReturns(result1 *v1api.DeleteCustomerResponse, result2 error) {
+func (fake *FakeV1Service) DeleteCustomerReturns(result1 *v1.DeleteCustomerResponse, result2 error) {
 	fake.deleteCustomerMutex.Lock()
 	defer fake.deleteCustomerMutex.Unlock()
 	fake.DeleteCustomerStub = nil
 	fake.deleteCustomerReturns = struct {
-		result1 *v1api.DeleteCustomerResponse
+		result1 *v1.DeleteCustomerResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) DeleteCustomerReturnsOnCall(i int, result1 *v1api.DeleteCustomerResponse, result2 error) {
+func (fake *FakeV1Service) DeleteCustomerReturnsOnCall(i int, result1 *v1.DeleteCustomerResponse, result2 error) {
 	fake.deleteCustomerMutex.Lock()
 	defer fake.deleteCustomerMutex.Unlock()
 	fake.DeleteCustomerStub = nil
 	if fake.deleteCustomerReturnsOnCall == nil {
 		fake.deleteCustomerReturnsOnCall = make(map[int]struct {
-			result1 *v1api.DeleteCustomerResponse
+			result1 *v1.DeleteCustomerResponse
 			result2 error
 		})
 	}
 	fake.deleteCustomerReturnsOnCall[i] = struct {
-		result1 *v1api.DeleteCustomerResponse
+		result1 *v1.DeleteCustomerResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) GenerateKey(arg1 context.Context, arg2 *v1api.GenerateKeyRequest, arg3 ...client.CallOption) (*v1api.GenerateKeyResponse, error) {
+func (fake *FakeV1Service) GenerateKey(arg1 context.Context, arg2 *v1.GenerateKeyRequest, arg3 ...client.CallOption) (*v1.GenerateKeyResponse, error) {
 	fake.generateKeyMutex.Lock()
 	ret, specificReturn := fake.generateKeyReturnsOnCall[len(fake.generateKeyArgsForCall)]
 	fake.generateKeyArgsForCall = append(fake.generateKeyArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.GenerateKeyRequest
+		arg2 *v1.GenerateKeyRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
 	stub := fake.GenerateKeyStub
@@ -263,51 +263,51 @@ func (fake *FakeV1Service) GenerateKeyCallCount() int {
 	return len(fake.generateKeyArgsForCall)
 }
 
-func (fake *FakeV1Service) GenerateKeyCalls(stub func(context.Context, *v1api.GenerateKeyRequest, ...client.CallOption) (*v1api.GenerateKeyResponse, error)) {
+func (fake *FakeV1Service) GenerateKeyCalls(stub func(context.Context, *v1.GenerateKeyRequest, ...client.CallOption) (*v1.GenerateKeyResponse, error)) {
 	fake.generateKeyMutex.Lock()
 	defer fake.generateKeyMutex.Unlock()
 	fake.GenerateKeyStub = stub
 }
 
-func (fake *FakeV1Service) GenerateKeyArgsForCall(i int) (context.Context, *v1api.GenerateKeyRequest, []client.CallOption) {
+func (fake *FakeV1Service) GenerateKeyArgsForCall(i int) (context.Context, *v1.GenerateKeyRequest, []client.CallOption) {
 	fake.generateKeyMutex.RLock()
 	defer fake.generateKeyMutex.RUnlock()
 	argsForCall := fake.generateKeyArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) GenerateKeyReturns(result1 *v1api.GenerateKeyResponse, result2 error) {
+func (fake *FakeV1Service) GenerateKeyReturns(result1 *v1.GenerateKeyResponse, result2 error) {
 	fake.generateKeyMutex.Lock()
 	defer fake.generateKeyMutex.Unlock()
 	fake.GenerateKeyStub = nil
 	fake.generateKeyReturns = struct {
-		result1 *v1api.GenerateKeyResponse
+		result1 *v1.GenerateKeyResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) GenerateKeyReturnsOnCall(i int, result1 *v1api.GenerateKeyResponse, result2 error) {
+func (fake *FakeV1Service) GenerateKeyReturnsOnCall(i int, result1 *v1.GenerateKeyResponse, result2 error) {
 	fake.generateKeyMutex.Lock()
 	defer fake.generateKeyMutex.Unlock()
 	fake.GenerateKeyStub = nil
 	if fake.generateKeyReturnsOnCall == nil {
 		fake.generateKeyReturnsOnCall = make(map[int]struct {
-			result1 *v1api.GenerateKeyResponse
+			result1 *v1.GenerateKeyResponse
 			result2 error
 		})
 	}
 	fake.generateKeyReturnsOnCall[i] = struct {
-		result1 *v1api.GenerateKeyResponse
+		result1 *v1.GenerateKeyResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) ListKeys(arg1 context.Context, arg2 *v1api.ListRequest, arg3 ...client.CallOption) (*v1api.ListResponse, error) {
+func (fake *FakeV1Service) ListKeys(arg1 context.Context, arg2 *v1.ListRequest, arg3 ...client.CallOption) (*v1.ListResponse, error) {
 	fake.listKeysMutex.Lock()
 	ret, specificReturn := fake.listKeysReturnsOnCall[len(fake.listKeysArgsForCall)]
 	fake.listKeysArgsForCall = append(fake.listKeysArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.ListRequest
+		arg2 *v1.ListRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
 	stub := fake.ListKeysStub
@@ -329,51 +329,51 @@ func (fake *FakeV1Service) ListKeysCallCount() int {
 	return len(fake.listKeysArgsForCall)
 }
 
-func (fake *FakeV1Service) ListKeysCalls(stub func(context.Context, *v1api.ListRequest, ...client.CallOption) (*v1api.ListResponse, error)) {
+func (fake *FakeV1Service) ListKeysCalls(stub func(context.Context, *v1.ListRequest, ...client.CallOption) (*v1.ListResponse, error)) {
 	fake.listKeysMutex.Lock()
 	defer fake.listKeysMutex.Unlock()
 	fake.ListKeysStub = stub
 }
 
-func (fake *FakeV1Service) ListKeysArgsForCall(i int) (context.Context, *v1api.ListRequest, []client.CallOption) {
+func (fake *FakeV1Service) ListKeysArgsForCall(i int) (context.Context, *v1.ListRequest, []client.CallOption) {
 	fake.listKeysMutex.RLock()
 	defer fake.listKeysMutex.RUnlock()
 	argsForCall := fake.listKeysArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) ListKeysReturns(result1 *v1api.ListResponse, result2 error) {
+func (fake *FakeV1Service) ListKeysReturns(result1 *v1.ListResponse, result2 error) {
 	fake.listKeysMutex.Lock()
 	defer fake.listKeysMutex.Unlock()
 	fake.ListKeysStub = nil
 	fake.listKeysReturns = struct {
-		result1 *v1api.ListResponse
+		result1 *v1.ListResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) ListKeysReturnsOnCall(i int, result1 *v1api.ListResponse, result2 error) {
+func (fake *FakeV1Service) ListKeysReturnsOnCall(i int, result1 *v1.ListResponse, result2 error) {
 	fake.listKeysMutex.Lock()
 	defer fake.listKeysMutex.Unlock()
 	fake.ListKeysStub = nil
 	if fake.listKeysReturnsOnCall == nil {
 		fake.listKeysReturnsOnCall = make(map[int]struct {
-			result1 *v1api.ListResponse
+			result1 *v1.ListResponse
 			result2 error
 		})
 	}
 	fake.listKeysReturnsOnCall[i] = struct {
-		result1 *v1api.ListResponse
+		result1 *v1.ListResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) RevokeKey(arg1 context.Context, arg2 *v1api.RevokeRequest, arg3 ...client.CallOption) (*v1api.RevokeResponse, error) {
+func (fake *FakeV1Service) RevokeKey(arg1 context.Context, arg2 *v1.RevokeRequest, arg3 ...client.CallOption) (*v1.RevokeResponse, error) {
 	fake.revokeKeyMutex.Lock()
 	ret, specificReturn := fake.revokeKeyReturnsOnCall[len(fake.revokeKeyArgsForCall)]
 	fake.revokeKeyArgsForCall = append(fake.revokeKeyArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.RevokeRequest
+		arg2 *v1.RevokeRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
 	stub := fake.RevokeKeyStub
@@ -395,51 +395,51 @@ func (fake *FakeV1Service) RevokeKeyCallCount() int {
 	return len(fake.revokeKeyArgsForCall)
 }
 
-func (fake *FakeV1Service) RevokeKeyCalls(stub func(context.Context, *v1api.RevokeRequest, ...client.CallOption) (*v1api.RevokeResponse, error)) {
+func (fake *FakeV1Service) RevokeKeyCalls(stub func(context.Context, *v1.RevokeRequest, ...client.CallOption) (*v1.RevokeResponse, error)) {
 	fake.revokeKeyMutex.Lock()
 	defer fake.revokeKeyMutex.Unlock()
 	fake.RevokeKeyStub = stub
 }
 
-func (fake *FakeV1Service) RevokeKeyArgsForCall(i int) (context.Context, *v1api.RevokeRequest, []client.CallOption) {
+func (fake *FakeV1Service) RevokeKeyArgsForCall(i int) (context.Context, *v1.RevokeRequest, []client.CallOption) {
 	fake.revokeKeyMutex.RLock()
 	defer fake.revokeKeyMutex.RUnlock()
 	argsForCall := fake.revokeKeyArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) RevokeKeyReturns(result1 *v1api.RevokeResponse, result2 error) {
+func (fake *FakeV1Service) RevokeKeyReturns(result1 *v1.RevokeResponse, result2 error) {
 	fake.revokeKeyMutex.Lock()
 	defer fake.revokeKeyMutex.Unlock()
 	fake.RevokeKeyStub = nil
 	fake.revokeKeyReturns = struct {
-		result1 *v1api.RevokeResponse
+		result1 *v1.RevokeResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) RevokeKeyReturnsOnCall(i int, result1 *v1api.RevokeResponse, result2 error) {
+func (fake *FakeV1Service) RevokeKeyReturnsOnCall(i int, result1 *v1.RevokeResponse, result2 error) {
 	fake.revokeKeyMutex.Lock()
 	defer fake.revokeKeyMutex.Unlock()
 	fake.RevokeKeyStub = nil
 	if fake.revokeKeyReturnsOnCall == nil {
 		fake.revokeKeyReturnsOnCall = make(map[int]struct {
-			result1 *v1api.RevokeResponse
+			result1 *v1.RevokeResponse
 			result2 error
 		})
 	}
 	fake.revokeKeyReturnsOnCall[i] = struct {
-		result1 *v1api.RevokeResponse
+		result1 *v1.RevokeResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) UnblockKey(arg1 context.Context, arg2 *v1api.UnblockKeyRequest, arg3 ...client.CallOption) (*v1api.UnblockKeyResponse, error) {
+func (fake *FakeV1Service) UnblockKey(arg1 context.Context, arg2 *v1.UnblockKeyRequest, arg3 ...client.CallOption) (*v1.UnblockKeyResponse, error) {
 	fake.unblockKeyMutex.Lock()
 	ret, specificReturn := fake.unblockKeyReturnsOnCall[len(fake.unblockKeyArgsForCall)]
 	fake.unblockKeyArgsForCall = append(fake.unblockKeyArgsForCall, struct {
 		arg1 context.Context
-		arg2 *v1api.UnblockKeyRequest
+		arg2 *v1.UnblockKeyRequest
 		arg3 []client.CallOption
 	}{arg1, arg2, arg3})
 	stub := fake.UnblockKeyStub
@@ -461,41 +461,41 @@ func (fake *FakeV1Service) UnblockKeyCallCount() int {
 	return len(fake.unblockKeyArgsForCall)
 }
 
-func (fake *FakeV1Service) UnblockKeyCalls(stub func(context.Context, *v1api.UnblockKeyRequest, ...client.CallOption) (*v1api.UnblockKeyResponse, error)) {
+func (fake *FakeV1Service) UnblockKeyCalls(stub func(context.Context, *v1.UnblockKeyRequest, ...client.CallOption) (*v1.UnblockKeyResponse, error)) {
 	fake.unblockKeyMutex.Lock()
 	defer fake.unblockKeyMutex.Unlock()
 	fake.UnblockKeyStub = stub
 }
 
-func (fake *FakeV1Service) UnblockKeyArgsForCall(i int) (context.Context, *v1api.UnblockKeyRequest, []client.CallOption) {
+func (fake *FakeV1Service) UnblockKeyArgsForCall(i int) (context.Context, *v1.UnblockKeyRequest, []client.CallOption) {
 	fake.unblockKeyMutex.RLock()
 	defer fake.unblockKeyMutex.RUnlock()
 	argsForCall := fake.unblockKeyArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeV1Service) UnblockKeyReturns(result1 *v1api.UnblockKeyResponse, result2 error) {
+func (fake *FakeV1Service) UnblockKeyReturns(result1 *v1.UnblockKeyResponse, result2 error) {
 	fake.unblockKeyMutex.Lock()
 	defer fake.unblockKeyMutex.Unlock()
 	fake.UnblockKeyStub = nil
 	fake.unblockKeyReturns = struct {
-		result1 *v1api.UnblockKeyResponse
+		result1 *v1.UnblockKeyResponse
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeV1Service) UnblockKeyReturnsOnCall(i int, result1 *v1api.UnblockKeyResponse, result2 error) {
+func (fake *FakeV1Service) UnblockKeyReturnsOnCall(i int, result1 *v1.UnblockKeyResponse, result2 error) {
 	fake.unblockKeyMutex.Lock()
 	defer fake.unblockKeyMutex.Unlock()
 	fake.UnblockKeyStub = nil
 	if fake.unblockKeyReturnsOnCall == nil {
 		fake.unblockKeyReturnsOnCall = make(map[int]struct {
-			result1 *v1api.UnblockKeyResponse
+			result1 *v1.UnblockKeyResponse
 			result2 error
 		})
 	}
 	fake.unblockKeyReturnsOnCall[i] = struct {
-		result1 *v1api.UnblockKeyResponse
+		result1 *v1.UnblockKeyResponse
 		result2 error
 	}{result1, result2}
 }
@@ -534,4 +534,4 @@ func (fake *FakeV1Service) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ v1api.V1Service = new(FakeV1Service)
+var _ v1.V1Service = new(FakeV1Service)

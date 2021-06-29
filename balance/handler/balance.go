@@ -16,7 +16,7 @@ import (
 	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
 	stripe "github.com/m3o/services/stripe/proto"
-	v1api "github.com/m3o/services/v1api/proto"
+	v1 "github.com/m3o/services/v1/proto"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
@@ -120,7 +120,7 @@ func (p *publicAPICache) get(ctx context.Context, name string) (*publicapi.Publi
 
 type Balance struct {
 	c         *counter // counts the balance. Balance is expressed in 1/10,000ths of a cent which allows us to price in fractions e.g. a request costs 0.0001 cents or 10,000 requests for 1 cent
-	v1Svc     v1api.V1Service
+	v1Svc     v1.V1Service
 	pubSvc    *publicAPICache
 	nsSvc     ns.NamespacesService
 	stripeSvc stripe.StripeService
@@ -152,7 +152,7 @@ func NewHandler(svc *service.Service) *Balance {
 	})
 	b := &Balance{
 		c:     &counter{redisClient: rc},
-		v1Svc: v1api.NewV1Service("v1", svc.Client()),
+		v1Svc: v1.NewV1Service("v1", svc.Client()),
 		pubSvc: &publicAPICache{
 			pubSvc: publicapi.NewPublicapiService("publicapi", svc.Client()),
 			cache:  map[string]*publicAPICacheEntry{},
@@ -206,7 +206,7 @@ func (b Balance) Increment(ctx context.Context, request *pb.IncrementRequest, re
 		return nil
 	}
 
-	if _, err := b.v1Svc.UnblockKey(ctx, &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(ctx, &v1.UnblockKeyRequest{
 		UserId:    request.CustomerId,
 		Namespace: microNamespace,
 	}, client.WithAuthToken()); err != nil {
@@ -290,7 +290,7 @@ func (b *Balance) Decrement(ctx context.Context, request *pb.DecrementRequest, r
 	if err := events.Publish(pb.EventsTopic, &evt); err != nil {
 		logger.Errorf("Error publishing event %+v", evt)
 	}
-	if _, err := b.v1Svc.BlockKey(ctx, &v1api.BlockKeyRequest{
+	if _, err := b.v1Svc.BlockKey(ctx, &v1.BlockKeyRequest{
 		UserId:    request.CustomerId,
 		Namespace: microNamespace,
 		Message:   msgInsufficientFunds,

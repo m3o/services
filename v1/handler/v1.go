@@ -15,7 +15,7 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 	m3oauth "github.com/m3o/services/pkg/auth"
 	publicapi "github.com/m3o/services/publicapi/proto"
-	v1api "github.com/m3o/services/v1api/proto"
+	v1 "github.com/m3o/services/v1/proto"
 	authpb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
@@ -44,8 +44,8 @@ const (
 )
 
 var (
-	errUnauthorized = errors.Unauthorized("v1api", "Unauthorized")
-	errInternal     = errors.InternalServerError("v1api", "Error processing request")
+	errUnauthorized = errors.Unauthorized("v1", "Unauthorized")
+	errInternal     = errors.InternalServerError("v1", "Error processing request")
 )
 
 func NewHandler(srv *service.Service) *V1 {
@@ -224,7 +224,7 @@ func verifyCallAllowed(apiRec *apiKeyRecord, reqURL string) error {
 }
 
 func errBlocked(msg string) error {
-	return errors.Forbidden("v1api.blocked", fmt.Sprintf("Request blocked. %s", msg))
+	return errors.Forbidden("v1.blocked", fmt.Sprintf("Request blocked. %s", msg))
 }
 
 func (v1 *V1) refreshToken(apiRec *apiKeyRecord, key string) error {
@@ -263,14 +263,14 @@ func (v1 *V1) getRequestedService(reqURL string) (string, string, []*registry.Se
 	parts := strings.Split(trimmedPath, "/")
 	if len(parts) < 2 {
 		// can't work out service and method
-		return "", "", nil, errors.NotFound("v1api", "")
+		return "", "", nil, errors.NotFound("v1", "")
 	}
 
 	service := parts[0]
 	svcs, err := registry.GetService(service)
 	if err != nil {
 		if err == registry.ErrNotFound {
-			return "", "", nil, errors.NotFound("v1api", "No such API")
+			return "", "", nil, errors.NotFound("v1", "No such API")
 		}
 		log.Errorf("Error looking up service %s", err)
 		return "", "", nil, errInternal
@@ -405,8 +405,8 @@ func mergeURLPayload(ctx context.Context, md metadata.Metadata, u *url.URL, payl
 }
 
 func publishEndpointEvent(reqURL, apiName, endpointName string, apiRec *apiKeyRecord) {
-	if err := events.Publish("v1api", v1api.Event{Type: "Request",
-		Request: &v1api.RequestEvent{
+	if err := events.Publish("v1api", v1.Event{Type: "Request",
+		Request: &v1.RequestEvent{
 			UserId:       apiRec.UserID,
 			Namespace:    apiRec.Namespace,
 			ApiKeyId:     apiRec.ID,
@@ -431,7 +431,7 @@ func (v1 *V1) listAPIs() ([]string, error) {
 	return ret, nil
 }
 
-func (v1 *V1) DeleteCustomer(ctx context.Context, request *v1api.DeleteCustomerRequest, response *v1api.DeleteCustomerResponse) error {
+func (v1 *V1) DeleteCustomer(ctx context.Context, request *v1.DeleteCustomerRequest, response *v1.DeleteCustomerResponse) error {
 	if _, err := m3oauth.VerifyMicroAdmin(ctx, "v1.DeleteCustomer"); err != nil {
 		return err
 	}

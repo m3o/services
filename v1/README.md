@@ -1,6 +1,6 @@
-# V1Api Service
+# V1 API
 
-This is the V1Api service
+This is the V1 API
 
 In charge of
 - routing requests to the correct service
@@ -57,7 +57,7 @@ Routing logic is based on the url path and is currently very simple.
 ### Using the key
 1. API key passed in on request as `Authorization: Bearer <key>`
 2. The micro API service can't decode the key as a JWT so will forward to the micro namespace by default
-3. v1api service verifies the key by looking up the hash 
+3. v1 service verifies the key by looking up the hash 
 4. If we recognise it we grab a valid JWT token for the account; either we have a short lived one cached or we generate a new JWT token (the API key is actually the password for the account). Note: the JWT tokens are short lived (1 hour) but if the DB was ever breached you could in theory get a token that has validity for up to an hour to impersonate the victim (we can always shorten this timespan if required). 
 5. We then forward the request, adding the JWT token to the request context as the bearer token
 
@@ -72,7 +72,7 @@ Scopes define what an API key can do.
 Proposal: By convention scope names could implicitly define which endpoints the client has access to. So `location:write` means they have access to all endpoints as defined by the `location` service. 
 
 ## Setup
-When running the v1api you'll need to setup auth rules so that users can call it appropriately
+When running the v1 api you'll need to setup auth rules so that users can call it appropriately
 
 #### Base
 At a minimum you need to run the following 

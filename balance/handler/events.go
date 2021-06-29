@@ -8,7 +8,7 @@ import (
 	cpb "github.com/m3o/services/customers/proto"
 	pevents "github.com/m3o/services/pkg/events"
 	stripepb "github.com/m3o/services/stripe/proto"
-	v1api "github.com/m3o/services/v1api/proto"
+	v1 "github.com/m3o/services/v1/proto"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
@@ -28,9 +28,9 @@ func (b *Balance) consumeEvents() {
 
 func (b *Balance) processV1apiEvents(ev mevents.Event) error {
 	ctx := context.Background()
-	ve := &v1api.Event{}
+	ve := &v1.Event{}
 	if err := json.Unmarshal(ev.Payload, ve); err != nil {
-		logger.Errorf("Error unmarshalling v1api event: $s", err)
+		logger.Errorf("Error unmarshalling v1 event: $s", err)
 		return nil
 	}
 	switch ve.Type {
@@ -52,7 +52,7 @@ func (b *Balance) processV1apiEvents(ev mevents.Event) error {
 
 }
 
-func (b *Balance) processAPIKeyCreated(ctx context.Context, ac *v1api.APIKeyCreateEvent) error {
+func (b *Balance) processAPIKeyCreated(ctx context.Context, ac *v1.APIKeyCreateEvent) error {
 	currBal, err := b.c.read(ctx, ac.UserId, "$balance$")
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func (b *Balance) processAPIKeyCreated(ctx context.Context, ac *v1api.APIKeyCrea
 
 	// Keys start in blocked status, so unblock if they have the cash
 	if currBal <= 0 {
-		if _, err := b.v1Svc.BlockKey(ctx, &v1api.BlockKeyRequest{
+		if _, err := b.v1Svc.BlockKey(ctx, &v1.BlockKeyRequest{
 			UserId:    ac.UserId,
 			Namespace: ac.Namespace,
 			Message:   msgInsufficientFunds,
@@ -73,7 +73,7 @@ func (b *Balance) processAPIKeyCreated(ctx context.Context, ac *v1api.APIKeyCrea
 		}
 		return nil
 	}
-	if _, err := b.v1Svc.UnblockKey(ctx, &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(ctx, &v1.UnblockKeyRequest{
 		UserId:    ac.UserId,
 		Namespace: ac.Namespace,
 		KeyId:     ac.ApiKeyId,
@@ -87,7 +87,7 @@ func (b *Balance) processAPIKeyCreated(ctx context.Context, ac *v1api.APIKeyCrea
 	return nil
 }
 
-func (b *Balance) processRequest(ctx context.Context, rqe *v1api.RequestEvent) error {
+func (b *Balance) processRequest(ctx context.Context, rqe *v1.RequestEvent) error {
 	apiName := rqe.ApiName
 	rsp, err := b.pubSvc.get(ctx, apiName)
 	if err != nil {
@@ -120,7 +120,7 @@ func (b *Balance) processRequest(ctx context.Context, rqe *v1api.RequestEvent) e
 	}
 
 	// no more money, cut them off
-	if _, err := b.v1Svc.BlockKey(context.TODO(), &v1api.BlockKeyRequest{
+	if _, err := b.v1Svc.BlockKey(context.TODO(), &v1.BlockKeyRequest{
 		UserId:    rqe.UserId,
 		Namespace: rqe.Namespace,
 		Message:   msgInsufficientFunds,
@@ -201,7 +201,7 @@ func (b *Balance) processChargeSucceeded(ctx context.Context, ev *stripepb.Charg
 	namespace := microNamespace
 
 	// unblock key
-	if _, err := b.v1Svc.UnblockKey(ctx, &v1api.UnblockKeyRequest{
+	if _, err := b.v1Svc.UnblockKey(ctx, &v1.UnblockKeyRequest{
 		UserId:    ev.CustomerId,
 		Namespace: namespace,
 	}, client.WithAuthToken()); err != nil {

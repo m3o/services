@@ -7,7 +7,7 @@ import (
 	balance "github.com/m3o/services/balance/proto"
 	customers "github.com/m3o/services/customers/proto"
 	"github.com/m3o/services/pkg/events"
-	v1api "github.com/m3o/services/v1api/proto"
+	v1 "github.com/m3o/services/v1/proto"
 	"github.com/micro/micro/v3/service/client"
 	merrors "github.com/micro/micro/v3/service/errors"
 	mevents "github.com/micro/micro/v3/service/events"
@@ -21,10 +21,10 @@ func (b *Mixpanel) consumeEvents() {
 }
 
 func (b *Mixpanel) processV1APIEvent(ev mevents.Event) error {
-	ve := &v1api.Event{}
+	ve := &v1.Event{}
 
 	if err := json.Unmarshal(ev.Payload, ve); err != nil {
-		logger.Errorf("Error unmarshalling v1api event, discarding: $s", err)
+		logger.Errorf("Error unmarshalling v1 event, discarding: $s", err)
 		return nil
 	}
 
@@ -37,7 +37,7 @@ func (b *Mixpanel) processV1APIEvent(ev mevents.Event) error {
 	case "APIKeyRevoke":
 		customerID = ve.ApiKeyRevoke.UserId
 	default:
-		logger.Infof("Event type for v1api not supported %s", ve.Type)
+		logger.Infof("Event type for v1 not supported %s", ve.Type)
 		return nil
 	}
 
