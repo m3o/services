@@ -82,7 +82,7 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		return err
 	}
 	// enable auth rules
-	// we need two rules, one for the /v1/foo/bar from public internet and one for v1api->foo
+	// we need two rules, one for the /v1/foo/bar from public internet and one for v1->foo
 	//micro auth create rule --resource="service:v1.helloworld:*" --priority 1 helloworld-v1
 	//micro auth create rule --resource="service:helloworld:*" --priority 1 --scope '+' helloworld-internal
 	if err := auth.Grant(&auth.Rule{
@@ -124,7 +124,7 @@ func (p *Publicapi) Publish(ctx context.Context, request *pb.PublishRequest, res
 		log.Errorf("Error publishing event %s", err)
 	}
 	response.Api = marshal(ae)
-	// TODO any other v1api things?
+	// TODO any other v1 things?
 	return nil
 }
 

@@ -138,7 +138,7 @@ func serveStream(ctx context.Context, stream server.Stream, service, endpoint st
 func serveWebsocket(ctx context.Context, serverStream server.Stream, service, endpoint string, svcs []*registry.Service, apiRec *apiKeyRecord) error {
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
-		return errors.InternalServerError("v1api", "Error processing request")
+		return errors.InternalServerError("v1", "Error processing request")
 	}
 	ct, _ := md.Get("Content-Type")
 	ct = parseContentType(ct)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/m3o/services/pkg/tracing"
-	"github.com/m3o/services/v1api/handler"
+	"github.com/m3o/services/v1/handler"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
@@ -65,7 +65,7 @@ func main() {
 		registry.DefaultRegistry = cache.New(registry.DefaultRegistry)
 	}
 
-	traceCloser := tracing.SetupOpentracing("v1api")
+	traceCloser := tracing.SetupOpentracing("v1")
 	defer traceCloser.Close()
 
 	// Run service

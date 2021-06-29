@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package v1api;
+package v1;
 
-option go_package = "./proto;v1api";
+option go_package = "./proto;v1";
 
 service V1 {
 	rpc GenerateKey(GenerateKeyRequest) returns (GenerateKeyResponse) {}
@@ -21,6 +21,7 @@ message GenerateKeyRequest {
 
 message GenerateKeyResponse {
 	string api_key = 1;
+	string api_key_id = 2;
 }
 
 message ListRequest {}
